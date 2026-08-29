@@ -17,6 +17,20 @@ Jogo de tiro espacial **completo para celular**, feito em HTML5 — sem dependê
 
 Gaste cristais em 6 melhorias permanentes, cada uma com vários níveis: **Canhões** (dano), **Cadência** (velocidade de tiro), **Casco** (vidas), **Escudo** (duração), **Motores** (agilidade) e **Coletor** (mais cristais). Você começa cada fase já mais forte.
 
+## Hangar — 50 naves
+
+São **50 naves**, cada uma com um **poder próprio** e preço crescente (da Vaga-Lume grátis até a Infinito). Os poderes se repetem em versões cada vez mais fortes: Devastadora (+dano), Rajada (+cadência), Blindada (+vidas), Dourada (+cristais), Fantasma (+escudo), Vampira (vida ao matar), Congelante (deixa inimigos lentos), Explosiva (dano em área), Enxame (drone de combate) e Magnética (atrai itens).
+
+Cada nave ainda pode ser **tunada com 5 peças** (estilo jogo de carro), cada uma com 5 níveis: **Canhão**, **Turbina**, **Blindagem**, **Motor** e **Reator** — as peças são por nave, então vale a pena equipar a sua favorita.
+
+## Onde o progresso é salvo (banco de dados)
+
+O jogo salva em **três camadas**, e a mais recente vence:
+
+1. **localStorage** — salvamento instantâneo a cada ação
+2. **IndexedDB** — banco de dados local do navegador, mais durável (se o localStorage for apagado, o jogo restaura daqui)
+3. **Nuvem** *(versão publicada como Artifact do Claude)* — o botão **☁ Salvar na nuvem** no menu grava o progresso dentro da própria página publicada, então ele acompanha o link em qualquer aparelho
+
 ## Árvore de habilidades
 
 Cada fase concluída dá **1 ponto de habilidade** — são **120 nós** em 3 ramos (Ataque, Defesa e Recursos), desbloqueados em sequência. A cada 10 nós de um ramo há uma habilidade especial:
