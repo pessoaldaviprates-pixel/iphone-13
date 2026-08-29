@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GuildChat — Sua comunidade, seu universo</title>
+<style>
+  /* ============ RESET & VARIÁVEIS ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-app:      #0b0f19;
+    --bg-servers:  #111827;
+    --bg-channels: #1f2937;
+    --bg-chat:     #111827;
+    --bg-input:    #1f2937;
+    --bg-members:  #0f1522;
+    --accent:      #6366f1;
+    --accent-soft: rgba(99, 102, 241, 0.18);
+    --accent-glow: rgba(99, 102, 241, 0.45);
+    --online:      #10b981;
+    --offline:     #6b7280;
+    --text-main:   #e5e7eb;
+    --text-muted:  #9ca3af;
+    --text-dim:    #6b7280;
+    --danger:      #ef4444;
+    --radius:      10px;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
+    background: var(--bg-app);
+    color: var(--text-main);
+    overflow: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ============ LAYOUT PRINCIPAL ============ */
+  .app {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* ============ COLUNA 1 — SERVIDORES ============ */
+  .server-bar {
+    width: 72px;
+    min-width: 72px;
+    background: var(--bg-servers);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 10px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    z-index: 40;
+  }
+
+  .server-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-channels);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    transition: border-radius 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+    position: relative;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  /* Efeito Discord: círculo vira "quadrado arredondado" no hover/ativo */
+  .server-icon:hover {
+    border-radius: 16px;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent-glow);
+  }
+  .server-icon:active { transform: scale(0.94); }
+
+  .server-icon.active {
+    border-radius: 16px;
+    background: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  /* Pílula indicadora do servidor ativo (como no Discord) */
+  .server-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 32px;
+    border-radius: 0 4px 4px 0;
+    background: #fff;
+  }
+
+  .server-divider {
+    width: 32px;
+    height: 2px;
+    background: #374151;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .server-add {
+    color: var(--online);
+    font-size: 26px;
+    font-weight: 300;
+    background: var(--bg-channels);
+  }
+  .server-add:hover {
+    background: var(--online);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+  }
+
+  /* Tooltip dos servidores */
+  .server-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 62px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #030712;
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    border: 1px solid rgba(99,102,241,0.35);
+  }
+  .server-icon:hover::after { opacity: 1; }
+
+  /* ============ COLUNA 2 — CANAIS ============ */
+  .channel-bar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--bg-channels);
+    display: flex;
+    flex-direction: column;
+    z-index: 30;
+  }
+
+  .server-header {
+    padding: 16px;
+    font-weight: 700;
+    font-size: 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.35);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .channel-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 8px;
+  }
+
+  .channel-category {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    padding: 12px 8px 4px;
+  }
+
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    margin: 1px 0;
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    user-select: none;
+  }
+  .channel-item:hover {
+    background: rgba(99,102,241,0.12);
+    color: var(--text-main);
+  }
+  .channel-item.active {
+    background: var(--accent-soft);
+    color: #fff;
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+
+  .channel-hash {
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 17px;
+    width: 18px;
+    text-align: center;
+  }
+  .channel-item.active .channel-hash { color: var(--accent); }
+
+  .channel-voice { opacity: 0.9; }
+  .channel-voice .voice-users {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--online);
+    background: rgba(16,185,129,0.12);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+
+  /* Painel do usuário (rodapé da coluna de canais) */
+  .user-panel {
+    background: #18202f;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid rgba(0,0,0,0.35);
+  }
+  .user-panel .avatar { width: 34px; height: 34px; font-size: 15px; }
+  .user-panel-info { flex: 1; min-width: 0; }
+  .user-panel-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-panel-status { font-size: 11px; color: var(--online); }
+  .user-panel-icons { display: flex; gap: 4px; }
+  .user-panel-icons button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .user-panel-icons button:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
+
+  /* ============ COLUNA 3 — CHAT ============ */
+  .chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-chat);
+    min-width: 0;
+  }
+
+  .chat-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.35);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .mobile-menu-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-main); }
+
+  .chat-header .channel-hash { font-size: 22px; width: auto; }
+  .chat-header-name { font-weight: 700; font-size: 16px; white-space: nowrap; }
+  .chat-header-divider { width: 1px; height: 22px; background: #374151; margin: 0 4px; flex-shrink: 0; }
+  .chat-header-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .chat-welcome {
+    padding: 20px 8px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 14px;
+  }
+  .chat-welcome-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 12px;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .chat-welcome h2 { font-size: 22px; margin-bottom: 6px; }
+  .chat-welcome p { color: var(--text-muted); font-size: 14px; }
+
+  .message {
+    display: flex;
+    gap: 14px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    transition: background 0.12s ease;
+    animation: msgIn 0.18s ease;
+  }
+  .message:hover { background: rgba(255,255,255,0.03); }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--bg-channels);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .message-body { min-width: 0; flex: 1; }
+  .message-meta { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .message-author { font-weight: 700; font-size: 15px; }
+  .message-author.bot-name { color: var(--accent); }
+  .bot-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .message-time { font-size: 11px; color: var(--text-dim); }
+  .message-text {
+    font-size: 15px;
+    color: #d1d5db;
+    line-height: 1.45;
+    margin-top: 2px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  .typing-indicator {
+    padding: 4px 24px 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    height: 26px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .typing-indicator .dots span {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-right: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-indicator .dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* Rodapé — barra de digitação */
+  .chat-input-area {
+    padding: 0 16px 18px;
+  }
+  .chat-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-input);
+    border-radius: 26px;
+    padding: 6px 8px 6px 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .chat-input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(99,102,241,0.25);
+  }
+
+  .attach-btn, .send-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.2s ease;
+  }
+  .attach-btn {
+    background: rgba(255,255,255,0.07);
+    color: var(--text-muted);
+  }
+  .attach-btn:hover { background: rgba(99,102,241,0.25); color: #fff; }
+
+  .send-btn {
+    background: var(--accent);
+    color: #fff;
+  }
+  .send-btn:hover {
+    background: #818cf8;
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .send-btn:active, .attach-btn:active { transform: scale(0.92); }
+
+  #messageInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 15px;
+    font-family: inherit;
+    padding: 8px 4px;
+    min-width: 0;
+  }
+  #messageInput::placeholder { color: var(--text-dim); }
+
+  /* ============ COLUNA 4 — MEMBROS ============ */
+  .members-panel {
+    width: 240px;
+    min-width: 240px;
+    background: var(--bg-members);
+    overflow-y: auto;
+    padding: 16px 10px;
+    border-left: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .members-category {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    padding: 10px 8px 6px;
+  }
+
+  .member-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .member-item:hover { background: rgba(99,102,241,0.1); }
+
+  .member-avatar-wrap { position: relative; flex-shrink: 0; }
+  .member-avatar-wrap .avatar { width: 34px; height: 34px; font-size: 15px; }
+  .status-dot {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-members);
+  }
+  .status-dot.online { background: var(--online); }
+  .status-dot.offline { background: var(--offline); }
+
+  .member-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .member-item.online .member-name { color: var(--text-main); }
+  .member-item.offline { opacity: 0.5; }
+  .member-role { font-size: 11px; color: var(--accent); }
+
+  /* ============ MODAL — CRIAR SERVIDOR ============ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.75);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg-channels);
+    border: 1px solid rgba(99,102,241,0.35);
+    border-radius: 14px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 40px rgba(99,102,241,0.25);
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal h2 { font-size: 20px; margin-bottom: 6px; text-align: center; }
+  .modal p  { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+
+  .modal label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin: 14px 0 6px;
+  }
+  .modal input[type="text"] {
+    width: 100%;
+    background: var(--bg-app);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 11px 12px;
+    color: var(--text-main);
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal input[type="text"]:focus { border-color: var(--accent); }
+
+  .emoji-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .emoji-option {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--bg-app);
+    border: 2px solid transparent;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, transform 0.12s;
+  }
+  .emoji-option:hover { transform: scale(1.1); }
+  .emoji-option.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.15s, transform 0.12s;
+  }
+  .modal-actions button:active { transform: scale(0.97); }
+  .btn-cancel { background: rgba(255,255,255,0.08); color: var(--text-main); }
+  .btn-cancel:hover { filter: brightness(1.3); }
+  .btn-create { background: var(--accent); color: #fff; }
+  .btn-create:hover { filter: brightness(1.15); box-shadow: 0 0 12px var(--accent-glow); }
+
+  /* Toast de aviso */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--bg-channels);
+    border: 1px solid var(--accent);
+    color: var(--text-main);
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    box-shadow: 0 0 20px rgba(99,102,241,0.35);
+    z-index: 300;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* Overlay escuro para o menu mobile */
+  .drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(3,7,18,0.6);
+    z-index: 25;
+  }
+
+  /* ============ RESPONSIVIDADE ============ */
+  @media (max-width: 1100px) {
+    .members-panel { display: none; }
+  }
+
+  @media (max-width: 768px) {
+    .mobile-menu-btn { display: block; }
+
+    .sidebar-drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      transform: translateX(-105%);
+      transition: transform 0.25s ease;
+      z-index: 50;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .sidebar-drawer.open { transform: translateX(0); }
+    .drawer-overlay.visible { display: block; }
+
+    .chat-header-desc { display: none; }
+    .chat-messages { padding: 14px 10px 8px; }
+    .chat-input-area { padding: 0 10px 12px; }
+  }
+
+  @media (min-width: 769px) {
+    .sidebar-drawer { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Drawer: Colunas 1 e 2 (viram gaveta deslizante no mobile) -->
+  <div class="sidebar-drawer" id="sidebarDrawer">
+
+    <!-- COLUNA 1: SERVIDORES -->
+    <nav class="server-bar" id="serverBar" aria-label="Servidores"></nav>
+
+    <!-- COLUNA 2: CANAIS -->
+    <aside class="channel-bar">
+      <div class="server-header" id="serverHeader">GuildChat</div>
+      <div class="channel-list" id="channelList"></div>
+      <div class="user-panel">
+        <div class="avatar" style="background: var(--accent-soft); border-color: var(--accent);">😎</div>
+        <div class="user-panel-info">
+          <div class="user-panel-name">Você</div>
+          <div class="user-panel-status">● Online</div>
+        </div>
+        <div class="user-panel-icons">
+          <button title="Microfone (simulado)" onclick="showToast('🎙️ Microfone alternado (simulação)')">🎙️</button>
+          <button title="Configurações (simulado)" onclick="showToast('⚙️ Configurações em breve!')">⚙️</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- COLUNA 3: CHAT -->
+  <main class="chat-panel">
+    <header class="chat-header">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menu">☰</button>
+      <span class="channel-hash" id="chatHeaderHash">#</span>
+      <span class="chat-header-name" id="chatHeaderName">geral</span>
+      <div class="chat-header-divider"></div>
+      <span class="chat-header-desc" id="chatHeaderDesc">Bem-vindo ao GuildChat!</span>
+    </header>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="typing-indicator" id="typingIndicator" style="visibility: hidden;">
+      <span class="dots"><span></span><span></span><span></span></span>
+      <span>Admin-Robô está digitando…</span>
+    </div>
+
+    <footer class="chat-input-area">
+      <div class="chat-input-wrap">
+        <button class="attach-btn" id="attachBtn" title="Anexar arquivo (simulado)">+</button>
+        <input
+          type="text"
+          id="messageInput"
+          placeholder="Conversar em #geral"
+          autocomplete="off"
+          maxlength="500"
+        >
+        <button class="send-btn" id="sendBtn" title="Enviar mensagem">➤</button>
+      </div>
+    </footer>
+  </main>
+
+  <!-- COLUNA 4: MEMBROS (somente desktop) -->
+  <aside class="members-panel" id="membersPanel" aria-label="Membros"></aside>
+
+</div>
+
+<!-- MODAL: CRIAR SERVIDOR -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Criar seu servidor</h2>
+    <p>Seu servidor é onde você e seus amigos se reúnem. Crie o seu e comece a conversar!</p>
+
+    <label for="newServerName">Nome do servidor</label>
+    <input type="text" id="newServerName" placeholder="Ex: Esquadrão Alpha" maxlength="30">
+
+    <label>Ícone do servidor</label>
+    <div class="emoji-picker" id="emojiPicker"></div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancelServer">Cancelar</button>
+      <button class="btn-create" id="btnCreateServer">Criar servidor</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ==========================================================
+   GUILDCHAT — dados, estado e lógica
+   ========================================================== */
+
+const STORAGE_KEY_MESSAGES = 'guildchat_messages_v1';
+const STORAGE_KEY_SERVERS  = 'guildchat_custom_servers_v1';
+
+const CURRENT_USER = { name: 'Você', avatar: '😎', color: '#e5e7eb' };
+const BOT = { name: 'Admin-Robô', avatar: '🤖' };
+
+/* ---------- Servidores padrão ---------- */
+const DEFAULT_SERVERS = [
+  {
+    id: 'gamer',
+    icon: '🎮',
+    name: 'Gamer Zone',
+    channels: [
+      { id: 'geral',   type: 'text',  name: 'geral',   desc: 'Papo livre sobre qualquer jogo 🎮' },
+      { id: 'memes',   type: 'text',  name: 'memes',   desc: 'Só os melhores memes gamers 😂' },
+      { id: 'ajuda',   type: 'text',  name: 'ajuda',   desc: 'Tire dúvidas sobre builds, bugs e configs' },
+      { id: 'voz1',    type: 'voice', name: 'Sala de Voz 1', users: 3 },
+      { id: 'voz2',    type: 'voice', name: 'Sala Ranqueada', users: 0 }
+    ]
+  },
+  {
+    id: 'prog',
+    icon: '💻',
+    name: 'Programação',
+    channels: [
+      { id: 'geral',     type: 'text',  name: 'geral',     desc: 'Discussões gerais sobre código e tecnologia' },
+      { id: 'frontend',  type: 'text',  name: 'frontend',  desc: 'HTML, CSS, JS, frameworks e afins' },
+      { id: 'backend',   type: 'text',  name: 'backend',   desc: 'APIs, bancos de dados e servidores' },
+      { id: 'ajuda',     type: 'text',  name: 'ajuda',     desc: 'Empacou num bug? Poste aqui!' },
+      { id: 'voz1',      type: 'voice', name: 'Pair Programming', users: 2 }
+    ]
+  },
+  {
+    id: 'estudos',
+    icon: '📚',
+    name: 'Estudos',
+    channels: [
+      { id: 'geral',      type: 'text',  name: 'geral',      desc: 'Organize seus estudos com a galera 📚' },
+      { id: 'materiais',  type: 'text',  name: 'materiais',  desc: 'Compartilhe PDFs, links e resumos' },
+      { id: 'duvidas',    type: 'text',  name: 'duvidas',    desc: 'Nenhuma pergunta é boba por aqui' },
+      { id: 'voz1',       type: 'voice', name: 'Sala de Foco', users: 5 }
+    ]
+  }
+];
+
+/* ---------- Mensagens fictícias por servidor/canal ---------- */
+const SEED_MESSAGES = {
+  'gamer/geral': [
+    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '09:00', text: 'Bem-vindos à Gamer Zone! Leiam as regras e divirtam-se. 🎮' },
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '09:12', text: 'Alguém pra jogar mais tarde? Tô montando squad!' },
+    { author: 'User123',    avatar: '🕹️', bot: false, time: '09:15', text: 'Bora! Me chama na Sala de Voz 1 às 20h.' },
+    { author: 'PixelQueen', avatar: '👾', bot: false, time: '09:31', text: 'Saiu atualização nova hoje, o mapa novo tá insano 🔥' }
+  ],
+  'gamer/memes': [
+    { author: 'User123',    avatar: '🕹️', bot: false, time: '10:02', text: 'Quando você morre pro chefão pela 47ª vez: 🙂🔫' },
+    { author: 'PixelQueen', avatar: '👾', bot: false, time: '10:05', text: 'KKKKKK literalmente eu ontem no boss final' },
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '10:20', text: '"Só mais uma partida" — eu, às 3h da manhã 💀' }
+  ],
+  'gamer/ajuda': [
+    { author: 'User123',    avatar: '🕹️', bot: false, time: '11:00', text: 'Meu FPS tá caindo muito, alguma dica de config?' },
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '11:04', text: 'Desativa a sombra em ultra e limita o FPS no driver. Resolve 90% dos casos.' },
+    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '11:05', text: 'Dica fixada! ✅ Confira também o canal #geral para mais discussões.' }
+  ],
+  'prog/geral': [
+    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '08:30', text: 'Bem-vindos ao servidor de Programação! Compartilhem conhecimento. 💻' },
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '08:45', text: 'Terminei de migrar o projeto pra TypeScript. Valeu MUITO a pena.' },
+    { author: 'CodeNinja',  avatar: '🥷', bot: false, time: '08:52', text: 'TS salva vidas. Nunca mais "undefined is not a function" em produção 🙏' }
+  ],
+  'prog/frontend': [
+    { author: 'CodeNinja',  avatar: '🥷', bot: false, time: '13:10', text: 'CSS Grid ou Flexbox pra layout de dashboard?' },
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '13:14', text: 'Grid pro layout macro, Flexbox pros componentes internos. Combo perfeito.' }
+  ],
+  'prog/backend': [
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '14:00', text: 'Postgres com índice certo deixou a query 40x mais rápida 🚀' },
+    { author: 'CodeNinja',  avatar: '🥷', bot: false, time: '14:06', text: 'EXPLAIN ANALYZE é vida. Sempre rodo antes de subir qualquer query pesada.' }
+  ],
+  'prog/ajuda': [
+    { author: 'User123',    avatar: '🕹️', bot: false, time: '15:20', text: 'Meu fetch tá retornando CORS error, alguém sabe o que pode ser?' },
+    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '15:21', text: 'CORS é configurado no servidor! Verifique o header Access-Control-Allow-Origin da sua API. 😉' }
+  ],
+  'estudos/geral': [
+    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '07:00', text: 'Bom dia, estudantes! Lembrem-se: constância vence intensidade. 📚' },
+    { author: 'StudyGirl',  avatar: '📖', bot: false, time: '07:30', text: 'Começando pomodoro de 25min agora, quem vem junto?' },
+    { author: 'User123',    avatar: '🕹️', bot: false, time: '07:32', text: 'Bora! Entrei na Sala de Foco 🔊' }
+  ],
+  'estudos/materiais': [
+    { author: 'StudyGirl',  avatar: '📖', bot: false, time: '12:00', text: 'Subi meu resumo de Estruturas de Dados na pasta compartilhada 📄' },
+    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '12:15', text: 'Resumo excelente! Recomendo demais pra quem vai fazer prova.' }
+  ],
+  'estudos/duvidas': [
+    { author: 'User123',    avatar: '🕹️', bot: false, time: '16:40', text: 'Qual a diferença entre pilha e fila mesmo? Sempre confundo 😅' },
+    { author: 'StudyGirl',  avatar: '📖', bot: false, time: '16:43', text: 'Pilha = LIFO (último entra, primeiro sai). Fila = FIFO (primeiro entra, primeiro sai). Pensa numa pilha de pratos vs. fila de banco!' }
+  ]
+};
+
+/* ---------- Membros por servidor ---------- */
+const MEMBERS = {
+  gamer: {
+    online: [
+      { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
+      { name: '⚡ Dev-Master',  avatar: '⚡', role: 'Moderador' },
+      { name: 'PixelQueen',    avatar: '👾', role: '' },
+      { name: 'User123',       avatar: '🕹️', role: '' },
+      { name: 'Você',          avatar: '😎', role: '' }
+    ],
+    offline: [
+      { name: 'SniperWolf', avatar: '🐺' },
+      { name: 'NoobSlayer', avatar: '⚔️' },
+      { name: 'GG_Izzy',    avatar: '🎯' }
+    ]
+  },
+  prog: {
+    online: [
+      { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
+      { name: '⚡ Dev-Master',  avatar: '⚡', role: 'Tech Lead' },
+      { name: 'CodeNinja',     avatar: '🥷', role: '' },
+      { name: 'Você',          avatar: '😎', role: '' }
+    ],
+    offline: [
+      { name: 'BugHunter',  avatar: '🐛' },
+      { name: 'User123',    avatar: '🕹️' },
+      { name: 'Null_Ptr',   avatar: '🧊' }
+    ]
+  },
+  estudos: {
+    online: [
+      { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
+      { name: 'StudyGirl',     avatar: '📖', role: 'Monitora' },
+      { name: 'User123',       avatar: '🕹️', role: '' },
+      { name: 'Você',          avatar: '😎', role: '' }
+    ],
+    offline: [
+      { name: '⚡ Dev-Master', avatar: '⚡' },
+      { name: 'FocusMode',    avatar: '🎧' }
+    ]
+  }
+};
+
+const DEFAULT_MEMBERS = {
+  online: [
+    { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
+    { name: 'Você',          avatar: '😎', role: 'Dono do servidor' }
+  ],
+  offline: [
+    { name: 'User123',      avatar: '🕹️' },
+    { name: '⚡ Dev-Master', avatar: '⚡' }
+  ]
+};
+
+/* ---------- Respostas automáticas do Admin-Robô ---------- */
+const BOT_TRIGGERS = [
+  {
+    words: ['bom dia'],
+    replies: [
+      'Bom dia! ☀️ Que seu dia seja produtivo e cheio de vitórias!',
+      'Bom dia, guerreiro(a)! Café na mão e bora pra cima! ☕'
+    ]
+  },
+  {
+    words: ['boa noite'],
+    replies: ['Boa noite! 🌙 Descanse bem — amanhã tem mais!']
+  },
+  {
+    words: ['ajuda', 'help', 'socorro'],
+    replies: [
+      'Precisa de ajuda? 🛟 Descreva seu problema aqui que a comunidade responde rapidinho!',
+      'Estou aqui para ajudar! 🤖 Dê mais detalhes sobre sua dúvida que alguém da equipe te responde.'
+    ]
+  },
+  {
+    words: ['olá', 'ola', 'oi', 'eae', 'e aí', 'hello'],
+    replies: [
+      'Olá! 👋 Seja muito bem-vindo(a) ao servidor! Fique à vontade.',
+      'Oi! 😄 Que bom te ver por aqui. Qualquer dúvida, é só chamar!',
+      'E aí! 🤖 Bem-vindo(a) à comunidade — dá uma olhada nos canais!'
+    ]
+  },
+  {
+    words: ['obrigado', 'obrigada', 'valeu', 'vlw'],
+    replies: ['Por nada! 💜 Estamos aqui pra isso. Precisando, é só chamar!']
+  }
+];
+
+/* ==========================================================
+   ESTADO
+   ========================================================== */
+let servers = [];
+let activeServerId = null;
+let activeChannelId = null;
+let savedMessages = {}; // { "serverId/channelId": [mensagens...] }
+
+/* ==========================================================
+   PERSISTÊNCIA (LocalStorage)
+   ========================================================== */
+function loadState() {
+  try {
+    savedMessages = JSON.parse(localStorage.getItem(STORAGE_KEY_MESSAGES)) || {};
+  } catch (e) { savedMessages = {}; }
+
+  let customServers = [];
+  try {
+    customServers = JSON.parse(localStorage.getItem(STORAGE_KEY_SERVERS)) || [];
+  } catch (e) { customServers = []; }
+
+  servers = [...DEFAULT_SERVERS, ...customServers];
+}
+
+function persistMessages() {
+  try {
+    localStorage.setItem(STORAGE_KEY_MESSAGES, JSON.stringify(savedMessages));
+  } catch (e) { /* armazenamento cheio ou indisponível — segue sem persistir */ }
+}
+
+function persistCustomServers() {
+  const custom = servers.filter(s => s.custom);
+  try {
+    localStorage.setItem(STORAGE_KEY_SERVERS, JSON.stringify(custom));
+  } catch (e) { /* idem */ }
+}
+
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+const $ = id => document.getElementById(id);
+
+function channelKey(serverId, channelId) {
+  return serverId + '/' + channelId;
+}
+
+function nowTime() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function getServer(id) {
+  return servers.find(s => s.id === id);
+}
+
+function getChannel(server, channelId) {
+  return server.channels.find(c => c.id === channelId);
+}
+
+function getMessagesFor(serverId, channelId) {
+  const key = channelKey(serverId, channelId);
+  if (savedMessages[key]) return savedMessages[key];
+  return SEED_MESSAGES[key] ? [...SEED_MESSAGES[key]] : [];
+}
+
+function appendMessageTo(serverId, channelId, msg) {
+  const key = channelKey(serverId, channelId);
+  if (!savedMessages[key]) {
+    savedMessages[key] = SEED_MESSAGES[key] ? [...SEED_MESSAGES[key]] : [];
+  }
+  savedMessages[key].push(msg);
+  persistMessages();
+}
+
+function showToast(text) {
+  const toast = $('toast');
+  toast.textContent = text;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+/* ==========================================================
+   RENDERIZAÇÃO — COLUNA 1: SERVIDORES
+   ========================================================== */
+function renderServerBar() {
+  const bar = $('serverBar');
+  bar.innerHTML = '';
+
+  servers.forEach((server, index) => {
+    const btn = document.createElement('div');
+    btn.className = 'server-icon' + (server.id === activeServerId ? ' active' : '');
+    btn.textContent = server.icon;
+    btn.setAttribute('data-tooltip', server.name);
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('tabindex', '0');
+    btn.addEventListener('click', () => selectServer(server.id));
+    btn.addEventListener('keydown', e => { if (e.key === 'Enter') selectServer(server.id); });
+    bar.appendChild(btn);
+
+    if (index === servers.length - 1) {
+      const divider = document.createElement('div');
+      divider.className = 'server-divider';
+      bar.appendChild(divider);
+    }
+  });
+
+  const addBtn = document.createElement('div');
+  addBtn.className = 'server-icon server-add';
+  addBtn.textContent = '+';
+  addBtn.setAttribute('data-tooltip', 'Criar um servidor');
+  addBtn.setAttribute('role', 'button');
+  addBtn.setAttribute('tabindex', '0');
+  addBtn.addEventListener('click', openCreateServerModal);
+  addBtn.addEventListener('keydown', e => { if (e.key === 'Enter') openCreateServerModal(); });
+  bar.appendChild(addBtn);
+}
+
+/* ==========================================================
+   RENDERIZAÇÃO — COLUNA 2: CANAIS
+   ========================================================== */
+function renderChannelList() {
+  const server = getServer(activeServerId);
+  $('serverHeader').textContent = server.icon + ' ' + server.name;
+
+  const list = $('channelList');
+  list.innerHTML = '';
+
+  const textChannels  = server.channels.filter(c => c.type === 'text');
+  const voiceChannels = server.channels.filter(c => c.type === 'voice');
+
+  if (textChannels.length) {
+    const cat = document.createElement('div');
+    cat.className = 'channel-category';
+    cat.textContent = 'Canais de texto';
+    list.appendChild(cat);
+
+    textChannels.forEach(ch => {
+      const item = document.createElement('div');
+      item.className = 'channel-item' + (ch.id === activeChannelId ? ' active' : '');
+      item.innerHTML = '<span class="channel-hash">#</span><span>' + escapeHTML(ch.name) + '</span>';
+      item.addEventListener('click', () => selectChannel(ch.id));
+      list.appendChild(item);
+    });
+  }
+
+  if (voiceChannels.length) {
+    const cat = document.createElement('div');
+    cat.className = 'channel-category';
+    cat.textContent = 'Canais de voz';
+    list.appendChild(cat);
+
+    voiceChannels.forEach(ch => {
+      const item = document.createElement('div');
+      item.className = 'channel-item channel-voice';
+      item.innerHTML =
+        '<span class="channel-hash">🔊</span><span>' + escapeHTML(ch.name) + '</span>' +
+        (ch.users ? '<span class="voice-users">' + ch.users + ' 🎧</span>' : '');
+      item.addEventListener('click', () => {
+        showToast('🔊 Entrando em "' + ch.name + '"… (simulação de canal de voz)');
+      });
+      list.appendChild(item);
+    });
+  }
+}
+
+/* ==========================================================
+   RENDERIZAÇÃO — COLUNA 3: CHAT
+   ========================================================== */
+function renderChatHeader() {
+  const server = getServer(activeServerId);
+  const channel = getChannel(server, activeChannelId);
+  $('chatHeaderName').textContent = channel.name;
+  $('chatHeaderDesc').textContent = channel.desc || 'Canal de texto do servidor ' + server.name;
+  $('messageInput').placeholder = 'Conversar em #' + channel.name;
+}
+
+function buildMessageEl(msg) {
+  const el = document.createElement('div');
+  el.className = 'message';
+  el.innerHTML =
+    '<div class="avatar">' + escapeHTML(msg.avatar || '👤') + '</div>' +
+    '<div class="message-body">' +
+      '<div class="message-meta">' +
+        '<span class="message-author' + (msg.bot ? ' bot-name' : '') + '">' + escapeHTML(msg.author) + '</span>' +
+        (msg.bot ? '<span class="bot-badge">BOT</span>' : '') +
+        '<span class="message-time">hoje às ' + escapeHTML(msg.time) + '</span>' +
+      '</div>' +
+      '<div class="message-text">' + escapeHTML(msg.text) + '</div>' +
+    '</div>';
+  return el;
+}
+
+function renderMessages() {
+  const server = getServer(activeServerId);
+  const channel = getChannel(server, activeChannelId);
+  const container = $('chatMessages');
+  container.innerHTML = '';
+
+  const welcome = document.createElement('div');
+  welcome.className = 'chat-welcome';
+  welcome.innerHTML =
+    '<div class="chat-welcome-icon">#</div>' +
+    '<h2>Bem-vindo(a) a #' + escapeHTML(channel.name) + '!</h2>' +
+    '<p>Este é o começo do canal <strong>#' + escapeHTML(channel.name) + '</strong>. ' +
+    escapeHTML(channel.desc || '') + '</p>';
+  container.appendChild(welcome);
+
+  const messages = getMessagesFor(activeServerId, activeChannelId);
+  messages.forEach(msg => container.appendChild(buildMessageEl(msg)));
+
+  scrollChatToBottom(false);
+}
+
+function scrollChatToBottom(smooth = true) {
+  const container = $('chatMessages');
+  container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+}
+
+/* ==========================================================
+   RENDERIZAÇÃO — COLUNA 4: MEMBROS
+   ========================================================== */
+function renderMembers() {
+  const panel = $('membersPanel');
+  const data = MEMBERS[activeServerId] || DEFAULT_MEMBERS;
+  panel.innerHTML = '';
+
+  const buildGroup = (title, members, statusClass) => {
+    const cat = document.createElement('div');
+    cat.className = 'members-category';
+    cat.textContent = title + ' — ' + members.length;
+    panel.appendChild(cat);
+
+    members.forEach(m => {
+      const item = document.createElement('div');
+      item.className = 'member-item ' + statusClass;
+      item.innerHTML =
+        '<div class="member-avatar-wrap">' +
+          '<div class="avatar">' + escapeHTML(m.avatar) + '</div>' +
+          '<span class="status-dot ' + statusClass + '"></span>' +
+        '</div>' +
+        '<div>' +
+          '<div class="member-name">' + escapeHTML(m.name) + '</div>' +
+          (m.role ? '<div class="member-role">' + escapeHTML(m.role) + '</div>' : '') +
+        '</div>';
+      panel.appendChild(item);
+    });
+  };
+
+  buildGroup('Online', data.online, 'online');
+  buildGroup('Offline', data.offline, 'offline');
+}
+
+/* ==========================================================
+   NAVEGAÇÃO
+   ========================================================== */
+function selectServer(serverId) {
+  activeServerId = serverId;
+  const server = getServer(serverId);
+  const firstText = server.channels.find(c => c.type === 'text');
+  activeChannelId = firstText ? firstText.id : null;
+  renderAll();
+}
+
+function selectChannel(channelId) {
+  activeChannelId = channelId;
+  renderChannelList();
+  renderChatHeader();
+  renderMessages();
+  closeDrawer();
+  $('messageInput').focus();
+}
+
+function renderAll() {
+  renderServerBar();
+  renderChannelList();
+  renderChatHeader();
+  renderMessages();
+  renderMembers();
+}
+
+/* ==========================================================
+   ENVIO DE MENSAGENS + BOT
+   ========================================================== */
+function sendMessage() {
+  const input = $('messageInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msg = {
+    author: CURRENT_USER.name,
+    avatar: CURRENT_USER.avatar,
+    bot: false,
+    time: nowTime(),
+    text: text
+  };
+
+  appendMessageTo(activeServerId, activeChannelId, msg);
+  $('chatMessages').appendChild(buildMessageEl(msg));
+  scrollChatToBottom();
+
+  input.value = '';
+  input.focus();
+
+  maybeTriggerBot(text);
+}
+
+function maybeTriggerBot(userText) {
+  const normalized = userText.toLowerCase();
+  const trigger = BOT_TRIGGERS.find(t => t.words.some(w => normalized.includes(w)));
+  if (!trigger) return;
+
+  const reply = trigger.replies[Math.floor(Math.random() * trigger.replies.length)];
+  const targetServer = activeServerId;
+  const targetChannel = activeChannelId;
+
+  const typing = $('typingIndicator');
+  typing.style.visibility = 'visible';
+
+  setTimeout(() => {
+    typing.style.visibility = 'hidden';
+
+    const botMsg = {
+      author: BOT.name,
+      avatar: BOT.avatar,
+      bot: true,
+      time: nowTime(),
+      text: reply
+    };
+
+    appendMessageTo(targetServer, targetChannel, botMsg);
+
+    // Só desenha na tela se o usuário ainda estiver no mesmo canal
+    if (activeServerId === targetServer && activeChannelId === targetChannel) {
+      $('chatMessages').appendChild(buildMessageEl(botMsg));
+      scrollChatToBottom();
+    }
+  }, 1000);
+}
+
+/* ==========================================================
+   MODAL — CRIAR SERVIDOR
+   ========================================================== */
+const SERVER_EMOJIS = ['🚀', '🔥', '🎵', '🎬', '⚽', '🍕', '🐉', '🌌', '🛡️', '💜'];
+let selectedEmoji = SERVER_EMOJIS[0];
+
+function buildEmojiPicker() {
+  const picker = $('emojiPicker');
+  picker.innerHTML = '';
+  SERVER_EMOJIS.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'emoji-option' + (emoji === selectedEmoji ? ' selected' : '');
+    btn.textContent = emoji;
+    btn.addEventListener('click', () => {
+      selectedEmoji = emoji;
+      picker.querySelectorAll('.emoji-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    picker.appendChild(btn);
+  });
+}
+
+function openCreateServerModal() {
+  selectedEmoji = SERVER_EMOJIS[0];
+  buildEmojiPicker();
+  $('newServerName').value = '';
+  $('modalOverlay').classList.add('open');
+  setTimeout(() => $('newServerName').focus(), 60);
+}
+
+function closeCreateServerModal() {
+  $('modalOverlay').classList.remove('open');
+}
+
+function createServer() {
+  const nameInput = $('newServerName');
+  const name = nameInput.value.trim();
+  if (!name) {
+    showToast('⚠️ Dê um nome ao seu servidor primeiro!');
+    nameInput.focus();
+    return;
+  }
+
+  const newServer = {
+    id: 'custom_' + Date.now(),
+    icon: selectedEmoji,
+    name: name,
+    custom: true,
+    channels: [
+      { id: 'geral',      type: 'text',  name: 'geral',      desc: 'Canal principal de ' + name },
+      { id: 'off-topic',  type: 'text',  name: 'off-topic',  desc: 'Assuntos aleatórios e descontração' },
+      { id: 'voz1',       type: 'voice', name: 'Sala de Voz 1', users: 0 }
+    ]
+  };
+
+  servers.push(newServer);
+  persistCustomServers();
+
+  // Mensagem de boas-vindas do bot no novo servidor
+  appendMessageTo(newServer.id, 'geral', {
+    author: BOT.name,
+    avatar: BOT.avatar,
+    bot: true,
+    time: nowTime(),
+    text: '🎉 Servidor "' + name + '" criado com sucesso! Este é o seu novo espaço — convide seus amigos e comece a conversar!'
+  });
+
+  closeCreateServerModal();
+  selectServer(newServer.id);
+  showToast('✅ Servidor "' + name + '" criado!');
+}
+
+/* ==========================================================
+   MENU MOBILE (GAVETA)
+   ========================================================== */
+function openDrawer() {
+  $('sidebarDrawer').classList.add('open');
+  $('drawerOverlay').classList.add('visible');
+}
+function closeDrawer() {
+  $('sidebarDrawer').classList.remove('open');
+  $('drawerOverlay').classList.remove('visible');
+}
+
+/* ==========================================================
+   EVENTOS
+   ========================================================== */
+$('sendBtn').addEventListener('click', sendMessage);
+$('messageInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+$('attachBtn').addEventListener('click', () => {
+  showToast('📎 Anexar arquivos é uma simulação nesta demo!');
+});
+
+$('btnCreateServer').addEventListener('click', createServer);
+$('btnCancelServer').addEventListener('click', closeCreateServerModal);
+$('newServerName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') createServer();
+});
+$('modalOverlay').addEventListener('click', e => {
+  if (e.target === $('modalOverlay')) closeCreateServerModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeCreateServerModal();
+    closeDrawer();
+  }
+});
+
+$('mobileMenuBtn').addEventListener('click', openDrawer);
+$('drawerOverlay').addEventListener('click', closeDrawer);
+
+/* ==========================================================
+   INICIALIZAÇÃO
+   ========================================================== */
+loadState();
+activeServerId = servers[0].id;
+activeChannelId = servers[0].channels.find(c => c.type === 'text').id;
+renderAll();
+</script>
+
+</body>
+</html>
