@@ -748,7 +748,12 @@ function mergeSave(parsed) {
 }
 function defaultRoot() { return { savedAt: 0, current: null, adminPass: null, profiles: {} }; }
 function mergeRoot(base, extra) {
-  if (!extra || !extra.profiles) return base;
+  if (!extra) return base;
+  // save da nuvem no formato antigo (sem perfis): vira o piloto "Jogador 1"
+  if (!extra.profiles && typeof extra.crystals === "number") {
+    extra = { savedAt: extra.savedAt || 0, profiles: { "Jogador 1": extra } };
+  }
+  if (!extra.profiles) return base;
   for (const name in extra.profiles) {
     const a = base.profiles[name], b = extra.profiles[name];
     if (!a || (b && (b.savedAt || 0) > (a.savedAt || 0))) base.profiles[name] = mergeSave(b);
