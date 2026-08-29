@@ -1,0 +1,64 @@
+========================================
+APP STORE — FICHA DA LOJA
+========================================
+
+NOME (máx. 30 caracteres)
+Neon Nebula
+
+SUBTÍTULO (máx. 30 caracteres)
+Tiro espacial com 120 fases
+
+PALAVRAS-CHAVE (máx. 100 caracteres, separadas por vírgula, sem espaços)
+nave,espacial,tiro,arcade,offline,acao,shootemup,jogo,naves,galaxia,chefe
+
+TEXTO PROMOCIONAL (máx. 170 caracteres)
+120 fases, 50 naves com poderes e ultimates, 6 chefes únicos e uma árvore de
+120 habilidades. Joga offline, sem anúncios.
+
+DESCRIÇÃO
+Pilote sua nave pela nebulosa e defenda o Setor 7 em 120 fases de tiro
+espacial feitas para jogar com uma mão só.
+
+ARRASTE E ATIRE
+Deslize o dedo em qualquer lugar da tela para voar — o tiro é automático.
+
+120 FASES EM 6 SETORES
+Da Periferia até o Núcleo Profundo, com um chefe a cada 5 fases.
+
+6 CHEFES DIFERENTES
+Ceifador Carmesim, Colosso de Ferro (com torres destrutíveis), Serpente do
+Vazio, Rainha do Enxame, Prisma Eterno (laser telegrafado) e Olho do Abismo.
+
+50 NAVES, CADA UMA COM UM PODER
+Mais dano, cadência, escudo, roubo de vida, tiros congelantes, tiros
+explosivos, drone de combate, ímã de cristais e muito mais.
+
+UMA ULTIMATE PARA CADA NAVE
+O botão ULT carrega enquanto você luta: Fúria Total, Zero Absoluto, Nova
+Estelar, Colmeia, Singularidade e outras.
+
+OFICINA 3D
+Gire a nave em 3D, pinte o casco, troque o brilho do motor, escolha entre
+Pulso, Laser, Plasma e Vulcan, e instale 5 peças de melhoria por nave.
+
+ÁRVORE DE 120 HABILIDADES
+Ataque, Defesa e Recursos, com habilidades como mísseis teleguiados, golpe
+crítico, perfuração e ressurreição automática.
+
+AMULETOS EM 4 RARIDADES
+Equipe até 3 ao mesmo tempo. A lendária Capa da Invisibilidade deixa você
+invisível: os inimigos não te veem nem atiram.
+
+100% OFFLINE
+Sem internet, sem anúncios, sem compras dentro do app. O progresso fica
+salvo no aparelho e cada piloto tem seu próprio perfil.
+
+CATEGORIA
+Jogos > Arcade  (secundária: Ação)
+
+CLASSIFICAÇÃO ETÁRIA
+Violência de fantasia infrequente/leve → normalmente 9+ ou 12+.
+
+PRIVACIDADE DO APP (App Privacy)
+"Dados não coletados" — o app não coleta nada, não tem rede, não tem SDK de
+terceiros e não usa rastreamento.

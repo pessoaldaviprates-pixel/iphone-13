@@ -123,8 +123,10 @@ Abra o arquivo `index.html` em qualquer navegador — ou publique (abaixo) e abr
 ### Instalar como app no celular
 Com o jogo publicado em um endereço `https`, abra-o no Chrome (Android) ou Safari (iPhone) e use **"Adicionar à tela inicial"**. Ele abre em tela cheia e funciona offline.
 
-### Play Store (opcional)
-O jogo já é um PWA válido (manifesto + service worker + ícones). Para gerar um app Android publicável na Play Store, use o [PWABuilder](https://www.pwabuilder.com/) ou [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) apontando para a URL publicada.
+### Google Play e App Store
+Há um guia completo, passo a passo, em **[PUBLICAR.md](PUBLICAR.md)** — com os dois caminhos de empacotamento (PWABuilder e Capacitor), custos, exigências de cada loja e as armadilhas comuns.
+
+Os materiais obrigatórios já estão prontos na pasta [`loja/`](loja/): ícones nos formatos certos, gráfico de destaque, 8 capturas de tela em cada resolução exigida, os textos da ficha e a política de privacidade. O projeto Capacitor para gerar os apps está em [`empacotar/`](empacotar/).
 
 ## Arquivos
 
@@ -134,5 +136,8 @@ O jogo já é um PWA válido (manifesto + service worker + ícones). Para gerar 
 | `manifest.json` | Manifesto PWA (nome, ícones, tela cheia) |
 | `sw.js` | Service worker — modo offline |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Ícones do app |
+| `PUBLICAR.md` | Guia de publicação na Google Play e na App Store |
+| `loja/` | Ícones, banner, capturas e textos prontos para as lojas |
+| `empacotar/` | Projeto Capacitor para gerar os apps Android e iOS |
 
 Sons são sintetizados em tempo real com WebAudio — nenhum arquivo de áudio é necessário.
