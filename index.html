@@ -8,14 +8,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Neon Nebula">
-<meta name="description" content="Jogo de tiro espacial para celular — arraste para voar, sobreviva às ondas e derrote os chefes.">
+<meta name="description" content="Jogo de tiro espacial para celular — 120 fases, loja de melhorias e árvore de habilidades.">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Neon Nebula</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap">
 <style>
   :root{
     --bg:#060A18;
@@ -23,9 +23,12 @@
     --cyan:#4DE8FF;
     --magenta:#FF4D8F;
     --amber:#FFC145;
+    --violet:#C34DFF;
     --danger:#FF5252;
-    --panel:rgba(10,18,40,.86);
+    --panel:rgba(10,18,40,.9);
+    --panel2:rgba(16,28,62,.92);
     --line:rgba(77,232,255,.28);
+    --dim:rgba(234,242,255,.55);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{
@@ -34,11 +37,11 @@
     background:var(--bg);
     color:var(--ink);
     font-family:"Chakra Petch","Segoe UI",system-ui,sans-serif;
-    touch-action:none;
     overscroll-behavior:none;
     -webkit-user-select:none;user-select:none;
   }
   #game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  button{font-family:inherit;color:inherit}
 
   /* ---------- HUD ---------- */
   #hud{
@@ -49,75 +52,202 @@
     font-family:"Russo One","Chakra Petch",sans-serif;
   }
   .hud-col{display:flex;flex-direction:column;gap:2px;min-width:0}
-  .hud-label{font-size:.6rem;letter-spacing:.18em;color:rgba(234,242,255,.55);font-family:"Chakra Petch",sans-serif;font-weight:600}
-  .hud-value{font-size:1.15rem;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(77,232,255,.6)}
-  #hud-wave{color:var(--amber);text-shadow:0 0 12px rgba(255,193,69,.55)}
-  #hud-lives{font-size:1rem;color:var(--magenta);letter-spacing:.08em;text-shadow:0 0 10px rgba(255,77,143,.6)}
+  .hud-label{font-size:.6rem;letter-spacing:.18em;color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:600}
+  .hud-value{font-size:1.1rem;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(77,232,255,.6)}
+  #hud-fase{color:var(--amber);text-shadow:0 0 12px rgba(255,193,69,.55)}
+  #hud-lives{font-size:.95rem;color:var(--magenta);letter-spacing:.06em;text-shadow:0 0 10px rgba(255,77,143,.6)}
+  #hud-gems{font-size:.85rem;color:var(--amber)}
   .hud-btns{display:flex;gap:10px;pointer-events:auto}
   .hud-btn{
     width:42px;height:42px;border-radius:12px;
     border:1px solid var(--line);
     background:rgba(10,18,40,.6);
-    color:var(--ink);font-size:1.05rem;line-height:1;
+    font-size:1.05rem;line-height:1;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
   }
   .hud-btn:active{background:rgba(77,232,255,.2)}
 
-  /* ---------- Overlays ---------- */
+  /* ---------- Telas ---------- */
   .screen{
     position:fixed;inset:0;z-index:10;
     display:none;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:24px;gap:14px;
-    background:radial-gradient(120% 90% at 50% 0%,rgba(20,34,80,.72),rgba(6,10,24,.92) 70%);
+    background:radial-gradient(120% 90% at 50% 0%,rgba(20,34,80,.78),rgba(6,10,24,.96) 70%);
   }
   .screen.show{display:flex}
   .brand{
     font-family:"Russo One",sans-serif;
-    font-size:clamp(2.3rem,11vw,4.2rem);
+    font-size:clamp(2.1rem,10vw,3.8rem);
     line-height:.95;text-wrap:balance;
-    color:var(--ink);
     text-shadow:0 0 8px rgba(77,232,255,.9),0 0 34px rgba(77,232,255,.45),0 0 80px rgba(255,77,143,.35);
   }
   .brand em{font-style:normal;color:var(--cyan)}
   .tagline{
-    font-size:.72rem;letter-spacing:.34em;font-weight:600;
+    font-size:.7rem;letter-spacing:.32em;font-weight:600;
     color:var(--magenta);text-transform:uppercase;
     text-shadow:0 0 14px rgba(255,77,143,.6);
   }
-  .rules{
-    max-width:30ch;font-size:.92rem;line-height:1.55;color:rgba(234,242,255,.78);
-  }
+  .rules{max-width:32ch;font-size:.9rem;line-height:1.55;color:rgba(234,242,255,.78)}
   .rules b{color:var(--amber)}
   .big-btn{
     font-family:"Russo One",sans-serif;
-    font-size:1.15rem;letter-spacing:.1em;
-    padding:16px 40px;margin-top:6px;
+    font-size:1.05rem;letter-spacing:.1em;
+    padding:15px 38px;
     color:#04121c;background:var(--cyan);
     border:none;border-radius:14px;cursor:pointer;
-    box-shadow:0 0 24px rgba(77,232,255,.55),0 6px 0 rgba(17,104,128,.9);
+    box-shadow:0 0 24px rgba(77,232,255,.55),0 5px 0 rgba(17,104,128,.9);
   }
-  .big-btn:active{transform:translateY(3px);box-shadow:0 0 24px rgba(77,232,255,.55),0 3px 0 rgba(17,104,128,.9)}
+  .big-btn:active{transform:translateY(3px);box-shadow:0 0 24px rgba(77,232,255,.55),0 2px 0 rgba(17,104,128,.9)}
+  .big-btn.amber{background:var(--amber);box-shadow:0 0 24px rgba(255,193,69,.5),0 5px 0 rgba(140,98,15,.9)}
+  .big-btn.amber:active{box-shadow:0 0 24px rgba(255,193,69,.5),0 2px 0 rgba(140,98,15,.9)}
   .ghost-btn{
     font-family:"Chakra Petch",sans-serif;font-weight:600;
-    font-size:.9rem;letter-spacing:.06em;
-    padding:12px 26px;color:var(--ink);
+    font-size:.88rem;letter-spacing:.06em;
+    padding:12px 24px;
     background:transparent;border:1px solid var(--line);border-radius:12px;cursor:pointer;
   }
   .ghost-btn:active{background:rgba(77,232,255,.15)}
+  .menu-btns{display:flex;flex-direction:column;gap:12px;width:min(78vw,300px)}
+  .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
+  .gem{color:var(--amber);font-weight:700}
+  .gem::before{content:"◆ "}
   .stat-panel{
-    display:flex;gap:26px;padding:14px 26px;
+    display:flex;gap:24px;padding:12px 22px;
     background:var(--panel);border:1px solid var(--line);border-radius:14px;
   }
-  .stat-panel .hud-value{font-size:1.5rem}
+  .stat-panel .hud-value{font-size:1.35rem}
   #go-title{
     font-family:"Russo One",sans-serif;
-    font-size:clamp(1.9rem,9vw,3.2rem);
+    font-size:clamp(1.8rem,8.5vw,3rem);
     color:var(--danger);
     text-shadow:0 0 10px rgba(255,82,82,.8),0 0 40px rgba(255,82,82,.4);
   }
-  #go-record{display:none;color:var(--amber);font-weight:600;letter-spacing:.14em;font-size:.8rem;text-shadow:0 0 12px rgba(255,193,69,.7)}
-  .credit{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:.68rem;letter-spacing:.12em;color:rgba(234,242,255,.35)}
+  #vic-title{
+    font-family:"Russo One",sans-serif;
+    font-size:clamp(1.8rem,8.5vw,3rem);
+    color:var(--cyan);
+    text-shadow:0 0 10px rgba(77,232,255,.8),0 0 40px rgba(77,232,255,.4);
+  }
+  .reward-line{font-size:1rem;font-weight:600}
+  #vic-skill,#go-record{display:none;color:var(--amber);font-weight:700;letter-spacing:.12em;font-size:.8rem;text-shadow:0 0 12px rgba(255,193,69,.7)}
+  .credit{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:.66rem;letter-spacing:.12em;color:rgba(234,242,255,.35)}
+
+  /* ---------- Telas com rolagem (fases / loja / árvore) ---------- */
+  .page{
+    position:fixed;inset:0;z-index:10;
+    display:none;flex-direction:column;
+    background:linear-gradient(rgba(8,13,30,.97),rgba(6,10,24,.99));
+  }
+  .page.show{display:flex}
+  .page-head{
+    display:flex;align-items:center;gap:12px;
+    padding:calc(10px + env(safe-area-inset-top)) 14px 10px 14px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  .back-btn{
+    width:40px;height:40px;flex:none;
+    border:1px solid var(--line);border-radius:12px;
+    background:transparent;font-size:1.2rem;cursor:pointer;
+  }
+  .back-btn:active{background:rgba(77,232,255,.15)}
+  .page-title{font-family:"Russo One",sans-serif;font-size:1.05rem;letter-spacing:.08em;flex:1;text-align:left}
+  .page-gems{font-size:.9rem;white-space:nowrap}
+  .scroll{
+    flex:1;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
+    padding:16px 14px calc(24px + env(safe-area-inset-bottom)) 14px;
+  }
+
+  /* fases */
+  .fase-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;max-width:440px;margin:0 auto}
+  .fase-btn{
+    aspect-ratio:1;border-radius:12px;cursor:pointer;
+    font-family:"Russo One",sans-serif;font-size:.95rem;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    background:var(--panel2);border:1px solid rgba(77,232,255,.18);
+    color:var(--ink);font-variant-numeric:tabular-nums;
+  }
+  .fase-btn small{font-size:.55rem;font-family:"Chakra Petch",sans-serif;font-weight:600;letter-spacing:.05em}
+  .fase-btn.done{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.55);color:var(--cyan)}
+  .fase-btn.done small{color:var(--amber)}
+  .fase-btn.next{background:rgba(255,193,69,.16);border-color:var(--amber);color:var(--amber);box-shadow:0 0 14px rgba(255,193,69,.35)}
+  .fase-btn.locked{opacity:.32;pointer-events:none}
+  .fase-btn.boss{border-style:dashed;border-color:rgba(255,77,143,.6)}
+  .fase-btn.boss.done{border-color:rgba(255,77,143,.8)}
+  .fase-btn:active{transform:scale(.94)}
+  .sector-label{
+    grid-column:1/-1;text-align:left;
+    font-size:.62rem;font-weight:700;letter-spacing:.22em;color:var(--dim);
+    margin-top:10px;
+  }
+  .sector-label:first-child{margin-top:0}
+
+  /* loja */
+  .shop-list{display:flex;flex-direction:column;gap:12px;max-width:440px;margin:0 auto}
+  .shop-card{
+    display:flex;align-items:center;gap:12px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:14px;
+    padding:12px 14px;text-align:left;
+  }
+  .shop-icon{
+    width:46px;height:46px;flex:none;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;background:rgba(77,232,255,.12);
+  }
+  .shop-info{flex:1;min-width:0}
+  .shop-name{font-family:"Russo One",sans-serif;font-size:.9rem;letter-spacing:.04em}
+  .shop-desc{font-size:.72rem;color:var(--dim);line-height:1.35;margin-top:2px}
+  .pips{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
+  .pip{width:12px;height:5px;border-radius:3px;background:rgba(234,242,255,.15)}
+  .pip.on{background:var(--cyan);box-shadow:0 0 6px rgba(77,232,255,.7)}
+  .buy-btn{
+    flex:none;min-width:74px;
+    padding:10px 10px;border-radius:12px;border:none;cursor:pointer;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.78rem;
+    background:var(--amber);color:#231500;
+    box-shadow:0 3px 0 rgba(140,98,15,.9);
+  }
+  .buy-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(140,98,15,.9)}
+  .buy-btn:disabled{background:rgba(234,242,255,.14);color:var(--dim);box-shadow:none;cursor:default}
+  .buy-btn.max{background:rgba(77,232,255,.2);color:var(--cyan);box-shadow:none}
+
+  /* árvore de habilidades */
+  .tree-pts{
+    font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--amber);
+    padding:8px 14px;text-align:center;border-bottom:1px solid var(--line);background:rgba(10,18,40,.7);
+  }
+  .tree-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:440px;margin:0 auto}
+  .tree-col-head{
+    font-family:"Russo One",sans-serif;font-size:.68rem;letter-spacing:.14em;
+    text-align:center;padding:6px 0 10px 0;
+  }
+  .tree-col{display:flex;flex-direction:column;align-items:center}
+  .node{
+    width:34px;height:34px;border-radius:50%;flex:none;cursor:pointer;
+    font-family:"Russo One",sans-serif;font-size:.68rem;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--panel2);border:2px solid rgba(234,242,255,.18);color:var(--dim);
+    position:relative;
+  }
+  .node.milestone{width:46px;height:46px;font-size:1.05rem;border-width:2.5px}
+  .link{width:2px;height:12px;background:rgba(234,242,255,.15);flex:none}
+  .tree-col[data-b="atk"] .node.owned{border-color:var(--cyan);color:var(--cyan);background:rgba(77,232,255,.14);box-shadow:0 0 10px rgba(77,232,255,.4)}
+  .tree-col[data-b="def"] .node.owned{border-color:var(--amber);color:var(--amber);background:rgba(255,193,69,.14);box-shadow:0 0 10px rgba(255,193,69,.4)}
+  .tree-col[data-b="res"] .node.owned{border-color:var(--magenta);color:var(--magenta);background:rgba(255,77,143,.14);box-shadow:0 0 10px rgba(255,77,143,.4)}
+  .tree-col .link.on{background:rgba(234,242,255,.5)}
+  .node.avail{border-color:rgba(234,242,255,.7);color:var(--ink);animation:availPulse 1.6s ease-in-out infinite}
+  .node.sel{outline:2px solid var(--ink);outline-offset:2px}
+  @keyframes availPulse{0%,100%{box-shadow:0 0 4px rgba(234,242,255,.3)}50%{box-shadow:0 0 14px rgba(234,242,255,.7)}}
+  @media (prefers-reduced-motion:reduce){.node.avail{animation:none}}
+  .tree-detail{
+    border-top:1px solid var(--line);background:var(--panel);
+    padding:12px 16px calc(14px + env(safe-area-inset-bottom)) 16px;
+    display:flex;align-items:center;gap:12px;min-height:76px;text-align:left;
+  }
+  .tree-detail-info{flex:1;min-width:0}
+  .tree-detail-name{font-family:"Russo One",sans-serif;font-size:.85rem}
+  .tree-detail-desc{font-size:.72rem;color:var(--dim);line-height:1.35;margin-top:2px}
   @media (prefers-reduced-motion:no-preference){
     .brand{animation:pulse 2.6s ease-in-out infinite}
     @keyframes pulse{
@@ -134,12 +264,11 @@
   <div class="hud-col">
     <span class="hud-label">PONTOS</span>
     <span class="hud-value" id="hud-score">0</span>
-    <span class="hud-label" style="margin-top:4px">RECORDE</span>
-    <span class="hud-value" id="hud-hi" style="font-size:.85rem;color:rgba(234,242,255,.7)">0</span>
+    <span class="hud-value" id="hud-gems">◆ 0</span>
   </div>
   <div class="hud-col" style="align-items:center">
-    <span class="hud-label">ONDA</span>
-    <span class="hud-value" id="hud-wave">1</span>
+    <span class="hud-label" id="hud-fase-label">FASE</span>
+    <span class="hud-value" id="hud-fase">1</span>
     <span class="hud-value" id="hud-lives">♥♥♥</span>
   </div>
   <div class="hud-btns">
@@ -148,24 +277,71 @@
   </div>
 </div>
 
+<!-- MENU PRINCIPAL -->
 <div class="screen show" id="screen-menu">
   <div class="tagline">Defesa do setor 7</div>
   <h1 class="brand">NEON<br><em>NEBULA</em></h1>
-  <p class="rules">
-    <b>Arraste</b> em qualquer lugar da tela para pilotar a nave.
-    O tiro é automático. Pegue os cristais para <b>melhorar a arma</b>,
-    ganhar <b>escudo</b> e <b>vidas</b>. Um chefe aparece a cada 5 ondas.
-  </p>
   <div class="stat-panel">
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">CRISTAIS</span>
+      <span class="hud-value gem" id="menu-gems">0</span>
+    </div>
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">FASES</span>
+      <span class="hud-value" id="menu-progress">0/120</span>
+    </div>
     <div class="hud-col" style="align-items:center">
       <span class="hud-label">RECORDE</span>
       <span class="hud-value" id="menu-hi">0</span>
     </div>
   </div>
-  <button class="big-btn" id="btn-start">JOGAR</button>
-  <div class="credit">FUNCIONA OFFLINE · SEM ANÚNCIOS</div>
+  <div class="menu-btns">
+    <button class="big-btn" id="btn-play">JOGAR</button>
+    <button class="big-btn amber" id="btn-shop">⬡ MELHORIAS</button>
+    <button class="ghost-btn" id="btn-tree">✦ ÁRVORE DE HABILIDADES <span id="menu-pts-badge"></span></button>
+  </div>
+  <div class="credit">120 FASES · FUNCIONA OFFLINE · SEM ANÚNCIOS</div>
 </div>
 
+<!-- SELEÇÃO DE FASES -->
+<div class="page" id="screen-levels">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">FASES</div>
+    <div class="page-gems gem" id="levels-gems">0</div>
+  </div>
+  <div class="scroll"><div class="fase-grid" id="fase-grid"></div></div>
+</div>
+
+<!-- LOJA DE MELHORIAS -->
+<div class="page" id="screen-shop">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">MELHORIAS</div>
+    <div class="page-gems gem" id="shop-gems">0</div>
+  </div>
+  <div class="scroll"><div class="shop-list" id="shop-list"></div></div>
+</div>
+
+<!-- ÁRVORE DE HABILIDADES -->
+<div class="page" id="screen-tree">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">HABILIDADES</div>
+    <div class="page-gems gem" id="tree-gems">0</div>
+  </div>
+  <div class="tree-pts" id="tree-pts">0 PONTOS DISPONÍVEIS</div>
+  <div class="scroll"><div class="tree-cols" id="tree-cols"></div></div>
+  <div class="tree-detail">
+    <div class="tree-detail-info">
+      <div class="tree-detail-name" id="td-name">Toque em um nó</div>
+      <div class="tree-detail-desc" id="td-desc">Cada fase concluída dá 1 ponto de habilidade.</div>
+    </div>
+    <button class="buy-btn" id="td-buy" disabled>—</button>
+  </div>
+</div>
+
+<!-- PAUSA -->
 <div class="screen" id="screen-pause">
   <div class="tagline">Pausado</div>
   <h1 class="brand" style="font-size:clamp(1.8rem,8vw,3rem)">PAUSA</h1>
@@ -173,33 +349,53 @@
   <button class="ghost-btn" id="btn-quit">SAIR PARA O MENU</button>
 </div>
 
+<!-- VITÓRIA -->
+<div class="screen" id="screen-victory">
+  <div class="tagline">Setor limpo</div>
+  <h1 id="vic-title">FASE CONCLUÍDA</h1>
+  <div id="vic-skill">✦ +1 PONTO DE HABILIDADE ✦</div>
+  <div class="reward-line gem" id="vic-gems">+0 cristais</div>
+  <div class="stat-panel">
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">FASE</span>
+      <span class="hud-value" id="vic-fase" style="color:var(--amber)">1</span>
+    </div>
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">PONTOS</span>
+      <span class="hud-value" id="vic-score">0</span>
+    </div>
+  </div>
+  <button class="big-btn" id="btn-next">PRÓXIMA FASE</button>
+  <button class="ghost-btn" id="btn-vic-shop">⬡ MELHORIAS</button>
+  <button class="ghost-btn" id="btn-vic-menu">MENU</button>
+</div>
+
+<!-- DERROTA -->
 <div class="screen" id="screen-over">
   <div class="tagline">Fim da missão</div>
   <h1 id="go-title">NAVE DESTRUÍDA</h1>
   <div id="go-record">★ NOVO RECORDE! ★</div>
+  <div class="reward-line gem" id="go-gems">+0 cristais recuperados</div>
   <div class="stat-panel">
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">FASE</span>
+      <span class="hud-value" id="go-fase" style="color:var(--amber)">1</span>
+    </div>
     <div class="hud-col" style="align-items:center">
       <span class="hud-label">PONTOS</span>
       <span class="hud-value" id="go-score">0</span>
     </div>
-    <div class="hud-col" style="align-items:center">
-      <span class="hud-label">ONDA</span>
-      <span class="hud-value" id="go-wave" style="color:var(--amber)">1</span>
-    </div>
-    <div class="hud-col" style="align-items:center">
-      <span class="hud-label">RECORDE</span>
-      <span class="hud-value" id="go-hi">0</span>
-    </div>
   </div>
-  <button class="big-btn" id="btn-retry">JOGAR DE NOVO</button>
-  <button class="ghost-btn" id="btn-menu">MENU</button>
+  <button class="big-btn" id="btn-retry">TENTAR DE NOVO</button>
+  <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
+  <button class="ghost-btn" id="btn-go-menu">MENU</button>
 </div>
 
 <script>
 "use strict";
 /* =====================================================================
-   NEON NEBULA — jogo de tiro espacial para celular
-   Arraste para mover · tiro automático · ondas + chefes · power-ups
+   NEON NEBULA — campanha de 120 fases
+   Arraste para mover · loja de melhorias · árvore de 120 habilidades
    ===================================================================== */
 
 /* ---------- Canvas ---------- */
@@ -221,6 +417,7 @@ window.addEventListener("orientationchange", () => setTimeout(resize, 250));
 
 /* ---------- Utilidades ---------- */
 const TAU = Math.PI * 2;
+const TOTAL_FASES = 120;
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
 const dist2 = (ax, ay, bx, by) => { const dx = ax - bx, dy = ay - by; return dx * dx + dy * dy; };
@@ -230,16 +427,118 @@ function storageGet(key, fallback) {
   catch (e) { return fallback; }
 }
 function storageSet(key, value) {
-  try { localStorage.setItem(key, value); } catch (e) { /* modo privado, etc. */ }
+  try { localStorage.setItem(key, value); } catch (e) {}
 }
 function vibrate(ms) {
   try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
 }
 
-/* ---------- Áudio (sintetizado, sem arquivos) ---------- */
+/* ---------- Progresso salvo ---------- */
+const SAVE_KEY = "nn_save2";
+function defaultSave() {
+  return {
+    crystals: 0,
+    best: 0,                 // maior fase concluída
+    hi: 0,
+    pts: 0,                  // pontos de habilidade ganhos (1 por fase)
+    upgrades: { dmg: 0, rate: 0, hull: 0, shield: 0, speed: 0, luck: 0 },
+    skills: {}               // id do nó -> true
+  };
+}
+let save = defaultSave();
+(function loadSave() {
+  try {
+    const raw = storageGet(SAVE_KEY, null);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      save = Object.assign(defaultSave(), parsed);
+      save.upgrades = Object.assign(defaultSave().upgrades, parsed.upgrades || {});
+      save.skills = parsed.skills || {};
+    }
+  } catch (e) { save = defaultSave(); }
+  // migra o recorde da versão 1
+  const oldHi = parseInt(storageGet("nn_hiscore", "0"), 10) || 0;
+  if (oldHi > save.hi) save.hi = oldHi;
+})();
+function persist() { storageSet(SAVE_KEY, JSON.stringify(save)); }
+
+/* ---------- Loja de melhorias ---------- */
+const UPGRADES = [
+  { id: "dmg",    icon: "▲", name: "Canhões",   desc: "+8% de dano por nível",                    max: 15, base: 25 },
+  { id: "rate",   icon: "≡", name: "Cadência",  desc: "+5% de velocidade de tiro por nível",      max: 10, base: 30 },
+  { id: "hull",   icon: "♥", name: "Casco",     desc: "+1 vida máxima por nível",                 max: 5,  base: 60 },
+  { id: "shield", icon: "◎", name: "Escudo",    desc: "+1,5s de duração do escudo por nível",     max: 5,  base: 40 },
+  { id: "speed",  icon: "»", name: "Motores",   desc: "+6% de agilidade da nave por nível",       max: 8,  base: 35 },
+  { id: "luck",   icon: "◆", name: "Coletor",   desc: "+10% de cristais ganhos por nível",        max: 10, base: 50 }
+];
+function upgradeCost(u, lvl) { return Math.round(u.base * Math.pow(1.4, lvl)); }
+
+/* ---------- Árvore de habilidades: 3 ramos × 40 nós = 120 ---------- */
+const BRANCHES = [
+  { id: "atk", name: "ATAQUE",  color: "#4DE8FF", passive: "+3% de dano" },
+  { id: "def", name: "DEFESA",  color: "#FFC145", passive: "+2% de escudo e invencibilidade" },
+  { id: "res", name: "RECURSOS", color: "#FF4D8F", passive: "+2% de cristais" }
+];
+const MILESTONES = {
+  atk: {
+    10: { name: "Tiro Lateral",        desc: "Dispara 2 projéteis diagonais extras" },
+    20: { name: "Mísseis Teleguiados", desc: "Lança um míssil que persegue inimigos" },
+    30: { name: "Golpe Crítico",       desc: "15% de chance de causar dano em dobro" },
+    40: { name: "Perfuração",          desc: "Seus tiros atravessam 1 inimigo extra" }
+  },
+  def: {
+    10: { name: "Escudo Inicial",      desc: "Começa cada fase com o escudo ativo" },
+    20: { name: "Nanobots",            desc: "O escudo se regenera após 20s sem escudo" },
+    30: { name: "Sistema de Emergência", desc: "Sobrevive à destruição 1 vez por fase" },
+    40: { name: "Fortaleza",           desc: "+2 vidas máximas" }
+  },
+  res: {
+    10: { name: "Ímã de Cristais",     desc: "Atrai cristais e power-ups próximos" },
+    20: { name: "Sorte",               desc: "+60% de chance de inimigos soltarem itens" },
+    30: { name: "Comerciante",         desc: "+50% de cristais ganhos" },
+    40: { name: "Nova de Choque",      desc: "Ao ser atingido, limpa as balas inimigas e fere inimigos próximos" }
+  }
+};
+function nodeId(branch, tier) { return branch + tier; }
+function branchCount(branch) {
+  let n = 0;
+  for (let t = 1; t <= 40; t++) if (save.skills[nodeId(branch, t)]) n++;
+  return n;
+}
+function hasSkill(branch, tier) { return !!save.skills[nodeId(branch, tier)]; }
+function ptsSpent() { return Object.keys(save.skills).length; }
+function ptsAvailable() { return Math.max(0, save.pts - ptsSpent()); }
+
+/* ---------- Atributos efetivos ---------- */
+let ST = null;
+function calcStats() {
+  const u = save.upgrades;
+  const atk = branchCount("atk"), def = branchCount("def"), res = branchCount("res");
+  ST = {
+    dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk),
+    fireInterval: 0.17 / (1 + 0.05 * u.rate),
+    maxLives: 3 + u.hull + (hasSkill("def", 40) ? 2 : 0),
+    shieldDur: (6 + 1.5 * u.shield) * (1 + 0.02 * def),
+    invulnDur: 2.2 * (1 + 0.02 * def),
+    speedK: 1.15 * (1 + 0.06 * u.speed),
+    crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1),
+    dropMult: hasSkill("res", 20) ? 1.6 : 1,
+    sideShot: hasSkill("atk", 10),
+    missiles: hasSkill("atk", 20),
+    critChance: hasSkill("atk", 30) ? 0.15 : 0,
+    pierce: hasSkill("atk", 40) ? 1 : 0,
+    startShield: hasSkill("def", 10),
+    nanobots: hasSkill("def", 20),
+    revive: hasSkill("def", 30),
+    magnet: hasSkill("res", 10),
+    nova: hasSkill("res", 40)
+  };
+}
+calcStats();
+
+/* ---------- Áudio (sintetizado) ---------- */
 const AudioSys = {
-  ctx: null,
-  master: null,
+  ctx: null, master: null,
   muted: storageGet("nn_muted", "0") === "1",
   lastShot: 0,
   init() {
@@ -295,43 +594,55 @@ const AudioSys = {
   },
   shoot() {
     const now = performance.now();
-    if (now - this.lastShot < 70) return; // não saturar
+    if (now - this.lastShot < 70) return;
     this.lastShot = now;
-    this.tone(880, 0.08, "square", 0.06, 220);
+    this.tone(880, 0.08, "square", 0.05, 220);
   },
-  hit()      { this.noise(0.15, 0.25, 1400); },
+  hit()      { this.noise(0.15, 0.22, 1400); },
   explode()  { this.noise(0.4, 0.4, 700); this.tone(140, 0.35, "sawtooth", 0.15, 40); },
   bigBoom()  { this.noise(0.8, 0.5, 500); this.tone(90, 0.7, "sawtooth", 0.25, 30); },
   power()    { this.tone(523, 0.09, "square", 0.12); setTimeout(() => this.tone(659, 0.09, "square", 0.12), 90); setTimeout(() => this.tone(784, 0.14, "square", 0.12), 180); },
+  gem()      { this.tone(1245, 0.07, "sine", 0.1, 1660); },
   hurt()     { this.tone(200, 0.3, "sawtooth", 0.2, 60); this.noise(0.25, 0.3, 800); },
   bossAlert(){ this.tone(110, 0.5, "sawtooth", 0.2, 220); setTimeout(() => this.tone(110, 0.5, "sawtooth", 0.2, 220), 550); },
-  wave()     { this.tone(392, 0.1, "triangle", 0.15); setTimeout(() => this.tone(523, 0.16, "triangle", 0.15), 110); }
+  wave()     { this.tone(392, 0.1, "triangle", 0.15); setTimeout(() => this.tone(523, 0.16, "triangle", 0.15), 110); },
+  buy()      { this.tone(659, 0.08, "square", 0.14); setTimeout(() => this.tone(880, 0.12, "square", 0.14), 90); },
+  deny()     { this.tone(180, 0.18, "sawtooth", 0.14, 120); },
+  victory()  {
+    const notes = [523, 659, 784, 1046];
+    notes.forEach((f, i) => setTimeout(() => this.tone(f, 0.22, "triangle", 0.16), i * 140));
+  },
+  skill()    { this.tone(784, 0.1, "sine", 0.15); setTimeout(() => this.tone(1046, 0.2, "sine", 0.15), 110); }
 };
 
-/* ---------- Estado ---------- */
+/* ---------- Estado da partida ---------- */
 const S = {
-  mode: "menu",           // menu | playing | paused | gameover
+  mode: "menu",           // menu | levels | shop | tree | playing | paused | victory | gameover
+  fase: 1,
+  nWaves: 3,
+  waveIdx: 1,
   score: 0,
-  hi: parseInt(storageGet("nn_hiscore", "0"), 10) || 0,
-  wave: 1,
+  runGems: 0,
   shake: 0,
   time: 0,
-  banner: null,           // {text, sub, t}
+  banner: null,
   waveState: "spawning",  // spawning | fighting | done
   toSpawn: 0,
   spawnTimer: 0,
   spawnInterval: 1,
-  nextWaveTimer: 0
+  interTimer: 0,
+  rewarded: false
 };
 
 const player = {
   x: 0, y: 0, tx: 0, ty: 0, r: 16,
   lives: 3, weapon: 1,
-  fireTimer: 0, invuln: 0, shield: 0,
+  fireTimer: 0, missileTimer: 0, invuln: 0, shield: 0, noShieldTime: 0,
+  reviveUsed: false,
   alive: true, deadTimer: 0, tilt: 0
 };
 
-let bullets = [], enemyBullets = [], enemies = [], powerups = [], particles = [], texts = [];
+let bullets = [], enemyBullets = [], enemies = [], missilesArr = [], powerups = [], particles = [], texts = [];
 let boss = null;
 let stars = [];
 
@@ -343,24 +654,215 @@ function makeStars() {
 }
 makeStars();
 
+/* ---------- Parâmetros da fase ---------- */
+function faseWaves(f)   { return 3 + Math.floor((f - 1) / 25); }        // 3..7 ondas
+function isBossFase(f)  { return f % 5 === 0; }
+function faseReward(f)  { return 20 + f * 3; }
+function dLevel()       { return S.fase + S.waveIdx; }
+
 /* ---------- DOM ---------- */
 const $ = id => document.getElementById(id);
 const hud = $("hud");
-const hudScore = $("hud-score"), hudHi = $("hud-hi"), hudWave = $("hud-wave"), hudLives = $("hud-lives");
-const screens = { menu: $("screen-menu"), pause: $("screen-pause"), over: $("screen-over") };
-
+const hudScore = $("hud-score"), hudGems = $("hud-gems"), hudFase = $("hud-fase"),
+      hudFaseLabel = $("hud-fase-label"), hudLives = $("hud-lives");
+const SCREENS = {
+  menu: $("screen-menu"), levels: $("screen-levels"), shop: $("screen-shop"),
+  tree: $("screen-tree"), pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
+};
 function showScreen(name) {
-  for (const k in screens) screens[k].classList.toggle("show", k === name);
+  for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "flex" : "none";
 }
 function updateHud() {
   hudScore.textContent = S.score;
-  hudHi.textContent = S.hi;
-  hudWave.textContent = S.wave;
+  hudGems.textContent = "◆ " + S.runGems;
+  hudFase.textContent = S.fase;
+  hudFaseLabel.textContent = "ONDA " + Math.min(S.waveIdx, S.nWaves) + "/" + S.nWaves;
+  hudFase.textContent = "FASE " + S.fase;
   hudLives.textContent = "♥".repeat(Math.max(0, player.lives));
 }
-$("menu-hi").textContent = S.hi;
+function refreshMenu() {
+  $("menu-gems").textContent = save.crystals;
+  $("menu-progress").textContent = save.best + "/" + TOTAL_FASES;
+  $("menu-hi").textContent = save.hi;
+  const avail = ptsAvailable();
+  $("menu-pts-badge").textContent = avail > 0 ? "(" + avail + ")" : "";
+}
+refreshMenu();
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
+
+/* ---------- Seleção de fases ---------- */
+const SECTOR_NAMES = [
+  "SETOR 1 — PERIFERIA", "SETOR 2 — CAMPO DE ASTEROIDES", "SETOR 3 — NEBULOSA ROSA",
+  "SETOR 4 — CINTURÃO ESCURO", "SETOR 5 — TEMPESTADE IÔNICA", "SETOR 6 — NÚCLEO PROFUNDO"
+];
+function renderLevels() {
+  $("levels-gems").textContent = save.crystals;
+  const grid = $("fase-grid");
+  grid.innerHTML = "";
+  for (let f = 1; f <= TOTAL_FASES; f++) {
+    if ((f - 1) % 20 === 0) {
+      const lab = document.createElement("div");
+      lab.className = "sector-label";
+      lab.textContent = SECTOR_NAMES[Math.floor((f - 1) / 20)] || "SETOR " + Math.ceil(f / 20);
+      grid.appendChild(lab);
+    }
+    const b = document.createElement("button");
+    b.className = "fase-btn";
+    if (isBossFase(f)) b.classList.add("boss");
+    if (f <= save.best) {
+      b.classList.add("done");
+      b.innerHTML = f + "<small>★</small>";
+    } else if (f === save.best + 1) {
+      b.classList.add("next");
+      b.innerHTML = f + (isBossFase(f) ? "<small>CHEFE</small>" : "");
+    } else {
+      b.classList.add("locked");
+      b.textContent = f;
+    }
+    b.addEventListener("click", () => { AudioSys.resume(); startGame(f); });
+    grid.appendChild(b);
+  }
+  // rola até a fase atual
+  requestAnimationFrame(() => {
+    const next = grid.querySelector(".fase-btn.next");
+    if (next) next.scrollIntoView({ block: "center" });
+  });
+}
+
+/* ---------- Loja ---------- */
+function renderShop() {
+  $("shop-gems").textContent = save.crystals;
+  const list = $("shop-list");
+  list.innerHTML = "";
+  for (const u of UPGRADES) {
+    const lvl = save.upgrades[u.id];
+    const card = document.createElement("div");
+    card.className = "shop-card";
+    const pips = [];
+    for (let i = 0; i < u.max; i++) pips.push('<span class="pip' + (i < lvl ? " on" : "") + '"></span>');
+    card.innerHTML =
+      '<div class="shop-icon">' + u.icon + '</div>' +
+      '<div class="shop-info">' +
+        '<div class="shop-name">' + u.name + '</div>' +
+        '<div class="shop-desc">' + u.desc + '</div>' +
+        '<div class="pips">' + pips.join("") + '</div>' +
+      '</div>';
+    const btn = document.createElement("button");
+    btn.className = "buy-btn";
+    if (lvl >= u.max) {
+      btn.classList.add("max");
+      btn.textContent = "MÁX";
+      btn.disabled = true;
+    } else {
+      const cost = upgradeCost(u, lvl);
+      btn.textContent = "◆ " + cost;
+      btn.disabled = save.crystals < cost;
+      btn.addEventListener("click", () => {
+        AudioSys.resume();
+        if (save.crystals < cost) { AudioSys.deny(); return; }
+        save.crystals -= cost;
+        save.upgrades[u.id]++;
+        persist();
+        calcStats();
+        AudioSys.buy();
+        vibrate(20);
+        renderShop();
+      });
+    }
+    card.appendChild(btn);
+    list.appendChild(card);
+  }
+}
+
+/* ---------- Árvore de habilidades ---------- */
+let selNode = null; // {branch, tier}
+function nodeState(branch, tier) {
+  if (save.skills[nodeId(branch, tier)]) return "owned";
+  const prevOk = tier === 1 || save.skills[nodeId(branch, tier - 1)];
+  if (prevOk && ptsAvailable() > 0) return "avail";
+  return "locked";
+}
+function renderTree() {
+  $("tree-gems").textContent = save.crystals;
+  const avail = ptsAvailable();
+  $("tree-pts").textContent = avail + (avail === 1 ? " PONTO DISPONÍVEL" : " PONTOS DISPONÍVEIS") +
+    " · " + ptsSpent() + "/120 HABILIDADES";
+  const cols = $("tree-cols");
+  cols.innerHTML = "";
+  for (const br of BRANCHES) {
+    const col = document.createElement("div");
+    col.className = "tree-col";
+    col.dataset.b = br.id;
+    const head = document.createElement("div");
+    head.className = "tree-col-head";
+    head.style.color = br.color;
+    head.textContent = br.name;
+    col.appendChild(head);
+    for (let t = 1; t <= 40; t++) {
+      if (t > 1) {
+        const link = document.createElement("div");
+        link.className = "link" + (save.skills[nodeId(br.id, t)] || save.skills[nodeId(br.id, t - 1)] ? " on" : "");
+        col.appendChild(link);
+      }
+      const n = document.createElement("button");
+      const ms = MILESTONES[br.id][t];
+      n.className = "node " + nodeState(br.id, t) + (ms ? " milestone" : "");
+      n.textContent = ms ? "✦" : t;
+      if (selNode && selNode.branch === br.id && selNode.tier === t) n.classList.add("sel");
+      n.addEventListener("click", () => { selectNode(br.id, t); });
+      col.appendChild(n);
+    }
+    cols.appendChild(col);
+  }
+  renderNodeDetail();
+}
+function nodeInfo(branch, tier) {
+  const br = BRANCHES.find(b => b.id === branch);
+  const ms = MILESTONES[branch][tier];
+  if (ms) return { name: ms.name, desc: ms.desc + " (nó " + tier + " de " + br.name + ")" };
+  return { name: br.name + " · Nó " + tier, desc: "Bônus passivo: " + br.passive };
+}
+function renderNodeDetail() {
+  const btn = $("td-buy");
+  if (!selNode) {
+    $("td-name").textContent = "Toque em um nó";
+    $("td-desc").textContent = "Cada fase concluída dá 1 ponto de habilidade.";
+    btn.textContent = "—";
+    btn.disabled = true;
+    return;
+  }
+  const info = nodeInfo(selNode.branch, selNode.tier);
+  const state = nodeState(selNode.branch, selNode.tier);
+  $("td-name").textContent = info.name;
+  $("td-desc").textContent = info.desc;
+  if (state === "owned") {
+    btn.textContent = "ATIVA";
+    btn.disabled = true;
+  } else if (state === "avail") {
+    btn.textContent = "DESBLOQUEAR · 1 PT";
+    btn.disabled = false;
+  } else {
+    const prevOk = selNode.tier === 1 || save.skills[nodeId(selNode.branch, selNode.tier - 1)];
+    btn.textContent = prevOk ? "SEM PONTOS" : "BLOQUEADA";
+    btn.disabled = true;
+  }
+}
+function selectNode(branch, tier) {
+  selNode = { branch, tier };
+  renderTree();
+}
+$("td-buy").addEventListener("click", () => {
+  if (!selNode) return;
+  AudioSys.resume();
+  if (nodeState(selNode.branch, selNode.tier) !== "avail") { AudioSys.deny(); return; }
+  save.skills[nodeId(selNode.branch, selNode.tier)] = true;
+  persist();
+  calcStats();
+  AudioSys.skill();
+  vibrate(25);
+  renderTree();
+});
 
 /* ---------- Controles ---------- */
 let dragging = false, dragId = null;
@@ -379,8 +881,7 @@ canvas.addEventListener("pointerdown", e => {
 canvas.addEventListener("pointermove", e => {
   if (!dragging || e.pointerId !== dragId) return;
   e.preventDefault();
-  // controle relativo: o dedo não precisa ficar em cima da nave
-  const k = 1.15;
+  const k = ST.speedK;
   player.tx = clamp(shipStartX + (e.clientX - dragStartX) * k, player.r, W - player.r);
   player.ty = clamp(shipStartY + (e.clientY - dragStartY) * k, player.r, H - player.r);
 });
@@ -388,9 +889,10 @@ function endDrag(e) { if (e.pointerId === dragId) { dragging = false; dragId = n
 canvas.addEventListener("pointerup", endDrag);
 canvas.addEventListener("pointercancel", endDrag);
 canvas.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+document.addEventListener("touchmove", e => {
+  if (e.target === canvas) e.preventDefault();
+}, { passive: false });
 
-// Teclado (bônus para quem testar no computador)
 const keys = {};
 window.addEventListener("keydown", e => {
   keys[e.key] = true;
@@ -398,21 +900,30 @@ window.addEventListener("keydown", e => {
 });
 window.addEventListener("keyup", e => { keys[e.key] = false; });
 
-/* ---------- Botões ---------- */
-$("btn-start").addEventListener("click", () => { AudioSys.resume(); startGame(); });
-$("btn-retry").addEventListener("click", () => { AudioSys.resume(); startGame(); });
+/* ---------- Navegação ---------- */
+$("btn-play").addEventListener("click", () => { AudioSys.resume(); S.mode = "levels"; renderLevels(); showScreen("levels"); });
+$("btn-shop").addEventListener("click", () => { AudioSys.resume(); S.mode = "shop"; renderShop(); showScreen("shop"); });
+$("btn-tree").addEventListener("click", () => { AudioSys.resume(); S.mode = "tree"; renderTree(); showScreen("tree"); });
+document.querySelectorAll("[data-back]").forEach(b =>
+  b.addEventListener("click", () => { goMenu(); })
+);
+function goMenu() {
+  S.mode = "menu";
+  refreshMenu();
+  showScreen("menu");
+}
 $("btn-resume").addEventListener("click", () => togglePause());
 $("btn-pause").addEventListener("click", () => togglePause());
-$("btn-quit").addEventListener("click", () => {
-  S.mode = "menu";
-  $("menu-hi").textContent = S.hi;
-  showScreen("menu");
+$("btn-quit").addEventListener("click", () => { bankRunGems(0.5); goMenu(); });
+$("btn-retry").addEventListener("click", () => { AudioSys.resume(); startGame(S.fase); });
+$("btn-next").addEventListener("click", () => {
+  AudioSys.resume();
+  startGame(Math.min(S.fase + 1, TOTAL_FASES));
 });
-$("btn-menu").addEventListener("click", () => {
-  S.mode = "menu";
-  $("menu-hi").textContent = S.hi;
-  showScreen("menu");
-});
+$("btn-vic-shop").addEventListener("click", () => { S.mode = "shop"; renderShop(); showScreen("shop"); });
+$("btn-go-shop").addEventListener("click", () => { S.mode = "shop"; renderShop(); showScreen("shop"); });
+$("btn-vic-menu").addEventListener("click", goMenu);
+$("btn-go-menu").addEventListener("click", goMenu);
 $("btn-mute").addEventListener("click", () => {
   AudioSys.resume();
   AudioSys.setMuted(!AudioSys.muted);
@@ -433,16 +944,25 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden && S.mode === "playing") togglePause();
 });
 
-/* ---------- Início / ondas ---------- */
-function startGame() {
+/* ---------- Início de fase ---------- */
+function startGame(fase) {
+  calcStats();
   S.mode = "playing";
-  S.score = 0; S.wave = 1; S.shake = 0; S.time = 0;
-  player.lives = 3; player.weapon = 1;
-  player.invuln = 2; player.shield = 0;
+  S.fase = clamp(fase, 1, TOTAL_FASES);
+  S.nWaves = faseWaves(S.fase);
+  S.waveIdx = 1;
+  S.score = 0; S.runGems = 0; S.shake = 0; S.time = 0; S.rewarded = false;
+  player.lives = ST.maxLives;
+  player.weapon = 1;
+  player.invuln = 2;
+  player.shield = ST.startShield ? ST.shieldDur : 0;
+  player.noShieldTime = 0;
+  player.reviveUsed = false;
   player.alive = true; player.deadTimer = 0;
+  player.fireTimer = 0; player.missileTimer = 0;
   player.x = player.tx = W / 2;
   player.y = player.ty = H - Math.max(110, H * 0.16);
-  bullets = []; enemyBullets = []; enemies = []; powerups = []; particles = []; texts = [];
+  bullets = []; enemyBullets = []; enemies = []; missilesArr = []; powerups = []; particles = []; texts = [];
   boss = null;
   dragging = false; dragId = null;
   setupWave();
@@ -450,36 +970,39 @@ function startGame() {
   showScreen(null);
 }
 
-function isBossWave(w) { return w % 5 === 0; }
+function waveIsBoss() { return isBossFase(S.fase) && S.waveIdx === S.nWaves; }
 
 function setupWave() {
   S.waveState = "spawning";
-  if (isBossWave(S.wave)) {
+  if (waveIsBoss()) {
     S.toSpawn = 0;
     spawnBoss();
     S.banner = { text: "⚠ CHEFE ⚠", sub: "Destrua o núcleo!", t: 2.4 };
     AudioSys.bossAlert();
   } else {
-    S.toSpawn = Math.min(6 + S.wave * 2, 26);
+    const dl = dLevel();
+    S.toSpawn = 5 + Math.min(Math.floor(dl * 0.7), 18);
     S.spawnTimer = 0.5;
-    S.spawnInterval = Math.max(0.35, 1.1 - S.wave * 0.05);
-    S.banner = { text: "ONDA " + S.wave, sub: "", t: 1.6 };
-    if (S.wave > 1) AudioSys.wave();
+    S.spawnInterval = Math.max(0.3, 1.05 - dl * 0.018);
+    S.banner = { text: "ONDA " + S.waveIdx + "/" + S.nWaves, sub: S.waveIdx === 1 ? "FASE " + S.fase : "", t: 1.6 };
+    if (!(S.waveIdx === 1)) AudioSys.wave();
   }
+  updateHud();
 }
 
 /* ---------- Inimigos ---------- */
 function pickEnemyType() {
-  const w = S.wave;
+  const dl = dLevel();
   const roll = Math.random();
-  if (w >= 6 && roll < 0.2) return "tank";
-  if (w >= 3 && roll < 0.5) return "striker";
+  if (dl >= 8 && roll < 0.2) return "tank";
+  if (dl >= 4 && roll < 0.5) return "striker";
   return "drone";
 }
 
 function spawnEnemy() {
   const type = pickEnemyType();
-  const hpBonus = Math.floor(S.wave / 4);
+  const f = S.fase;
+  const spd = Math.min(f * 2, 130);
   const e = {
     type,
     x: rand(30, W - 30),
@@ -489,24 +1012,24 @@ function spawnEnemy() {
     hitFlash: 0
   };
   if (type === "drone") {
-    e.r = 15; e.hp = 1 + hpBonus; e.speed = rand(55, 80) + S.wave * 3;
+    e.r = 15; e.hp = 1 + Math.floor(f / 8); e.speed = rand(55, 80) + spd * 0.5;
     e.amp = rand(30, 70); e.score = 10;
   } else if (type === "striker") {
-    e.r = 14; e.hp = 2 + hpBonus; e.speed = rand(95, 125) + S.wave * 3;
+    e.r = 14; e.hp = 2 + Math.floor(f / 7); e.speed = rand(95, 125) + spd * 0.5;
     e.amp = rand(10, 30); e.score = 25;
-  } else { // tank
-    e.r = 24; e.hp = 5 + hpBonus * 2; e.speed = rand(30, 42);
+  } else {
+    e.r = 24; e.hp = 5 + Math.floor(f / 5) * 2; e.speed = rand(30, 42);
     e.amp = rand(5, 15); e.score = 40;
   }
   enemies.push(e);
 }
 
 function spawnBoss() {
-  const lvl = Math.floor(S.wave / 5); // 1, 2, 3...
+  const lvl = Math.max(1, Math.floor(S.fase / 5));
   boss = {
-    x: W / 2, y: -90, r: Math.min(52 + lvl * 4, 70),
-    hp: 55 + lvl * 45,
-    maxHp: 55 + lvl * 45,
+    x: W / 2, y: -90, r: clamp(50 + lvl * 1.2, 50, 74),
+    hp: 50 + S.fase * 14,
+    maxHp: 50 + S.fase * 14,
     lvl,
     t: 0,
     entering: true,
@@ -516,21 +1039,37 @@ function spawnBoss() {
   };
 }
 
-/* ---------- Tiros ---------- */
+/* ---------- Tiros do jogador ---------- */
+function bulletDmg() {
+  if (ST.critChance > 0 && Math.random() < ST.critChance) return { d: ST.dmg * 2, crit: true };
+  return { d: ST.dmg, crit: false };
+}
 function playerShoot() {
   const x = player.x, y = player.y - player.r - 2;
   const spd = -560;
+  const mk = (bx, by, vx, vy, r) => bullets.push({ x: bx, y: by, vx, vy, r, pierce: ST.pierce });
   if (player.weapon === 1) {
-    bullets.push({ x, y, vx: 0, vy: spd, r: 4 });
+    mk(x, y, 0, spd, 4);
   } else if (player.weapon === 2) {
-    bullets.push({ x: x - 9, y, vx: 0, vy: spd, r: 4 });
-    bullets.push({ x: x + 9, y, vx: 0, vy: spd, r: 4 });
+    mk(x - 9, y, 0, spd, 4);
+    mk(x + 9, y, 0, spd, 4);
   } else {
-    bullets.push({ x, y, vx: 0, vy: spd, r: 4 });
-    bullets.push({ x: x - 10, y: y + 6, vx: -110, vy: spd, r: 3.5 });
-    bullets.push({ x: x + 10, y: y + 6, vx: 110, vy: spd, r: 3.5 });
+    mk(x, y, 0, spd, 4);
+    mk(x - 10, y + 6, -110, spd, 3.5);
+    mk(x + 10, y + 6, 110, spd, 3.5);
+  }
+  if (ST.sideShot) {
+    mk(x - 12, y + 10, -300, spd * 0.75, 3);
+    mk(x + 12, y + 10, 300, spd * 0.75, 3);
   }
   AudioSys.shoot();
+}
+function launchMissile() {
+  missilesArr.push({
+    x: player.x, y: player.y - 10,
+    vx: rand(-60, 60), vy: -240,
+    t: 3, r: 5
+  });
 }
 
 function enemyShootAt(sx, sy, speed, spread) {
@@ -540,27 +1079,39 @@ function enemyShootAt(sx, sy, speed, spread) {
   enemyBullets.push({ x: sx, y: sy, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, r: 5 });
 }
 
-/* ---------- Power-ups ---------- */
+/* ---------- Drops ---------- */
+function gemValue() { return Math.max(1, Math.round((1 + S.fase * 0.12) )); }
 function maybeDrop(x, y) {
   const roll = Math.random();
+  const m = ST.dropMult;
+  if (roll < 0.22) { powerups.push({ x, y, type: "gem", vy: 80, t: 0 }); return; }
+  const r2 = Math.random();
   let type = null;
-  if (roll < 0.055) type = "weapon";
-  else if (roll < 0.09) type = "shield";
-  else if (roll < 0.105 && player.lives < 5) type = "life";
+  if (r2 < 0.05 * m) type = "weapon";
+  else if (r2 < 0.085 * m) type = "shield";
+  else if (r2 < 0.10 * m && player.lives < ST.maxLives) type = "life";
   if (type) powerups.push({ x, y, type, vy: 70, t: 0 });
 }
 
 function applyPowerup(p) {
+  if (p.type === "gem") {
+    const v = gemValue();
+    S.runGems += v;
+    AudioSys.gem();
+    addText(p.x, p.y, "◆" + v, "#FFC145");
+    updateHud();
+    return;
+  }
   AudioSys.power();
   vibrate(30);
   if (p.type === "weapon") {
     if (player.weapon < 3) { player.weapon++; addText(p.x, p.y, "ARMA +", "#4DE8FF"); }
     else { S.score += 150; addText(p.x, p.y, "+150", "#4DE8FF"); }
   } else if (p.type === "shield") {
-    player.shield = 6;
+    player.shield = ST.shieldDur;
     addText(p.x, p.y, "ESCUDO!", "#FFC145");
   } else if (p.type === "life") {
-    player.lives = Math.min(5, player.lives + 1);
+    player.lives = Math.min(ST.maxLives, player.lives + 1);
     addText(p.x, p.y, "VIDA +1", "#FF4D8F");
   }
   updateHud();
@@ -582,6 +1133,19 @@ function explosion(x, y, color, n, force) {
   }
 }
 
+function damageEnemy(e, idx, dmg, crit) {
+  e.hp -= dmg;
+  e.hitFlash = 0.08;
+  AudioSys.hit();
+  if (crit) addText(e.x, e.y - 14, "CRÍTICO!", "#FFC145");
+  if (e.hp <= 0) {
+    killEnemy(e);
+    enemies.splice(idx, 1);
+    return true;
+  }
+  return false;
+}
+
 function killEnemy(e) {
   S.score += e.score;
   explosion(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF4D8F", e.type === "tank" ? 26 : 14);
@@ -592,10 +1156,24 @@ function killEnemy(e) {
   updateHud();
 }
 
+function novaBlast() {
+  enemyBullets = [];
+  for (let j = enemies.length - 1; j >= 0; j--) {
+    const e = enemies[j];
+    if (dist2(e.x, e.y, player.x, player.y) < 180 * 180) {
+      if (damageEnemy(e, j, 3 * ST.dmg, false)) continue;
+    }
+  }
+  explosion(player.x, player.y, "#C34DFF", 34, 300);
+  addText(player.x, player.y - 40, "NOVA DE CHOQUE", "#C34DFF");
+}
+
 function hitPlayer() {
   if (player.invuln > 0 || !player.alive) return;
+  if (ST.nova) novaBlast();
   if (player.shield > 0) {
     player.shield = 0;
+    player.noShieldTime = 0;
     player.invuln = 1.2;
     explosion(player.x, player.y, "#FFC145", 18);
     AudioSys.hit();
@@ -610,28 +1188,68 @@ function hitPlayer() {
   S.shake = 12;
   explosion(player.x, player.y, "#4DE8FF", 30);
   if (player.lives <= 0) {
+    if (ST.revive && !player.reviveUsed) {
+      player.reviveUsed = true;
+      player.lives = 1;
+      player.invuln = 3;
+      enemyBullets = [];
+      addText(player.x, player.y - 40, "SISTEMA DE EMERGÊNCIA", "#FFC145");
+      AudioSys.power();
+      updateHud();
+      return;
+    }
     player.alive = false;
     player.deadTimer = 1.6;
     AudioSys.bigBoom();
     explosion(player.x, player.y, "#4DE8FF", 60, 320);
     explosion(player.x, player.y, "#FF4D8F", 30, 200);
   } else {
-    player.invuln = 2.2;
+    player.invuln = ST.invulnDur;
     player.weapon = Math.max(1, player.weapon - 1);
   }
 }
 
+/* ---------- Recompensas ---------- */
+function bankRunGems(mult) {
+  const gained = Math.round(S.runGems * ST.crystalMult * (mult === undefined ? 1 : mult));
+  save.crystals += gained;
+  S.runGems = 0;
+  if (S.score > save.hi) save.hi = S.score;
+  persist();
+  return gained;
+}
+
+function faseVictory() {
+  S.mode = "victory";
+  const first = S.fase > save.best;
+  if (first) {
+    save.best = S.fase;
+    save.pts++;
+  }
+  const base = Math.round(faseReward(S.fase) * (first ? 1 : 0.3) * ST.crystalMult);
+  const gems = bankRunGems(1);
+  const scoreBonus = Math.floor(S.score / 100);
+  save.crystals += base + scoreBonus;
+  persist();
+  AudioSys.victory();
+  vibrate([40, 60, 40, 60, 120]);
+  $("vic-title").textContent = "FASE " + S.fase + " CONCLUÍDA";
+  $("vic-fase").textContent = S.fase + "/" + TOTAL_FASES;
+  $("vic-score").textContent = S.score;
+  $("vic-gems").textContent = "+" + (base + gems + scoreBonus) + " cristais";
+  $("vic-skill").style.display = first ? "block" : "none";
+  $("btn-next").style.display = S.fase >= TOTAL_FASES ? "none" : "inline-block";
+  showScreen("victory");
+}
+
 function gameOver() {
   S.mode = "gameover";
-  const isRecord = S.score > S.hi;
-  if (isRecord) {
-    S.hi = S.score;
-    storageSet("nn_hiscore", String(S.hi));
-  }
+  const isRecord = S.score > save.hi && S.score > 0; // antes de bankRunGems atualizar o recorde
+  const gems = bankRunGems(0.5);
   $("go-score").textContent = S.score;
-  $("go-wave").textContent = S.wave;
-  $("go-hi").textContent = S.hi;
-  $("go-record").style.display = isRecord && S.score > 0 ? "block" : "none";
+  $("go-fase").textContent = S.fase;
+  $("go-gems").textContent = "+" + gems + " cristais recuperados";
+  $("go-record").style.display = isRecord ? "block" : "none";
   showScreen("over");
 }
 
@@ -639,7 +1257,6 @@ function gameOver() {
 function update(dt) {
   S.time += dt;
 
-  // estrelas (fundo sempre anima, até no menu)
   for (const st of stars) {
     st.y += (30 + st.z * 120) * dt * (S.mode === "playing" ? 1 : 0.4);
     if (st.y > H + 2) { st.y = -2; st.x = Math.random() * W; }
@@ -652,7 +1269,6 @@ function update(dt) {
 
   /* --- jogador --- */
   if (player.alive) {
-    // teclado (desktop)
     const kSpd = 340 * dt;
     if (keys.ArrowLeft || keys.a) player.tx -= kSpd;
     if (keys.ArrowRight || keys.d) player.tx += kSpd;
@@ -668,15 +1284,31 @@ function update(dt) {
     player.tilt = clamp((player.x - oldX) * 0.9, -0.45, 0.45);
 
     if (player.invuln > 0) player.invuln -= dt;
-    if (player.shield > 0) player.shield -= dt;
+    if (player.shield > 0) {
+      player.shield -= dt;
+      if (player.shield <= 0) player.noShieldTime = 0;
+    } else if (ST.nanobots) {
+      player.noShieldTime += dt;
+      if (player.noShieldTime >= 20) {
+        player.shield = ST.shieldDur * 0.6;
+        addText(player.x, player.y - 30, "NANOBOTS", "#FFC145");
+        AudioSys.power();
+      }
+    }
 
     player.fireTimer -= dt;
     if (player.fireTimer <= 0) {
       playerShoot();
-      player.fireTimer = player.weapon === 3 ? 0.15 : 0.17;
+      player.fireTimer = ST.fireInterval * (player.weapon === 3 ? 0.9 : 1);
+    }
+    if (ST.missiles) {
+      player.missileTimer -= dt;
+      if (player.missileTimer <= 0 && (enemies.length > 0 || boss)) {
+        launchMissile();
+        player.missileTimer = 1.2;
+      }
     }
 
-    // motor
     if (Math.random() < 0.5) {
       particles.push({
         x: player.x + rand(-4, 4), y: player.y + player.r,
@@ -690,7 +1322,7 @@ function update(dt) {
   }
 
   /* --- spawns da onda --- */
-  if (S.waveState === "spawning" && !isBossWave(S.wave)) {
+  if (S.waveState === "spawning" && !waveIsBoss()) {
     S.spawnTimer -= dt;
     if (S.spawnTimer <= 0 && S.toSpawn > 0) {
       spawnEnemy();
@@ -702,16 +1334,16 @@ function update(dt) {
 
   // onda concluída?
   if (S.waveState !== "done" &&
-      ((isBossWave(S.wave) && !boss) ||
-       (!isBossWave(S.wave) && S.waveState === "fighting" && enemies.length === 0))) {
+      ((waveIsBoss() && !boss) ||
+       (!waveIsBoss() && S.waveState === "fighting" && enemies.length === 0))) {
     S.waveState = "done";
-    S.nextWaveTimer = 1.6;
+    S.interTimer = 1.4;
   }
   if (S.waveState === "done") {
-    S.nextWaveTimer -= dt;
-    if (S.nextWaveTimer <= 0) {
-      S.wave++;
-      updateHud();
+    S.interTimer -= dt;
+    if (S.interTimer <= 0) {
+      if (S.waveIdx >= S.nWaves) { faseVictory(); return; }
+      S.waveIdx++;
       setupWave();
     }
   }
@@ -726,41 +1358,78 @@ function update(dt) {
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       if (dist2(b.x, b.y, e.x, e.y) < (b.r + e.r) * (b.r + e.r)) {
-        e.hp--; e.hitFlash = 0.08;
-        AudioSys.hit();
+        const dm = bulletDmg();
+        damageEnemy(e, j, dm.d, dm.crit);
         particles.push({ x: b.x, y: b.y, vx: rand(-40, 40), vy: rand(-80, -20), t: 0.2, max: 0.2, color: "#EAF2FF", r: 2 });
-        if (e.hp <= 0) { killEnemy(e); enemies.splice(j, 1); }
-        bullets.splice(i, 1);
-        consumed = true;
+        if (b.pierce > 0) { b.pierce--; }
+        else { bullets.splice(i, 1); consumed = true; }
         break;
       }
     }
     if (consumed) continue;
 
     if (boss && !boss.entering && dist2(b.x, b.y, boss.x, boss.y) < (b.r + boss.r) * (b.r + boss.r)) {
-      boss.hp--; boss.hitFlash = 0.06;
+      const dm = bulletDmg();
+      boss.hp -= dm.d;
+      boss.hitFlash = 0.06;
       AudioSys.hit();
+      if (dm.crit) addText(b.x, b.y - 14, "CRÍTICO!", "#FFC145");
       particles.push({ x: b.x, y: b.y, vx: rand(-40, 40), vy: rand(-80, -20), t: 0.2, max: 0.2, color: "#EAF2FF", r: 2 });
       bullets.splice(i, 1);
-      if (boss.hp <= 0) {
-        const bonus = 500 + boss.lvl * 250;
-        S.score += bonus;
-        addText(boss.x, boss.y, "+" + bonus, "#FFC145");
-        explosion(boss.x, boss.y, "#FF4D8F", 60, 340);
-        explosion(boss.x, boss.y, "#FFC145", 40, 260);
-        AudioSys.bigBoom();
-        vibrate([80, 50, 120]);
-        S.shake = 18;
-        // recompensa garantida
-        powerups.push({ x: boss.x - 20, y: boss.y, type: "weapon", vy: 70, t: 0 });
-        powerups.push({ x: boss.x + 20, y: boss.y, type: "shield", vy: 70, t: 0 });
-        boss = null;
-        updateHud();
+      if (boss.hp <= 0) bossDefeated();
+    }
+  }
+
+  /* --- mísseis teleguiados --- */
+  for (let i = missilesArr.length - 1; i >= 0; i--) {
+    const m = missilesArr[i];
+    m.t -= dt;
+    if (m.t <= 0) { missilesArr.splice(i, 1); continue; }
+    // alvo mais próximo
+    let target = null, best = Infinity;
+    for (const e of enemies) {
+      const d = dist2(m.x, m.y, e.x, e.y);
+      if (d < best) { best = d; target = e; }
+    }
+    if (boss && !boss.entering) {
+      const d = dist2(m.x, m.y, boss.x, boss.y);
+      if (d < best) { best = d; target = boss; }
+    }
+    if (target) {
+      const ang = Math.atan2(target.y - m.y, target.x - m.x);
+      const sp = 420;
+      m.vx += (Math.cos(ang) * sp - m.vx) * 4 * dt;
+      m.vy += (Math.sin(ang) * sp - m.vy) * 4 * dt;
+    }
+    m.x += m.vx * dt; m.y += m.vy * dt;
+    particles.push({ x: m.x, y: m.y, vx: 0, vy: 40, t: 0.18, max: 0.18, color: "#FFC145", r: 1.8 });
+    if (m.x < -30 || m.x > W + 30 || m.y < -30 || m.y > H + 30) { missilesArr.splice(i, 1); continue; }
+
+    let hitSomething = false;
+    for (let j = enemies.length - 1; j >= 0; j--) {
+      const e = enemies[j];
+      if (dist2(m.x, m.y, e.x, e.y) < (m.r + e.r) * (m.r + e.r)) {
+        damageEnemy(e, j, 3 * ST.dmg, false);
+        hitSomething = true;
+        break;
       }
+    }
+    if (!hitSomething && boss && !boss.entering &&
+        dist2(m.x, m.y, boss.x, boss.y) < (m.r + boss.r) * (m.r + boss.r)) {
+      boss.hp -= 3 * ST.dmg;
+      boss.hitFlash = 0.06;
+      hitSomething = true;
+      if (boss.hp <= 0) bossDefeated();
+    }
+    if (hitSomething) {
+      explosion(m.x, m.y, "#FFC145", 10, 160);
+      AudioSys.hit();
+      missilesArr.splice(i, 1);
     }
   }
 
   /* --- inimigos --- */
+  const dl = Math.min(dLevel(), 60);
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     e.t += dt;
@@ -771,11 +1440,10 @@ function update(dt) {
 
     if (e.y > H + 50) { enemies.splice(i, 1); continue; }
 
-    // atira
     e.fireTimer -= dt;
     if (e.fireTimer <= 0 && e.y > 0 && e.y < H * 0.75) {
       if (e.type === "striker") {
-        enemyShootAt(e.x, e.y + e.r, 240 + S.wave * 6, 0.08);
+        enemyShootAt(e.x, e.y + e.r, 240 + dl * 3, 0.08);
         e.fireTimer = rand(1.4, 2.6);
       } else if (e.type === "tank") {
         for (let k = -1; k <= 1; k++) {
@@ -784,12 +1452,11 @@ function update(dt) {
         }
         e.fireTimer = rand(2.2, 3.4);
       } else {
-        enemyShootAt(e.x, e.y + e.r, 190 + S.wave * 5, 0.35);
+        enemyShootAt(e.x, e.y + e.r, 190 + dl * 2.5, 0.35);
         e.fireTimer = rand(2, 4);
       }
     }
 
-    // colisão com o jogador
     if (player.alive && player.invuln <= 0 &&
         dist2(e.x, e.y, player.x, player.y) < (e.r + player.r - 4) * (e.r + player.r - 4)) {
       killEnemy(e);
@@ -811,19 +1478,20 @@ function update(dt) {
 
       boss.fireTimer -= dt;
       if (boss.fireTimer <= 0) {
-        enemyShootAt(boss.x - boss.r * 0.5, boss.y + boss.r * 0.6, 230 + boss.lvl * 25, 0.06);
-        enemyShootAt(boss.x + boss.r * 0.5, boss.y + boss.r * 0.6, 230 + boss.lvl * 25, 0.06);
-        boss.fireTimer = Math.max(0.5, 1.1 - boss.lvl * 0.1);
+        const bs = Math.min(230 + boss.lvl * 12, 380);
+        enemyShootAt(boss.x - boss.r * 0.5, boss.y + boss.r * 0.6, bs, 0.06);
+        enemyShootAt(boss.x + boss.r * 0.5, boss.y + boss.r * 0.6, bs, 0.06);
+        boss.fireTimer = Math.max(0.45, 1.1 - boss.lvl * 0.05);
       }
       boss.burstTimer -= dt;
       if (boss.burstTimer <= 0) {
-        const n = 10 + boss.lvl * 2;
+        const n = Math.min(10 + boss.lvl, 22);
         for (let k = 0; k < n; k++) {
           const ang = (k / n) * TAU + boss.t;
           enemyBullets.push({ x: boss.x, y: boss.y, vx: Math.cos(ang) * 150, vy: Math.sin(ang) * 150, r: 5 });
         }
         AudioSys.tone(160, 0.25, "sawtooth", 0.15, 80);
-        boss.burstTimer = Math.max(2.2, 4 - boss.lvl * 0.3);
+        boss.burstTimer = Math.max(2, 4 - boss.lvl * 0.15);
       }
 
       if (player.alive && player.invuln <= 0 &&
@@ -851,6 +1519,15 @@ function update(dt) {
     p.t += dt;
     p.y += p.vy * dt;
     p.x += Math.sin(p.t * 3) * 20 * dt;
+    if (ST.magnet && player.alive) {
+      const d = dist2(p.x, p.y, player.x, player.y);
+      if (d < 150 * 150) {
+        const ang = Math.atan2(player.y - p.y, player.x - p.x);
+        const pull = 340 * (1 - Math.sqrt(d) / 150);
+        p.x += Math.cos(ang) * pull * dt;
+        p.y += Math.sin(ang) * pull * dt;
+      }
+    }
     if (p.y > H + 30) { powerups.splice(i, 1); continue; }
     if (player.alive && dist2(p.x, p.y, player.x, player.y) < (16 + player.r) * (16 + player.r)) {
       applyPowerup(p);
@@ -874,16 +1551,32 @@ function update(dt) {
   }
 }
 
+function bossDefeated() {
+  if (!boss) return;
+  const bonus = 500 + S.fase * 20;
+  S.score += bonus;
+  addText(boss.x, boss.y, "+" + bonus, "#FFC145");
+  explosion(boss.x, boss.y, "#FF4D8F", 60, 340);
+  explosion(boss.x, boss.y, "#FFC145", 40, 260);
+  AudioSys.bigBoom();
+  vibrate([80, 50, 120]);
+  S.shake = 18;
+  powerups.push({ x: boss.x - 24, y: boss.y, type: "gem", vy: 70, t: 0 });
+  powerups.push({ x: boss.x, y: boss.y, type: "gem", vy: 70, t: 0.4 });
+  powerups.push({ x: boss.x + 24, y: boss.y, type: "gem", vy: 70, t: 0.8 });
+  boss = null;
+  updateHud();
+}
+
 /* ---------- Desenho ---------- */
 function drawShip() {
   if (!player.alive) return;
-  if (player.invuln > 0 && Math.floor(S.time * 12) % 2 === 0) return; // pisca
+  if (player.invuln > 0 && Math.floor(S.time * 12) % 2 === 0) return;
 
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.rotate(player.tilt);
 
-  // escudo
   if (player.shield > 0) {
     const a = player.shield < 1.5 ? (Math.sin(S.time * 20) * 0.25 + 0.45) : 0.55;
     ctx.strokeStyle = "rgba(255,193,69," + a + ")";
@@ -895,7 +1588,6 @@ function drawShip() {
 
   ctx.shadowColor = "#4DE8FF";
   ctx.shadowBlur = 16;
-  // corpo
   ctx.fillStyle = "#4DE8FF";
   ctx.beginPath();
   ctx.moveTo(0, -18);
@@ -906,7 +1598,6 @@ function drawShip() {
   ctx.lineTo(-11, 10);
   ctx.closePath();
   ctx.fill();
-  // cabine
   ctx.shadowBlur = 0;
   ctx.fillStyle = "#062033";
   ctx.beginPath();
@@ -932,7 +1623,7 @@ function drawEnemy(e) {
     ctx.beginPath();
     ctx.moveTo(0, 16); ctx.lineTo(10, -10); ctx.lineTo(0, -5); ctx.lineTo(-10, -10);
     ctx.closePath(); ctx.fill();
-  } else { // tank
+  } else {
     ctx.rotate(e.t * 0.8);
     ctx.shadowColor = "#C34DFF"; ctx.shadowBlur = 12;
     ctx.fillStyle = flash ? "#FFFFFF" : "#C34DFF";
@@ -968,7 +1659,6 @@ function drawBoss() {
   }
   ctx.closePath(); ctx.fill();
   ctx.shadowBlur = 0;
-  // núcleo
   const pulse = 0.85 + Math.sin(boss.t * 5) * 0.15;
   ctx.fillStyle = "#3A0A1E";
   ctx.beginPath(); ctx.arc(0, 0, boss.r * 0.42, 0, TAU); ctx.fill();
@@ -976,7 +1666,6 @@ function drawBoss() {
   ctx.beginPath(); ctx.arc(0, 0, boss.r * 0.22 * pulse, 0, TAU); ctx.fill();
   ctx.restore();
 
-  // barra de vida
   const bw = Math.min(W - 40, 320);
   const bx = (W - bw) / 2;
   const by = Math.max(64, H * 0.085) + 26;
@@ -994,6 +1683,20 @@ function drawPowerup(p) {
   ctx.translate(p.x, p.y);
   const bob = Math.sin(p.t * 5) * 0.15 + 1;
   ctx.scale(bob, bob);
+  if (p.type === "gem") {
+    ctx.shadowColor = "#FFC145"; ctx.shadowBlur = 12;
+    ctx.fillStyle = "#FFC145";
+    ctx.beginPath();
+    ctx.moveTo(0, -9); ctx.lineTo(7, 0); ctx.lineTo(0, 9); ctx.lineTo(-7, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.beginPath();
+    ctx.moveTo(0, -9); ctx.lineTo(7, 0); ctx.lineTo(0, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+    return;
+  }
   let color, letter;
   if (p.type === "weapon") { color = "#4DE8FF"; letter = "W"; }
   else if (p.type === "shield") { color = "#FFC145"; letter = "S"; }
@@ -1016,7 +1719,6 @@ function draw() {
   ctx.fillStyle = "#060A18";
   ctx.fillRect(0, 0, W, H);
 
-  // nebulosa sutil
   const g = ctx.createRadialGradient(W * 0.75, H * 0.2, 0, W * 0.75, H * 0.2, H * 0.8);
   g.addColorStop(0, "rgba(255,77,143,0.07)");
   g.addColorStop(1, "rgba(255,77,143,0)");
@@ -1028,7 +1730,6 @@ function draw() {
   ctx.fillStyle = g2;
   ctx.fillRect(0, 0, W, H);
 
-  // estrelas
   for (const st of stars) {
     ctx.globalAlpha = 0.25 + st.z * 0.75;
     ctx.fillStyle = "#EAF2FF";
@@ -1037,14 +1738,13 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  if (S.mode === "menu" || S.mode === "gameover") return;
+  if (S.mode !== "playing" && S.mode !== "paused") return;
 
   ctx.save();
   if (S.shake > 0.5) {
     ctx.translate(rand(-S.shake, S.shake) * 0.5, rand(-S.shake, S.shake) * 0.5);
   }
 
-  // balas do jogador
   ctx.fillStyle = "#9FF3FF";
   ctx.shadowColor = "#4DE8FF"; ctx.shadowBlur = 8;
   for (const b of bullets) {
@@ -1052,7 +1752,18 @@ function draw() {
   }
   ctx.shadowBlur = 0;
 
-  // balas inimigas
+  // mísseis
+  ctx.shadowColor = "#FFC145"; ctx.shadowBlur = 10;
+  ctx.fillStyle = "#FFC145";
+  for (const m of missilesArr) {
+    ctx.save();
+    ctx.translate(m.x, m.y);
+    ctx.rotate(Math.atan2(m.vy, m.vx) + Math.PI / 2);
+    ctx.fillRect(-3, -8, 6, 16);
+    ctx.restore();
+  }
+  ctx.shadowBlur = 0;
+
   ctx.shadowColor = "#FF4D8F"; ctx.shadowBlur = 8;
   for (const b of enemyBullets) {
     ctx.fillStyle = "#FF87B3";
@@ -1065,7 +1776,6 @@ function draw() {
   for (const p of powerups) drawPowerup(p);
   drawShip();
 
-  // partículas
   for (const p of particles) {
     ctx.globalAlpha = clamp(p.t / p.max, 0, 1);
     ctx.fillStyle = p.color;
@@ -1073,7 +1783,6 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // textos flutuantes
   ctx.textAlign = "center";
   ctx.font = "700 14px 'Chakra Petch',sans-serif";
   for (const t of texts) {
@@ -1083,7 +1792,6 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // banner de onda
   if (S.banner) {
     const a = clamp(S.banner.t, 0, 1);
     ctx.globalAlpha = a;
@@ -1109,7 +1817,7 @@ let last = performance.now();
 function loop(now) {
   let dt = (now - last) / 1000;
   last = now;
-  if (dt > 0.05) dt = 0.05; // evita saltos após aba em segundo plano
+  if (dt > 0.05) dt = 0.05;
   update(dt);
   draw();
   requestAnimationFrame(loop);
