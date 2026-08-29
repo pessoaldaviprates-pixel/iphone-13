@@ -56,6 +56,10 @@ Basta abrir o arquivo **`index.html`** em qualquer navegador moderno. Não é ne
 - 🔊 **Sons** de enviar/receber (WebAudio) com liga/desliga.
 
 ### Extras
+- 🛬 Modal de boas-vindas com dicas rápidas na primeira visita.
+- 😄 Mensagens só de emoji aparecem em tamanho gigante, como no Discord.
+- 🔔 O título da aba mostra a contagem de canais não lidos, ex: "(2) GuildChat".
+- 🤖 O Admin-Robô às vezes reage às suas mensagens com 👍🔥😂💯.
 - 🔍 Busca de mensagens no canal ativo.
 - 🎧 Salas de voz simuladas: entre e saia, com barra de conexão e contagem de participantes.
 - 🪪 Cartão de perfil ao clicar em qualquer membro.

@@ -464,6 +464,7 @@
   }
   .message-text a { color: var(--accent); text-decoration: none; }
   .message-text a:hover { text-decoration: underline; }
+  .message-text.jumbo { font-size: calc(var(--msg-font) * 2.4); line-height: 1.25; }
   .mention {
     background: var(--accent-soft);
     color: var(--accent);
@@ -1557,6 +1558,29 @@
   </div>
 </div>
 
+<!-- MODAL: BOAS-VINDAS -->
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal" style="max-width:440px;">
+    <h2>🛡️ Bem-vindo(a) ao GuildChat!</h2>
+    <p class="modal-sub">Sua comunidade, seu universo. Três dicas rápidas:</p>
+    <div class="profile-pop-box">
+      <h4>💬 Converse</h4>
+      <p>Use **negrito**, `código`, ||spoilers|| e mencione com @. O Admin-Robô responde a "olá" — e digite /ajuda para ver os comandos!</p>
+    </div>
+    <div class="profile-pop-box">
+      <h4>⌨️ Voe pelo app</h4>
+      <p>Ctrl+K busca canais, Alt+↑/↓ troca de canal e o clique direito abre o menu da mensagem.</p>
+    </div>
+    <div class="profile-pop-box">
+      <h4>🎨 Deixe com a sua cara</h4>
+      <p>Perfil com foto, 8 temas e cor de destaque livre — tudo na engrenagem ⚙️ ali embaixo.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-create" id="btnWelcomeGo">Começar 🚀</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: CONFIRMAÇÃO -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal" style="max-width:380px;">
@@ -1964,6 +1988,21 @@ function formatText(raw) {
   return t;
 }
 
+function isJumbo(raw) {
+  if (!raw) return false;
+  const t = raw.trim();
+  if (!t || t.length > 16) return false;
+  try {
+    return /^(?:\p{Extended_Pictographic}|\p{Emoji_Component}|\uFE0F|\u200D|\s)+$/u.test(t) &&
+           /\p{Extended_Pictographic}/u.test(t);
+  } catch (e) { return false; }
+}
+
+function updateTitle() {
+  const n = Object.keys(state.unread).length;
+  document.title = (n ? '(' + n + ') ' : '') + 'GuildChat — Sua comunidade, seu universo';
+}
+
 /* ==========================================================
    SONS (WebAudio)
    ========================================================== */
@@ -2246,7 +2285,7 @@ function buildMessageEl(msg, grouped) {
     : '';
 
   const textHTML =
-    '<div class="message-text">' + formatText(msg.text || '') +
+    '<div class="message-text' + (isJumbo(msg.text) ? ' jumbo' : '') + '">' + formatText(msg.text || '') +
     (msg.pinned ? ' <span class="pin-flag" title="Mensagem fixada">📌</span>' : '') +
     '</div>';
 
@@ -2257,6 +2296,7 @@ function buildMessageEl(msg, grouped) {
 
   if (grouped) {
     el.className = 'message grouped';
+    el.title = (dateOf(msg) === todayISO() ? 'hoje' : dateLabel(dateOf(msg))) + ' às ' + msg.time;
     el.innerHTML =
       actionsHTML +
       '<div class="avatar" aria-hidden="true"></div>' +
@@ -2483,12 +2523,14 @@ function renderAll() {
 function clearActiveUnread() {
   const key = channelKey(activeServerId, activeChannelId);
   if (state.unread[key]) { delete state.unread[key]; save(); }
+  updateTitle();
 }
 
 function markUnread(sId, cId) {
   if (sId === activeServerId && cId === activeChannelId) return;
   state.unread[channelKey(sId, cId)] = true;
   save();
+  updateTitle();
   if (sId === activeServerId) renderChannelList();
   renderServerBar();
 }
@@ -2533,7 +2575,25 @@ function pushUserMessage(text, img) {
   unlock('primeira_msg');
   if (state.stats.msgs >= 50) unlock('tagarela');
   addXP(img ? 10 : 5);
+  if (!(text || '').startsWith('/')) maybeBotReact(msg, activeServerId, activeChannelId);
   return msg;
+}
+
+function maybeBotReact(msg, sId, cId) {
+  if (Math.random() > 0.15) return;
+  setTimeout(() => {
+    const arr = state.messages[channelKey(sId, cId)];
+    if (!arr) return;
+    const stored = arr.find(m => m.id === msg.id);
+    if (!stored) return;
+    normalizeMsg(stored);
+    const em = ['👍', '🔥', '😂', '💯'][Math.floor(Math.random() * 4)];
+    const r = stored.reactions[em] || { count: 0, me: false };
+    r.count += 1;
+    stored.reactions[em] = r;
+    save();
+    if (sId === activeServerId && cId === activeChannelId) refreshMessage(msg.id);
+  }, 1600 + Math.random() * 1500);
 }
 
 function pushBotMessage(text, sId, cId, instant) {
@@ -3779,12 +3839,20 @@ $('drawerOverlay').addEventListener('click', closeDrawer);
    INICIALIZAÇÃO
    ========================================================== */
 loadState();
+$('btnWelcomeGo').addEventListener('click', () => {
+  state.welcomed = true;
+  save();
+  closeModal('welcomeModal');
+  $('messageInput').focus();
+});
 activeServerId = state.servers[0].id;
 const initCh = state.servers[0].channels.find(c => c.type === 'text');
 activeChannelId = initCh ? initCh.id : null;
 trackVisit(activeServerId);
 renderAll();
+updateTitle();
 scheduleAmbient();
+if (!state.welcomed) openModal('welcomeModal');
 
 // Gancho mínimo para testes automatizados
 window.GuildChat = { ambientTick };
