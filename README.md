@@ -42,6 +42,13 @@ Basta abrir o arquivo **`index.html`** em qualquer navegador moderno. Não é ne
 - 🆙 **XP e níveis**: ganhe XP por mensagem, acompanhe a barra de progresso no seu cartão de perfil e com `/nivel`.
 - 🏅 **11 conquistas** desbloqueáveis (primeira mensagem, tagarela, arquiteto, decorador, fotogênico, explorador e mais), exibidas no seu perfil.
 
+### Telas do Discord real (4.0)
+- ⚙️ **Config. do servidor**: página completa idêntica ao Discord mobile — Visão geral, Moderação, Registro de auditoria (histórico real de ações!), Canais, Integrações, Emoji, Figurinhas (enviam emojis gigantes), Tag do servidor, Segurança, Habilitar comunidade, Membros, Cargos, Convites (link copiável) e Banimentos.
+- 📱 **Bottom sheet de canal** (engrenagem ou clique direito/segurar): Convite, Fixe o Canal no Topo, Copiar link, Marcar como lida, Silenciar canal, Config. de notificação (Tudo/Menções/Nada), Editar, Duplicar e Copiar ID — tudo funcional.
+- 🏗️ **Criar seu servidor com moldes**: Criar o meu, Jogos, Clube escolar, Grupo de estudos, Amigos, Artistas e Criadores, Comunidade Local — cada molde cria canais prontos; e "Já tem um convite? Entrar em um servidor" leva ao GuildChat Oficial.
+- 🔎 **Coluna de canais estilo mobile**: barra Buscar (filtra canais), botões de convite e eventos, linha "Impulsos de servidor", categorias recolhíveis (▾) e sino de notificações.
+- 🔕 Canais silenciados ou com notificação "Nada" não geram marcações de não-lido.
+
 ### Edição total (estilo Discord de verdade)
 - ✏️ **Mensagens**: edite (com marca de "editado"), apague e reaja com emojis às mensagens.
 - 📝 **Canais**: crie, renomeie, mude a descrição e exclua canais de texto e de voz (botão + nas categorias e engrenagem em cada canal).

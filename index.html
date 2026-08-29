@@ -1190,6 +1190,194 @@
     z-index: 25;
   }
 
+  /* ============ HERO DA COLUNA 2 (busca / convite / eventos) ============ */
+  .col2-hero { padding: 10px 12px 6px; border-bottom: 1px solid var(--line-dark); }
+  .hero-row { display: flex; gap: 8px; align-items: center; }
+  .hero-row input {
+    flex: 1; min-width: 0;
+    background: var(--overlay-1);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+  }
+  .hero-row input:focus { border-color: var(--accent); }
+  .hero-btn {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: var(--overlay-1);
+    color: var(--text-main);
+    font-size: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .hero-btn:hover { background: var(--accent-soft); }
+  .boost-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 6px;
+    margin-top: 6px;
+    color: var(--text-muted);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  .boost-row:hover { background: var(--overlay-1); color: var(--text-main); }
+  .boost-row .arr { margin-left: auto; color: var(--text-dim); }
+
+  .cat-toggle { display: inline-block; font-size: 9px; transition: transform 0.15s; }
+  .channel-category { cursor: pointer; }
+  .channel-category.collapsed .cat-toggle { transform: rotate(-90deg); }
+  .channel-item.muted { opacity: 0.5; }
+
+  /* ============ BOTTOM SHEET (estilo Discord mobile) ============ */
+  .sheet-overlay {
+    position: fixed; inset: 0;
+    background: rgba(3,7,18,0.7);
+    z-index: 230;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .sheet-overlay.open { display: flex; }
+  .sheet {
+    width: 100%; max-width: 560px;
+    background: var(--bg-channels);
+    border-radius: 18px 18px 0 0;
+    padding: 10px 14px 24px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: sheetUp 0.22s ease;
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+  .sheet-handle { width: 44px; height: 4px; border-radius: 2px; background: var(--divider); margin: 4px auto 14px; }
+  .sheet-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 800; padding: 0 4px 12px; }
+  .sheet-group { background: var(--overlay-1); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+  .sheet-row {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%;
+    padding: 14px 16px;
+    background: none; border: none;
+    color: var(--text-main);
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+  }
+  .sheet-row + .sheet-row { border-top: 1px solid var(--border-soft); }
+  .sheet-row:hover { background: var(--overlay-2); }
+  .sheet-row .sr-icon { width: 24px; text-align: center; font-size: 17px; flex-shrink: 0; }
+  .sheet-row .sr-arrow { margin-left: auto; color: var(--text-dim); font-size: 18px; }
+  .sheet-row.danger { color: var(--danger); }
+  .sheet-radio {
+    margin-left: auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--divider);
+    flex-shrink: 0;
+  }
+  .sheet-row.sel .sheet-radio {
+    border-color: var(--accent);
+    background: radial-gradient(circle at center, var(--accent) 45%, transparent 52%);
+  }
+
+  /* ============ PÁGINA COMPLETA (Config. do servidor) ============ */
+  .full-page {
+    position: fixed; inset: 0;
+    background: var(--bg-app);
+    z-index: 210;
+    display: none;
+    flex-direction: column;
+  }
+  .full-page.open { display: flex; }
+  .fp-top { display: flex; align-items: center; padding: 12px 16px; gap: 12px; }
+  .fp-top button {
+    background: none; border: none;
+    color: var(--text-main);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .fp-top button:hover { background: var(--overlay-1); }
+  .fp-title { flex: 1; text-align: center; font-size: 17px; font-weight: 800; margin-right: 44px; }
+  .fp-body { flex: 1; overflow-y: auto; padding: 6px 16px 40px; max-width: 640px; width: 100%; margin: 0 auto; }
+  .fp-hero { text-align: center; padding: 8px 0 18px; }
+  .fp-hero-icon {
+    width: 84px; height: 84px;
+    border-radius: 22px;
+    background: var(--bg-channels);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px;
+    margin: 0 auto 10px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid var(--border-soft);
+  }
+  .fp-hero-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 22px; }
+  .fp-hero-icon .cam {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #fff; color: #111;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fp-hero-name { font-size: 19px; font-weight: 800; }
+  .fp-section { font-size: 13px; color: var(--text-muted); font-weight: 700; padding: 16px 4px 8px; }
+  .fp-empty { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; line-height: 1.6; }
+  .fp-empty .big { font-size: 44px; display: block; margin-bottom: 10px; }
+  .invite-box { display: flex; gap: 8px; margin-top: 10px; }
+  .invite-box input {
+    flex: 1; min-width: 0;
+    background: var(--bg-channels);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--accent);
+    font-weight: 700; font-size: 15px;
+    outline: none;
+    font-family: inherit;
+  }
+  .emoji-grid-lg { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; margin-top: 10px; }
+  .emoji-grid-lg button {
+    font-size: 26px;
+    background: var(--overlay-1);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  .emoji-grid-lg button:hover { background: var(--accent-soft); }
+  .audit-item {
+    display: flex; gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--overlay-1);
+    font-size: 13.5px;
+    color: var(--text-soft);
+  }
+  .audit-item time { color: var(--text-dim); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  .tpl-footer { text-align: center; margin-top: 18px; }
+  .tpl-footer p { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .btn-wide {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-wide:hover { filter: brightness(1.12); }
+
   /* ============ RESPONSIVIDADE ============ */
   @media (max-width: 1100px) {
     .members-panel { display: none !important; }
@@ -1213,6 +1401,12 @@
     .emoji-pop { grid-template-columns: repeat(6, 34px); }
     .scroll-down { bottom: 96px; right: 14px; }
   }
+  @media (max-width: 768px) {
+    .channel-bar {
+      background: var(--bg-channels);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 16%, var(--bg-channels)) 0%, var(--bg-channels) 42%);
+    }
+  }
   @media (min-width: 769px) {
     .sidebar-drawer { display: flex; }
   }
@@ -1231,6 +1425,14 @@
       <div class="server-header" id="serverHeader" title="Configurações do servidor">
         <span class="server-header-name" id="serverHeaderName">GuildChat</span>
         <span class="server-header-gear">⚙️</span>
+      </div>
+      <div class="col2-hero">
+        <div class="hero-row">
+          <input type="text" id="channelSearch" placeholder="Buscar" autocomplete="off">
+          <button class="hero-btn" id="btnInvitePeople" title="Convidar pessoas">👥</button>
+          <button class="hero-btn" id="btnEvents" title="Eventos">📅</button>
+        </div>
+        <div class="boost-row" id="boostRow"><span>🛡️</span> Impulsos de servidor <span class="arr">›</span></div>
       </div>
       <div class="channel-list" id="channelList"></div>
 
@@ -1253,6 +1455,7 @@
           <div class="user-panel-status" id="userPanelStatus">Online</div>
         </div>
         <div class="user-panel-icons">
+          <button title="Notificações" id="btnBell">🔔</button>
           <button title="Editar perfil" id="btnProfile">👤</button>
           <button title="Configurações e aparência" id="btnSettings">⚙️</button>
         </div>
@@ -1558,6 +1761,57 @@
   </div>
 </div>
 
+<!-- BOTTOM SHEET DE CANAL -->
+<div class="sheet-overlay" id="channelSheet"><div class="sheet" id="channelSheetBody"></div></div>
+
+<!-- PÁGINA: CONFIG. DO SERVIDOR -->
+<div class="full-page" id="serverSettingsPage">
+  <div class="fp-top"><button id="ssClose" title="Fechar">✕</button><div class="fp-title">Config. do servidor</div></div>
+  <div class="fp-body" id="ssBody"></div>
+</div>
+<div class="full-page" id="subPage">
+  <div class="fp-top"><button id="spBack" title="Voltar">‹</button><div class="fp-title" id="spTitle"></div></div>
+  <div class="fp-body" id="spBody"></div>
+</div>
+
+<!-- MODAL: CRIAR SEU SERVIDOR (com moldes) -->
+<div class="modal-overlay" id="templateModal">
+  <div class="modal" style="max-width:440px;">
+    <h2>Criar seu servidor</h2>
+    <p class="modal-sub">Seu servidor é onde você e seus amigos se reúnem. Crie o seu e comece a interagir.</p>
+    <div class="sheet-group">
+      <button class="sheet-row" data-tpl="meu"><span class="sr-icon">🧑‍🎨</span>Criar o meu<span class="sr-arrow">›</span></button>
+    </div>
+    <div class="fp-section">Começar de um molde</div>
+    <div class="sheet-group">
+      <button class="sheet-row" data-tpl="jogos"><span class="sr-icon">🎮</span>Jogos<span class="sr-arrow">›</span></button>
+      <button class="sheet-row" data-tpl="clube"><span class="sr-icon">📘</span>Clube escolar<span class="sr-arrow">›</span></button>
+      <button class="sheet-row" data-tpl="estudos"><span class="sr-icon">🍎</span>Grupo de estudos<span class="sr-arrow">›</span></button>
+      <button class="sheet-row" data-tpl="amigos"><span class="sr-icon">💗</span>Amigos<span class="sr-arrow">›</span></button>
+      <button class="sheet-row" data-tpl="artistas"><span class="sr-icon">🎨</span>Artistas e Criadores<span class="sr-arrow">›</span></button>
+      <button class="sheet-row" data-tpl="local"><span class="sr-icon">🍃</span>Comunidade Local<span class="sr-arrow">›</span></button>
+    </div>
+    <div class="tpl-footer">
+      <p>Já tem um convite?</p>
+      <button class="btn-wide" id="btnJoinServer">Entrar em um servidor</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ENTRAR COM CONVITE -->
+<div class="modal-overlay" id="joinModal">
+  <div class="modal" style="max-width:400px;">
+    <h2>Entrar em um servidor</h2>
+    <p class="modal-sub">Cole um convite abaixo para entrar em um servidor existente.</p>
+    <label for="joinInput">Link do convite</label>
+    <input type="text" id="joinInput" placeholder="guild.chat/aBc123" maxlength="60">
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="joinModal">Cancelar</button>
+      <button class="btn-create" id="btnJoinGo">Entrar no servidor</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: BOAS-VINDAS -->
 <div class="modal-overlay" id="welcomeModal">
   <div class="modal" style="max-width:440px;">
@@ -1825,6 +2079,7 @@ function freshState() {
     servers: JSON.parse(JSON.stringify(DEFAULT_SERVERS)),
     messages: {},
     unread: {},
+    audit: [],
     stats: { xp: 0, msgs: 0, ach: {}, visited: {} }
   };
 }
@@ -1838,6 +2093,7 @@ function loadState() {
       // Migração 2.0 → 3.0: garante os campos novos
       if (!state.unread) state.unread = {};
       if (!state.stats) state.stats = { xp: 0, msgs: 0, ach: {}, visited: {} };
+      if (!state.audit) state.audit = [];
       if (state.appearance.ambient === undefined) state.appearance.ambient = true;
       if (!THEMES[state.appearance.theme]) state.appearance.theme = 'cyber';
       return;
@@ -2122,8 +2378,8 @@ function renderServerBar() {
   addBtn.setAttribute('data-tooltip', 'Criar um servidor');
   addBtn.setAttribute('role', 'button');
   addBtn.setAttribute('tabindex', '0');
-  addBtn.addEventListener('click', () => openServerModal(null));
-  addBtn.addEventListener('keydown', e => { if (e.key === 'Enter') openServerModal(null); });
+  addBtn.addEventListener('click', openTemplateModal);
+  addBtn.addEventListener('keydown', e => { if (e.key === 'Enter') openTemplateModal(); });
   bar.appendChild(addBtn);
 }
 
@@ -2132,15 +2388,19 @@ function renderServerBar() {
    ========================================================== */
 function renderChannelList() {
   const server = getServer(activeServerId);
-  $('serverHeaderName').textContent = (server.img ? '' : server.icon + ' ') + server.name;
+  $('serverHeaderName').textContent = (server.img ? '' : server.icon + ' ') + server.name + (server.tag ? ' [' + server.tag + ']' : '');
 
   const list = $('channelList');
   list.innerHTML = '';
+  const searchEl = $('channelSearch');
+  const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
 
   const buildCategory = (title, type) => {
+    const key = server.id + ':' + type;
     const cat = document.createElement('div');
-    cat.className = 'channel-category';
-    cat.innerHTML = '<span>' + title + '</span>';
+    cat.className = 'channel-category' + (collapsedCats[key] ? ' collapsed' : '');
+    cat.innerHTML = '<span><span class="cat-toggle">▾</span> ' + title + '</span>';
+    cat.addEventListener('click', () => { collapsedCats[key] = !collapsedCats[key]; renderChannelList(); });
     const add = document.createElement('button');
     add.className = 'cat-add';
     add.title = 'Criar canal';
@@ -2148,54 +2408,61 @@ function renderChannelList() {
     add.addEventListener('click', e => { e.stopPropagation(); openChannelModal(null, type); });
     cat.appendChild(add);
     list.appendChild(cat);
+    return !collapsedCats[key] || !!query;
   };
 
-  const textChannels  = server.channels.filter(c => c.type === 'text');
-  const voiceChannels = server.channels.filter(c => c.type === 'voice');
+  const matches = ch => !query || ch.name.toLowerCase().includes(query);
+  const textChannels  = server.channels.filter(ch => ch.type === 'text' && matches(ch));
+  const voiceChannels = server.channels.filter(ch => ch.type === 'voice' && matches(ch));
 
-  buildCategory('Canais de texto', 'text');
-  textChannels.forEach(ch => {
-    const key = channelKey(server.id, ch.id);
-    const item = document.createElement('div');
-    item.className = 'channel-item'
-      + (ch.id === activeChannelId ? ' active' : '')
-      + (state.unread[key] ? ' unread' : '');
-    item.innerHTML = '<span class="channel-hash">#</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>';
+  const buildGear = ch => {
     const gear = document.createElement('button');
     gear.className = 'ch-edit';
-    gear.title = 'Editar canal';
+    gear.title = 'Opções do canal';
     gear.textContent = '⚙️';
-    gear.addEventListener('click', e => { e.stopPropagation(); openChannelModal(ch.id); });
-    item.appendChild(gear);
-    item.addEventListener('click', () => selectChannel(ch.id));
-    list.appendChild(item);
-  });
+    gear.addEventListener('click', e => { e.stopPropagation(); openChannelSheet(ch.id); });
+    return gear;
+  };
 
-  buildCategory('Canais de voz', 'voice');
-  voiceChannels.forEach(ch => {
-    const inThis = voiceConn && voiceConn.serverId === server.id && voiceConn.channelId === ch.id;
-    const count = (ch.users || 0) + (inThis ? 1 : 0);
-    const item = document.createElement('div');
-    item.className = 'channel-item channel-voice';
-    item.innerHTML =
-      '<span class="channel-hash">🔊</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>' +
-      (count ? '<span class="voice-users">' + count + ' 🎧</span>' : '');
-    const gear = document.createElement('button');
-    gear.className = 'ch-edit';
-    gear.title = 'Editar canal';
-    gear.textContent = '⚙️';
-    gear.addEventListener('click', e => { e.stopPropagation(); openChannelModal(ch.id); });
-    item.appendChild(gear);
-    item.addEventListener('click', () => joinVoice(server.id, ch.id));
-    list.appendChild(item);
+  if (buildCategory('Canais de texto', 'text')) {
+    textChannels.forEach(ch => {
+      const key = channelKey(server.id, ch.id);
+      const item = document.createElement('div');
+      item.className = 'channel-item'
+        + (ch.id === activeChannelId ? ' active' : '')
+        + (state.unread[key] && !ch.muted ? ' unread' : '')
+        + (ch.muted ? ' muted' : '');
+      item.innerHTML = '<span class="channel-hash">#</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>' +
+        (ch.muted ? '<span style="font-size:11px">🔕</span>' : '');
+      item.appendChild(buildGear(ch));
+      item.addEventListener('click', () => selectChannel(ch.id));
+      item.addEventListener('contextmenu', e => { e.preventDefault(); openChannelSheet(ch.id); });
+      list.appendChild(item);
+    });
+  }
 
-    if (inThis) {
-      const self = document.createElement('div');
-      self.className = 'voice-self';
-      self.innerHTML = '<div class="avatar">' + avatarHTML(state.profile.emoji, state.profile.img) + '</div><span>' + escapeHTML(state.profile.name) + '</span>';
-      list.appendChild(self);
-    }
-  });
+  if (buildCategory('Canais de voz', 'voice')) {
+    voiceChannels.forEach(ch => {
+      const inThis = voiceConn && voiceConn.serverId === server.id && voiceConn.channelId === ch.id;
+      const count = (ch.users || 0) + (inThis ? 1 : 0);
+      const item = document.createElement('div');
+      item.className = 'channel-item channel-voice' + (ch.muted ? ' muted' : '');
+      item.innerHTML =
+        '<span class="channel-hash">🔊</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>' +
+        (count ? '<span class="voice-users">' + count + ' 🎧</span>' : '');
+      item.appendChild(buildGear(ch));
+      item.addEventListener('click', () => joinVoice(server.id, ch.id));
+      item.addEventListener('contextmenu', e => { e.preventDefault(); openChannelSheet(ch.id); });
+      list.appendChild(item);
+
+      if (inThis) {
+        const self = document.createElement('div');
+        self.className = 'voice-self';
+        self.innerHTML = '<div class="avatar">' + avatarHTML(state.profile.emoji, state.profile.img) + '</div><span>' + escapeHTML(state.profile.name) + '</span>';
+        list.appendChild(self);
+      }
+    });
+  }
 
   renderVoiceBar();
 }
@@ -2528,6 +2795,8 @@ function clearActiveUnread() {
 
 function markUnread(sId, cId) {
   if (sId === activeServerId && cId === activeChannelId) return;
+  const ch = getChannel(getServer(sId), cId);
+  if (ch && (ch.muted || ch.notif === 'none')) return;
   state.unread[channelKey(sId, cId)] = true;
   save();
   updateTitle();
@@ -3001,6 +3270,7 @@ function saveServerModal() {
     server.icon = selectedServerEmoji;
     server.img = pendingServerImg;
     save();
+    audit('Servidor atualizado: "' + name + '"');
     closeModal('serverModal');
     renderAll();
     showToast('✅ Servidor atualizado!');
@@ -3013,19 +3283,17 @@ function saveServerModal() {
     img: pendingServerImg,
     name,
     custom: true,
-    channels: [
-      { id: 'geral', type: 'text', name: 'geral', desc: 'Canal principal de ' + name },
-      { id: 'off-topic', type: 'text', name: 'off-topic', desc: 'Assuntos aleatórios e descontração' },
-      { id: 'voz1', type: 'voice', name: 'Sala de Voz 1', users: 0 }
-    ]
+    channels: buildTemplateChannels(name)
   };
   state.servers.push(newServer);
-  state.messages[channelKey(newServer.id, 'geral')] = [{
+  const firstTextCh = newServer.channels.find(ch => ch.type === 'text');
+  state.messages[channelKey(newServer.id, firstTextCh.id)] = [{
     id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(), date: todayISO(),
     text: '🎉 Servidor **' + name + '** criado com sucesso! Este é o seu novo espaço — convide seus amigos e comece a conversar!',
     reactions: {}
   }];
   save();
+  audit('Servidor "' + name + '" criado');
   unlock('arquiteto');
   closeModal('serverModal');
   selectServer(newServer.id);
@@ -3047,6 +3315,7 @@ function deleteServer() {
     state.servers = state.servers.filter(s => s.id !== server.id);
     if (voiceConn && voiceConn.serverId === server.id) voiceConn = null;
     save();
+    audit('Servidor "' + server.name + '" excluído');
     closeModal('serverModal');
     selectServer(state.servers[0].id);
     showToast('🗑️ Servidor excluído.');
@@ -3094,6 +3363,7 @@ function saveChannelModal() {
     ch.name = name;
     ch.desc = desc;
     save();
+    audit('Canal "' + name + '" atualizado');
     closeModal('channelModal');
     renderChannelList();
     renderChatHeader();
@@ -3106,6 +3376,7 @@ function saveChannelModal() {
   if (type === 'voice') newCh.users = 0;
   server.channels.push(newCh);
   save();
+  audit('Canal "' + name + '" criado');
   closeModal('channelModal');
   if (type === 'text') selectChannel(newCh.id);
   else renderChannelList();
@@ -3123,7 +3394,8 @@ function deleteChannel() {
   confirmAction('Excluir #' + ch.name + '?', 'As mensagens deste canal serão apagadas.', () => {
     delete state.messages[channelKey(server.id, ch.id)];
     delete state.unread[channelKey(server.id, ch.id)];
-    server.channels = server.channels.filter(c => c.id !== ch.id);
+    server.channels = server.channels.filter(x => x.id !== ch.id);
+    audit('Canal "' + ch.name + '" excluído');
     if (voiceConn && voiceConn.serverId === server.id && voiceConn.channelId === ch.id) voiceConn = null;
     if (activeChannelId === ch.id) {
       const firstText = server.channels.find(c => c.type === 'text');
@@ -3351,6 +3623,419 @@ function openMemberByName(name) {
   Object.values(MEMBERS).forEach(g => { anywhere.push(...g.online, ...g.offline); });
   const found = anywhere.find(m => m.name.toLowerCase() === clean);
   if (found) openMemberModal(found, true);
+}
+
+/* ==========================================================
+   AUDITORIA
+   ========================================================== */
+function audit(text) {
+  if (!state.audit) state.audit = [];
+  state.audit.push({ t: nowTime(), d: todayISO(), text });
+  while (state.audit.length > 60) state.audit.shift();
+  save();
+}
+
+/* ==========================================================
+   BOTTOM SHEET DE CANAL (estilo Discord mobile)
+   ========================================================== */
+const collapsedCats = {};
+let pendingTemplate = null;
+let currentSub = null;
+
+function channelLink(server, ch) { return 'https://guild.chat/' + server.id + '/' + ch.id; }
+
+function copyToClipboard(text, okMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast(okMsg)).catch(() => showToast('⚠️ Não consegui copiar.'));
+  } else showToast('⚠️ Área de transferência indisponível.');
+}
+
+function sheetRow(icon, label, fn, opts) {
+  const b = document.createElement('button');
+  b.className = 'sheet-row' + (opts && opts.danger ? ' danger' : '') + (opts && opts.sel ? ' sel' : '');
+  b.innerHTML = '<span class="sr-icon">' + icon + '</span>' + escapeHTML(label) +
+    (opts && opts.radio ? '<span class="sheet-radio"></span>' : '<span class="sr-arrow">›</span>');
+  b.addEventListener('click', fn);
+  return b;
+}
+
+function sheetGroup(rows) {
+  const g = document.createElement('div');
+  g.className = 'sheet-group';
+  rows.forEach(r => g.appendChild(r));
+  return g;
+}
+
+function closeChannelSheet() { $('channelSheet').classList.remove('open'); }
+
+function openChannelSheet(chId) {
+  const server = getServer(activeServerId);
+  const ch = getChannel(server, chId);
+  if (!ch) return;
+  const body = $('channelSheetBody');
+  body.innerHTML = '<div class="sheet-handle"></div>' +
+    '<div class="sheet-title">' + (ch.type === 'voice' ? '🔊 ' : '# ') + escapeHTML(ch.name) + '</div>';
+
+  body.appendChild(sheetGroup([
+    sheetRow('👥', 'Convite', () => { closeChannelSheet(); openInvitePage(); }),
+    sheetRow('📌', 'Fixe o Canal no Topo', () => {
+      const arr = server.channels;
+      const idx = arr.findIndex(x => x.id === chId);
+      const moved = arr.splice(idx, 1)[0];
+      const firstSame = arr.findIndex(x => x.type === ch.type);
+      arr.splice(firstSame < 0 ? arr.length : firstSame, 0, moved);
+      save();
+      audit('Canal "' + ch.name + '" fixado no topo');
+      renderChannelList();
+      closeChannelSheet();
+      showToast('📌 Canal fixado no topo!');
+    }),
+    sheetRow('🔗', 'Copiar link', () => { closeChannelSheet(); copyToClipboard(channelLink(server, ch), '🔗 Link do canal copiado!'); })
+  ]));
+
+  body.appendChild(sheetGroup([
+    sheetRow('👁️', 'Marcar como lida', () => {
+      delete state.unread[channelKey(server.id, ch.id)];
+      save(); updateTitle(); renderChannelList(); renderServerBar();
+      closeChannelSheet();
+      showToast('👁️ Canal marcado como lido.');
+    }),
+    sheetRow(ch.muted ? '🔔' : '🔕', ch.muted ? 'Reativar canal' : 'Silenciar canal', () => {
+      ch.muted = !ch.muted;
+      if (ch.muted) delete state.unread[channelKey(server.id, ch.id)];
+      save(); updateTitle(); renderChannelList(); renderServerBar();
+      closeChannelSheet();
+      showToast(ch.muted ? '🔕 Canal silenciado.' : '🔔 Canal reativado.');
+    }),
+    sheetRow('🔲', 'Config. de notificação', () => openNotifSheet(chId))
+  ]));
+
+  body.appendChild(sheetGroup([
+    sheetRow('⚙️', 'Editar canal', () => { closeChannelSheet(); openChannelModal(chId); }),
+    sheetRow('📄', 'Duplicar canal', () => {
+      const clone = JSON.parse(JSON.stringify(ch));
+      clone.id = slugify(ch.name) + '_' + uid();
+      clone.name = ch.type === 'text' ? slugify(ch.name + '-copia') : ch.name + ' cópia';
+      delete clone.muted;
+      server.channels.splice(server.channels.findIndex(x => x.id === chId) + 1, 0, clone);
+      save();
+      audit('Canal "' + ch.name + '" duplicado');
+      renderChannelList();
+      closeChannelSheet();
+      showToast('📄 Canal duplicado!');
+    }),
+    sheetRow('🆔', 'Copiar ID do canal', () => { closeChannelSheet(); copyToClipboard(ch.id, '🆔 ID do canal copiado!'); })
+  ]));
+
+  $('channelSheet').classList.add('open');
+}
+
+const NOTIF_OPTIONS = [['all', 'Todas as mensagens'], ['mentions', 'Somente @menções'], ['none', 'Nada']];
+
+function openNotifSheet(chId) {
+  const server = getServer(activeServerId);
+  const ch = getChannel(server, chId);
+  const body = $('channelSheetBody');
+  body.innerHTML = '<div class="sheet-handle"></div><div class="sheet-title">🔔 Config. de notificação</div>';
+  body.appendChild(sheetGroup(NOTIF_OPTIONS.map(opt =>
+    sheetRow(opt[0] === 'none' ? '🔕' : '🔔', opt[1], () => {
+      ch.notif = opt[0];
+      save();
+      closeChannelSheet();
+      showToast('🔔 Notificações: ' + opt[1]);
+    }, { radio: true, sel: (ch.notif || 'all') === opt[0] })
+  )));
+}
+
+/* ==========================================================
+   CONFIG. DO SERVIDOR (página completa, estilo Discord mobile)
+   ========================================================== */
+function openServerSettings() {
+  const server = getServer(activeServerId);
+  const body = $('ssBody');
+  body.innerHTML = '';
+
+  const hero = document.createElement('div');
+  hero.className = 'fp-hero';
+  hero.innerHTML = '<div class="fp-hero-icon" id="ssIcon" title="Trocar ícone">' +
+    (server.img ? '<img src="' + escapeHTML(server.img) + '" alt="">' : escapeHTML(server.icon)) +
+    '<span class="cam">📷</span></div>' +
+    '<div class="fp-hero-name">' + escapeHTML(server.name) +
+    (server.tag ? ' <span style="color:var(--accent);font-size:14px">[' + escapeHTML(server.tag) + ']</span>' : '') + '</div>';
+  hero.querySelector('#ssIcon').addEventListener('click', () => openServerModal(activeServerId));
+  body.appendChild(hero);
+
+  const section = t => {
+    const d = document.createElement('div');
+    d.className = 'fp-section';
+    d.textContent = t;
+    body.appendChild(d);
+  };
+
+  section('Configurações');
+  body.appendChild(sheetGroup([
+    sheetRow('ℹ️', 'Visão geral', () => openServerModal(activeServerId)),
+    sheetRow('⚔️', 'Moderação', () => openSub('moderacao')),
+    sheetRow('📋', 'Registro de auditoria', () => openSub('auditoria')),
+    sheetRow('📄', 'Canais', () => openSub('canais')),
+    sheetRow('🧩', 'Integrações', () => openSub('integracoes')),
+    sheetRow('😄', 'Emoji', () => openSub('emoji')),
+    sheetRow('🎟️', 'Figurinhas', () => openSub('figurinhas')),
+    sheetRow('🏷️', 'Tag do servidor', () => openSub('tag')),
+    sheetRow('🛡️', 'Segurança', () => openSub('seguranca'))
+  ]));
+
+  section('Comunidade');
+  body.appendChild(sheetGroup([
+    sheetRow('🏛️', server.community ? 'Comunidade habilitada ✓' : 'Habilitar comunidade', () => {
+      server.community = !server.community;
+      save();
+      audit(server.community ? 'Comunidade habilitada' : 'Comunidade desabilitada');
+      openServerSettings();
+      showToast(server.community ? '🏛️ Comunidade habilitada!' : 'Comunidade desabilitada.');
+    })
+  ]));
+
+  section('Gestão de usuários');
+  body.appendChild(sheetGroup([
+    sheetRow('👥', 'Membros', () => openSub('membros')),
+    sheetRow('🛡️', 'Cargos', () => openSub('cargos')),
+    sheetRow('🔗', 'Convites', () => openSub('convites')),
+    sheetRow('🔨', 'Banimentos', () => openSub('banimentos'))
+  ]));
+
+  $('serverSettingsPage').classList.add('open');
+}
+
+function closeServerSettings() { $('serverSettingsPage').classList.remove('open'); }
+function closeSub() { $('subPage').classList.remove('open'); }
+function openInvitePage() { openServerSettings(); openSub('convites'); }
+
+function toggleRowFor(server, key, icon, label) {
+  if (!server.settings) server.settings = {};
+  return sheetRow(icon, label + (server.settings[key] ? ' ✓' : ''), () => {
+    server.settings[key] = !server.settings[key];
+    save();
+    audit(label + (server.settings[key] ? ' ativado' : ' desativado'));
+    openSub(currentSub);
+  });
+}
+
+function openSub(kind) {
+  currentSub = kind;
+  const server = getServer(activeServerId);
+  const body = $('spBody');
+  body.innerHTML = '';
+  const titles = {
+    moderacao: 'Moderação', auditoria: 'Registro de auditoria', canais: 'Canais',
+    integracoes: 'Integrações', emoji: 'Emoji', figurinhas: 'Figurinhas',
+    tag: 'Tag do servidor', seguranca: 'Segurança', membros: 'Membros',
+    cargos: 'Cargos', convites: 'Convites', banimentos: 'Banimentos'
+  };
+  $('spTitle').textContent = titles[kind] || '';
+
+  const infoP = text => {
+    const el = document.createElement('p');
+    el.style.cssText = 'font-size:13px;color:var(--text-muted);margin:10px 4px;line-height:1.5;';
+    el.textContent = text;
+    return el;
+  };
+
+  switch (kind) {
+    case 'moderacao':
+      body.appendChild(sheetGroup([
+        toggleRowFor(server, 'filtro', '🧹', 'Filtro de palavrões'),
+        toggleRowFor(server, 'antispam', '🚫', 'Anti-spam automático'),
+        toggleRowFor(server, 'verificacao', '✅', 'Verificação de novos membros')
+      ]));
+      break;
+    case 'auditoria': {
+      const entries = (state.audit || []).slice().reverse();
+      if (!entries.length) {
+        body.innerHTML = '<div class="fp-empty"><span class="big">📋</span>Nenhuma ação registrada ainda.<br>Edite canais e servidores para ver o histórico aqui.</div>';
+      } else {
+        entries.forEach(a => {
+          const d = document.createElement('div');
+          d.className = 'audit-item';
+          d.innerHTML = '<time>' + escapeHTML(a.t) + '</time><span>' + escapeHTML(a.text) + '</span>';
+          body.appendChild(d);
+        });
+      }
+      break;
+    }
+    case 'canais': {
+      const rows = server.channels.map(ch =>
+        sheetRow(ch.type === 'voice' ? '🔊' : '#', ch.name, () => { closeSub(); closeServerSettings(); openChannelSheet(ch.id); }));
+      rows.push(sheetRow('➕', 'Criar canal', () => { closeSub(); closeServerSettings(); openChannelModal(null, 'text'); }));
+      body.appendChild(sheetGroup(rows));
+      break;
+    }
+    case 'integracoes':
+      body.appendChild(sheetGroup([
+        sheetRow('🤖', 'Admin-Robô — bot oficial (ativo)', () => showToast('🤖 O Admin-Robô já cuida de tudo por aqui!')),
+        sheetRow('🪝', 'Webhooks', () => showToast('🪝 Webhooks são simulados nesta demo.'))
+      ]));
+      break;
+    case 'emoji': {
+      body.appendChild(infoP('Clique em um emoji para enviá-lo no canal ativo.'));
+      const grid = document.createElement('div');
+      grid.className = 'emoji-grid-lg';
+      INPUT_EMOJIS.forEach(em => {
+        const b = document.createElement('button');
+        b.textContent = em;
+        b.addEventListener('click', () => { closeSub(); closeServerSettings(); pushUserMessage(em); });
+        grid.appendChild(b);
+      });
+      body.appendChild(grid);
+      break;
+    }
+    case 'figurinhas': {
+      body.appendChild(infoP('Figurinhas são emojis gigantes! Clique para enviar no canal ativo.'));
+      const grid = document.createElement('div');
+      grid.className = 'emoji-grid-lg';
+      ['🦖','🐉','👾','🔥','💀','🫠','🥶','😱','🤯','🗿','🎉','💜'].forEach(em => {
+        const b = document.createElement('button');
+        b.textContent = em;
+        b.addEventListener('click', () => { closeSub(); closeServerSettings(); pushUserMessage(em); });
+        grid.appendChild(b);
+      });
+      body.appendChild(grid);
+      break;
+    }
+    case 'tag': {
+      body.appendChild(infoP('A tag aparece ao lado do nome do servidor (até 4 letras).'));
+      const box = document.createElement('div');
+      box.className = 'invite-box';
+      const inp = document.createElement('input');
+      inp.maxLength = 4;
+      inp.value = server.tag || '';
+      inp.placeholder = 'Ex: DINO';
+      const btn = document.createElement('button');
+      btn.className = 'btn-wide';
+      btn.style.width = 'auto';
+      btn.textContent = 'Salvar';
+      btn.addEventListener('click', () => {
+        server.tag = inp.value.trim().toUpperCase();
+        save();
+        audit('Tag do servidor definida: ' + (server.tag || '(nenhuma)'));
+        renderChannelList();
+        showToast('🏷️ Tag salva!');
+        closeSub();
+        openServerSettings();
+      });
+      box.appendChild(inp);
+      box.appendChild(btn);
+      body.appendChild(box);
+      break;
+    }
+    case 'seguranca':
+      body.appendChild(sheetGroup([
+        toggleRowFor(server, 'a2f', '🔐', 'Exigir 2FA para moderadores'),
+        toggleRowFor(server, 'raid', '🛡️', 'Proteção anti-raid'),
+        toggleRowFor(server, 'dm', '✉️', 'Bloquear DMs de novos membros')
+      ]));
+      break;
+    case 'membros': {
+      const data = MEMBERS[activeServerId] || DEFAULT_MEMBERS;
+      const all = data.online.map(m => [m, true])
+        .concat([[selfMemberEntry(), true]])
+        .concat(data.offline.map(m => [m, false]));
+      body.appendChild(sheetGroup(all.map(pair =>
+        sheetRow(pair[0].avatar || '👤', pair[0].name + (pair[1] ? '' : ' (offline)'), () => openMemberModal(pair[0], pair[1])))));
+      break;
+    }
+    case 'cargos':
+      body.appendChild(sheetGroup([
+        sheetRow('👑', 'Administrador — acesso total', () => showToast('👑 Cargo de administrador')),
+        sheetRow('⚡', 'Moderador — gerencia o chat', () => showToast('⚡ Cargo de moderador')),
+        sheetRow('💜', 'Impulsionador — apoia o servidor', () => showToast('💜 Cargo de impulsionador')),
+        sheetRow('🙂', 'Membro — todo mundo', () => showToast('🙂 Cargo padrão')),
+        sheetRow('➕', 'Criar cargo', () => showToast('🛡️ Criação de cargos é simulada nesta demo.'))
+      ]));
+      break;
+    case 'convites': {
+      if (!server.invite) { server.invite = 'guild.chat/' + Math.random().toString(36).slice(2, 8); save(); }
+      body.appendChild(infoP('Compartilhe este link para convidar pessoas para ' + server.name + ':'));
+      const box = document.createElement('div');
+      box.className = 'invite-box';
+      const inp = document.createElement('input');
+      inp.readOnly = true;
+      inp.value = server.invite;
+      const btn = document.createElement('button');
+      btn.className = 'btn-wide';
+      btn.style.width = 'auto';
+      btn.textContent = 'Copiar';
+      btn.addEventListener('click', () => copyToClipboard(server.invite, '🔗 Convite copiado!'));
+      box.appendChild(inp);
+      box.appendChild(btn);
+      body.appendChild(box);
+      break;
+    }
+    case 'banimentos':
+      body.innerHTML = '<div class="fp-empty"><span class="big">🔨</span>Ninguém foi banido.<br>Que comunidade do bem! 💜</div>';
+      break;
+  }
+  $('subPage').classList.add('open');
+}
+
+/* ==========================================================
+   CRIAR SERVIDOR — MOLDES E CONVITES
+   ========================================================== */
+const SERVER_TEMPLATES = {
+  meu:      { icon: '🚀', channels: null },
+  jogos:    { icon: '🎮', channels: [['geral', 'Papo geral da guilda'], ['clipes', 'Poste suas melhores jogadas'], ['procurando-grupo', 'Encontre squad'], ['voz', 'Lobby'], ['voz', 'Jogando']] },
+  clube:    { icon: '📘', channels: [['geral', 'Conversa do clube'], ['avisos', 'Comunicados importantes'], ['eventos', 'Próximas atividades'], ['voz', 'Reunião']] },
+  estudos:  { icon: '🍎', channels: [['geral', 'Organize os estudos'], ['materiais', 'Resumos e PDFs'], ['duvidas', 'Pergunte sem medo'], ['voz', 'Sala de Foco']] },
+  amigos:   { icon: '💗', channels: [['geral', 'Papo da turma'], ['memes', 'Zoeira sem fim'], ['planos', 'Rolês e encontros'], ['voz', 'Sala de Estar']] },
+  artistas: { icon: '🎨', channels: [['geral', 'Conversa criativa'], ['portfolio', 'Mostre seu trabalho'], ['feedback', 'Críticas construtivas'], ['voz', 'Estúdio']] },
+  local:    { icon: '🍃', channels: [['geral', 'Papo da vizinhança'], ['avisos', 'Comunicados'], ['eventos', 'Agenda local'], ['comercio', 'Compra e venda'], ['voz', 'Praça']] }
+};
+
+function openTemplateModal() {
+  pendingTemplate = null;
+  openModal('templateModal');
+}
+
+function buildTemplateChannels(name) {
+  const tpl = pendingTemplate && SERVER_TEMPLATES[pendingTemplate];
+  pendingTemplate = null;
+  if (tpl && tpl.channels) {
+    return tpl.channels.map(pair => pair[0] === 'voz'
+      ? { id: slugify(pair[1]) + '_' + uid(), type: 'voice', name: pair[1], users: 0 }
+      : { id: pair[0] + '_' + uid(), type: 'text', name: pair[0], desc: pair[1] });
+  }
+  return [
+    { id: 'geral', type: 'text', name: 'geral', desc: 'Canal principal de ' + name },
+    { id: 'off-topic', type: 'text', name: 'off-topic', desc: 'Assuntos aleatórios e descontração' },
+    { id: 'voz1', type: 'voice', name: 'Sala de Voz 1', users: 0 }
+  ];
+}
+
+function joinByInvite() {
+  const code = $('joinInput').value.trim();
+  if (!code) { showToast('⚠️ Cole um convite primeiro!'); return; }
+  if (getServer('oficial')) {
+    closeModal('joinModal');
+    selectServer('oficial');
+    showToast('Você já está nesse servidor! 😄');
+    return;
+  }
+  const srv = { id: 'oficial', icon: '🛡️', img: null, name: 'GuildChat Oficial', custom: true, channels: [
+    { id: 'boas-vindas', type: 'text', name: 'boas-vindas', desc: 'Recepção da comunidade oficial' },
+    { id: 'novidades', type: 'text', name: 'novidades', desc: 'Atualizações do GuildChat' },
+    { id: 'voz1', type: 'voice', name: 'Palco', users: 8 }
+  ]};
+  state.servers.push(srv);
+  state.messages['oficial/boas-vindas'] = [{
+    id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(), date: todayISO(),
+    text: '🎉 **' + state.profile.name + '** entrou no servidor! Seja bem-vindo(a) à comunidade oficial do GuildChat! 🛡️',
+    reactions: {}
+  }];
+  save();
+  audit('Entrou no servidor "GuildChat Oficial" por convite');
+  closeModal('joinModal');
+  selectServer('oficial');
+  showToast('🛡️ Você entrou no GuildChat Oficial!');
 }
 
 /* ==========================================================
@@ -3662,7 +4347,7 @@ $('scrollDownBtn').addEventListener('click', () => {
 $('replyCancel').addEventListener('click', cancelReply);
 
 // Servidor
-$('serverHeader').addEventListener('click', () => openServerModal(activeServerId));
+$('serverHeader').addEventListener('click', openServerSettings);
 $('btnSaveServer').addEventListener('click', saveServerModal);
 $('serverNameInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveServerModal(); });
 $('btnDeleteServer').addEventListener('click', deleteServer);
@@ -3802,6 +4487,9 @@ document.addEventListener('keydown', e => {
     closeDrawer();
     closeSearch();
     cancelReply();
+    closeChannelSheet();
+    closeSub();
+    closeServerSettings();
     return;
   }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -3834,6 +4522,33 @@ $('btnMembersToggle').addEventListener('click', () => {
 $('voiceDisconnect').addEventListener('click', leaveVoice);
 $('mobileMenuBtn').addEventListener('click', openDrawer);
 $('drawerOverlay').addEventListener('click', closeDrawer);
+
+// Config. do servidor / sheets / moldes
+$('ssClose').addEventListener('click', closeServerSettings);
+$('spBack').addEventListener('click', closeSub);
+$('channelSheet').addEventListener('click', e => { if (e.target === $('channelSheet')) closeChannelSheet(); });
+$('channelSearch').addEventListener('input', renderChannelList);
+$('btnInvitePeople').addEventListener('click', openInvitePage);
+$('btnEvents').addEventListener('click', () => showToast('📅 Nenhum evento agendado ainda. (simulação)'));
+$('boostRow').addEventListener('click', () => showToast('🛡️ Impulsos de servidor: 0. Impulsione conversando e ganhando XP! (simulação)'));
+$('btnBell').addEventListener('click', () => showToast('🔔 Suas notificações estão em dia!'));
+document.querySelectorAll('#templateModal [data-tpl]').forEach(b => {
+  b.addEventListener('click', () => {
+    pendingTemplate = b.dataset.tpl;
+    closeModal('templateModal');
+    openServerModal(null);
+    selectedServerEmoji = (SERVER_TEMPLATES[pendingTemplate] || {}).icon || SERVER_EMOJIS[0];
+    updateServerIconPreview();
+    renderServerEmojiPicker();
+  });
+});
+$('btnJoinServer').addEventListener('click', () => {
+  closeModal('templateModal');
+  openModal('joinModal');
+  setTimeout(() => $('joinInput').focus(), 60);
+});
+$('btnJoinGo').addEventListener('click', joinByInvite);
+$('joinInput').addEventListener('keydown', e => { if (e.key === 'Enter') joinByInvite(); });
 
 /* ==========================================================
    INICIALIZAÇÃO
