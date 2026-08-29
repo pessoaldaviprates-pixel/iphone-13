@@ -1,0 +1,21 @@
+{
+  "name": "neon-nebula-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Empacotamento do Neon Nebula para Google Play e App Store (Capacitor)",
+  "scripts": {
+    "preparar": "node preparar.js",
+    "android": "npm run preparar && npx cap sync android && npx cap open android",
+    "ios": "npm run preparar && npx cap sync ios && npx cap open ios",
+    "icones": "npx capacitor-assets generate --iconBackgroundColor '#060A18' --splashBackgroundColor '#060A18'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0"
+  }
+}

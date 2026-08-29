@@ -1,0 +1,15 @@
+{
+  "appId": "com.seunome.neonnebula",
+  "appName": "Neon Nebula",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#060A18"
+  },
+  "ios": {
+    "backgroundColor": "#060A18",
+    "contentInset": "never"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
