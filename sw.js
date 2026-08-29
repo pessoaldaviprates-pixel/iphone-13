@@ -1,5 +1,5 @@
 /* Neon Nebula — service worker: deixa o jogo funcionar offline */
-const CACHE = "neon-nebula-v1";
+const CACHE = "neon-nebula-v2";
 const ASSETS = [
   "./",
   "./index.html",

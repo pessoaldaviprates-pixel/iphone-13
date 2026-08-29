@@ -6,12 +6,26 @@ Jogo de tiro espacial **completo para celular**, feito em HTML5 — sem dependê
 
 - **Arraste o dedo** em qualquer lugar da tela para pilotar a nave (o tiro é automático)
 - No computador: setas ou **WASD** para mover, **P**/Esc para pausar
-- Sobreviva às ondas de inimigos — um **chefe** aparece a cada 5 ondas
-- Pegue os cristais:
+- **120 fases** divididas em 6 setores, com **chefe a cada 5 fases** (cada vez mais fortes)
+- Inimigos soltam **cristais ◆** e itens:
   - **W** (ciano) — melhora a arma (até tiro triplo)
-  - **S** (âmbar) — escudo que absorve um golpe
+  - **S** (âmbar) — escudo
   - **♥** (rosa) — vida extra
-- O recorde fica salvo no aparelho
+- Todo o progresso (fases, cristais, melhorias, habilidades e recorde) fica salvo no aparelho
+
+## Loja de melhorias
+
+Gaste cristais em 6 melhorias permanentes, cada uma com vários níveis: **Canhões** (dano), **Cadência** (velocidade de tiro), **Casco** (vidas), **Escudo** (duração), **Motores** (agilidade) e **Coletor** (mais cristais). Você começa cada fase já mais forte.
+
+## Árvore de habilidades
+
+Cada fase concluída dá **1 ponto de habilidade** — são **120 nós** em 3 ramos (Ataque, Defesa e Recursos), desbloqueados em sequência. A cada 10 nós de um ramo há uma habilidade especial:
+
+| Ramo | Habilidades especiais |
+|---|---|
+| **Ataque** | Tiro Lateral · Mísseis Teleguiados · Golpe Crítico · Perfuração |
+| **Defesa** | Escudo Inicial · Nanobots · Sistema de Emergência · Fortaleza |
+| **Recursos** | Ímã de Cristais · Sorte · Comerciante · Nova de Choque |
 
 ## Jogar agora
 
