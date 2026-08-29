@@ -113,6 +113,19 @@
     border-radius: 0 4px 4px 0;
     background: #fff;
   }
+  .srv-badge {
+    position: absolute;
+    bottom: -3px; right: -3px;
+    min-width: 18px; height: 18px;
+    border-radius: 9px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+    border: 3px solid var(--bg-servers);
+    font-variant-numeric: tabular-nums;
+  }
 
   .server-divider { width: 32px; height: 2px; background: var(--divider); border-radius: 1px; flex-shrink: 0; }
 
@@ -199,6 +212,16 @@
     color: var(--text-main);
     box-shadow: inset 2px 0 0 var(--accent);
   }
+  .channel-item.unread .channel-name { color: var(--text-main); font-weight: 700; }
+  .channel-item.unread::before {
+    content: '';
+    position: absolute;
+    left: -8px; top: 50%;
+    transform: translateY(-50%);
+    width: 4px; height: 16px;
+    border-radius: 0 3px 3px 0;
+    background: var(--text-main);
+  }
 
   .channel-hash { color: var(--text-dim); font-weight: 600; font-size: 17px; width: 18px; text-align: center; flex-shrink: 0; }
   .channel-item.active .channel-hash { color: var(--accent); }
@@ -234,7 +257,6 @@
   }
   .voice-self .avatar { width: 20px; height: 20px; font-size: 11px; }
 
-  /* Barra de voz conectada */
   .voice-bar {
     display: none;
     background: rgba(16,185,129,0.1);
@@ -256,7 +278,6 @@
   }
   .voice-disconnect:hover { background: rgba(239,68,68,0.15); }
 
-  /* Painel do usuário */
   .user-panel {
     background: var(--bg-panel);
     padding: 10px 12px;
@@ -278,7 +299,7 @@
   .user-panel-icons button:hover { background: var(--overlay-2); color: var(--text-main); }
 
   /* ============ COLUNA 3 — CHAT ============ */
-  .chat-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); min-width: 0; }
+  .chat-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); min-width: 0; position: relative; }
 
   .chat-header {
     padding: 10px 12px;
@@ -359,6 +380,19 @@
   .chat-welcome h2 { font-size: 22px; margin-bottom: 6px; text-wrap: balance; }
   .chat-welcome p { color: var(--text-muted); font-size: 14px; max-width: 62ch; }
 
+  .date-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 14px 0 6px;
+    color: var(--text-dim);
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .date-divider::before, .date-divider::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: var(--border-soft);
+  }
+
   .message {
     display: flex; gap: 14px;
     padding: 8px;
@@ -370,10 +404,17 @@
   .message:hover { background: var(--overlay-1); }
   .compact .message { padding: 3px 8px; }
   .message.hidden-by-search { display: none; }
+  .message.grouped { margin-top: -4px; }
+  .message.grouped .avatar { height: 4px; background: transparent; border: none; font-size: 0; }
+  .message.msg-highlight { animation: flashMsg 1.6s ease; }
 
   @keyframes msgIn {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes flashMsg {
+    0%, 55% { background: var(--accent-soft); }
+    100%    { background: transparent; }
   }
 
   .avatar {
@@ -388,6 +429,7 @@
   }
   .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .compact .message .avatar { width: 28px; height: 28px; font-size: 14px; }
+  .compact .message.grouped .avatar { width: 28px; height: 4px; }
 
   .message-body { min-width: 0; flex: 1; }
   .message-meta { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -401,6 +443,7 @@
   }
   .message-time { font-size: 11px; color: var(--text-dim); }
   .edited-flag { font-size: 10px; color: var(--text-dim); font-style: italic; }
+  .pin-flag { font-size: 12px; margin-left: 6px; opacity: 0.85; }
   .message-text {
     font-size: var(--msg-font);
     color: var(--text-soft);
@@ -409,6 +452,37 @@
     word-wrap: break-word; overflow-wrap: break-word;
     white-space: pre-wrap;
   }
+  .message-text strong { font-weight: 800; color: var(--text-main); }
+  .message-text del { opacity: 0.7; }
+  .message-text code {
+    background: var(--overlay-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Consolas', 'Menlo', 'Courier New', monospace;
+    font-size: calc(var(--msg-font) - 2px);
+  }
+  .message-text a { color: var(--accent); text-decoration: none; }
+  .message-text a:hover { text-decoration: underline; }
+  .mention {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 0 3px;
+    cursor: pointer;
+  }
+  .mention:hover { text-decoration: underline; }
+  .spoiler {
+    background: var(--tooltip-bg);
+    color: transparent;
+    border-radius: 4px;
+    padding: 0 4px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .spoiler.revealed { background: var(--overlay-2); color: inherit; }
+
   .message-img {
     display: block;
     max-width: min(340px, 100%);
@@ -419,7 +493,19 @@
     cursor: zoom-in;
   }
 
-  /* Barra de ações da mensagem */
+  .reply-preview {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    cursor: pointer;
+    max-width: 100%;
+  }
+  .reply-preview:hover { color: var(--text-main); }
+  .reply-preview .rp-bar { width: 2px; align-self: stretch; background: var(--accent); border-radius: 1px; flex-shrink: 0; }
+  .reply-preview b { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .reply-preview .rp-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
   .msg-actions {
     position: absolute;
     top: -12px; right: 10px;
@@ -444,7 +530,6 @@
   .msg-actions button:hover { background: var(--overlay-2); color: var(--text-main); }
   .msg-actions button.danger:hover { background: rgba(239,68,68,0.18); color: var(--danger); }
 
-  /* Reações */
   .reactions-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
   .reaction-chip {
     display: inline-flex; align-items: center; gap: 5px;
@@ -462,7 +547,6 @@
   .reaction-chip.mine { background: var(--accent-soft); border-color: var(--accent); }
   .reaction-chip .rc-count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
-  /* Popup de reação / emoji */
   .emoji-pop {
     position: fixed;
     background: var(--bg-channels);
@@ -487,7 +571,58 @@
   }
   .emoji-pop button:hover { background: var(--accent-soft); transform: scale(1.15); }
 
-  /* Edição inline */
+  .ctx-menu {
+    position: fixed;
+    z-index: 300;
+    background: var(--bg-channels);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 5px;
+    min-width: 190px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    display: none;
+    flex-direction: column;
+  }
+  .ctx-menu.open { display: flex; }
+  .ctx-menu button {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    background: none; border: none;
+    color: var(--text-soft);
+    font-size: 13.5px; font-weight: 600;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .ctx-menu button:hover { background: var(--accent); color: #fff; }
+  .ctx-menu button.danger:hover { background: var(--danger); }
+  .ctx-sep { height: 1px; background: var(--border-soft); margin: 4px 6px; }
+
+  .mention-pop {
+    position: fixed;
+    background: var(--bg-channels);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 5px;
+    display: none;
+    flex-direction: column;
+    z-index: 260;
+    min-width: 200px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+  .mention-pop.open { display: flex; }
+  .mention-pop button {
+    display: flex; align-items: center; gap: 8px;
+    background: none; border: none;
+    color: var(--text-soft);
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+  }
+  .mention-pop button:hover, .mention-pop button.sel { background: var(--accent-soft); color: var(--text-main); }
+
   .edit-box { margin-top: 4px; }
   .edit-box textarea {
     width: 100%;
@@ -526,8 +661,61 @@
     30% { transform: translateY(-5px); }
   }
 
-  /* Entrada de mensagem */
-  .chat-input-area { padding: 0 16px 18px; }
+  .scroll-down {
+    position: absolute;
+    bottom: 104px; right: 22px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px var(--accent-glow);
+    display: none;
+    z-index: 10;
+  }
+  .scroll-down.show { display: block; }
+
+  .drop-overlay {
+    position: absolute; inset: 8px;
+    background: rgba(3,7,18,0.6);
+    border: 3px dashed var(--accent);
+    border-radius: 14px;
+    display: none;
+    align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+    color: #fff;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .chat-panel.dragging .drop-overlay { display: flex; }
+
+  .chat-input-area { padding: 0 16px 10px; }
+  .reply-bar {
+    display: none;
+    align-items: center; gap: 6px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-soft);
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+    padding: 7px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 8px;
+  }
+  .reply-bar.open { display: flex; }
+  .reply-bar b { color: var(--accent); }
+  .reply-bar button {
+    margin-left: auto;
+    background: none; border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+  }
+  .reply-bar button:hover { color: var(--text-main); }
+
   .chat-input-wrap {
     display: flex; align-items: center; gap: 8px;
     background: var(--bg-input);
@@ -566,6 +754,17 @@
     min-width: 0;
   }
   #messageInput::placeholder { color: var(--text-dim); }
+
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 3px 14px 0;
+    height: 17px;
+    font-variant-numeric: tabular-nums;
+  }
+  .char-count.warn { color: var(--away); }
+  .char-count.max { color: var(--danger); }
 
   /* ============ COLUNA 4 — MEMBROS ============ */
   .members-panel {
@@ -741,7 +940,6 @@
   }
   .danger-zone p { font-size: 12px; color: var(--text-muted); }
 
-  /* Tabs (configurações) */
   .tab-nav { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 10px; }
   .tab-nav button {
     flex: 1;
@@ -758,7 +956,6 @@
   .tab-page { display: none; }
   .tab-page.active { display: block; }
 
-  /* Perfil */
   .profile-banner {
     height: 64px;
     border-radius: 10px 10px 0 0;
@@ -821,7 +1018,7 @@
   .theme-card.selected { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
   .theme-swatches { display: flex; height: 42px; }
   .theme-swatches i { flex: 1; }
-  .theme-card figcaption, .theme-card .theme-name {
+  .theme-card .theme-name {
     display: block;
     font-size: 12px; font-weight: 700;
     color: var(--text-main);
@@ -861,7 +1058,6 @@
   .toggle.on { background: var(--online); }
   .toggle.on::after { left: 21px; }
 
-  /* Cartão de perfil (popup de membro) */
   .profile-pop-card { max-width: 340px; padding: 0; overflow: hidden; }
   .profile-pop-banner { height: 70px; }
   .profile-pop-body { padding: 0 18px 18px; }
@@ -894,7 +1090,66 @@
   }
   .profile-pop-box p { font-size: 13px; color: var(--text-soft); }
 
-  /* Visualizador de imagem */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .badge-chip {
+    background: var(--overlay-1);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+  .xp-bar {
+    height: 8px;
+    background: var(--overlay-2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .xp-bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .xp-label {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pin-item {
+    background: var(--bg-app);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .pin-item:hover { border-color: var(--accent); }
+  .pin-author { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .pin-text {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-top: 2px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .pins-empty { text-align: center; font-size: 13px; color: var(--text-dim); padding: 18px 0 6px; }
+
+  .qs-list { max-height: 320px; overflow-y: auto; margin-top: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .qs-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .qs-item .qs-srv { font-size: 12px; color: var(--text-dim); margin-left: auto; white-space: nowrap; }
+  .qs-item.sel, .qs-item:hover { background: var(--accent-soft); color: var(--text-main); }
+  .qs-hint { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 10px; }
+
   .lightbox {
     position: fixed; inset: 0;
     background: rgba(3,7,18,0.9);
@@ -907,7 +1162,6 @@
   .lightbox.open { display: flex; }
   .lightbox img { max-width: 95vw; max-height: 92vh; border-radius: 10px; }
 
-  /* Toast */
   .toast {
     position: fixed;
     bottom: 24px; left: 50%;
@@ -954,8 +1208,9 @@
     .drawer-overlay.visible { display: block; }
     .chat-header-desc { display: none; }
     .chat-messages { padding: 14px 10px 8px; }
-    .chat-input-area { padding: 0 10px 12px; }
+    .chat-input-area { padding: 0 10px 8px; }
     .emoji-pop { grid-template-columns: repeat(6, 34px); }
+    .scroll-down { bottom: 96px; right: 14px; }
   }
   @media (min-width: 769px) {
     .sidebar-drawer { display: flex; }
@@ -1007,13 +1262,14 @@
   <div class="drawer-overlay" id="drawerOverlay"></div>
 
   <!-- COLUNA 3: CHAT -->
-  <main class="chat-panel">
+  <main class="chat-panel" id="chatPanel">
     <header class="chat-header">
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menu">☰</button>
       <span class="channel-hash" id="chatHeaderHash">#</span>
       <span class="chat-header-name" id="chatHeaderName">geral</span>
       <div class="chat-header-divider"></div>
       <span class="chat-header-desc" id="chatHeaderDesc">Bem-vindo ao GuildChat!</span>
+      <button class="header-btn" id="btnPins" title="Mensagens fixadas">📌</button>
       <button class="header-btn" id="btnSearch" title="Buscar mensagens">🔍</button>
       <button class="header-btn" id="btnMembersToggle" title="Mostrar/ocultar membros">👥</button>
     </header>
@@ -1026,18 +1282,26 @@
 
     <div class="chat-messages" id="chatMessages"></div>
 
+    <button class="scroll-down" id="scrollDownBtn" title="Ir para as mensagens mais recentes">⬇</button>
+    <div class="drop-overlay">🖼️ Solte a imagem para enviar</div>
+
     <div class="typing-indicator" id="typingIndicator" style="visibility: hidden;">
       <span class="dots"><span></span><span></span><span></span></span>
-      <span>Admin-Robô está digitando…</span>
+      <span id="typingText">Admin-Robô está digitando…</span>
     </div>
 
     <footer class="chat-input-area">
+      <div class="reply-bar" id="replyBar">
+        ↩️ Respondendo a&nbsp;<b id="replyBarName"></b>
+        <button id="replyCancel" title="Cancelar resposta">✕</button>
+      </div>
       <div class="chat-input-wrap">
         <button class="attach-btn" id="attachBtn" title="Enviar imagem">+</button>
         <input type="text" id="messageInput" placeholder="Conversar em #geral" autocomplete="off" maxlength="500">
         <button class="emoji-btn" id="emojiBtn" title="Emojis">😄</button>
         <button class="send-btn" id="sendBtn" title="Enviar mensagem">➤</button>
       </div>
+      <div class="char-count" id="charCount"></div>
     </footer>
   </main>
 
@@ -1050,8 +1314,10 @@
 <input type="file" id="fileAvatar" accept="image/*" hidden>
 <input type="file" id="fileServerIcon" accept="image/*" hidden>
 
-<!-- Popup de emojis (reações e input) -->
+<!-- Popups flutuantes -->
 <div class="emoji-pop" id="emojiPop"></div>
+<div class="ctx-menu" id="ctxMenu"></div>
+<div class="mention-pop" id="mentionPop"></div>
 
 <!-- MODAL: SERVIDOR (criar/editar) -->
 <div class="modal-overlay" id="serverModal">
@@ -1114,7 +1380,7 @@
   </div>
 </div>
 
-<!-- MODAL: CONFIGURAÇÕES (perfil + aparência + dados) -->
+<!-- MODAL: CONFIGURAÇÕES -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal" style="max-width: 520px;">
     <h2>Configurações</h2>
@@ -1193,12 +1459,20 @@
         <button type="button" class="toggle" id="toggleCompact" role="switch" aria-checked="false" aria-label="Modo compacto"></button>
       </div>
 
-      <div class="setting-row" style="border-bottom:none;">
+      <div class="setting-row">
         <div>
           <div class="sr-label">Sons</div>
           <div class="sr-sub">Bipes ao enviar e receber mensagens</div>
         </div>
         <button type="button" class="toggle on" id="toggleSound" role="switch" aria-checked="true" aria-label="Sons"></button>
+      </div>
+
+      <div class="setting-row" style="border-bottom:none;">
+        <div>
+          <div class="sr-label">Atividade da comunidade</div>
+          <div class="sr-sub">Membros conversam sozinhos de vez em quando</div>
+        </div>
+        <button type="button" class="toggle on" id="toggleAmbient" role="switch" aria-checked="true" aria-label="Atividade da comunidade"></button>
       </div>
 
       <div class="modal-actions">
@@ -1211,6 +1485,14 @@
       <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-top:8px;">
         Tudo no GuildChat (mensagens, servidores, perfil e tema) fica salvo apenas no seu navegador, via LocalStorage. Nada é enviado para a internet.
       </p>
+
+      <label for="dataArea">Backup (copiar / importar)</label>
+      <textarea id="dataArea" style="min-height:90px; font-size:12px;" placeholder='Clique em "Copiar dados" para gerar seu backup, ou cole um backup aqui e clique em "Importar".'></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button type="button" class="btn-small" id="btnExportData">📋 Copiar dados</button>
+        <button type="button" class="btn-small" id="btnImportData">📥 Importar</button>
+      </div>
+
       <div class="danger-zone" style="margin-top:16px;">
         <p>Restaurar padrões apaga todas as mensagens, servidores criados e personalizações.</p>
         <button type="button" class="btn-small danger-ghost" id="btnResetAll">Restaurar padrões</button>
@@ -1238,10 +1520,40 @@
         <h4>Cargo</h4>
         <p id="memberRole">Membro</p>
       </div>
+      <div class="profile-pop-box" id="memberXpBox" style="display:none;">
+        <h4>Nível <span id="memberLevel">0</span></h4>
+        <div class="xp-bar"><i id="memberXpFill" style="width:0%"></i></div>
+        <div class="xp-label"><span id="memberXpNow">0 XP</span><span id="memberXpNext">100 XP</span></div>
+      </div>
+      <div class="profile-pop-box" id="memberBadgesBox" style="display:none;">
+        <h4>Conquistas</h4>
+        <div class="badge-row" id="memberBadges"></div>
+      </div>
       <div class="modal-actions">
         <button class="btn-cancel" data-close="memberModal">Fechar</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL: MENSAGENS FIXADAS -->
+<div class="modal-overlay" id="pinsModal">
+  <div class="modal">
+    <h2>📌 Mensagens fixadas</h2>
+    <p class="modal-sub" id="pinsSub">Mensagens importantes deste canal.</p>
+    <div id="pinsList"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="pinsModal">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BUSCA RÁPIDA (Ctrl+K) -->
+<div class="modal-overlay" id="qsModal">
+  <div class="modal" style="max-width:420px; padding:16px;">
+    <input type="text" id="qsInput" placeholder="Para onde você quer ir?" autocomplete="off">
+    <div class="qs-list" id="qsList"></div>
+    <div class="qs-hint">↑↓ para navegar · Enter para ir · Esc para fechar</div>
   </div>
 </div>
 
@@ -1259,16 +1571,16 @@
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt="Imagem ampliada"></div>
 <div class="toast" id="toast"></div>
-
 <script>
 'use strict';
 
 /* ==========================================================
-   GUILDCHAT 2.0 — dados padrão
+   GUILDCHAT 3.0 — dados padrão
    ========================================================== */
 const STORAGE_KEY = 'guildchat_state_v2';
 const OLD_MSG_KEY = 'guildchat_messages_v1';
 const OLD_SRV_KEY = 'guildchat_custom_servers_v1';
+const MSG_CAP = 120;
 
 const BOT = { name: 'Admin-Robô', avatar: '🤖' };
 
@@ -1297,10 +1609,10 @@ const DEFAULT_SERVERS = [
 
 const SEED_MESSAGES = {
   'gamer/geral': [
-    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '09:00', text: 'Bem-vindos à Gamer Zone! Leiam as regras e divirtam-se. 🎮' },
+    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '09:00', text: 'Bem-vindos à **Gamer Zone**! Leiam as regras e divirtam-se. 🎮' },
     { author: 'Dev-Master', avatar: '⚡', time: '09:12', text: 'Alguém pra jogar mais tarde? Tô montando squad!' },
     { author: 'User123',    avatar: '🕹️', time: '09:15', text: 'Bora! Me chama na Sala de Voz 1 às 20h.' },
-    { author: 'PixelQueen', avatar: '👾', time: '09:31', text: 'Saiu atualização nova hoje, o mapa novo tá insano 🔥' }
+    { author: 'PixelQueen', avatar: '👾', time: '09:31', text: 'Saiu atualização nova hoje, o mapa novo tá *insano* 🔥' }
   ],
   'gamer/memes': [
     { author: 'User123',    avatar: '🕹️', time: '10:02', text: 'Quando você morre pro chefão pela 47ª vez: 🙂🔫' },
@@ -1309,28 +1621,28 @@ const SEED_MESSAGES = {
   ],
   'gamer/ajuda': [
     { author: 'User123',    avatar: '🕹️', time: '11:00', text: 'Meu FPS tá caindo muito, alguma dica de config?' },
-    { author: 'Dev-Master', avatar: '⚡', time: '11:04', text: 'Desativa a sombra em ultra e limita o FPS no driver. Resolve 90% dos casos.' },
+    { author: 'Dev-Master', avatar: '⚡', time: '11:04', text: 'Desativa a sombra em ultra e limita o FPS no driver. Resolve **90%** dos casos.' },
     { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '11:05', text: 'Dica fixada! ✅ Confira também o canal #geral para mais discussões.' }
   ],
   'prog/geral': [
-    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '08:30', text: 'Bem-vindos ao servidor de Programação! Compartilhem conhecimento. 💻' },
-    { author: 'Dev-Master', avatar: '⚡', time: '08:45', text: 'Terminei de migrar o projeto pra TypeScript. Valeu MUITO a pena.' },
-    { author: 'CodeNinja',  avatar: '🥷', time: '08:52', text: 'TS salva vidas. Nunca mais "undefined is not a function" em produção 🙏' }
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '08:30', text: 'Bem-vindos ao servidor de **Programação**! Compartilhem conhecimento. 💻' },
+    { author: 'Dev-Master', avatar: '⚡', time: '08:45', text: 'Terminei de migrar o projeto pra **TypeScript**. Valeu MUITO a pena.' },
+    { author: 'CodeNinja',  avatar: '🥷', time: '08:52', text: 'TS salva vidas. Nunca mais `undefined is not a function` em produção 🙏' }
   ],
   'prog/frontend': [
-    { author: 'CodeNinja',  avatar: '🥷', time: '13:10', text: 'CSS Grid ou Flexbox pra layout de dashboard?' },
+    { author: 'CodeNinja',  avatar: '🥷', time: '13:10', text: '`CSS Grid` ou `Flexbox` pra layout de dashboard?' },
     { author: 'Dev-Master', avatar: '⚡', time: '13:14', text: 'Grid pro layout macro, Flexbox pros componentes internos. Combo perfeito.' }
   ],
   'prog/backend': [
-    { author: 'Dev-Master', avatar: '⚡', time: '14:00', text: 'Postgres com índice certo deixou a query 40x mais rápida 🚀' },
-    { author: 'CodeNinja',  avatar: '🥷', time: '14:06', text: 'EXPLAIN ANALYZE é vida. Sempre rodo antes de subir qualquer query pesada.' }
+    { author: 'Dev-Master', avatar: '⚡', time: '14:00', text: 'Postgres com índice certo deixou a query **40x** mais rápida 🚀' },
+    { author: 'CodeNinja',  avatar: '🥷', time: '14:06', text: '`EXPLAIN ANALYZE` é vida. Sempre rodo antes de subir qualquer query pesada.' }
   ],
   'prog/ajuda': [
     { author: 'User123',    avatar: '🕹️', time: '15:20', text: 'Meu fetch tá retornando CORS error, alguém sabe o que pode ser?' },
-    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '15:21', text: 'CORS é configurado no servidor! Verifique o header Access-Control-Allow-Origin da sua API. 😉' }
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '15:21', text: 'CORS é configurado no servidor! Verifique o header `Access-Control-Allow-Origin` da sua API. 😉' }
   ],
   'estudos/geral': [
-    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '07:00', text: 'Bom dia, estudantes! Lembrem-se: constância vence intensidade. 📚' },
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '07:00', text: 'Bom dia, estudantes! Lembrem-se: **constância vence intensidade**. 📚' },
     { author: 'StudyGirl',  avatar: '📖', time: '07:30', text: 'Começando pomodoro de 25min agora, quem vem junto?' },
     { author: 'User123',    avatar: '🕹️', time: '07:32', text: 'Bora! Entrei na Sala de Foco 🔊' }
   ],
@@ -1340,7 +1652,7 @@ const SEED_MESSAGES = {
   ],
   'estudos/duvidas': [
     { author: 'User123',    avatar: '🕹️', time: '16:40', text: 'Qual a diferença entre pilha e fila mesmo? Sempre confundo 😅' },
-    { author: 'StudyGirl',  avatar: '📖', time: '16:43', text: 'Pilha = LIFO (último entra, primeiro sai). Fila = FIFO (primeiro entra, primeiro sai). Pensa numa pilha de pratos vs. fila de banco!' }
+    { author: 'StudyGirl',  avatar: '📖', time: '16:43', text: 'Pilha = **LIFO** (último entra, primeiro sai). Fila = **FIFO** (primeiro entra, primeiro sai). Pensa numa pilha de pratos vs. fila de banco!' }
   ]
 };
 
@@ -1386,7 +1698,35 @@ const DEFAULT_MEMBERS = {
   ]
 };
 
+const AMBIENT = {
+  gamer: [
+    ['PixelQueen', '👾', 'achei um easter egg escondido no mapa novo 👀'],
+    ['User123', '🕹️', 'alguém on pra umas ranked agora?'],
+    ['Dev-Master', '⚡', 'saíram os patch notes… nerfaram meu main 😭'],
+    ['User123', '🕹️', 'GG pessoal, aquela última partida foi **insana**'],
+    ['PixelQueen', '👾', 'postei um clipe novo, corre lá no #memes 😂']
+  ],
+  prog: [
+    ['CodeNinja', '🥷', 'acabei de descobrir o `console.table()`, mudou minha vida'],
+    ['Dev-Master', '⚡', 'deploy de sexta-feira… desejem-me sorte 🙏'],
+    ['CodeNinja', '🥷', 'quem nunca esqueceu um `await` que atire a primeira pedra'],
+    ['Dev-Master', '⚡', 'refatorei 400 linhas pra 40. dia ganho ✨']
+  ],
+  estudos: [
+    ['StudyGirl', '📖', 'terminei mais um pomodoro! ☕ pausa de 5 min'],
+    ['User123', '🕹️', 'alguém tem o resumo de ontem? faltei 😅'],
+    ['StudyGirl', '📖', 'dica: revisar antes de dormir ajuda **muito** a fixar'],
+    ['User123', '🕹️', 'simulado marcado pra sábado, quem topa?']
+  ],
+  default: [
+    ['User123', '🕹️', 'esse servidor tá ficando muito bom 👏'],
+    ['Dev-Master', '⚡', 'opa, passando pra dar um alô 👋'],
+    ['User123', '🕹️', 'bora movimentar esse chat!']
+  ]
+};
+
 const BOT_TRIGGERS = [
+  { words: ['@admin-robô', '@admin-robo', 'admin-robô', 'admin-robo'], replies: ['Chamou? 🤖 Estou sempre por aqui! Digite /ajuda para ver tudo que sei fazer.'] },
   { words: ['bom dia'], replies: ['Bom dia! ☀️ Que seu dia seja produtivo e cheio de vitórias!', 'Bom dia, guerreiro(a)! Café na mão e bora pra cima! ☕'] },
   { words: ['boa noite'], replies: ['Boa noite! 🌙 Descanse bem — amanhã tem mais!'] },
   { words: ['ajuda', 'help', 'socorro'], replies: ['Precisa de ajuda? 🛟 Descreva seu problema que a comunidade responde rapidinho! Dica: digite /ajuda para ver meus comandos.', 'Estou aqui para ajudar! 🤖 Experimente digitar /ajuda para ver tudo que eu sei fazer.'] },
@@ -1394,6 +1734,14 @@ const BOT_TRIGGERS = [
   { words: ['olá', 'ola', 'oi', 'eae', 'e aí', 'hello'], replies: ['Olá! 👋 Seja muito bem-vindo(a) ao servidor! Fique à vontade.', 'Oi! 😄 Que bom te ver por aqui. Qualquer dúvida, é só chamar!', 'E aí! 🤖 Bem-vindo(a) à comunidade — dá uma olhada nos canais!'] },
   { words: ['obrigado', 'obrigada', 'valeu', 'vlw'], replies: ['Por nada! 💜 Estamos aqui pra isso. Precisando, é só chamar!'] }
 ];
+
+const EIGHTBALL = [
+  'Com certeza! ✅', 'Sem dúvida nenhuma. 💯', 'Os sinais apontam que sim. ✨',
+  'Pergunte de novo mais tarde… 🔮', 'Não conte com isso. ❌', 'Minhas fontes dizem que não. 🙅',
+  'Muito provável! 🎯', 'Difícil dizer agora… 🌫️', 'Definitivamente não. 💀', 'Pode apostar que sim! 🚀'
+];
+
+const COMMANDS = ['/ajuda', '/dado', '/moeda', '/piada', '/hora', '/limpar', '/8ball', '/nivel'];
 
 const REACT_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '💯'];
 const INPUT_EMOJIS = ['😀','😂','🤣','😍','😎','🤔','😭','😡','🥳','🤯','😴','🤖','👍','👎','👏','🙏','💪','🫡','❤️','💜','🔥','✨','⚡','💯','🎮','🕹️','🎧','💻','📚','☕','🍕','🏆','🎯','🚀','🌙','☀️','😅','🤝','👀','🎲'];
@@ -1403,21 +1751,28 @@ const BANNER_COLORS = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b98
 const ACCENT_COLORS = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6'];
 
 const THEMES = {
-  cyber:    { name: 'Cyberpunk',   light: false, app:'#0b0f19', servers:'#111827', channels:'#1f2937', chat:'#111827', input:'#1f2937', members:'#0f1522', panel:'#18202f' },
-  midnight: { name: 'Meia-noite',  light: false, app:'#020617', servers:'#060b18', channels:'#0f172a', chat:'#0b1120', input:'#182338', members:'#081020', panel:'#101b30' },
-  void:     { name: 'Vazio Roxo',  light: false, app:'#0d0a16', servers:'#141021', channels:'#1e162e', chat:'#120e1e', input:'#261d3a', members:'#100c1b', panel:'#1b1430' },
-  matrix:   { name: 'Matrix',      light: false, app:'#04100a', servers:'#071810', channels:'#0c2418', chat:'#071711', input:'#103021', members:'#05130c', panel:'#0b2015' },
-  ember:    { name: 'Brasa',       light: false, app:'#140b08', servers:'#1d110c', channels:'#2b1a12', chat:'#180e0a', input:'#342016', members:'#170d09', panel:'#241611' },
-  ice:      { name: 'Gelo (claro)', light: true, app:'#eef2f7', servers:'#dde4ee', channels:'#e7ecf4', chat:'#f6f8fc', input:'#e2e8f2', members:'#e9eef5', panel:'#dbe2ee' }
+  cyber:    { name: 'Cyberpunk',    light: false, app:'#0b0f19', servers:'#111827', channels:'#1f2937', chat:'#111827', input:'#1f2937', members:'#0f1522', panel:'#18202f' },
+  midnight: { name: 'Meia-noite',   light: false, app:'#020617', servers:'#060b18', channels:'#0f172a', chat:'#0b1120', input:'#182338', members:'#081020', panel:'#101b30' },
+  void:     { name: 'Vazio Roxo',   light: false, app:'#0d0a16', servers:'#141021', channels:'#1e162e', chat:'#120e1e', input:'#261d3a', members:'#100c1b', panel:'#1b1430' },
+  synth:    { name: 'Synthwave',    light: false, app:'#130822', servers:'#1a0c30', channels:'#261241', chat:'#160a28', input:'#301a52', members:'#120826', panel:'#22103c' },
+  matrix:   { name: 'Matrix',       light: false, app:'#04100a', servers:'#071810', channels:'#0c2418', chat:'#071711', input:'#103021', members:'#05130c', panel:'#0b2015' },
+  ocean:    { name: 'Oceano',       light: false, app:'#041722', servers:'#062231', channels:'#0a3044', chat:'#05202e', input:'#0d3a52', members:'#041a27', panel:'#0a2c3f' },
+  ember:    { name: 'Brasa',        light: false, app:'#140b08', servers:'#1d110c', channels:'#2b1a12', chat:'#180e0a', input:'#342016', members:'#170d09', panel:'#241611' },
+  ice:      { name: 'Gelo (claro)', light: true,  app:'#eef2f7', servers:'#dde4ee', channels:'#e7ecf4', chat:'#f6f8fc', input:'#e2e8f2', members:'#e9eef5', panel:'#dbe2ee' }
 };
 
-const JOKE_COMMANDS = {
-  '/ajuda':  null,
-  '/dado':   null,
-  '/moeda':  null,
-  '/piada':  null,
-  '/hora':   null,
-  '/limpar': null
+const ACHIEVEMENTS = {
+  primeira_msg: '💬 Primeira mensagem',
+  tagarela:     '🗣️ Tagarela — 50 mensagens',
+  arquiteto:    '🏰 Arquiteto — criou um servidor',
+  decorador:    '🎨 Decorador — mudou o tema',
+  fotogenico:   '📸 Fotogênico — foto de perfil',
+  reagente:     '😄 Reagente — primeira reação',
+  fixador:      '📌 Fixador — fixou uma mensagem',
+  respondedor:  '↩️ Respondedor — primeira resposta',
+  comandante:   '🤖 Comandante — usou um comando',
+  explorador:   '🧭 Explorador — visitou os 3 servidores',
+  lenda:        '🏆 Lenda — alcançou o nível 5'
 };
 
 /* ==========================================================
@@ -1426,23 +1781,27 @@ const JOKE_COMMANDS = {
 let state = null;
 let activeServerId = null;
 let activeChannelId = null;
-let voiceConn = null; // { serverId, channelId } — apenas em memória
+let voiceConn = null;
 let editingServerId = null;
 let editingChannelId = null;
 let editingMessageId = null;
 let pendingServerImg = null;
 let selectedServerEmoji = SERVER_EMOJIS[0];
-let pendingAvatarImg = undefined; // undefined = sem alteração; null = remover
+let pendingAvatarImg = undefined;
 let confirmCallback = null;
-let emojiPopMode = null; // 'input' | messageId
+let emojiPopMode = null;
+let replyState = null;
+let ambientTimer = null;
 let audioCtx = null;
 
 function freshState() {
   return {
     profile: { name: 'Você', emoji: '😎', img: null, about: 'Explorando o GuildChat! ✨', status: 'online', custom: '', banner: '#6366f1' },
-    appearance: { theme: 'cyber', accent: '#6366f1', font: 15, compact: false, sound: true },
+    appearance: { theme: 'cyber', accent: '#6366f1', font: 15, compact: false, sound: true, ambient: true },
     servers: JSON.parse(JSON.stringify(DEFAULT_SERVERS)),
-    messages: {}
+    messages: {},
+    unread: {},
+    stats: { xp: 0, msgs: 0, ach: {}, visited: {} }
   };
 }
 
@@ -1452,20 +1811,22 @@ function loadState() {
     if (raw) {
       state = JSON.parse(raw);
       if (!state.profile || !state.appearance || !Array.isArray(state.servers)) throw new Error('estado inválido');
+      // Migração 2.0 → 3.0: garante os campos novos
+      if (!state.unread) state.unread = {};
+      if (!state.stats) state.stats = { xp: 0, msgs: 0, ach: {}, visited: {} };
+      if (state.appearance.ambient === undefined) state.appearance.ambient = true;
+      if (!THEMES[state.appearance.theme]) state.appearance.theme = 'cyber';
       return;
     }
   } catch (e) { /* estado corrompido — recomeça */ }
 
   state = freshState();
 
-  // Migra dados da versão 1, se existirem
   try {
     const oldMsgs = JSON.parse(localStorage.getItem(OLD_MSG_KEY) || 'null');
     if (oldMsgs) state.messages = oldMsgs;
     const oldSrvs = JSON.parse(localStorage.getItem(OLD_SRV_KEY) || 'null');
-    if (Array.isArray(oldSrvs)) {
-      oldSrvs.forEach(s => { s.img = null; state.servers.push(s); });
-    }
+    if (Array.isArray(oldSrvs)) oldSrvs.forEach(s => { s.img = null; state.servers.push(s); });
   } catch (e) { /* sem dados antigos */ }
 
   save();
@@ -1489,6 +1850,21 @@ function channelKey(s, c) { return s + '/' + c; }
 function nowTime() {
   const d = new Date();
   return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function dateOf(m) { return (m && m.date) || todayISO(); }
+function dateLabel(iso) {
+  if (iso === todayISO()) return 'Hoje';
+  try {
+    return new Date(iso + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  } catch (e) { return iso; }
+}
+function minutesOf(t) {
+  const parts = String(t || '0:0').split(':');
+  return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
 }
 function escapeHTML(str) {
   const div = document.createElement('div');
@@ -1518,10 +1894,21 @@ function ensureStored(sId, cId) {
   }
   return state.messages[key];
 }
+function capChannel(arr) {
+  while (arr.length > MSG_CAP) arr.shift();
+}
 function normalizeMsg(m) {
   if (!m.id) m.id = uid();
   if (!m.reactions) m.reactions = {};
   return m;
+}
+function knownNames() {
+  const set = new Set([BOT.name, state.profile.name]);
+  Object.values(MEMBERS).forEach(g => {
+    g.online.forEach(m => set.add(m.name));
+    g.offline.forEach(m => set.add(m.name));
+  });
+  return [...set];
 }
 
 function showToast(text) {
@@ -1560,6 +1947,24 @@ function resizeImage(file, maxDim) {
 }
 
 /* ==========================================================
+   FORMATAÇÃO DE TEXTO (Markdown-lite)
+   ========================================================== */
+function formatText(raw) {
+  let t = escapeHTML(raw);
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  t = t.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+  t = t.replace(/\|\|([^|]+)\|\|/g, '<span class="spoiler" title="Clique para revelar">$1</span>');
+  t = t.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  knownNames().forEach(name => {
+    const esc = escapeHTML(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    t = t.replace(new RegExp('@' + esc + '(?![\\w-])', 'gi'), m => '<span class="mention">' + m + '</span>');
+  });
+  return t;
+}
+
+/* ==========================================================
    SONS (WebAudio)
    ========================================================== */
 function beep(freq, dur, vol) {
@@ -1581,7 +1986,33 @@ const playSend = () => beep(660, 0.12, 0.05);
 const playReceive = () => beep(440, 0.18, 0.06);
 
 /* ==========================================================
-   APARÊNCIA (temas, cor de destaque, fonte)
+   XP, NÍVEIS E CONQUISTAS
+   ========================================================== */
+function levelFromXp(xp) { return Math.floor(Math.sqrt(xp / 100)); }
+
+function addXP(n) {
+  const s = state.stats;
+  const before = levelFromXp(s.xp);
+  s.xp += n;
+  const after = levelFromXp(s.xp);
+  if (after > before) {
+    showToast('🆙 Você subiu para o nível ' + after + '!');
+    playReceive();
+    if (after >= 5) unlock('lenda');
+  }
+  save();
+}
+
+function unlock(id) {
+  const s = state.stats;
+  if (s.ach[id]) return;
+  s.ach[id] = true;
+  save();
+  showToast('🏅 Conquista desbloqueada: ' + ACHIEVEMENTS[id]);
+}
+
+/* ==========================================================
+   APARÊNCIA
    ========================================================== */
 function applyAppearance() {
   const a = state.appearance;
@@ -1618,6 +2049,10 @@ function applyAppearance() {
 /* ==========================================================
    RENDER — SERVIDORES
    ========================================================== */
+function unreadCountFor(serverId) {
+  return Object.keys(state.unread).filter(k => k.startsWith(serverId + '/')).length;
+}
+
 function renderServerBar() {
   const bar = $('serverBar');
   bar.innerHTML = '';
@@ -1626,6 +2061,8 @@ function renderServerBar() {
     const btn = document.createElement('div');
     btn.className = 'server-icon' + (server.id === activeServerId ? ' active' : '');
     btn.innerHTML = server.img ? '<img class="srv-img" src="' + escapeHTML(server.img) + '" alt="">' : escapeHTML(server.icon);
+    const unread = unreadCountFor(server.id);
+    if (unread > 0) btn.innerHTML += '<span class="srv-badge">' + unread + '</span>';
     btn.setAttribute('data-tooltip', server.name);
     btn.setAttribute('role', 'button');
     btn.setAttribute('tabindex', '0');
@@ -1679,8 +2116,11 @@ function renderChannelList() {
 
   buildCategory('Canais de texto', 'text');
   textChannels.forEach(ch => {
+    const key = channelKey(server.id, ch.id);
     const item = document.createElement('div');
-    item.className = 'channel-item' + (ch.id === activeChannelId ? ' active' : '');
+    item.className = 'channel-item'
+      + (ch.id === activeChannelId ? ' active' : '')
+      + (state.unread[key] ? ' unread' : '');
     item.innerHTML = '<span class="channel-hash">#</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>';
     const gear = document.createElement('button');
     gear.className = 'ch-edit';
@@ -1768,31 +2208,75 @@ function reactionRowHTML(msg) {
   ).join('') + '</div>';
 }
 
-function buildMessageEl(msg) {
+function shouldGroup(prev, msg) {
+  if (!prev || !msg) return false;
+  if (msg.replyTo || msg.pinned) return false;
+  if (prev.author !== msg.author) return false;
+  if (!!prev.bot !== !!msg.bot || !!prev.mine !== !!msg.mine) return false;
+  if (dateOf(prev) !== dateOf(msg)) return false;
+  const diff = minutesOf(msg.time) - minutesOf(prev.time);
+  return diff >= 0 && diff <= 5;
+}
+
+function dateDividerEl(iso) {
+  const el = document.createElement('div');
+  el.className = 'date-divider';
+  el.textContent = dateLabel(iso);
+  return el;
+}
+
+function buildMessageEl(msg, grouped) {
   normalizeMsg(msg);
   const mine = !!msg.mine;
   const name = mine ? state.profile.name : msg.author;
   const av = mine ? avatarHTML(state.profile.emoji, state.profile.img) : avatarHTML(msg.avatar, msg.avatarImg);
 
-  const el = document.createElement('div');
-  el.className = 'message';
-  el.dataset.msgId = msg.id;
-  el.innerHTML =
+  const actionsHTML =
     '<div class="msg-actions">' +
+      '<button class="act-reply" title="Responder">↩️</button>' +
       '<button class="act-react" title="Reagir">😄</button>' +
+      '<button class="act-pin" title="' + (msg.pinned ? 'Desafixar' : 'Fixar') + '">📌</button>' +
       (mine ? '<button class="act-edit" title="Editar">✏️</button><button class="act-del danger" title="Apagar">🗑️</button>' : '') +
-    '</div>' +
+    '</div>';
+
+  const replyHTML = msg.replyTo
+    ? '<div class="reply-preview" data-jump="' + escapeHTML(msg.replyTo.id) + '">' +
+        '<span class="rp-bar"></span><b>@' + escapeHTML(msg.replyTo.author) + '</b>' +
+        '<span class="rp-text">' + escapeHTML(msg.replyTo.text) + '</span></div>'
+    : '';
+
+  const textHTML =
+    '<div class="message-text">' + formatText(msg.text || '') +
+    (msg.pinned ? ' <span class="pin-flag" title="Mensagem fixada">📌</span>' : '') +
+    '</div>';
+
+  const imgHTML = msg.img ? '<img class="message-img" src="' + escapeHTML(msg.img) + '" alt="Imagem enviada">' : '';
+
+  const el = document.createElement('div');
+  el.dataset.msgId = msg.id;
+
+  if (grouped) {
+    el.className = 'message grouped';
+    el.innerHTML =
+      actionsHTML +
+      '<div class="avatar" aria-hidden="true"></div>' +
+      '<div class="message-body">' + textHTML + imgHTML + reactionRowHTML(msg) + '</div>';
+    return el;
+  }
+
+  el.className = 'message';
+  el.innerHTML =
+    actionsHTML +
     '<div class="avatar">' + av + '</div>' +
     '<div class="message-body">' +
+      replyHTML +
       '<div class="message-meta">' +
         '<span class="message-author' + (msg.bot ? ' bot-name' : '') + '">' + escapeHTML(name) + '</span>' +
         (msg.bot ? '<span class="bot-badge">BOT</span>' : '') +
-        '<span class="message-time">hoje às ' + escapeHTML(msg.time) + '</span>' +
+        '<span class="message-time">' + (dateOf(msg) === todayISO() ? 'hoje às ' : dateLabel(dateOf(msg)) + ' às ') + escapeHTML(msg.time) + '</span>' +
         (msg.edited ? '<span class="edited-flag">(editado)</span>' : '') +
       '</div>' +
-      '<div class="message-text">' + escapeHTML(msg.text || '') + '</div>' +
-      (msg.img ? '<img class="message-img" src="' + escapeHTML(msg.img) + '" alt="Imagem enviada">' : '') +
-      reactionRowHTML(msg) +
+      textHTML + imgHTML + reactionRowHTML(msg) +
     '</div>';
   return el;
 }
@@ -1804,6 +2288,10 @@ function renderMessages() {
   container.innerHTML = '';
   if (!channel) return;
 
+  // Ao abrir o canal, ele deixa de estar "não lido"
+  const key = channelKey(activeServerId, activeChannelId);
+  if (state.unread[key]) { delete state.unread[key]; save(); }
+
   const welcome = document.createElement('div');
   welcome.className = 'chat-welcome';
   welcome.innerHTML =
@@ -1813,9 +2301,22 @@ function renderMessages() {
     escapeHTML(channel.desc || '') + '</p>';
   container.appendChild(welcome);
 
-  getMessagesFor(activeServerId, activeChannelId).forEach(msg => container.appendChild(buildMessageEl(msg)));
+  const msgs = getMessagesFor(activeServerId, activeChannelId);
+  let prev = null;
+  msgs.forEach(msg => {
+    if (!prev || dateOf(prev) !== dateOf(msg)) container.appendChild(dateDividerEl(dateOf(msg)));
+    container.appendChild(buildMessageEl(msg, shouldGroup(prev, msg)));
+    prev = msg;
+  });
+
   applySearchFilter();
   scrollChatToBottom(false);
+  $('scrollDownBtn').classList.remove('show');
+}
+
+function isNearBottom() {
+  const c = $('chatMessages');
+  return c.scrollHeight - c.scrollTop - c.clientHeight < 220;
 }
 
 function scrollChatToBottom(smooth = true) {
@@ -1823,12 +2324,36 @@ function scrollChatToBottom(smooth = true) {
   container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
 }
 
+function appendToDOM(msg, prev, forceScroll) {
+  const container = $('chatMessages');
+  const near = isNearBottom();
+  if (!prev || dateOf(prev) !== dateOf(msg)) container.appendChild(dateDividerEl(dateOf(msg)));
+  container.appendChild(buildMessageEl(msg, shouldGroup(prev, msg)));
+  applySearchFilter();
+  if (forceScroll || near) scrollChatToBottom();
+  else $('scrollDownBtn').classList.add('show');
+}
+
 function refreshMessage(msgId) {
   const msgs = getMessagesFor(activeServerId, activeChannelId);
   const msg = msgs.find(m => m.id === msgId);
   const el = document.querySelector('.message[data-msg-id="' + msgId + '"]');
-  if (msg && el) el.replaceWith(buildMessageEl(msg));
-  else if (!msg && el) el.remove();
+  if (msg && el) {
+    const grouped = el.classList.contains('grouped') && !msg.pinned && !msg.replyTo;
+    el.replaceWith(buildMessageEl(msg, grouped));
+  } else if (!msg && el) {
+    el.remove();
+  }
+}
+
+function scrollToMsg(msgId) {
+  const el = document.querySelector('.message[data-msg-id="' + msgId + '"]');
+  if (!el) { showToast('🔍 A mensagem original não está mais neste canal.'); return; }
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  el.classList.remove('msg-highlight');
+  void el.offsetWidth;
+  el.classList.add('msg-highlight');
+  setTimeout(() => el.classList.remove('msg-highlight'), 1700);
 }
 
 /* ==========================================================
@@ -1901,20 +2426,48 @@ function selectServer(serverId) {
   const firstText = server.channels.find(c => c.type === 'text');
   activeChannelId = firstText ? firstText.id : null;
   closeSearch();
+  trackVisit(serverId);
   renderAll();
+}
+
+function trackVisit(serverId) {
+  state.stats.visited[serverId] = true;
+  if (['gamer', 'prog', 'estudos'].every(id => state.stats.visited[id])) unlock('explorador');
 }
 
 function selectChannel(channelId) {
   activeChannelId = channelId;
+  clearActiveUnread();
   closeSearch();
+  cancelReply();
   renderChannelList();
   renderChatHeader();
   renderMessages();
+  renderServerBar();
   closeDrawer();
   $('messageInput').focus();
 }
 
+function goTo(serverId, channelId) {
+  activeServerId = serverId;
+  activeChannelId = channelId;
+  closeSearch();
+  cancelReply();
+  trackVisit(serverId);
+  renderAll();
+}
+
+function stepChannel(dir) {
+  const server = getServer(activeServerId);
+  const texts = server.channels.filter(c => c.type === 'text');
+  if (!texts.length) return;
+  const idx = texts.findIndex(c => c.id === activeChannelId);
+  const next = texts[(idx + dir + texts.length) % texts.length];
+  selectChannel(next.id);
+}
+
 function renderAll() {
+  clearActiveUnread();
   applyAppearance();
   renderServerBar();
   renderChannelList();
@@ -1925,8 +2478,32 @@ function renderAll() {
 }
 
 /* ==========================================================
+   NÃO LIDOS
+   ========================================================== */
+function clearActiveUnread() {
+  const key = channelKey(activeServerId, activeChannelId);
+  if (state.unread[key]) { delete state.unread[key]; save(); }
+}
+
+function markUnread(sId, cId) {
+  if (sId === activeServerId && cId === activeChannelId) return;
+  state.unread[channelKey(sId, cId)] = true;
+  save();
+  if (sId === activeServerId) renderChannelList();
+  renderServerBar();
+}
+
+/* ==========================================================
    MENSAGENS + BOT + COMANDOS
    ========================================================== */
+function showTyping(name) {
+  $('typingText').textContent = name + ' está digitando…';
+  $('typingIndicator').style.visibility = 'visible';
+}
+function hideTyping() {
+  $('typingIndicator').style.visibility = 'hidden';
+}
+
 function pushUserMessage(text, img) {
   const msg = {
     id: uid(),
@@ -1934,46 +2511,62 @@ function pushUserMessage(text, img) {
     avatar: state.profile.emoji,
     mine: true,
     time: nowTime(),
+    date: todayISO(),
     text: text || '',
     img: img || null,
     reactions: {}
   };
-  ensureStored(activeServerId, activeChannelId).push(msg);
+  if (replyState) {
+    msg.replyTo = replyState;
+    unlock('respondedor');
+    cancelReply();
+  }
+  const arr = ensureStored(activeServerId, activeChannelId);
+  const prev = arr[arr.length - 1];
+  arr.push(msg);
+  capChannel(arr);
   save();
-  $('chatMessages').appendChild(buildMessageEl(msg));
-  scrollChatToBottom();
+  appendToDOM(msg, prev, true);
   playSend();
+
+  state.stats.msgs++;
+  unlock('primeira_msg');
+  if (state.stats.msgs >= 50) unlock('tagarela');
+  addXP(img ? 10 : 5);
   return msg;
 }
 
 function pushBotMessage(text, sId, cId, instant) {
   const doIt = () => {
-    $('typingIndicator').style.visibility = 'hidden';
-    const botMsg = { id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(), text, reactions: {} };
-    ensureStored(sId, cId).push(botMsg);
+    hideTyping();
+    const botMsg = { id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(), date: todayISO(), text, reactions: {} };
+    const arr = ensureStored(sId, cId);
+    const prev = arr[arr.length - 1];
+    arr.push(botMsg);
+    capChannel(arr);
     save();
-    if (activeServerId === sId && activeChannelId === cId) {
-      $('chatMessages').appendChild(buildMessageEl(botMsg));
-      scrollChatToBottom();
-    }
+    if (activeServerId === sId && activeChannelId === cId) appendToDOM(botMsg, prev, false);
+    else markUnread(sId, cId);
     playReceive();
   };
   if (instant) { doIt(); return; }
-  $('typingIndicator').style.visibility = 'visible';
+  showTyping(BOT.name);
   setTimeout(doIt, 1000);
 }
 
 function handleCommand(raw) {
-  const cmd = raw.trim().split(/\s+/)[0].toLowerCase();
-  if (!(cmd in JOKE_COMMANDS)) return false;
+  const parts = raw.trim().split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  if (!COMMANDS.includes(cmd)) return false;
 
   pushUserMessage(raw);
+  unlock('comandante');
   const sId = activeServerId, cId = activeChannelId;
 
   setTimeout(() => {
     switch (cmd) {
       case '/ajuda':
-        pushBotMessage('📖 Meus comandos:\n/dado — rola um d20\n/moeda — cara ou coroa\n/piada — conta uma piada\n/hora — hora atual\n/limpar — limpa este canal\n\nTambém respondo a "olá", "bom dia", "ajuda", "piada" e mais!', sId, cId, true);
+        pushBotMessage('📖 Meus comandos:\n/dado — rola um d20\n/moeda — cara ou coroa\n/8ball pergunta — a resposta do universo\n/piada — conta uma piada\n/hora — hora atual\n/nivel — seu nível e XP\n/limpar — limpa este canal\n\nTambém respondo a "olá", "bom dia", "ajuda", "piada" e a menções ao meu nome!', sId, cId, true);
         break;
       case '/dado':
         pushBotMessage('🎲 Você rolou um d20 e tirou… **' + (1 + Math.floor(Math.random() * 20)) + '**!', sId, cId, true);
@@ -1981,6 +2574,12 @@ function handleCommand(raw) {
       case '/moeda':
         pushBotMessage('🪙 A moeda girou e caiu em… **' + (Math.random() < 0.5 ? 'CARA' : 'COROA') + '**!', sId, cId, true);
         break;
+      case '/8ball': {
+        const q = parts.slice(1).join(' ');
+        const ans = EIGHTBALL[Math.floor(Math.random() * EIGHTBALL.length)];
+        pushBotMessage(q ? '🎱 *"' + q + '"* — ' + ans : '🎱 Faça uma pergunta junto com o comando! Ex: `/8ball vou ganhar hoje?`', sId, cId, true);
+        break;
+      }
       case '/piada': {
         const jokes = BOT_TRIGGERS.find(t => t.words.includes('piada')).replies;
         pushBotMessage(jokes[Math.floor(Math.random() * jokes.length)], sId, cId, true);
@@ -1989,6 +2588,12 @@ function handleCommand(raw) {
       case '/hora':
         pushBotMessage('🕐 Agora são ' + nowTime() + '. Hora de mais uma mensagem! 😄', sId, cId, true);
         break;
+      case '/nivel': {
+        const lvl = levelFromXp(state.stats.xp);
+        const next = 100 * (lvl + 1) * (lvl + 1);
+        pushBotMessage('📊 **' + state.profile.name + '** está no nível **' + lvl + '** com ' + state.stats.xp + ' XP (' + state.stats.msgs + ' mensagens). Faltam ' + (next - state.stats.xp) + ' XP para o nível ' + (lvl + 1) + '! 💪', sId, cId, true);
+        break;
+      }
       case '/limpar':
         confirmAction('Limpar canal?', 'Todas as mensagens deste canal serão apagadas.', () => {
           state.messages[channelKey(sId, cId)] = [];
@@ -2007,6 +2612,7 @@ function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
+  updateCharCount();
 
   if (text.startsWith('/')) {
     if (handleCommand(text)) { input.focus(); return; }
@@ -2026,7 +2632,55 @@ function maybeTriggerBot(userText) {
 }
 
 /* ==========================================================
-   REAÇÕES, EDITAR, APAGAR
+   VIDA SIMULADA (atividade ambiente)
+   ========================================================== */
+function ambientTick(forceServer, forceChannel) {
+  if (!state.appearance.ambient && !forceServer) return;
+  const server = forceServer ? getServer(forceServer) : state.servers[Math.floor(Math.random() * state.servers.length)];
+  if (!server) return;
+  const texts = server.channels.filter(c => c.type === 'text');
+  if (!texts.length) return;
+  const ch = forceChannel ? getChannel(server, forceChannel) : texts[Math.floor(Math.random() * texts.length)];
+  if (!ch) return;
+
+  const pool = AMBIENT[server.id] || AMBIENT.default;
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  const name = pick[0], avatar = pick[1], text = pick[2];
+  const isActive = server.id === activeServerId && ch.id === activeChannelId;
+
+  const post = () => {
+    const msg = { id: uid(), author: name, avatar, time: nowTime(), date: todayISO(), text, reactions: {} };
+    const arr = ensureStored(server.id, ch.id);
+    const prev = arr[arr.length - 1];
+    arr.push(msg);
+    capChannel(arr);
+    save();
+    if (server.id === activeServerId && ch.id === activeChannelId) {
+      appendToDOM(msg, prev, false);
+      playReceive();
+    } else {
+      markUnread(server.id, ch.id);
+    }
+  };
+
+  if (isActive) {
+    showTyping(name);
+    setTimeout(() => { hideTyping(); post(); }, 1300);
+  } else {
+    post();
+  }
+}
+
+function scheduleAmbient() {
+  clearTimeout(ambientTimer);
+  ambientTimer = setTimeout(() => {
+    ambientTick();
+    scheduleAmbient();
+  }, 22000 + Math.random() * 26000);
+}
+
+/* ==========================================================
+   REAÇÕES, EDITAR, APAGAR, FIXAR, RESPONDER
    ========================================================== */
 function toggleReaction(msgId, emoji) {
   const msgs = ensureStored(activeServerId, activeChannelId);
@@ -2035,11 +2689,37 @@ function toggleReaction(msgId, emoji) {
   normalizeMsg(msg);
   const r = msg.reactions[emoji] || { count: 0, me: false };
   if (r.me) { r.count -= 1; r.me = false; }
-  else { r.count += 1; r.me = true; }
+  else { r.count += 1; r.me = true; unlock('reagente'); }
   if (r.count <= 0) delete msg.reactions[emoji];
   else msg.reactions[emoji] = r;
   save();
   refreshMessage(msgId);
+}
+
+function togglePin(msgId) {
+  const msgs = ensureStored(activeServerId, activeChannelId);
+  const msg = msgs.find(m => m.id === msgId);
+  if (!msg) return;
+  msg.pinned = !msg.pinned;
+  save();
+  refreshMessage(msgId);
+  if (msg.pinned) { unlock('fixador'); showToast('📌 Mensagem fixada!'); }
+  else showToast('📌 Mensagem desafixada.');
+}
+
+function startReply(msgId) {
+  const msg = getMessagesFor(activeServerId, activeChannelId).find(m => m.id === msgId);
+  if (!msg) return;
+  const author = msg.mine ? state.profile.name : msg.author;
+  replyState = { id: msg.id, author, text: (msg.text || '📷 imagem').slice(0, 90) };
+  $('replyBarName').textContent = author;
+  $('replyBar').classList.add('open');
+  $('messageInput').focus();
+}
+
+function cancelReply() {
+  replyState = null;
+  $('replyBar').classList.remove('open');
 }
 
 function startEditMessage(msgId) {
@@ -2093,8 +2773,57 @@ function deleteMessage(msgId) {
   });
 }
 
+function copyMsgText(text) {
+  const done = () => showToast('📋 Texto copiado!');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => showToast('⚠️ Não consegui copiar.'));
+  } else {
+    showToast('⚠️ Área de transferência indisponível.');
+  }
+}
+
 /* ==========================================================
-   POPUP DE EMOJIS (reações + input)
+   MENU DE CONTEXTO
+   ========================================================== */
+function openCtxMenu(x, y, msgId) {
+  const msg = getMessagesFor(activeServerId, activeChannelId).find(m => m.id === msgId);
+  if (!msg) return;
+  const menu = $('ctxMenu');
+  const items = [
+    ['↩️', 'Responder', () => startReply(msgId)],
+    ['😄', 'Reagir', () => openEmojiPop({ getBoundingClientRect: () => ({ left: x, top: y, bottom: y }) }, msgId)],
+    [msg.pinned ? '📍' : '📌', msg.pinned ? 'Desafixar' : 'Fixar mensagem', () => togglePin(msgId)],
+    ['📋', 'Copiar texto', () => copyMsgText(msg.text || '')]
+  ];
+  if (msg.mine) {
+    items.push('sep');
+    items.push(['✏️', 'Editar', () => startEditMessage(msgId)]);
+    items.push(['🗑️', 'Apagar', () => deleteMessage(msgId), 'danger']);
+  }
+
+  menu.innerHTML = '';
+  items.forEach(it => {
+    if (it === 'sep') {
+      const s = document.createElement('div');
+      s.className = 'ctx-sep';
+      menu.appendChild(s);
+      return;
+    }
+    const b = document.createElement('button');
+    if (it[3]) b.classList.add(it[3]);
+    b.innerHTML = '<span>' + it[1] + '</span><span>' + it[0] + '</span>';
+    b.addEventListener('click', () => { closeCtxMenu(); it[2](); });
+    menu.appendChild(b);
+  });
+  menu.classList.add('open');
+  const r = menu.getBoundingClientRect();
+  menu.style.left = Math.max(8, Math.min(x, window.innerWidth - r.width - 8)) + 'px';
+  menu.style.top = Math.max(8, Math.min(y, window.innerHeight - r.height - 8)) + 'px';
+}
+function closeCtxMenu() { $('ctxMenu').classList.remove('open'); }
+
+/* ==========================================================
+   POPUP DE EMOJIS
    ========================================================== */
 function openEmojiPop(anchorEl, mode) {
   emojiPopMode = mode;
@@ -2109,6 +2838,7 @@ function openEmojiPop(anchorEl, mode) {
       if (emojiPopMode === 'input') {
         const input = $('messageInput');
         input.value += em;
+        updateCharCount();
         input.focus();
       } else {
         toggleReaction(emojiPopMode, em);
@@ -2140,6 +2870,8 @@ function closeAllModals() {
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   $('lightbox').classList.remove('open');
   closeEmojiPop();
+  closeCtxMenu();
+  $('mentionPop').classList.remove('open');
 }
 function confirmAction(title, text, cb) {
   $('confirmTitle').textContent = title;
@@ -2149,7 +2881,7 @@ function confirmAction(title, text, cb) {
 }
 
 /* ==========================================================
-   MODAL — SERVIDOR (criar/editar)
+   MODAL — SERVIDOR
    ========================================================== */
 function renderServerEmojiPicker() {
   const picker = $('serverEmojiPicker');
@@ -2229,11 +2961,12 @@ function saveServerModal() {
   };
   state.servers.push(newServer);
   state.messages[channelKey(newServer.id, 'geral')] = [{
-    id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(),
-    text: '🎉 Servidor "' + name + '" criado com sucesso! Este é o seu novo espaço — convide seus amigos e comece a conversar!',
+    id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(), date: todayISO(),
+    text: '🎉 Servidor **' + name + '** criado com sucesso! Este é o seu novo espaço — convide seus amigos e comece a conversar!',
     reactions: {}
   }];
   save();
+  unlock('arquiteto');
   closeModal('serverModal');
   selectServer(newServer.id);
   showToast('✅ Servidor "' + name + '" criado!');
@@ -2247,7 +2980,10 @@ function deleteServer() {
   }
   const server = getServer(editingServerId);
   confirmAction('Excluir "' + server.name + '"?', 'Todos os canais e mensagens deste servidor serão apagados.', () => {
-    server.channels.forEach(c => delete state.messages[channelKey(server.id, c.id)]);
+    server.channels.forEach(c => {
+      delete state.messages[channelKey(server.id, c.id)];
+      delete state.unread[channelKey(server.id, c.id)];
+    });
     state.servers = state.servers.filter(s => s.id !== server.id);
     if (voiceConn && voiceConn.serverId === server.id) voiceConn = null;
     save();
@@ -2258,7 +2994,7 @@ function deleteServer() {
 }
 
 /* ==========================================================
-   MODAL — CANAL (criar/editar)
+   MODAL — CANAL
    ========================================================== */
 function openChannelModal(channelId, presetType) {
   editingChannelId = channelId;
@@ -2326,6 +3062,7 @@ function deleteChannel() {
   }
   confirmAction('Excluir #' + ch.name + '?', 'As mensagens deste canal serão apagadas.', () => {
     delete state.messages[channelKey(server.id, ch.id)];
+    delete state.unread[channelKey(server.id, ch.id)];
     server.channels = server.channels.filter(c => c.id !== ch.id);
     if (voiceConn && voiceConn.serverId === server.id && voiceConn.channelId === ch.id) voiceConn = null;
     if (activeChannelId === ch.id) {
@@ -2414,6 +3151,8 @@ function openSettings(tab) {
   $('fontSizeValue').textContent = state.appearance.font + 'px';
   setToggle($('toggleCompact'), state.appearance.compact);
   setToggle($('toggleSound'), state.appearance.sound);
+  setToggle($('toggleAmbient'), state.appearance.ambient);
+  $('dataArea').value = '';
   switchTab(tab || 'tabProfile');
   openModal('settingsModal');
 }
@@ -2429,6 +3168,7 @@ function saveProfile() {
   state.profile.custom = $('profileCustomInput').value.trim();
   state.profile.about = $('profileAboutInput').value.trim();
   if (pendingAvatarImg !== undefined) state.profile.img = pendingAvatarImg;
+  if (state.profile.img) unlock('fotogenico');
   save();
   closeModal('settingsModal');
   renderAll();
@@ -2436,7 +3176,7 @@ function saveProfile() {
 }
 
 /* ==========================================================
-   CONFIGURAÇÕES — APARÊNCIA
+   CONFIGURAÇÕES — APARÊNCIA E DADOS
    ========================================================== */
 function switchTab(tabId) {
   document.querySelectorAll('.tab-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
@@ -2463,6 +3203,7 @@ function renderThemeGrid() {
       save();
       applyAppearance();
       renderThemeGrid();
+      unlock('decorador');
       showToast('🎨 Tema "' + t.name + '" aplicado!');
     });
     grid.appendChild(card);
@@ -2516,11 +3257,161 @@ function openMemberModal(member, isOnline) {
   $('memberTag').textContent = status;
   $('memberAbout').textContent = (self ? state.profile.about : member.about) || 'Membro da comunidade.';
   $('memberRole').textContent = member.role || 'Membro';
+
+  if (self) {
+    const lvl = levelFromXp(state.stats.xp);
+    const cur = 100 * lvl * lvl;
+    const next = 100 * (lvl + 1) * (lvl + 1);
+    $('memberLevel').textContent = lvl;
+    $('memberXpFill').style.width = Math.min(100, Math.round(100 * (state.stats.xp - cur) / (next - cur))) + '%';
+    $('memberXpNow').textContent = state.stats.xp + ' XP';
+    $('memberXpNext').textContent = next + ' XP';
+    $('memberXpBox').style.display = '';
+    const keys = Object.keys(state.stats.ach);
+    $('memberBadges').innerHTML = keys.length
+      ? keys.map(k => '<span class="badge-chip">' + escapeHTML(ACHIEVEMENTS[k] || k) + '</span>').join('')
+      : '<span style="font-size:12px;color:var(--text-dim)">Nenhuma ainda — vá conversar! 😄</span>';
+    $('memberBadgesBox').style.display = '';
+  } else {
+    $('memberXpBox').style.display = 'none';
+    $('memberBadgesBox').style.display = 'none';
+  }
   openModal('memberModal');
 }
 
+function openMemberByName(name) {
+  const clean = name.replace(/^@/, '').toLowerCase();
+  if (clean === state.profile.name.toLowerCase()) { openMemberModal(selfMemberEntry(), true); return; }
+  const data = MEMBERS[activeServerId] || DEFAULT_MEMBERS;
+  const on = data.online.find(m => m.name.toLowerCase() === clean);
+  if (on) { openMemberModal(on, true); return; }
+  const off = data.offline.find(m => m.name.toLowerCase() === clean);
+  if (off) { openMemberModal(off, false); return; }
+  const anywhere = [];
+  Object.values(MEMBERS).forEach(g => { anywhere.push(...g.online, ...g.offline); });
+  const found = anywhere.find(m => m.name.toLowerCase() === clean);
+  if (found) openMemberModal(found, true);
+}
+
 /* ==========================================================
-   BUSCA
+   MENSAGENS FIXADAS
+   ========================================================== */
+function openPinsModal() {
+  const server = getServer(activeServerId);
+  const channel = getChannel(server, activeChannelId);
+  $('pinsSub').textContent = 'Mensagens importantes de #' + (channel ? channel.name : '');
+  const list = $('pinsList');
+  const pinned = getMessagesFor(activeServerId, activeChannelId).filter(m => m.pinned);
+  list.innerHTML = '';
+  if (!pinned.length) {
+    list.innerHTML = '<div class="pins-empty">Nenhuma mensagem fixada ainda.<br>Use o 📌 ao passar o mouse em uma mensagem!</div>';
+  } else {
+    pinned.forEach(m => {
+      const item = document.createElement('div');
+      item.className = 'pin-item';
+      const author = m.mine ? state.profile.name : m.author;
+      item.innerHTML = '<div class="pin-author">' + escapeHTML(author) + ' · ' + escapeHTML(m.time) + '</div>' +
+        '<div class="pin-text">' + escapeHTML(m.text || '📷 imagem') + '</div>';
+      item.addEventListener('click', () => {
+        closeModal('pinsModal');
+        scrollToMsg(m.id);
+      });
+      list.appendChild(item);
+    });
+  }
+  openModal('pinsModal');
+}
+
+/* ==========================================================
+   BUSCA RÁPIDA (Ctrl+K)
+   ========================================================== */
+function qsEntries() {
+  const out = [];
+  state.servers.forEach(s => s.channels.filter(c => c.type === 'text').forEach(c => out.push({ s, c })));
+  return out;
+}
+
+function renderQS(query) {
+  const list = $('qsList');
+  list.innerHTML = '';
+  const q = query.toLowerCase();
+  const entries = qsEntries()
+    .filter(e => !q || e.c.name.toLowerCase().includes(q) || e.s.name.toLowerCase().includes(q))
+    .slice(0, 12);
+  entries.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'qs-item' + (i === 0 ? ' sel' : '');
+    d.innerHTML = '<span class="channel-hash">#</span><span>' + escapeHTML(e.c.name) + '</span>' +
+      '<span class="qs-srv">' + escapeHTML(e.s.name) + '</span>';
+    d.addEventListener('click', () => { closeModal('qsModal'); goTo(e.s.id, e.c.id); });
+    list.appendChild(d);
+  });
+}
+
+function qsMove(dir) {
+  const items = [...$('qsList').children];
+  if (!items.length) return;
+  let idx = items.findIndex(el => el.classList.contains('sel'));
+  items.forEach(el => el.classList.remove('sel'));
+  idx = (idx + dir + items.length) % items.length;
+  items[idx].classList.add('sel');
+  items[idx].scrollIntoView({ block: 'nearest' });
+}
+
+function qsGo() {
+  const sel = $('qsList').querySelector('.qs-item.sel');
+  if (sel) sel.click();
+}
+
+function openQS() {
+  $('qsInput').value = '';
+  renderQS('');
+  openModal('qsModal');
+  setTimeout(() => $('qsInput').focus(), 50);
+}
+
+/* ==========================================================
+   AUTOCOMPLETE DE MENÇÕES
+   ========================================================== */
+function updateMentionPop() {
+  const input = $('messageInput');
+  const upToCursor = input.value.slice(0, input.selectionStart);
+  const m = /@([\wÀ-ÿ-]*)$/.exec(upToCursor);
+  const pop = $('mentionPop');
+  if (!m) { pop.classList.remove('open'); return; }
+  const q = m[1].toLowerCase();
+  const names = knownNames().filter(n => n.toLowerCase().startsWith(q)).slice(0, 6);
+  if (!names.length) { pop.classList.remove('open'); return; }
+  pop.innerHTML = '';
+  names.forEach((n, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    if (i === 0) b.classList.add('sel');
+    b.textContent = '@' + n;
+    b.addEventListener('click', () => insertMention(n));
+    pop.appendChild(b);
+  });
+  pop.classList.add('open');
+  const r = input.getBoundingClientRect();
+  pop.style.left = r.left + 'px';
+  const pr = pop.getBoundingClientRect();
+  pop.style.top = (r.top - pr.height - 8) + 'px';
+}
+
+function insertMention(name) {
+  const input = $('messageInput');
+  const pos = input.selectionStart;
+  const upToCursor = input.value.slice(0, pos);
+  const m = /@([\wÀ-ÿ-]*)$/.exec(upToCursor);
+  const typedLen = m ? m[1].length : 0;
+  input.value = input.value.slice(0, pos - typedLen - 1) + '@' + name + ' ' + input.value.slice(pos);
+  $('mentionPop').classList.remove('open');
+  updateCharCount();
+  input.focus();
+}
+
+/* ==========================================================
+   BUSCA NO CANAL
    ========================================================== */
 function applySearchFilter() {
   const q = $('searchInput').value.trim().toLowerCase();
@@ -2550,6 +3441,38 @@ function closeSearch() {
 }
 
 /* ==========================================================
+   IMAGENS (anexo, arrastar, colar)
+   ========================================================== */
+async function sendImageFile(file) {
+  try {
+    const dataURI = await resizeImage(file, 720);
+    const caption = $('messageInput').value.trim();
+    $('messageInput').value = '';
+    updateCharCount();
+    pushUserMessage(caption, dataURI);
+    showToast('🖼️ Imagem enviada!');
+  } catch (err) {
+    showToast('⚠️ Não consegui ler essa imagem.');
+  }
+}
+
+/* ==========================================================
+   CONTADOR DE CARACTERES
+   ========================================================== */
+function updateCharCount() {
+  const len = $('messageInput').value.length;
+  const cc = $('charCount');
+  if (len >= 400) {
+    cc.textContent = len + '/500';
+    cc.classList.toggle('warn', len < 480);
+    cc.classList.toggle('max', len >= 480);
+  } else {
+    cc.textContent = '';
+    cc.classList.remove('warn', 'max');
+  }
+}
+
+/* ==========================================================
    GAVETA MOBILE
    ========================================================== */
 function openDrawer() {
@@ -2566,23 +3489,47 @@ function closeDrawer() {
    ========================================================== */
 $('sendBtn').addEventListener('click', sendMessage);
 $('messageInput').addEventListener('keydown', e => {
+  const pop = $('mentionPop');
+  if (pop.classList.contains('open') && (e.key === 'Enter' || e.key === 'Tab')) {
+    e.preventDefault();
+    const sel = pop.querySelector('button.sel') || pop.querySelector('button');
+    if (sel) sel.click();
+    return;
+  }
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+$('messageInput').addEventListener('input', () => { updateCharCount(); updateMentionPop(); });
+$('messageInput').addEventListener('paste', e => {
+  const file = e.clipboardData && e.clipboardData.files && e.clipboardData.files[0];
+  if (file && file.type.startsWith('image/')) {
+    e.preventDefault();
+    sendImageFile(file);
+  }
 });
 
 $('attachBtn').addEventListener('click', () => $('fileAttach').click());
-$('fileAttach').addEventListener('change', async e => {
+$('fileAttach').addEventListener('change', e => {
   const file = e.target.files[0];
   e.target.value = '';
-  if (!file) return;
-  try {
-    const dataURI = await resizeImage(file, 720);
-    const caption = $('messageInput').value.trim();
-    $('messageInput').value = '';
-    pushUserMessage(caption, dataURI);
-    showToast('🖼️ Imagem enviada!');
-  } catch (err) {
-    showToast('⚠️ Não consegui ler essa imagem.');
+  if (file) sendImageFile(file);
+});
+
+// Arrastar e soltar imagem no chat
+const chatPanel = $('chatPanel');
+chatPanel.addEventListener('dragover', e => {
+  if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) {
+    e.preventDefault();
+    chatPanel.classList.add('dragging');
   }
+});
+chatPanel.addEventListener('dragleave', e => {
+  if (!chatPanel.contains(e.relatedTarget)) chatPanel.classList.remove('dragging');
+});
+chatPanel.addEventListener('drop', e => {
+  e.preventDefault();
+  chatPanel.classList.remove('dragging');
+  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) sendImageFile(file);
 });
 
 $('emojiBtn').addEventListener('click', e => {
@@ -2591,17 +3538,28 @@ $('emojiBtn').addEventListener('click', e => {
   else openEmojiPop($('emojiBtn'), 'input');
 });
 
-// Delegação de eventos nas mensagens (reagir, editar, apagar, zoom)
+// Delegação de cliques nas mensagens
 $('chatMessages').addEventListener('click', e => {
+  const spoiler = e.target.closest('.spoiler');
+  if (spoiler) { spoiler.classList.toggle('revealed'); return; }
+
+  const mention = e.target.closest('.mention');
+  if (mention) { openMemberByName(mention.textContent); return; }
+
+  const reply = e.target.closest('.reply-preview');
+  if (reply) { scrollToMsg(reply.dataset.jump); return; }
+
   const msgEl = e.target.closest('.message');
   if (!msgEl) return;
   const msgId = msgEl.dataset.msgId;
 
+  if (e.target.closest('.act-reply')) { startReply(msgId); return; }
   if (e.target.closest('.act-react')) {
     e.stopPropagation();
     openEmojiPop(e.target.closest('.act-react'), msgId);
     return;
   }
+  if (e.target.closest('.act-pin')) { togglePin(msgId); return; }
   if (e.target.closest('.act-edit')) { startEditMessage(msgId); return; }
   if (e.target.closest('.act-del')) { deleteMessage(msgId); return; }
 
@@ -2614,16 +3572,36 @@ $('chatMessages').addEventListener('click', e => {
     $('lightbox').classList.add('open');
   }
 });
-$('lightbox').addEventListener('click', () => $('lightbox').classList.remove('open'));
 
-// Fechar popup de emoji ao clicar fora
-document.addEventListener('click', e => {
-  if (!e.target.closest('.emoji-pop') && !e.target.closest('.act-react') && !e.target.closest('.emoji-btn')) {
-    closeEmojiPop();
-  }
+// Menu de contexto (clique direito)
+$('chatMessages').addEventListener('contextmenu', e => {
+  const msgEl = e.target.closest('.message');
+  if (!msgEl) return;
+  e.preventDefault();
+  openCtxMenu(e.clientX, e.clientY, msgEl.dataset.msgId);
 });
 
-// Servidor: header abre edição
+$('lightbox').addEventListener('click', () => $('lightbox').classList.remove('open'));
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.emoji-pop') && !e.target.closest('.act-react') && !e.target.closest('.emoji-btn')) closeEmojiPop();
+  if (!e.target.closest('.ctx-menu')) closeCtxMenu();
+  if (!e.target.closest('.mention-pop') && e.target !== $('messageInput')) $('mentionPop').classList.remove('open');
+});
+
+// Rolagem
+$('chatMessages').addEventListener('scroll', () => {
+  $('scrollDownBtn').classList.toggle('show', !isNearBottom());
+});
+$('scrollDownBtn').addEventListener('click', () => {
+  scrollChatToBottom();
+  $('scrollDownBtn').classList.remove('show');
+});
+
+// Responder
+$('replyCancel').addEventListener('click', cancelReply);
+
+// Servidor
 $('serverHeader').addEventListener('click', () => openServerModal(activeServerId));
 $('btnSaveServer').addEventListener('click', saveServerModal);
 $('serverNameInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveServerModal(); });
@@ -2696,6 +3674,42 @@ $('toggleSound').addEventListener('click', () => {
   save();
   if (state.appearance.sound) playSend();
 });
+$('toggleAmbient').addEventListener('click', () => {
+  state.appearance.ambient = !state.appearance.ambient;
+  setToggle($('toggleAmbient'), state.appearance.ambient);
+  save();
+  showToast(state.appearance.ambient ? '💬 Atividade da comunidade ligada!' : '🔇 Atividade da comunidade desligada.');
+});
+
+// Dados: exportar / importar / restaurar
+$('btnExportData').addEventListener('click', () => {
+  const json = JSON.stringify(state);
+  $('dataArea').value = json;
+  $('dataArea').select();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(json)
+      .then(() => showToast('📋 Backup copiado para a área de transferência!'))
+      .catch(() => showToast('📋 Backup gerado — copie o texto acima.'));
+  } else {
+    showToast('📋 Backup gerado — copie o texto acima.');
+  }
+});
+$('btnImportData').addEventListener('click', () => {
+  let parsed = null;
+  try { parsed = JSON.parse($('dataArea').value); } catch (e) { /* inválido */ }
+  if (!parsed || !parsed.profile || !Array.isArray(parsed.servers)) {
+    showToast('⚠️ Cole um backup válido do GuildChat antes de importar.');
+    return;
+  }
+  confirmAction('Importar backup?', 'Isso substitui todas as suas mensagens e configurações atuais.', () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      location.reload();
+    } catch (e) {
+      showToast('⚠️ Backup grande demais para o armazenamento.');
+    }
+  });
+});
 $('btnResetAll').addEventListener('click', () => {
   confirmAction('Restaurar padrões?', 'Todas as mensagens, servidores e personalizações serão apagados.', () => {
     localStorage.removeItem(STORAGE_KEY);
@@ -2713,19 +3727,44 @@ $('btnConfirmYes').addEventListener('click', () => {
   if (cb) cb();
 });
 
-// Botões "fechar" declarativos
+// Botões "fechar" declarativos + clique fora
 document.querySelectorAll('[data-close]').forEach(b => {
   b.addEventListener('click', () => closeModal(b.dataset.close));
 });
-// Clique fora fecha o modal
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 });
+
+// Atalhos globais
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeAllModals(); closeDrawer(); closeSearch(); }
+  if (e.key === 'Escape') {
+    closeAllModals();
+    closeDrawer();
+    closeSearch();
+    cancelReply();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    openQS();
+    return;
+  }
+  if (e.altKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    e.preventDefault();
+    stepChannel(e.key === 'ArrowDown' ? 1 : -1);
+  }
 });
 
-// Busca / membros / voz / mobile
+// Busca rápida
+$('qsInput').addEventListener('input', e => renderQS(e.target.value));
+$('qsInput').addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); qsMove(1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); qsMove(-1); }
+  else if (e.key === 'Enter') { e.preventDefault(); qsGo(); }
+});
+
+// Cabeçalho do chat
+$('btnPins').addEventListener('click', openPinsModal);
 $('btnSearch').addEventListener('click', toggleSearch);
 $('btnSearchClose').addEventListener('click', closeSearch);
 $('searchInput').addEventListener('input', applySearchFilter);
@@ -2743,7 +3782,12 @@ loadState();
 activeServerId = state.servers[0].id;
 const initCh = state.servers[0].channels.find(c => c.type === 'text');
 activeChannelId = initCh ? initCh.id : null;
+trackVisit(activeServerId);
 renderAll();
+scheduleAmbient();
+
+// Gancho mínimo para testes automatizados
+window.GuildChat = { ambientTick };
 </script>
 
 </body>

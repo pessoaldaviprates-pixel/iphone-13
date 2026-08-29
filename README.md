@@ -17,10 +17,30 @@ Basta abrir o arquivo **`index.html`** em qualquer navegador moderno. Não é ne
 ### Interatividade
 - ✅ **Chat funcional**: envie mensagens com Enter ou pelo botão, com rolagem automática para o final.
 - ✅ **Troca de canais**: cada canal carrega suas próprias mensagens fictícias.
-- ✅ **Admin-Robô 🤖**: responde automaticamente (com indicador de "digitando…" e delay de 1s) a mensagens contendo "olá", "oi", "ajuda", "bom dia", "boa noite", "piada", "obrigado" e outras.
-- ✅ **Comandos de barra**: `/ajuda`, `/dado`, `/moeda`, `/piada`, `/hora` e `/limpar`.
+- ✅ **Admin-Robô 🤖**: responde automaticamente (com indicador de "digitando…" e delay de 1s) a mensagens contendo "olá", "oi", "ajuda", "bom dia", "boa noite", "piada", "obrigado", a menções a @Admin-Robô e outras.
+- ✅ **Comandos de barra**: `/ajuda`, `/dado`, `/moeda`, `/8ball`, `/piada`, `/hora`, `/nivel` e `/limpar`.
 - ✅ **Persistência**: mensagens, servidores, canais, perfil e tema salvos no LocalStorage.
 - ✅ **Mobile-friendly**: em telas pequenas as colunas de servidores/canais viram uma gaveta deslizante acessível pelo menu ☰.
+
+### Chat avançado (3.0)
+- ↩️ **Responder mensagens**: citação acima da mensagem e clique para pular até a original (com destaque).
+- 📌 **Fixar mensagens**: painel de fixadas no cabeçalho do canal.
+- ✍️ **Formatação Markdown**: `**negrito**`, `*itálico*`, `` `código` ``, `~~riscado~~`, `||spoiler||` (clique para revelar) e links clicáveis.
+- 🏷️ **Menções @nome** com autocomplete ao digitar `@` — clique na menção abre o cartão do membro.
+- 🗓️ **Separadores de data** e **agrupamento de mensagens** consecutivas do mesmo autor, como no Discord real.
+- 🖱️ **Menu de contexto** (clique direito): responder, reagir, fixar, copiar, editar e apagar.
+- 💬 **Vida simulada**: membros fictícios conversam sozinhos de tempos em tempos (com "digitando…"), gerando marcações de **não lido** nos canais e badge vermelho nos servidores (desligável nas configurações).
+
+### Produtividade
+- ⌨️ **Ctrl+K**: busca rápida de canais em todos os servidores (↑↓ + Enter).
+- ⌨️ **Alt+↑/↓**: navega entre canais do servidor atual.
+- 🖼️ **Arrastar e soltar** ou **colar (Ctrl+V)** imagens direto no chat.
+- ⬇️ Botão flutuante "ir para o fim" quando você rola para cima; contador de caracteres perto do limite.
+- 💾 **Backup**: exporte/importe todos os seus dados em JSON pela aba Dados.
+
+### Gamificação
+- 🆙 **XP e níveis**: ganhe XP por mensagem, acompanhe a barra de progresso no seu cartão de perfil e com `/nivel`.
+- 🏅 **11 conquistas** desbloqueáveis (primeira mensagem, tagarela, arquiteto, decorador, fotogênico, explorador e mais), exibidas no seu perfil.
 
 ### Edição total (estilo Discord de verdade)
 - ✏️ **Mensagens**: edite (com marca de "editado"), apague e reaja com emojis às mensagens.
@@ -30,7 +50,7 @@ Basta abrir o arquivo **`index.html`** em qualquer navegador moderno. Não é ne
 - 🖼️ **Anexos de imagem**: o botão + envia fotos de verdade no chat (redimensionadas e salvas localmente), com visualizador em tela cheia.
 
 ### Personalização visual
-- 🎨 **6 temas completos**: Cyberpunk (padrão), Meia-noite, Vazio Roxo, Matrix, Brasa e Gelo (claro).
+- 🎨 **8 temas completos**: Cyberpunk (padrão), Meia-noite, Vazio Roxo, Synthwave, Matrix, Oceano, Brasa e Gelo (claro).
 - 🌈 **Cor de destaque livre**: 8 predefinidas + seletor de cor personalizado, aplicada em toda a interface.
 - 🔠 **Tamanho da fonte** ajustável e **modo compacto** estilo IRC.
 - 🔊 **Sons** de enviar/receber (WebAudio) com liga/desliga.
