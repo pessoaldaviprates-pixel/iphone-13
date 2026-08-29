@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GuildChat — Sua comunidade, seu universo</title>
 <style>
-  /* ============ RESET & VARIÁVEIS ============ */
+  /* ============ RESET & TOKENS ============ */
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
@@ -15,16 +15,27 @@
     --bg-chat:     #111827;
     --bg-input:    #1f2937;
     --bg-members:  #0f1522;
-    --accent:      #6366f1;
-    --accent-soft: rgba(99, 102, 241, 0.18);
-    --accent-glow: rgba(99, 102, 241, 0.45);
-    --online:      #10b981;
-    --offline:     #6b7280;
-    --text-main:   #e5e7eb;
-    --text-muted:  #9ca3af;
-    --text-dim:    #6b7280;
-    --danger:      #ef4444;
-    --radius:      10px;
+    --bg-panel:    #18202f;
+    --accent:        #6366f1;
+    --accent-soft:   rgba(99, 102, 241, 0.16);
+    --accent-glow:   rgba(99, 102, 241, 0.45);
+    --online:  #10b981;
+    --away:    #f59e0b;
+    --dnd:     #ef4444;
+    --offline: #6b7280;
+    --text-main:  #e5e7eb;
+    --text-soft:  #d1d5db;
+    --text-muted: #9ca3af;
+    --text-dim:   #6b7280;
+    --overlay-1:   rgba(255,255,255,0.04);
+    --overlay-2:   rgba(255,255,255,0.08);
+    --border-soft: rgba(255,255,255,0.06);
+    --divider:     #374151;
+    --tooltip-bg:  #030712;
+    --line-dark:   rgba(0,0,0,0.35);
+    --danger: #ef4444;
+    --msg-font: 15px;
+    --radius: 10px;
   }
 
   html, body {
@@ -37,39 +48,39 @@
 
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-  /* ============ LAYOUT PRINCIPAL ============ */
-  .app {
-    display: flex;
-    height: 100vh;
-    height: 100dvh;
+  button { font-family: inherit; }
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ============ LAYOUT ============ */
+  .app { display: flex; height: 100vh; height: 100dvh; }
 
   /* ============ COLUNA 1 — SERVIDORES ============ */
   .server-bar {
-    width: 72px;
-    min-width: 72px;
+    width: 72px; min-width: 72px;
     background: var(--bg-servers);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 0;
-    gap: 10px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 12px 0; gap: 10px;
     overflow-y: auto;
-    border-right: 1px solid rgba(255,255,255,0.04);
+    border-right: 1px solid var(--overlay-1);
     z-index: 40;
   }
+  .server-bar::-webkit-scrollbar { width: 0; }
 
   .server-icon {
-    width: 48px;
-    height: 48px;
+    width: 48px; height: 48px;
     border-radius: 50%;
     background: var(--bg-channels);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 22px;
     cursor: pointer;
     transition: border-radius 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
@@ -77,70 +88,47 @@
     user-select: none;
     flex-shrink: 0;
   }
-
-  /* Efeito Discord: círculo vira "quadrado arredondado" no hover/ativo */
+  .server-icon .srv-img {
+    width: 100%; height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+    pointer-events: none;
+  }
   .server-icon:hover {
     border-radius: 16px;
     background: var(--accent);
     box-shadow: 0 0 14px var(--accent-glow);
   }
   .server-icon:active { transform: scale(0.94); }
-
   .server-icon.active {
     border-radius: 16px;
     background: var(--accent);
     box-shadow: 0 0 16px var(--accent-glow);
   }
-
-  /* Pílula indicadora do servidor ativo (como no Discord) */
   .server-icon.active::before {
     content: '';
-    position: absolute;
-    left: -12px;
-    top: 50%;
+    position: absolute; left: -12px; top: 50%;
     transform: translateY(-50%);
-    width: 4px;
-    height: 32px;
+    width: 4px; height: 32px;
     border-radius: 0 4px 4px 0;
     background: #fff;
   }
 
-  .server-divider {
-    width: 32px;
-    height: 2px;
-    background: #374151;
-    border-radius: 1px;
-    flex-shrink: 0;
-  }
+  .server-divider { width: 32px; height: 2px; background: var(--divider); border-radius: 1px; flex-shrink: 0; }
 
-  .server-add {
-    color: var(--online);
-    font-size: 26px;
-    font-weight: 300;
-    background: var(--bg-channels);
-  }
-  .server-add:hover {
-    background: var(--online);
-    color: #fff;
-    box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
-  }
+  .server-add { color: var(--online); font-size: 26px; font-weight: 300; background: var(--bg-channels); }
+  .server-add:hover { background: var(--online); color: #fff; box-shadow: 0 0 14px rgba(16,185,129,0.45); }
 
-  /* Tooltip dos servidores */
   .server-icon::after {
     content: attr(data-tooltip);
-    position: absolute;
-    left: 62px;
-    top: 50%;
+    position: absolute; left: 62px; top: 50%;
     transform: translateY(-50%);
-    background: #030712;
-    color: var(--text-main);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 6px;
+    background: var(--tooltip-bg);
+    color: #f8fafc;
+    font-size: 13px; font-weight: 600;
+    padding: 6px 12px; border-radius: 6px;
     white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0; pointer-events: none;
     transition: opacity 0.15s ease;
     z-index: 100;
     border: 1px solid rgba(99,102,241,0.35);
@@ -149,49 +137,53 @@
 
   /* ============ COLUNA 2 — CANAIS ============ */
   .channel-bar {
-    width: 240px;
-    min-width: 240px;
+    width: 240px; min-width: 240px;
     background: var(--bg-channels);
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     z-index: 30;
   }
 
   .server-header {
-    padding: 16px;
-    font-weight: 700;
-    font-size: 15px;
-    border-bottom: 1px solid rgba(0,0,0,0.35);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 14px 12px 14px 16px;
+    font-weight: 700; font-size: 15px;
+    border-bottom: 1px solid var(--line-dark);
+    box-shadow: 0 1px 4px var(--line-dark);
+    display: flex; align-items: center; gap: 8px;
     letter-spacing: 0.3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background 0.15s;
   }
+  .server-header:hover { background: var(--overlay-1); }
+  .server-header-name {
+    flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .server-header-gear { font-size: 14px; color: var(--text-muted); flex-shrink: 0; }
 
-  .channel-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 8px;
-  }
+  .channel-list { flex: 1; overflow-y: auto; padding: 12px 8px; }
 
   .channel-category {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+    display: flex; align-items: center;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
     color: var(--text-dim);
     padding: 12px 8px 4px;
   }
+  .channel-category span { flex: 1; }
+  .cat-add {
+    background: none; border: none;
+    color: var(--text-dim);
+    font-size: 16px; line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .cat-add:hover { color: var(--accent); }
 
   .channel-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px 7px 10px;
     margin: 1px 0;
     border-radius: 6px;
     color: var(--text-muted);
@@ -199,143 +191,185 @@
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
     user-select: none;
+    position: relative;
   }
-  .channel-item:hover {
-    background: rgba(99,102,241,0.12);
-    color: var(--text-main);
-  }
+  .channel-item:hover { background: var(--accent-soft); color: var(--text-main); }
   .channel-item.active {
     background: var(--accent-soft);
-    color: #fff;
+    color: var(--text-main);
     box-shadow: inset 2px 0 0 var(--accent);
   }
 
-  .channel-hash {
-    color: var(--text-dim);
-    font-weight: 600;
-    font-size: 17px;
-    width: 18px;
-    text-align: center;
-  }
+  .channel-hash { color: var(--text-dim); font-weight: 600; font-size: 17px; width: 18px; text-align: center; flex-shrink: 0; }
   .channel-item.active .channel-hash { color: var(--accent); }
+  .channel-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .channel-voice { opacity: 0.9; }
-  .channel-voice .voice-users {
-    margin-left: auto;
+  .ch-edit {
+    background: none; border: none;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .channel-item:hover .ch-edit { opacity: 1; }
+  .ch-edit:hover { color: var(--text-main); }
+
+  .voice-users {
     font-size: 11px;
     color: var(--online);
     background: rgba(16,185,129,0.12);
     padding: 2px 7px;
     border-radius: 10px;
+    flex-shrink: 0;
   }
+  .voice-self {
+    display: flex; align-items: center; gap: 8px;
+    padding: 2px 8px 4px 36px;
+    font-size: 13px;
+    color: var(--online);
+  }
+  .voice-self .avatar { width: 20px; height: 20px; font-size: 11px; }
 
-  /* Painel do usuário (rodapé da coluna de canais) */
-  .user-panel {
-    background: #18202f;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-top: 1px solid rgba(0,0,0,0.35);
+  /* Barra de voz conectada */
+  .voice-bar {
+    display: none;
+    background: rgba(16,185,129,0.1);
+    border-top: 1px solid var(--line-dark);
+    padding: 8px 12px;
+    align-items: center; gap: 8px;
+    font-size: 12px;
+    color: var(--online);
   }
-  .user-panel .avatar { width: 34px; height: 34px; font-size: 15px; }
-  .user-panel-info { flex: 1; min-width: 0; }
+  .voice-bar.connected { display: flex; }
+  .voice-bar-info { flex: 1; min-width: 0; }
+  .voice-bar-title { font-weight: 700; }
+  .voice-bar-sub { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .voice-disconnect {
+    background: none; border: none;
+    color: var(--danger);
+    font-size: 16px; cursor: pointer;
+    padding: 4px 6px; border-radius: 5px;
+  }
+  .voice-disconnect:hover { background: rgba(239,68,68,0.15); }
+
+  /* Painel do usuário */
+  .user-panel {
+    background: var(--bg-panel);
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--line-dark);
+  }
+  .user-panel .member-avatar-wrap { cursor: pointer; }
+  .user-panel-info { flex: 1; min-width: 0; cursor: pointer; }
   .user-panel-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-panel-status { font-size: 11px; color: var(--online); }
-  .user-panel-icons { display: flex; gap: 4px; }
+  .user-panel-status { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-panel-icons { display: flex; gap: 2px; }
   .user-panel-icons button {
-    background: none;
-    border: none;
+    background: none; border: none;
     color: var(--text-muted);
-    font-size: 15px;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 5px;
+    font-size: 15px; cursor: pointer;
+    padding: 5px; border-radius: 5px;
     transition: background 0.15s, color 0.15s;
   }
-  .user-panel-icons button:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
+  .user-panel-icons button:hover { background: var(--overlay-2); color: var(--text-main); }
 
   /* ============ COLUNA 3 — CHAT ============ */
-  .chat-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-chat);
-    min-width: 0;
-  }
+  .chat-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); min-width: 0; }
 
   .chat-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(0,0,0,0.35);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line-dark);
+    box-shadow: 0 1px 4px var(--line-dark);
+    display: flex; align-items: center; gap: 8px;
     min-height: 52px;
   }
-
   .mobile-menu-btn {
     display: none;
-    background: none;
-    border: none;
+    background: none; border: none;
     color: var(--text-muted);
-    font-size: 22px;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
+    font-size: 22px; cursor: pointer;
+    padding: 4px 8px; border-radius: 6px;
   }
-  .mobile-menu-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-main); }
+  .mobile-menu-btn:hover { background: var(--overlay-1); color: var(--text-main); }
 
   .chat-header .channel-hash { font-size: 22px; width: auto; }
   .chat-header-name { font-weight: 700; font-size: 16px; white-space: nowrap; }
-  .chat-header-divider { width: 1px; height: 22px; background: #374151; margin: 0 4px; flex-shrink: 0; }
+  .chat-header-divider { width: 1px; height: 22px; background: var(--divider); margin: 0 4px; flex-shrink: 0; }
   .chat-header-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 13px; color: var(--text-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1;
   }
+  .header-btn {
+    background: none; border: none;
+    color: var(--text-muted);
+    font-size: 17px; cursor: pointer;
+    padding: 5px 8px; border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .header-btn:hover { background: var(--overlay-1); color: var(--text-main); }
+  .header-btn.on { color: var(--accent); }
+
+  .search-bar {
+    display: none;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--line-dark);
+    gap: 8px; align-items: center;
+  }
+  .search-bar.open { display: flex; }
+  .search-bar input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+  }
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-count { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
 
   .chat-messages {
-    flex: 1;
-    overflow-y: auto;
+    flex: 1; overflow-y: auto;
     padding: 20px 16px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    display: flex; flex-direction: column; gap: 2px;
   }
 
   .chat-welcome {
     padding: 20px 8px 24px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--overlay-1);
     margin-bottom: 14px;
   }
   .chat-welcome-icon {
-    width: 60px;
-    height: 60px;
+    width: 60px; height: 60px;
     border-radius: 50%;
     background: var(--accent-soft);
     border: 1px solid var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 30px;
     margin-bottom: 12px;
     box-shadow: 0 0 20px var(--accent-glow);
   }
-  .chat-welcome h2 { font-size: 22px; margin-bottom: 6px; }
-  .chat-welcome p { color: var(--text-muted); font-size: 14px; }
+  .chat-welcome h2 { font-size: 22px; margin-bottom: 6px; text-wrap: balance; }
+  .chat-welcome p { color: var(--text-muted); font-size: 14px; max-width: 62ch; }
 
   .message {
-    display: flex;
-    gap: 14px;
-    padding: 8px 8px;
+    display: flex; gap: 14px;
+    padding: 8px;
     border-radius: 8px;
     transition: background 0.12s ease;
     animation: msgIn 0.18s ease;
+    position: relative;
   }
-  .message:hover { background: rgba(255,255,255,0.03); }
+  .message:hover { background: var(--overlay-1); }
+  .compact .message { padding: 3px 8px; }
+  .message.hidden-by-search { display: none; }
 
   @keyframes msgIn {
     from { opacity: 0; transform: translateY(6px); }
@@ -343,56 +377,144 @@
   }
 
   .avatar {
-    width: 40px;
-    height: 40px;
+    width: 40px; height: 40px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
     background: var(--bg-channels);
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
   }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .compact .message .avatar { width: 28px; height: 28px; font-size: 14px; }
 
   .message-body { min-width: 0; flex: 1; }
   .message-meta { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-  .message-author { font-weight: 700; font-size: 15px; }
+  .message-author { font-weight: 700; font-size: var(--msg-font); }
   .message-author.bot-name { color: var(--accent); }
   .bot-badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 4px;
+    background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px;
     letter-spacing: 0.5px;
   }
   .message-time { font-size: 11px; color: var(--text-dim); }
+  .edited-flag { font-size: 10px; color: var(--text-dim); font-style: italic; }
   .message-text {
-    font-size: 15px;
-    color: #d1d5db;
+    font-size: var(--msg-font);
+    color: var(--text-soft);
     line-height: 1.45;
     margin-top: 2px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    word-wrap: break-word; overflow-wrap: break-word;
     white-space: pre-wrap;
   }
+  .message-img {
+    display: block;
+    max-width: min(340px, 100%);
+    max-height: 280px;
+    border-radius: 10px;
+    margin-top: 6px;
+    border: 1px solid var(--border-soft);
+    cursor: zoom-in;
+  }
+
+  /* Barra de ações da mensagem */
+  .msg-actions {
+    position: absolute;
+    top: -12px; right: 10px;
+    display: none;
+    background: var(--bg-channels);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 5;
+  }
+  .message:hover .msg-actions { display: flex; }
+  .msg-actions button {
+    background: none; border: none;
+    font-size: 14px;
+    padding: 5px 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: background 0.12s;
+  }
+  .msg-actions button:first-child { border-radius: 7px 0 0 7px; }
+  .msg-actions button:last-child { border-radius: 0 7px 7px 0; }
+  .msg-actions button:hover { background: var(--overlay-2); color: var(--text-main); }
+  .msg-actions button.danger:hover { background: rgba(239,68,68,0.18); color: var(--danger); }
+
+  /* Reações */
+  .reactions-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .reaction-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--overlay-1);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 2px 9px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    color: var(--text-soft);
+  }
+  .reaction-chip:hover { border-color: var(--accent); }
+  .reaction-chip.mine { background: var(--accent-soft); border-color: var(--accent); }
+  .reaction-chip .rc-count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+  /* Popup de reação / emoji */
+  .emoji-pop {
+    position: fixed;
+    background: var(--bg-channels);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 10px;
+    display: none;
+    grid-template-columns: repeat(8, 34px);
+    gap: 4px;
+    z-index: 250;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    max-width: calc(100vw - 20px);
+  }
+  .emoji-pop.open { display: grid; }
+  .emoji-pop button {
+    width: 34px; height: 34px;
+    background: none; border: none;
+    font-size: 19px;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: background 0.12s, transform 0.1s;
+  }
+  .emoji-pop button:hover { background: var(--accent-soft); transform: scale(1.15); }
+
+  /* Edição inline */
+  .edit-box { margin-top: 4px; }
+  .edit-box textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: var(--msg-font);
+    padding: 8px 10px;
+    resize: vertical;
+    min-height: 40px;
+    outline: none;
+  }
+  .edit-box .edit-hint { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+  .edit-box .edit-hint b { color: var(--accent); cursor: pointer; font-weight: 600; }
 
   .typing-indicator {
     padding: 4px 24px 8px;
     font-size: 13px;
     color: var(--text-muted);
     height: 26px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    display: flex; align-items: center; gap: 6px;
   }
   .typing-indicator .dots span {
     display: inline-block;
-    width: 5px;
-    height: 5px;
-    margin-right: 3px;
+    width: 5px; height: 5px; margin-right: 3px;
     border-radius: 50%;
     background: var(--accent);
     animation: bounce 1.2s infinite;
@@ -404,59 +526,39 @@
     30% { transform: translateY(-5px); }
   }
 
-  /* Rodapé — barra de digitação */
-  .chat-input-area {
-    padding: 0 16px 18px;
-  }
+  /* Entrada de mensagem */
+  .chat-input-area { padding: 0 16px 18px; }
   .chat-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     background: var(--bg-input);
     border-radius: 26px;
     padding: 6px 8px 6px 6px;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid var(--border-soft);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .chat-input-wrap:focus-within {
     border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(99,102,241,0.25);
+    box-shadow: 0 0 12px var(--accent-glow);
   }
-
-  .attach-btn, .send-btn {
-    width: 38px;
-    height: 38px;
+  .attach-btn, .send-btn, .emoji-btn {
+    width: 38px; height: 38px;
     border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
     transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.2s ease;
   }
-  .attach-btn {
-    background: rgba(255,255,255,0.07);
-    color: var(--text-muted);
-  }
-  .attach-btn:hover { background: rgba(99,102,241,0.25); color: #fff; }
-
-  .send-btn {
-    background: var(--accent);
-    color: #fff;
-  }
-  .send-btn:hover {
-    background: #818cf8;
-    box-shadow: 0 0 12px var(--accent-glow);
-  }
-  .send-btn:active, .attach-btn:active { transform: scale(0.92); }
+  .attach-btn, .emoji-btn { background: var(--overlay-2); color: var(--text-muted); }
+  .attach-btn:hover, .emoji-btn:hover { background: var(--accent-soft); color: var(--text-main); }
+  .send-btn { background: var(--accent); color: #fff; }
+  .send-btn:hover { filter: brightness(1.15); box-shadow: 0 0 12px var(--accent-glow); }
+  .send-btn:active, .attach-btn:active, .emoji-btn:active { transform: scale(0.92); }
 
   #messageInput {
     flex: 1;
     background: transparent;
-    border: none;
-    outline: none;
+    border: none; outline: none;
     color: var(--text-main);
     font-size: 15px;
     font-family: inherit;
@@ -467,69 +569,62 @@
 
   /* ============ COLUNA 4 — MEMBROS ============ */
   .members-panel {
-    width: 240px;
-    min-width: 240px;
+    width: 240px; min-width: 240px;
     background: var(--bg-members);
     overflow-y: auto;
     padding: 16px 10px;
-    border-left: 1px solid rgba(255,255,255,0.04);
+    border-left: 1px solid var(--overlay-1);
   }
+  .app.members-hidden .members-panel { display: none; }
 
   .members-category {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
     color: var(--text-dim);
     padding: 10px 8px 6px;
   }
 
   .member-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     padding: 6px 8px;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.15s ease;
   }
-  .member-item:hover { background: rgba(99,102,241,0.1); }
+  .member-item:hover { background: var(--accent-soft); }
 
   .member-avatar-wrap { position: relative; flex-shrink: 0; }
   .member-avatar-wrap .avatar { width: 34px; height: 34px; font-size: 15px; }
   .status-dot {
     position: absolute;
-    bottom: -1px;
-    right: -1px;
-    width: 12px;
-    height: 12px;
+    bottom: -1px; right: -1px;
+    width: 12px; height: 12px;
     border-radius: 50%;
     border: 3px solid var(--bg-members);
   }
-  .status-dot.online { background: var(--online); }
-  .status-dot.offline { background: var(--offline); }
+  .user-panel .status-dot { border-color: var(--bg-panel); }
+  .status-dot.online   { background: var(--online); }
+  .status-dot.ausente  { background: var(--away); }
+  .status-dot.ocupado  { background: var(--dnd); }
+  .status-dot.offline, .status-dot.invisivel { background: var(--offline); }
 
+  .member-info { min-width: 0; }
   .member-name {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 14px; font-weight: 600;
     color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .member-item.online .member-name { color: var(--text-main); }
-  .member-item.offline { opacity: 0.5; }
-  .member-role { font-size: 11px; color: var(--accent); }
+  .member-item.on .member-name { color: var(--text-main); }
+  .member-item.off { opacity: 0.5; }
+  .member-role { font-size: 11px; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* ============ MODAL — CRIAR SERVIDOR ============ */
+  /* ============ MODAIS ============ */
   .modal-overlay {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(3, 7, 18, 0.75);
     backdrop-filter: blur(4px);
     display: none;
-    align-items: center;
-    justify-content: center;
+    align-items: center; justify-content: center;
     z-index: 200;
     padding: 16px;
   }
@@ -539,9 +634,11 @@
     background: var(--bg-channels);
     border: 1px solid rgba(99,102,241,0.35);
     border-radius: 14px;
-    padding: 28px 24px;
+    padding: 26px 24px;
     width: 100%;
-    max-width: 420px;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 0 40px rgba(99,102,241,0.25);
     animation: modalIn 0.2s ease;
   }
@@ -550,22 +647,20 @@
     to   { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  .modal h2 { font-size: 20px; margin-bottom: 6px; text-align: center; }
-  .modal p  { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+  .modal h2 { font-size: 20px; margin-bottom: 4px; text-align: center; text-wrap: balance; }
+  .modal .modal-sub { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
 
   .modal label {
     display: block;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.6px;
     color: var(--text-muted);
     margin: 14px 0 6px;
   }
-  .modal input[type="text"] {
+  .modal input[type="text"], .modal textarea, .modal select {
     width: 100%;
     background: var(--bg-app);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--border-soft);
     border-radius: 8px;
     padding: 11px 12px;
     color: var(--text-main);
@@ -574,60 +669,248 @@
     outline: none;
     transition: border-color 0.2s;
   }
-  .modal input[type="text"]:focus { border-color: var(--accent); }
+  .modal textarea { resize: vertical; min-height: 64px; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--accent); }
 
-  .emoji-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 4px;
-  }
+  .emoji-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
   .emoji-option {
-    width: 42px;
-    height: 42px;
+    width: 42px; height: 42px;
     border-radius: 10px;
     background: var(--bg-app);
     border: 2px solid transparent;
     font-size: 20px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     transition: border-color 0.15s, transform 0.12s;
   }
   .emoji-option:hover { transform: scale(1.1); }
-  .emoji-option.selected {
-    border-color: var(--accent);
-    box-shadow: 0 0 10px var(--accent-glow);
-  }
+  .emoji-option.selected { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
 
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 24px;
+  .img-upload-row { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+  .img-preview {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--bg-app);
+    border: 1px dashed var(--divider);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    overflow: hidden;
+    flex-shrink: 0;
   }
+  .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .btn-small {
+    background: var(--overlay-2);
+    border: none;
+    color: var(--text-main);
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .btn-small:hover { filter: brightness(1.25); }
+  .btn-small.danger-ghost { color: var(--danger); background: rgba(239,68,68,0.12); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
   .modal-actions button {
     flex: 1;
     padding: 12px;
     border-radius: 8px;
     border: none;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 14px; font-weight: 700;
     cursor: pointer;
-    font-family: inherit;
     transition: filter 0.15s, transform 0.12s;
   }
   .modal-actions button:active { transform: scale(0.97); }
-  .btn-cancel { background: rgba(255,255,255,0.08); color: var(--text-main); }
+  .btn-cancel { background: var(--overlay-2); color: var(--text-main); }
   .btn-cancel:hover { filter: brightness(1.3); }
   .btn-create { background: var(--accent); color: #fff; }
   .btn-create:hover { filter: brightness(1.15); box-shadow: 0 0 12px var(--accent-glow); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { filter: brightness(1.1); }
 
-  /* Toast de aviso */
+  .danger-zone {
+    margin-top: 18px;
+    border: 1px solid rgba(239,68,68,0.35);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .danger-zone p { font-size: 12px; color: var(--text-muted); }
+
+  /* Tabs (configurações) */
+  .tab-nav { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 10px; }
+  .tab-nav button {
+    flex: 1;
+    background: none; border: none;
+    color: var(--text-muted);
+    font-size: 13px; font-weight: 700;
+    padding: 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab-nav button:hover { background: var(--overlay-1); }
+  .tab-nav button.active { background: var(--accent-soft); color: var(--accent); }
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  /* Perfil */
+  .profile-banner {
+    height: 64px;
+    border-radius: 10px 10px 0 0;
+    background: var(--accent);
+  }
+  .profile-card-head {
+    background: var(--bg-app);
+    border-radius: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+  }
+  .profile-avatar-row { display: flex; align-items: flex-end; gap: 12px; padding: 0 14px; margin-top: -26px; }
+  .profile-avatar-big {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 5px solid var(--bg-app);
+    background: var(--bg-channels);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-preview-name { font-weight: 700; font-size: 17px; padding-bottom: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .swatch-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .swatch {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.12s;
+    padding: 0;
+  }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.selected { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
+  .swatch-custom {
+    width: 34px; height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+  }
+
+  .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .theme-card {
+    border: 2px solid var(--border-soft);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background: none;
+    padding: 0;
+    text-align: left;
+    transition: border-color 0.15s, transform 0.12s;
+  }
+  .theme-card:hover { transform: translateY(-2px); }
+  .theme-card.selected { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+  .theme-swatches { display: flex; height: 42px; }
+  .theme-swatches i { flex: 1; }
+  .theme-card figcaption, .theme-card .theme-name {
+    display: block;
+    font-size: 12px; font-weight: 700;
+    color: var(--text-main);
+    padding: 7px 10px;
+    background: var(--bg-app);
+  }
+
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--overlay-1);
+  }
+  .setting-row .sr-label { font-size: 14px; font-weight: 600; }
+  .setting-row .sr-sub { font-size: 12px; color: var(--text-muted); }
+  .setting-row input[type="range"] { accent-color: var(--accent); width: 130px; }
+
+  .toggle {
+    position: relative;
+    width: 42px; height: 24px;
+    background: var(--divider);
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.2s;
+  }
+  .toggle.on { background: var(--online); }
+  .toggle.on::after { left: 21px; }
+
+  /* Cartão de perfil (popup de membro) */
+  .profile-pop-card { max-width: 340px; padding: 0; overflow: hidden; }
+  .profile-pop-banner { height: 70px; }
+  .profile-pop-body { padding: 0 18px 18px; }
+  .profile-pop-avatar {
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    border: 5px solid var(--bg-channels);
+    background: var(--bg-app);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px;
+    margin-top: -38px;
+    overflow: hidden;
+    position: relative;
+  }
+  .profile-pop-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-pop-name { font-size: 19px; font-weight: 800; margin-top: 10px; }
+  .profile-pop-tag { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .profile-pop-box {
+    background: var(--bg-app);
+    border: 1px solid var(--border-soft);
+    border-radius: 9px;
+    padding: 10px 12px;
+    margin-top: 8px;
+  }
+  .profile-pop-box h4 {
+    font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.7px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .profile-pop-box p { font-size: 13px; color: var(--text-soft); }
+
+  /* Visualizador de imagem */
+  .lightbox {
+    position: fixed; inset: 0;
+    background: rgba(3,7,18,0.9);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 400;
+    cursor: zoom-out;
+    padding: 20px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 95vw; max-height: 92vh; border-radius: 10px; }
+
+  /* Toast */
   .toast {
     position: fixed;
-    bottom: 24px;
-    left: 50%;
+    bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(80px);
     background: var(--bg-channels);
     border: 1px solid var(--accent);
@@ -635,8 +918,8 @@
     padding: 12px 22px;
     border-radius: 10px;
     font-size: 14px;
-    box-shadow: 0 0 20px rgba(99,102,241,0.35);
-    z-index: 300;
+    box-shadow: 0 0 20px var(--accent-glow);
+    z-index: 500;
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
     pointer-events: none;
@@ -645,28 +928,22 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-  /* Overlay escuro para o menu mobile */
   .drawer-overlay {
     display: none;
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(3,7,18,0.6);
     z-index: 25;
   }
 
   /* ============ RESPONSIVIDADE ============ */
   @media (max-width: 1100px) {
-    .members-panel { display: none; }
+    .members-panel { display: none !important; }
   }
-
   @media (max-width: 768px) {
     .mobile-menu-btn { display: block; }
-
     .sidebar-drawer {
       position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
+      top: 0; left: 0; bottom: 0;
       display: flex;
       transform: translateX(-105%);
       transition: transform 0.25s ease;
@@ -675,12 +952,11 @@
     }
     .sidebar-drawer.open { transform: translateX(0); }
     .drawer-overlay.visible { display: block; }
-
     .chat-header-desc { display: none; }
     .chat-messages { padding: 14px 10px 8px; }
     .chat-input-area { padding: 0 10px 12px; }
+    .emoji-pop { grid-template-columns: repeat(6, 34px); }
   }
-
   @media (min-width: 769px) {
     .sidebar-drawer { display: flex; }
   }
@@ -688,27 +964,41 @@
 </head>
 <body>
 
-<div class="app">
+<div class="app" id="appRoot">
 
-  <!-- Drawer: Colunas 1 e 2 (viram gaveta deslizante no mobile) -->
   <div class="sidebar-drawer" id="sidebarDrawer">
-
     <!-- COLUNA 1: SERVIDORES -->
     <nav class="server-bar" id="serverBar" aria-label="Servidores"></nav>
 
     <!-- COLUNA 2: CANAIS -->
     <aside class="channel-bar">
-      <div class="server-header" id="serverHeader">GuildChat</div>
+      <div class="server-header" id="serverHeader" title="Configurações do servidor">
+        <span class="server-header-name" id="serverHeaderName">GuildChat</span>
+        <span class="server-header-gear">⚙️</span>
+      </div>
       <div class="channel-list" id="channelList"></div>
+
+      <div class="voice-bar" id="voiceBar">
+        <span style="font-size:16px">🔊</span>
+        <div class="voice-bar-info">
+          <div class="voice-bar-title">Voz conectada</div>
+          <div class="voice-bar-sub" id="voiceBarSub"></div>
+        </div>
+        <button class="voice-disconnect" id="voiceDisconnect" title="Desconectar">✕</button>
+      </div>
+
       <div class="user-panel">
-        <div class="avatar" style="background: var(--accent-soft); border-color: var(--accent);">😎</div>
-        <div class="user-panel-info">
-          <div class="user-panel-name">Você</div>
-          <div class="user-panel-status">● Online</div>
+        <div class="member-avatar-wrap" id="userPanelAvatarWrap" title="Editar perfil">
+          <div class="avatar" id="userPanelAvatar">😎</div>
+          <span class="status-dot online" id="userPanelDot"></span>
+        </div>
+        <div class="user-panel-info" id="userPanelInfo" title="Editar perfil">
+          <div class="user-panel-name" id="userPanelName">Você</div>
+          <div class="user-panel-status" id="userPanelStatus">Online</div>
         </div>
         <div class="user-panel-icons">
-          <button title="Microfone (simulado)" onclick="showToast('🎙️ Microfone alternado (simulação)')">🎙️</button>
-          <button title="Configurações (simulado)" onclick="showToast('⚙️ Configurações em breve!')">⚙️</button>
+          <button title="Editar perfil" id="btnProfile">👤</button>
+          <button title="Configurações e aparência" id="btnSettings">⚙️</button>
         </div>
       </div>
     </aside>
@@ -724,7 +1014,15 @@
       <span class="chat-header-name" id="chatHeaderName">geral</span>
       <div class="chat-header-divider"></div>
       <span class="chat-header-desc" id="chatHeaderDesc">Bem-vindo ao GuildChat!</span>
+      <button class="header-btn" id="btnSearch" title="Buscar mensagens">🔍</button>
+      <button class="header-btn" id="btnMembersToggle" title="Mostrar/ocultar membros">👥</button>
     </header>
+
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="Buscar neste canal…" autocomplete="off">
+      <span class="search-count" id="searchCount"></span>
+      <button class="header-btn" id="btnSearchClose" title="Fechar busca">✕</button>
+    </div>
 
     <div class="chat-messages" id="chatMessages"></div>
 
@@ -735,270 +1033,450 @@
 
     <footer class="chat-input-area">
       <div class="chat-input-wrap">
-        <button class="attach-btn" id="attachBtn" title="Anexar arquivo (simulado)">+</button>
-        <input
-          type="text"
-          id="messageInput"
-          placeholder="Conversar em #geral"
-          autocomplete="off"
-          maxlength="500"
-        >
+        <button class="attach-btn" id="attachBtn" title="Enviar imagem">+</button>
+        <input type="text" id="messageInput" placeholder="Conversar em #geral" autocomplete="off" maxlength="500">
+        <button class="emoji-btn" id="emojiBtn" title="Emojis">😄</button>
         <button class="send-btn" id="sendBtn" title="Enviar mensagem">➤</button>
       </div>
     </footer>
   </main>
 
-  <!-- COLUNA 4: MEMBROS (somente desktop) -->
+  <!-- COLUNA 4: MEMBROS -->
   <aside class="members-panel" id="membersPanel" aria-label="Membros"></aside>
-
 </div>
 
-<!-- MODAL: CRIAR SERVIDOR -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <h2>Criar seu servidor</h2>
-    <p>Seu servidor é onde você e seus amigos se reúnem. Crie o seu e comece a conversar!</p>
+<!-- Inputs de arquivo ocultos -->
+<input type="file" id="fileAttach" accept="image/*" hidden>
+<input type="file" id="fileAvatar" accept="image/*" hidden>
+<input type="file" id="fileServerIcon" accept="image/*" hidden>
 
-    <label for="newServerName">Nome do servidor</label>
-    <input type="text" id="newServerName" placeholder="Ex: Esquadrão Alpha" maxlength="30">
+<!-- Popup de emojis (reações e input) -->
+<div class="emoji-pop" id="emojiPop"></div>
+
+<!-- MODAL: SERVIDOR (criar/editar) -->
+<div class="modal-overlay" id="serverModal">
+  <div class="modal">
+    <h2 id="serverModalTitle">Criar seu servidor</h2>
+    <p class="modal-sub" id="serverModalSub">Seu servidor é onde você e seus amigos se reúnem.</p>
+
+    <label for="serverNameInput">Nome do servidor</label>
+    <input type="text" id="serverNameInput" placeholder="Ex: Esquadrão Alpha" maxlength="30">
 
     <label>Ícone do servidor</label>
-    <div class="emoji-picker" id="emojiPicker"></div>
+    <div class="img-upload-row">
+      <div class="img-preview" id="serverIconPreview">🚀</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <button type="button" class="btn-small" id="btnServerUpload">📷 Enviar foto</button>
+        <button type="button" class="btn-small danger-ghost" id="btnServerImgRemove" style="display:none;">Remover foto</button>
+      </div>
+    </div>
+    <div class="emoji-picker" id="serverEmojiPicker" style="margin-top:10px;"></div>
+
+    <div class="danger-zone" id="serverDangerZone" style="display:none;">
+      <p>Excluir este servidor apaga seus canais e mensagens.</p>
+      <button type="button" class="btn-small danger-ghost" id="btnDeleteServer">Excluir servidor</button>
+    </div>
 
     <div class="modal-actions">
-      <button class="btn-cancel" id="btnCancelServer">Cancelar</button>
-      <button class="btn-create" id="btnCreateServer">Criar servidor</button>
+      <button class="btn-cancel" data-close="serverModal">Cancelar</button>
+      <button class="btn-create" id="btnSaveServer">Criar servidor</button>
     </div>
   </div>
 </div>
 
+<!-- MODAL: CANAL (criar/editar) -->
+<div class="modal-overlay" id="channelModal">
+  <div class="modal">
+    <h2 id="channelModalTitle">Criar canal</h2>
+    <p class="modal-sub" id="channelModalSub">Canais organizam as conversas do servidor.</p>
+
+    <label for="channelTypeSelect" id="channelTypeLabel">Tipo do canal</label>
+    <select id="channelTypeSelect">
+      <option value="text"># Canal de texto</option>
+      <option value="voice">🔊 Canal de voz</option>
+    </select>
+
+    <label for="channelNameInput">Nome do canal</label>
+    <input type="text" id="channelNameInput" placeholder="ex: novidades" maxlength="24">
+
+    <label for="channelDescInput">Descrição (opcional)</label>
+    <input type="text" id="channelDescInput" placeholder="Sobre o que é este canal?" maxlength="80">
+
+    <div class="danger-zone" id="channelDangerZone" style="display:none;">
+      <p>Excluir este canal apaga as mensagens dele.</p>
+      <button type="button" class="btn-small danger-ghost" id="btnDeleteChannel">Excluir canal</button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="channelModal">Cancelar</button>
+      <button class="btn-create" id="btnSaveChannel">Criar canal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIGURAÇÕES (perfil + aparência + dados) -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal" style="max-width: 520px;">
+    <h2>Configurações</h2>
+    <p class="modal-sub">Deixe o GuildChat com a sua cara.</p>
+
+    <div class="tab-nav">
+      <button data-tab="tabProfile" class="active">👤 Perfil</button>
+      <button data-tab="tabTheme">🎨 Aparência</button>
+      <button data-tab="tabData">💾 Dados</button>
+    </div>
+
+    <!-- ABA PERFIL -->
+    <div class="tab-page active" id="tabProfile">
+      <div class="profile-card-head">
+        <div class="profile-banner" id="profileBannerPreview"></div>
+        <div class="profile-avatar-row">
+          <div class="profile-avatar-big" id="profileAvatarPreview">😎</div>
+          <div class="profile-preview-name" id="profileNamePreview">Você</div>
+        </div>
+      </div>
+
+      <label for="profileNameInput">Nome de exibição</label>
+      <input type="text" id="profileNameInput" maxlength="24" placeholder="Seu nome">
+
+      <label>Foto de perfil</label>
+      <div class="img-upload-row">
+        <button type="button" class="btn-small" id="btnAvatarUpload">📷 Enviar foto</button>
+        <button type="button" class="btn-small danger-ghost" id="btnAvatarRemove" style="display:none;">Remover foto</button>
+      </div>
+      <div class="emoji-picker" id="avatarEmojiPicker" style="margin-top:10px;"></div>
+
+      <label>Cor do banner</label>
+      <div class="swatch-row" id="bannerSwatches"></div>
+
+      <label for="profileStatusSelect">Status</label>
+      <select id="profileStatusSelect">
+        <option value="online">🟢 Online</option>
+        <option value="ausente">🟡 Ausente</option>
+        <option value="ocupado">🔴 Não perturbe</option>
+        <option value="invisivel">⚫ Invisível</option>
+      </select>
+
+      <label for="profileCustomInput">Status personalizado</label>
+      <input type="text" id="profileCustomInput" maxlength="40" placeholder="Ex: Jogando ranked 🎮">
+
+      <label for="profileAboutInput">Sobre mim</label>
+      <textarea id="profileAboutInput" maxlength="140" placeholder="Conte algo sobre você…"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" data-close="settingsModal">Fechar</button>
+        <button class="btn-create" id="btnSaveProfile">Salvar perfil</button>
+      </div>
+    </div>
+
+    <!-- ABA APARÊNCIA -->
+    <div class="tab-page" id="tabTheme">
+      <label>Tema</label>
+      <div class="theme-grid" id="themeGrid"></div>
+
+      <label>Cor de destaque</label>
+      <div class="swatch-row" id="accentSwatches"></div>
+
+      <div class="setting-row">
+        <div>
+          <div class="sr-label">Tamanho da fonte</div>
+          <div class="sr-sub" id="fontSizeValue">15px</div>
+        </div>
+        <input type="range" id="fontSizeRange" min="13" max="19" step="1" value="15">
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="sr-label">Modo compacto</div>
+          <div class="sr-sub">Mensagens mais próximas, como no IRC</div>
+        </div>
+        <button type="button" class="toggle" id="toggleCompact" role="switch" aria-checked="false" aria-label="Modo compacto"></button>
+      </div>
+
+      <div class="setting-row" style="border-bottom:none;">
+        <div>
+          <div class="sr-label">Sons</div>
+          <div class="sr-sub">Bipes ao enviar e receber mensagens</div>
+        </div>
+        <button type="button" class="toggle on" id="toggleSound" role="switch" aria-checked="true" aria-label="Sons"></button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" data-close="settingsModal">Fechar</button>
+      </div>
+    </div>
+
+    <!-- ABA DADOS -->
+    <div class="tab-page" id="tabData">
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-top:8px;">
+        Tudo no GuildChat (mensagens, servidores, perfil e tema) fica salvo apenas no seu navegador, via LocalStorage. Nada é enviado para a internet.
+      </p>
+      <div class="danger-zone" style="margin-top:16px;">
+        <p>Restaurar padrões apaga todas as mensagens, servidores criados e personalizações.</p>
+        <button type="button" class="btn-small danger-ghost" id="btnResetAll">Restaurar padrões</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" data-close="settingsModal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CARTÃO DE PERFIL DE MEMBRO -->
+<div class="modal-overlay" id="memberModal">
+  <div class="modal profile-pop-card">
+    <div class="profile-pop-banner" id="memberBanner"></div>
+    <div class="profile-pop-body">
+      <div class="profile-pop-avatar" id="memberAvatar">🤖</div>
+      <div class="profile-pop-name" id="memberName">Membro</div>
+      <div class="profile-pop-tag" id="memberTag">Online</div>
+      <div class="profile-pop-box">
+        <h4>Sobre</h4>
+        <p id="memberAbout">Membro da comunidade.</p>
+      </div>
+      <div class="profile-pop-box">
+        <h4>Cargo</h4>
+        <p id="memberRole">Membro</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" data-close="memberModal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAÇÃO -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:380px;">
+    <h2 id="confirmTitle">Tem certeza?</h2>
+    <p class="modal-sub" id="confirmText">Essa ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="confirmModal">Cancelar</button>
+      <button class="btn-danger" id="btnConfirmYes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg" alt="Imagem ampliada"></div>
 <div class="toast" id="toast"></div>
 
 <script>
 'use strict';
 
 /* ==========================================================
-   GUILDCHAT — dados, estado e lógica
+   GUILDCHAT 2.0 — dados padrão
    ========================================================== */
+const STORAGE_KEY = 'guildchat_state_v2';
+const OLD_MSG_KEY = 'guildchat_messages_v1';
+const OLD_SRV_KEY = 'guildchat_custom_servers_v1';
 
-const STORAGE_KEY_MESSAGES = 'guildchat_messages_v1';
-const STORAGE_KEY_SERVERS  = 'guildchat_custom_servers_v1';
-
-const CURRENT_USER = { name: 'Você', avatar: '😎', color: '#e5e7eb' };
 const BOT = { name: 'Admin-Robô', avatar: '🤖' };
 
-/* ---------- Servidores padrão ---------- */
 const DEFAULT_SERVERS = [
-  {
-    id: 'gamer',
-    icon: '🎮',
-    name: 'Gamer Zone',
-    channels: [
-      { id: 'geral',   type: 'text',  name: 'geral',   desc: 'Papo livre sobre qualquer jogo 🎮' },
-      { id: 'memes',   type: 'text',  name: 'memes',   desc: 'Só os melhores memes gamers 😂' },
-      { id: 'ajuda',   type: 'text',  name: 'ajuda',   desc: 'Tire dúvidas sobre builds, bugs e configs' },
-      { id: 'voz1',    type: 'voice', name: 'Sala de Voz 1', users: 3 },
-      { id: 'voz2',    type: 'voice', name: 'Sala Ranqueada', users: 0 }
-    ]
-  },
-  {
-    id: 'prog',
-    icon: '💻',
-    name: 'Programação',
-    channels: [
-      { id: 'geral',     type: 'text',  name: 'geral',     desc: 'Discussões gerais sobre código e tecnologia' },
-      { id: 'frontend',  type: 'text',  name: 'frontend',  desc: 'HTML, CSS, JS, frameworks e afins' },
-      { id: 'backend',   type: 'text',  name: 'backend',   desc: 'APIs, bancos de dados e servidores' },
-      { id: 'ajuda',     type: 'text',  name: 'ajuda',     desc: 'Empacou num bug? Poste aqui!' },
-      { id: 'voz1',      type: 'voice', name: 'Pair Programming', users: 2 }
-    ]
-  },
-  {
-    id: 'estudos',
-    icon: '📚',
-    name: 'Estudos',
-    channels: [
-      { id: 'geral',      type: 'text',  name: 'geral',      desc: 'Organize seus estudos com a galera 📚' },
-      { id: 'materiais',  type: 'text',  name: 'materiais',  desc: 'Compartilhe PDFs, links e resumos' },
-      { id: 'duvidas',    type: 'text',  name: 'duvidas',    desc: 'Nenhuma pergunta é boba por aqui' },
-      { id: 'voz1',       type: 'voice', name: 'Sala de Foco', users: 5 }
-    ]
-  }
+  { id: 'gamer', icon: '🎮', img: null, name: 'Gamer Zone', channels: [
+    { id: 'geral', type: 'text',  name: 'geral', desc: 'Papo livre sobre qualquer jogo 🎮' },
+    { id: 'memes', type: 'text',  name: 'memes', desc: 'Só os melhores memes gamers 😂' },
+    { id: 'ajuda', type: 'text',  name: 'ajuda', desc: 'Tire dúvidas sobre builds, bugs e configs' },
+    { id: 'voz1',  type: 'voice', name: 'Sala de Voz 1', users: 3 },
+    { id: 'voz2',  type: 'voice', name: 'Sala Ranqueada', users: 0 }
+  ]},
+  { id: 'prog', icon: '💻', img: null, name: 'Programação', channels: [
+    { id: 'geral',    type: 'text',  name: 'geral',    desc: 'Discussões gerais sobre código e tecnologia' },
+    { id: 'frontend', type: 'text',  name: 'frontend', desc: 'HTML, CSS, JS, frameworks e afins' },
+    { id: 'backend',  type: 'text',  name: 'backend',  desc: 'APIs, bancos de dados e servidores' },
+    { id: 'ajuda',    type: 'text',  name: 'ajuda',    desc: 'Empacou num bug? Poste aqui!' },
+    { id: 'voz1',     type: 'voice', name: 'Pair Programming', users: 2 }
+  ]},
+  { id: 'estudos', icon: '📚', img: null, name: 'Estudos', channels: [
+    { id: 'geral',     type: 'text',  name: 'geral',     desc: 'Organize seus estudos com a galera 📚' },
+    { id: 'materiais', type: 'text',  name: 'materiais', desc: 'Compartilhe PDFs, links e resumos' },
+    { id: 'duvidas',   type: 'text',  name: 'duvidas',   desc: 'Nenhuma pergunta é boba por aqui' },
+    { id: 'voz1',      type: 'voice', name: 'Sala de Foco', users: 5 }
+  ]}
 ];
 
-/* ---------- Mensagens fictícias por servidor/canal ---------- */
 const SEED_MESSAGES = {
   'gamer/geral': [
     { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '09:00', text: 'Bem-vindos à Gamer Zone! Leiam as regras e divirtam-se. 🎮' },
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '09:12', text: 'Alguém pra jogar mais tarde? Tô montando squad!' },
-    { author: 'User123',    avatar: '🕹️', bot: false, time: '09:15', text: 'Bora! Me chama na Sala de Voz 1 às 20h.' },
-    { author: 'PixelQueen', avatar: '👾', bot: false, time: '09:31', text: 'Saiu atualização nova hoje, o mapa novo tá insano 🔥' }
+    { author: 'Dev-Master', avatar: '⚡', time: '09:12', text: 'Alguém pra jogar mais tarde? Tô montando squad!' },
+    { author: 'User123',    avatar: '🕹️', time: '09:15', text: 'Bora! Me chama na Sala de Voz 1 às 20h.' },
+    { author: 'PixelQueen', avatar: '👾', time: '09:31', text: 'Saiu atualização nova hoje, o mapa novo tá insano 🔥' }
   ],
   'gamer/memes': [
-    { author: 'User123',    avatar: '🕹️', bot: false, time: '10:02', text: 'Quando você morre pro chefão pela 47ª vez: 🙂🔫' },
-    { author: 'PixelQueen', avatar: '👾', bot: false, time: '10:05', text: 'KKKKKK literalmente eu ontem no boss final' },
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '10:20', text: '"Só mais uma partida" — eu, às 3h da manhã 💀' }
+    { author: 'User123',    avatar: '🕹️', time: '10:02', text: 'Quando você morre pro chefão pela 47ª vez: 🙂🔫' },
+    { author: 'PixelQueen', avatar: '👾', time: '10:05', text: 'KKKKKK literalmente eu ontem no boss final' },
+    { author: 'Dev-Master', avatar: '⚡', time: '10:20', text: '"Só mais uma partida" — eu, às 3h da manhã 💀' }
   ],
   'gamer/ajuda': [
-    { author: 'User123',    avatar: '🕹️', bot: false, time: '11:00', text: 'Meu FPS tá caindo muito, alguma dica de config?' },
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '11:04', text: 'Desativa a sombra em ultra e limita o FPS no driver. Resolve 90% dos casos.' },
-    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '11:05', text: 'Dica fixada! ✅ Confira também o canal #geral para mais discussões.' }
+    { author: 'User123',    avatar: '🕹️', time: '11:00', text: 'Meu FPS tá caindo muito, alguma dica de config?' },
+    { author: 'Dev-Master', avatar: '⚡', time: '11:04', text: 'Desativa a sombra em ultra e limita o FPS no driver. Resolve 90% dos casos.' },
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '11:05', text: 'Dica fixada! ✅ Confira também o canal #geral para mais discussões.' }
   ],
   'prog/geral': [
-    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '08:30', text: 'Bem-vindos ao servidor de Programação! Compartilhem conhecimento. 💻' },
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '08:45', text: 'Terminei de migrar o projeto pra TypeScript. Valeu MUITO a pena.' },
-    { author: 'CodeNinja',  avatar: '🥷', bot: false, time: '08:52', text: 'TS salva vidas. Nunca mais "undefined is not a function" em produção 🙏' }
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '08:30', text: 'Bem-vindos ao servidor de Programação! Compartilhem conhecimento. 💻' },
+    { author: 'Dev-Master', avatar: '⚡', time: '08:45', text: 'Terminei de migrar o projeto pra TypeScript. Valeu MUITO a pena.' },
+    { author: 'CodeNinja',  avatar: '🥷', time: '08:52', text: 'TS salva vidas. Nunca mais "undefined is not a function" em produção 🙏' }
   ],
   'prog/frontend': [
-    { author: 'CodeNinja',  avatar: '🥷', bot: false, time: '13:10', text: 'CSS Grid ou Flexbox pra layout de dashboard?' },
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '13:14', text: 'Grid pro layout macro, Flexbox pros componentes internos. Combo perfeito.' }
+    { author: 'CodeNinja',  avatar: '🥷', time: '13:10', text: 'CSS Grid ou Flexbox pra layout de dashboard?' },
+    { author: 'Dev-Master', avatar: '⚡', time: '13:14', text: 'Grid pro layout macro, Flexbox pros componentes internos. Combo perfeito.' }
   ],
   'prog/backend': [
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '14:00', text: 'Postgres com índice certo deixou a query 40x mais rápida 🚀' },
-    { author: 'CodeNinja',  avatar: '🥷', bot: false, time: '14:06', text: 'EXPLAIN ANALYZE é vida. Sempre rodo antes de subir qualquer query pesada.' }
+    { author: 'Dev-Master', avatar: '⚡', time: '14:00', text: 'Postgres com índice certo deixou a query 40x mais rápida 🚀' },
+    { author: 'CodeNinja',  avatar: '🥷', time: '14:06', text: 'EXPLAIN ANALYZE é vida. Sempre rodo antes de subir qualquer query pesada.' }
   ],
   'prog/ajuda': [
-    { author: 'User123',    avatar: '🕹️', bot: false, time: '15:20', text: 'Meu fetch tá retornando CORS error, alguém sabe o que pode ser?' },
-    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '15:21', text: 'CORS é configurado no servidor! Verifique o header Access-Control-Allow-Origin da sua API. 😉' }
+    { author: 'User123',    avatar: '🕹️', time: '15:20', text: 'Meu fetch tá retornando CORS error, alguém sabe o que pode ser?' },
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '15:21', text: 'CORS é configurado no servidor! Verifique o header Access-Control-Allow-Origin da sua API. 😉' }
   ],
   'estudos/geral': [
-    { author: 'Admin-Robô', avatar: '🤖', bot: true,  time: '07:00', text: 'Bom dia, estudantes! Lembrem-se: constância vence intensidade. 📚' },
-    { author: 'StudyGirl',  avatar: '📖', bot: false, time: '07:30', text: 'Começando pomodoro de 25min agora, quem vem junto?' },
-    { author: 'User123',    avatar: '🕹️', bot: false, time: '07:32', text: 'Bora! Entrei na Sala de Foco 🔊' }
+    { author: 'Admin-Robô', avatar: '🤖', bot: true, time: '07:00', text: 'Bom dia, estudantes! Lembrem-se: constância vence intensidade. 📚' },
+    { author: 'StudyGirl',  avatar: '📖', time: '07:30', text: 'Começando pomodoro de 25min agora, quem vem junto?' },
+    { author: 'User123',    avatar: '🕹️', time: '07:32', text: 'Bora! Entrei na Sala de Foco 🔊' }
   ],
   'estudos/materiais': [
-    { author: 'StudyGirl',  avatar: '📖', bot: false, time: '12:00', text: 'Subi meu resumo de Estruturas de Dados na pasta compartilhada 📄' },
-    { author: 'Dev-Master', avatar: '⚡', bot: false, time: '12:15', text: 'Resumo excelente! Recomendo demais pra quem vai fazer prova.' }
+    { author: 'StudyGirl',  avatar: '📖', time: '12:00', text: 'Subi meu resumo de Estruturas de Dados na pasta compartilhada 📄' },
+    { author: 'Dev-Master', avatar: '⚡', time: '12:15', text: 'Resumo excelente! Recomendo demais pra quem vai fazer prova.' }
   ],
   'estudos/duvidas': [
-    { author: 'User123',    avatar: '🕹️', bot: false, time: '16:40', text: 'Qual a diferença entre pilha e fila mesmo? Sempre confundo 😅' },
-    { author: 'StudyGirl',  avatar: '📖', bot: false, time: '16:43', text: 'Pilha = LIFO (último entra, primeiro sai). Fila = FIFO (primeiro entra, primeiro sai). Pensa numa pilha de pratos vs. fila de banco!' }
+    { author: 'User123',    avatar: '🕹️', time: '16:40', text: 'Qual a diferença entre pilha e fila mesmo? Sempre confundo 😅' },
+    { author: 'StudyGirl',  avatar: '📖', time: '16:43', text: 'Pilha = LIFO (último entra, primeiro sai). Fila = FIFO (primeiro entra, primeiro sai). Pensa numa pilha de pratos vs. fila de banco!' }
   ]
 };
 
-/* ---------- Membros por servidor ---------- */
 const MEMBERS = {
   gamer: {
     online: [
-      { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
-      { name: '⚡ Dev-Master',  avatar: '⚡', role: 'Moderador' },
-      { name: 'PixelQueen',    avatar: '👾', role: '' },
-      { name: 'User123',       avatar: '🕹️', role: '' },
-      { name: 'Você',          avatar: '😎', role: '' }
+      { name: 'Admin-Robô', avatar: '🤖', role: '👑 BOT · Administrador', about: 'Bot oficial da comunidade. Sempre online para ajudar!' },
+      { name: 'Dev-Master', avatar: '⚡', role: '⚡ Moderador', about: 'Full-stack de dia, speedrunner de noite.' },
+      { name: 'PixelQueen', avatar: '👾', role: 'Membro', about: 'Colecionadora de conquistas 100%.' },
+      { name: 'User123',    avatar: '🕹️', role: 'Membro', about: 'Só mais uma partida…' }
     ],
     offline: [
-      { name: 'SniperWolf', avatar: '🐺' },
-      { name: 'NoobSlayer', avatar: '⚔️' },
-      { name: 'GG_Izzy',    avatar: '🎯' }
+      { name: 'SniperWolf', avatar: '🐺' }, { name: 'NoobSlayer', avatar: '⚔️' }, { name: 'GG_Izzy', avatar: '🎯' }
     ]
   },
   prog: {
     online: [
-      { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
-      { name: '⚡ Dev-Master',  avatar: '⚡', role: 'Tech Lead' },
-      { name: 'CodeNinja',     avatar: '🥷', role: '' },
-      { name: 'Você',          avatar: '😎', role: '' }
+      { name: 'Admin-Robô', avatar: '🤖', role: '👑 BOT · Administrador', about: 'Bot oficial da comunidade. Sempre online para ajudar!' },
+      { name: 'Dev-Master', avatar: '⚡', role: '⚡ Tech Lead', about: 'Full-stack de dia, speedrunner de noite.' },
+      { name: 'CodeNinja',  avatar: '🥷', role: 'Membro', about: 'Commit cedo, commit sempre.' }
     ],
     offline: [
-      { name: 'BugHunter',  avatar: '🐛' },
-      { name: 'User123',    avatar: '🕹️' },
-      { name: 'Null_Ptr',   avatar: '🧊' }
+      { name: 'BugHunter', avatar: '🐛' }, { name: 'User123', avatar: '🕹️' }, { name: 'Null_Ptr', avatar: '🧊' }
     ]
   },
   estudos: {
     online: [
-      { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
-      { name: 'StudyGirl',     avatar: '📖', role: 'Monitora' },
-      { name: 'User123',       avatar: '🕹️', role: '' },
-      { name: 'Você',          avatar: '😎', role: '' }
+      { name: 'Admin-Robô', avatar: '🤖', role: '👑 BOT · Administrador', about: 'Bot oficial da comunidade. Sempre online para ajudar!' },
+      { name: 'StudyGirl',  avatar: '📖', role: '📌 Monitora', about: 'Pomodoro é vida. Resumos são arte.' },
+      { name: 'User123',    avatar: '🕹️', role: 'Membro', about: 'Só mais uma partida…' }
     ],
     offline: [
-      { name: '⚡ Dev-Master', avatar: '⚡' },
-      { name: 'FocusMode',    avatar: '🎧' }
+      { name: 'Dev-Master', avatar: '⚡' }, { name: 'FocusMode', avatar: '🎧' }
     ]
   }
 };
-
 const DEFAULT_MEMBERS = {
   online: [
-    { name: '👑 Admin-Robô', avatar: '🤖', role: 'BOT · Administrador' },
-    { name: 'Você',          avatar: '😎', role: 'Dono do servidor' }
+    { name: 'Admin-Robô', avatar: '🤖', role: '👑 BOT · Administrador', about: 'Bot oficial da comunidade. Sempre online para ajudar!' }
   ],
   offline: [
-    { name: 'User123',      avatar: '🕹️' },
-    { name: '⚡ Dev-Master', avatar: '⚡' }
+    { name: 'User123', avatar: '🕹️' }, { name: 'Dev-Master', avatar: '⚡' }
   ]
 };
 
-/* ---------- Respostas automáticas do Admin-Robô ---------- */
 const BOT_TRIGGERS = [
-  {
-    words: ['bom dia'],
-    replies: [
-      'Bom dia! ☀️ Que seu dia seja produtivo e cheio de vitórias!',
-      'Bom dia, guerreiro(a)! Café na mão e bora pra cima! ☕'
-    ]
-  },
-  {
-    words: ['boa noite'],
-    replies: ['Boa noite! 🌙 Descanse bem — amanhã tem mais!']
-  },
-  {
-    words: ['ajuda', 'help', 'socorro'],
-    replies: [
-      'Precisa de ajuda? 🛟 Descreva seu problema aqui que a comunidade responde rapidinho!',
-      'Estou aqui para ajudar! 🤖 Dê mais detalhes sobre sua dúvida que alguém da equipe te responde.'
-    ]
-  },
-  {
-    words: ['olá', 'ola', 'oi', 'eae', 'e aí', 'hello'],
-    replies: [
-      'Olá! 👋 Seja muito bem-vindo(a) ao servidor! Fique à vontade.',
-      'Oi! 😄 Que bom te ver por aqui. Qualquer dúvida, é só chamar!',
-      'E aí! 🤖 Bem-vindo(a) à comunidade — dá uma olhada nos canais!'
-    ]
-  },
-  {
-    words: ['obrigado', 'obrigada', 'valeu', 'vlw'],
-    replies: ['Por nada! 💜 Estamos aqui pra isso. Precisando, é só chamar!']
-  }
+  { words: ['bom dia'], replies: ['Bom dia! ☀️ Que seu dia seja produtivo e cheio de vitórias!', 'Bom dia, guerreiro(a)! Café na mão e bora pra cima! ☕'] },
+  { words: ['boa noite'], replies: ['Boa noite! 🌙 Descanse bem — amanhã tem mais!'] },
+  { words: ['ajuda', 'help', 'socorro'], replies: ['Precisa de ajuda? 🛟 Descreva seu problema que a comunidade responde rapidinho! Dica: digite /ajuda para ver meus comandos.', 'Estou aqui para ajudar! 🤖 Experimente digitar /ajuda para ver tudo que eu sei fazer.'] },
+  { words: ['piada'], replies: ['Por que o programador foi ao oftalmologista? Porque ele não conseguia ver C#! 😂', 'O que o HTML disse pro CSS? "Sem você eu não tenho estilo." 💅', 'Tem 10 tipos de pessoas: as que entendem binário e as que não. 🤓'] },
+  { words: ['olá', 'ola', 'oi', 'eae', 'e aí', 'hello'], replies: ['Olá! 👋 Seja muito bem-vindo(a) ao servidor! Fique à vontade.', 'Oi! 😄 Que bom te ver por aqui. Qualquer dúvida, é só chamar!', 'E aí! 🤖 Bem-vindo(a) à comunidade — dá uma olhada nos canais!'] },
+  { words: ['obrigado', 'obrigada', 'valeu', 'vlw'], replies: ['Por nada! 💜 Estamos aqui pra isso. Precisando, é só chamar!'] }
 ];
 
+const REACT_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '💯'];
+const INPUT_EMOJIS = ['😀','😂','🤣','😍','😎','🤔','😭','😡','🥳','🤯','😴','🤖','👍','👎','👏','🙏','💪','🫡','❤️','💜','🔥','✨','⚡','💯','🎮','🕹️','🎧','💻','📚','☕','🍕','🏆','🎯','🚀','🌙','☀️','😅','🤝','👀','🎲'];
+const AVATAR_EMOJIS = ['😎','🦊','🐺','🐉','👾','🥷','🧙','🦄','🤠','👽','🐱','🔥'];
+const SERVER_EMOJIS = ['🚀','🔥','🎵','🎬','⚽','🍕','🐉','🌌','🛡️','💜'];
+const BANNER_COLORS = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6','#111827'];
+const ACCENT_COLORS = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6'];
+
+const THEMES = {
+  cyber:    { name: 'Cyberpunk',   light: false, app:'#0b0f19', servers:'#111827', channels:'#1f2937', chat:'#111827', input:'#1f2937', members:'#0f1522', panel:'#18202f' },
+  midnight: { name: 'Meia-noite',  light: false, app:'#020617', servers:'#060b18', channels:'#0f172a', chat:'#0b1120', input:'#182338', members:'#081020', panel:'#101b30' },
+  void:     { name: 'Vazio Roxo',  light: false, app:'#0d0a16', servers:'#141021', channels:'#1e162e', chat:'#120e1e', input:'#261d3a', members:'#100c1b', panel:'#1b1430' },
+  matrix:   { name: 'Matrix',      light: false, app:'#04100a', servers:'#071810', channels:'#0c2418', chat:'#071711', input:'#103021', members:'#05130c', panel:'#0b2015' },
+  ember:    { name: 'Brasa',       light: false, app:'#140b08', servers:'#1d110c', channels:'#2b1a12', chat:'#180e0a', input:'#342016', members:'#170d09', panel:'#241611' },
+  ice:      { name: 'Gelo (claro)', light: true, app:'#eef2f7', servers:'#dde4ee', channels:'#e7ecf4', chat:'#f6f8fc', input:'#e2e8f2', members:'#e9eef5', panel:'#dbe2ee' }
+};
+
+const JOKE_COMMANDS = {
+  '/ajuda':  null,
+  '/dado':   null,
+  '/moeda':  null,
+  '/piada':  null,
+  '/hora':   null,
+  '/limpar': null
+};
+
 /* ==========================================================
-   ESTADO
+   ESTADO + PERSISTÊNCIA
    ========================================================== */
-let servers = [];
+let state = null;
 let activeServerId = null;
 let activeChannelId = null;
-let savedMessages = {}; // { "serverId/channelId": [mensagens...] }
+let voiceConn = null; // { serverId, channelId } — apenas em memória
+let editingServerId = null;
+let editingChannelId = null;
+let editingMessageId = null;
+let pendingServerImg = null;
+let selectedServerEmoji = SERVER_EMOJIS[0];
+let pendingAvatarImg = undefined; // undefined = sem alteração; null = remover
+let confirmCallback = null;
+let emojiPopMode = null; // 'input' | messageId
+let audioCtx = null;
 
-/* ==========================================================
-   PERSISTÊNCIA (LocalStorage)
-   ========================================================== */
+function freshState() {
+  return {
+    profile: { name: 'Você', emoji: '😎', img: null, about: 'Explorando o GuildChat! ✨', status: 'online', custom: '', banner: '#6366f1' },
+    appearance: { theme: 'cyber', accent: '#6366f1', font: 15, compact: false, sound: true },
+    servers: JSON.parse(JSON.stringify(DEFAULT_SERVERS)),
+    messages: {}
+  };
+}
+
 function loadState() {
   try {
-    savedMessages = JSON.parse(localStorage.getItem(STORAGE_KEY_MESSAGES)) || {};
-  } catch (e) { savedMessages = {}; }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      state = JSON.parse(raw);
+      if (!state.profile || !state.appearance || !Array.isArray(state.servers)) throw new Error('estado inválido');
+      return;
+    }
+  } catch (e) { /* estado corrompido — recomeça */ }
 
-  let customServers = [];
+  state = freshState();
+
+  // Migra dados da versão 1, se existirem
   try {
-    customServers = JSON.parse(localStorage.getItem(STORAGE_KEY_SERVERS)) || [];
-  } catch (e) { customServers = []; }
+    const oldMsgs = JSON.parse(localStorage.getItem(OLD_MSG_KEY) || 'null');
+    if (oldMsgs) state.messages = oldMsgs;
+    const oldSrvs = JSON.parse(localStorage.getItem(OLD_SRV_KEY) || 'null');
+    if (Array.isArray(oldSrvs)) {
+      oldSrvs.forEach(s => { s.img = null; state.servers.push(s); });
+    }
+  } catch (e) { /* sem dados antigos */ }
 
-  servers = [...DEFAULT_SERVERS, ...customServers];
+  save();
 }
 
-function persistMessages() {
+function save() {
   try {
-    localStorage.setItem(STORAGE_KEY_MESSAGES, JSON.stringify(savedMessages));
-  } catch (e) { /* armazenamento cheio ou indisponível — segue sem persistir */ }
-}
-
-function persistCustomServers() {
-  const custom = servers.filter(s => s.custom);
-  try {
-    localStorage.setItem(STORAGE_KEY_SERVERS, JSON.stringify(custom));
-  } catch (e) { /* idem */ }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    showToast('⚠️ Armazenamento cheio! Remova fotos ou restaure os padrões.');
+  }
 }
 
 /* ==========================================================
@@ -1006,42 +1484,44 @@ function persistCustomServers() {
    ========================================================== */
 const $ = id => document.getElementById(id);
 
-function channelKey(serverId, channelId) {
-  return serverId + '/' + channelId;
-}
-
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function channelKey(s, c) { return s + '/' + c; }
 function nowTime() {
   const d = new Date();
   return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 }
-
 function escapeHTML(str) {
   const div = document.createElement('div');
-  div.textContent = str;
+  div.textContent = String(str == null ? '' : str);
   return div.innerHTML;
 }
-
-function getServer(id) {
-  return servers.find(s => s.id === id);
+function slugify(name) {
+  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'canal';
 }
-
-function getChannel(server, channelId) {
-  return server.channels.find(c => c.id === channelId);
+function hexToRgb(hex) {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [99, 102, 241];
 }
+function getServer(id) { return state.servers.find(s => s.id === id); }
+function getChannel(server, chId) { return server ? server.channels.find(c => c.id === chId) : null; }
 
-function getMessagesFor(serverId, channelId) {
-  const key = channelKey(serverId, channelId);
-  if (savedMessages[key]) return savedMessages[key];
-  return SEED_MESSAGES[key] ? [...SEED_MESSAGES[key]] : [];
+function getMessagesFor(sId, cId) {
+  const key = channelKey(sId, cId);
+  if (state.messages[key]) return state.messages[key];
+  return SEED_MESSAGES[key] ? SEED_MESSAGES[key].map(m => Object.assign({}, m)) : [];
 }
-
-function appendMessageTo(serverId, channelId, msg) {
-  const key = channelKey(serverId, channelId);
-  if (!savedMessages[key]) {
-    savedMessages[key] = SEED_MESSAGES[key] ? [...SEED_MESSAGES[key]] : [];
+function ensureStored(sId, cId) {
+  const key = channelKey(sId, cId);
+  if (!state.messages[key]) {
+    state.messages[key] = SEED_MESSAGES[key] ? SEED_MESSAGES[key].map(m => Object.assign({}, m)) : [];
   }
-  savedMessages[key].push(msg);
-  persistMessages();
+  return state.messages[key];
+}
+function normalizeMsg(m) {
+  if (!m.id) m.id = uid();
+  if (!m.reactions) m.reactions = {};
+  return m;
 }
 
 function showToast(text) {
@@ -1052,17 +1532,100 @@ function showToast(text) {
   showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
+function avatarHTML(emoji, img) {
+  if (img) return '<img src="' + escapeHTML(img) + '" alt="">';
+  return escapeHTML(emoji || '👤');
+}
+
+function resizeImage(file, maxDim) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('image/')) return reject(new Error('não é imagem'));
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => reject(new Error('falha ao carregar imagem'));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error('falha na leitura'));
+    reader.readAsDataURL(file);
+  });
+}
+
 /* ==========================================================
-   RENDERIZAÇÃO — COLUNA 1: SERVIDORES
+   SONS (WebAudio)
+   ========================================================== */
+function beep(freq, dur, vol) {
+  if (!state.appearance.sound) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  } catch (e) { /* áudio bloqueado pelo navegador */ }
+}
+const playSend = () => beep(660, 0.12, 0.05);
+const playReceive = () => beep(440, 0.18, 0.06);
+
+/* ==========================================================
+   APARÊNCIA (temas, cor de destaque, fonte)
+   ========================================================== */
+function applyAppearance() {
+  const a = state.appearance;
+  const t = THEMES[a.theme] || THEMES.cyber;
+  const r = document.documentElement.style;
+  const set = (k, v) => r.setProperty(k, v);
+
+  set('--bg-app', t.app); set('--bg-servers', t.servers); set('--bg-channels', t.channels);
+  set('--bg-chat', t.chat); set('--bg-input', t.input); set('--bg-members', t.members); set('--bg-panel', t.panel);
+
+  if (t.light) {
+    set('--text-main', '#0f172a'); set('--text-soft', '#1e293b');
+    set('--text-muted', '#475569'); set('--text-dim', '#64748b');
+    set('--overlay-1', 'rgba(15,23,42,0.05)'); set('--overlay-2', 'rgba(15,23,42,0.1)');
+    set('--border-soft', 'rgba(15,23,42,0.12)'); set('--divider', '#b6c2d4');
+    set('--tooltip-bg', '#0f172a'); set('--line-dark', 'rgba(15,23,42,0.12)');
+  } else {
+    set('--text-main', '#e5e7eb'); set('--text-soft', '#d1d5db');
+    set('--text-muted', '#9ca3af'); set('--text-dim', '#6b7280');
+    set('--overlay-1', 'rgba(255,255,255,0.04)'); set('--overlay-2', 'rgba(255,255,255,0.08)');
+    set('--border-soft', 'rgba(255,255,255,0.06)'); set('--divider', '#374151');
+    set('--tooltip-bg', '#030712'); set('--line-dark', 'rgba(0,0,0,0.35)');
+  }
+
+  const [cr, cg, cb] = hexToRgb(a.accent);
+  set('--accent', a.accent);
+  set('--accent-soft', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.16)');
+  set('--accent-glow', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.45)');
+  set('--msg-font', a.font + 'px');
+
+  document.body.classList.toggle('compact', !!a.compact);
+}
+
+/* ==========================================================
+   RENDER — SERVIDORES
    ========================================================== */
 function renderServerBar() {
   const bar = $('serverBar');
   bar.innerHTML = '';
 
-  servers.forEach((server, index) => {
+  state.servers.forEach((server, index) => {
     const btn = document.createElement('div');
     btn.className = 'server-icon' + (server.id === activeServerId ? ' active' : '');
-    btn.textContent = server.icon;
+    btn.innerHTML = server.img ? '<img class="srv-img" src="' + escapeHTML(server.img) + '" alt="">' : escapeHTML(server.icon);
     btn.setAttribute('data-tooltip', server.name);
     btn.setAttribute('role', 'button');
     btn.setAttribute('tabindex', '0');
@@ -1070,7 +1633,7 @@ function renderServerBar() {
     btn.addEventListener('keydown', e => { if (e.key === 'Enter') selectServer(server.id); });
     bar.appendChild(btn);
 
-    if (index === servers.length - 1) {
+    if (index === state.servers.length - 1) {
       const divider = document.createElement('div');
       divider.className = 'server-divider';
       bar.appendChild(divider);
@@ -1083,82 +1646,153 @@ function renderServerBar() {
   addBtn.setAttribute('data-tooltip', 'Criar um servidor');
   addBtn.setAttribute('role', 'button');
   addBtn.setAttribute('tabindex', '0');
-  addBtn.addEventListener('click', openCreateServerModal);
-  addBtn.addEventListener('keydown', e => { if (e.key === 'Enter') openCreateServerModal(); });
+  addBtn.addEventListener('click', () => openServerModal(null));
+  addBtn.addEventListener('keydown', e => { if (e.key === 'Enter') openServerModal(null); });
   bar.appendChild(addBtn);
 }
 
 /* ==========================================================
-   RENDERIZAÇÃO — COLUNA 2: CANAIS
+   RENDER — CANAIS
    ========================================================== */
 function renderChannelList() {
   const server = getServer(activeServerId);
-  $('serverHeader').textContent = server.icon + ' ' + server.name;
+  $('serverHeaderName').textContent = (server.img ? '' : server.icon + ' ') + server.name;
 
   const list = $('channelList');
   list.innerHTML = '';
 
+  const buildCategory = (title, type) => {
+    const cat = document.createElement('div');
+    cat.className = 'channel-category';
+    cat.innerHTML = '<span>' + title + '</span>';
+    const add = document.createElement('button');
+    add.className = 'cat-add';
+    add.title = 'Criar canal';
+    add.textContent = '+';
+    add.addEventListener('click', e => { e.stopPropagation(); openChannelModal(null, type); });
+    cat.appendChild(add);
+    list.appendChild(cat);
+  };
+
   const textChannels  = server.channels.filter(c => c.type === 'text');
   const voiceChannels = server.channels.filter(c => c.type === 'voice');
 
-  if (textChannels.length) {
-    const cat = document.createElement('div');
-    cat.className = 'channel-category';
-    cat.textContent = 'Canais de texto';
-    list.appendChild(cat);
+  buildCategory('Canais de texto', 'text');
+  textChannels.forEach(ch => {
+    const item = document.createElement('div');
+    item.className = 'channel-item' + (ch.id === activeChannelId ? ' active' : '');
+    item.innerHTML = '<span class="channel-hash">#</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>';
+    const gear = document.createElement('button');
+    gear.className = 'ch-edit';
+    gear.title = 'Editar canal';
+    gear.textContent = '⚙️';
+    gear.addEventListener('click', e => { e.stopPropagation(); openChannelModal(ch.id); });
+    item.appendChild(gear);
+    item.addEventListener('click', () => selectChannel(ch.id));
+    list.appendChild(item);
+  });
 
-    textChannels.forEach(ch => {
-      const item = document.createElement('div');
-      item.className = 'channel-item' + (ch.id === activeChannelId ? ' active' : '');
-      item.innerHTML = '<span class="channel-hash">#</span><span>' + escapeHTML(ch.name) + '</span>';
-      item.addEventListener('click', () => selectChannel(ch.id));
-      list.appendChild(item);
-    });
+  buildCategory('Canais de voz', 'voice');
+  voiceChannels.forEach(ch => {
+    const inThis = voiceConn && voiceConn.serverId === server.id && voiceConn.channelId === ch.id;
+    const count = (ch.users || 0) + (inThis ? 1 : 0);
+    const item = document.createElement('div');
+    item.className = 'channel-item channel-voice';
+    item.innerHTML =
+      '<span class="channel-hash">🔊</span><span class="channel-name">' + escapeHTML(ch.name) + '</span>' +
+      (count ? '<span class="voice-users">' + count + ' 🎧</span>' : '');
+    const gear = document.createElement('button');
+    gear.className = 'ch-edit';
+    gear.title = 'Editar canal';
+    gear.textContent = '⚙️';
+    gear.addEventListener('click', e => { e.stopPropagation(); openChannelModal(ch.id); });
+    item.appendChild(gear);
+    item.addEventListener('click', () => joinVoice(server.id, ch.id));
+    list.appendChild(item);
+
+    if (inThis) {
+      const self = document.createElement('div');
+      self.className = 'voice-self';
+      self.innerHTML = '<div class="avatar">' + avatarHTML(state.profile.emoji, state.profile.img) + '</div><span>' + escapeHTML(state.profile.name) + '</span>';
+      list.appendChild(self);
+    }
+  });
+
+  renderVoiceBar();
+}
+
+function joinVoice(serverId, channelId) {
+  const server = getServer(serverId);
+  const ch = getChannel(server, channelId);
+  voiceConn = { serverId, channelId };
+  renderChannelList();
+  playSend();
+  showToast('🔊 Conectado a "' + ch.name + '" (simulação de voz)');
+}
+function leaveVoice() {
+  voiceConn = null;
+  renderChannelList();
+  showToast('👋 Você saiu do canal de voz.');
+}
+function renderVoiceBar() {
+  const bar = $('voiceBar');
+  if (voiceConn && voiceConn.serverId === activeServerId) {
+    const server = getServer(voiceConn.serverId);
+    const ch = getChannel(server, voiceConn.channelId);
+    if (ch) {
+      bar.classList.add('connected');
+      $('voiceBarSub').textContent = ch.name + ' / ' + server.name;
+      return;
+    }
   }
-
-  if (voiceChannels.length) {
-    const cat = document.createElement('div');
-    cat.className = 'channel-category';
-    cat.textContent = 'Canais de voz';
-    list.appendChild(cat);
-
-    voiceChannels.forEach(ch => {
-      const item = document.createElement('div');
-      item.className = 'channel-item channel-voice';
-      item.innerHTML =
-        '<span class="channel-hash">🔊</span><span>' + escapeHTML(ch.name) + '</span>' +
-        (ch.users ? '<span class="voice-users">' + ch.users + ' 🎧</span>' : '');
-      item.addEventListener('click', () => {
-        showToast('🔊 Entrando em "' + ch.name + '"… (simulação de canal de voz)');
-      });
-      list.appendChild(item);
-    });
-  }
+  bar.classList.remove('connected');
 }
 
 /* ==========================================================
-   RENDERIZAÇÃO — COLUNA 3: CHAT
+   RENDER — CHAT
    ========================================================== */
 function renderChatHeader() {
   const server = getServer(activeServerId);
   const channel = getChannel(server, activeChannelId);
-  $('chatHeaderName').textContent = channel.name;
-  $('chatHeaderDesc').textContent = channel.desc || 'Canal de texto do servidor ' + server.name;
-  $('messageInput').placeholder = 'Conversar em #' + channel.name;
+  $('chatHeaderName').textContent = channel ? channel.name : '—';
+  $('chatHeaderDesc').textContent = channel ? (channel.desc || 'Canal de texto de ' + server.name) : '';
+  $('messageInput').placeholder = channel ? 'Conversar em #' + channel.name : 'Selecione um canal';
+}
+
+function reactionRowHTML(msg) {
+  const entries = Object.entries(msg.reactions || {}).filter(([, v]) => v.count > 0);
+  if (!entries.length) return '';
+  return '<div class="reactions-row">' + entries.map(([emoji, v]) =>
+    '<span class="reaction-chip' + (v.me ? ' mine' : '') + '" data-react="' + escapeHTML(emoji) + '">' +
+    escapeHTML(emoji) + '<span class="rc-count">' + v.count + '</span></span>'
+  ).join('') + '</div>';
 }
 
 function buildMessageEl(msg) {
+  normalizeMsg(msg);
+  const mine = !!msg.mine;
+  const name = mine ? state.profile.name : msg.author;
+  const av = mine ? avatarHTML(state.profile.emoji, state.profile.img) : avatarHTML(msg.avatar, msg.avatarImg);
+
   const el = document.createElement('div');
   el.className = 'message';
+  el.dataset.msgId = msg.id;
   el.innerHTML =
-    '<div class="avatar">' + escapeHTML(msg.avatar || '👤') + '</div>' +
+    '<div class="msg-actions">' +
+      '<button class="act-react" title="Reagir">😄</button>' +
+      (mine ? '<button class="act-edit" title="Editar">✏️</button><button class="act-del danger" title="Apagar">🗑️</button>' : '') +
+    '</div>' +
+    '<div class="avatar">' + av + '</div>' +
     '<div class="message-body">' +
       '<div class="message-meta">' +
-        '<span class="message-author' + (msg.bot ? ' bot-name' : '') + '">' + escapeHTML(msg.author) + '</span>' +
+        '<span class="message-author' + (msg.bot ? ' bot-name' : '') + '">' + escapeHTML(name) + '</span>' +
         (msg.bot ? '<span class="bot-badge">BOT</span>' : '') +
         '<span class="message-time">hoje às ' + escapeHTML(msg.time) + '</span>' +
+        (msg.edited ? '<span class="edited-flag">(editado)</span>' : '') +
       '</div>' +
-      '<div class="message-text">' + escapeHTML(msg.text) + '</div>' +
+      '<div class="message-text">' + escapeHTML(msg.text || '') + '</div>' +
+      (msg.img ? '<img class="message-img" src="' + escapeHTML(msg.img) + '" alt="Imagem enviada">' : '') +
+      reactionRowHTML(msg) +
     '</div>';
   return el;
 }
@@ -1168,6 +1802,7 @@ function renderMessages() {
   const channel = getChannel(server, activeChannelId);
   const container = $('chatMessages');
   container.innerHTML = '';
+  if (!channel) return;
 
   const welcome = document.createElement('div');
   welcome.className = 'chat-welcome';
@@ -1178,9 +1813,8 @@ function renderMessages() {
     escapeHTML(channel.desc || '') + '</p>';
   container.appendChild(welcome);
 
-  const messages = getMessagesFor(activeServerId, activeChannelId);
-  messages.forEach(msg => container.appendChild(buildMessageEl(msg)));
-
+  getMessagesFor(activeServerId, activeChannelId).forEach(msg => container.appendChild(buildMessageEl(msg)));
+  applySearchFilter();
   scrollChatToBottom(false);
 }
 
@@ -1189,38 +1823,73 @@ function scrollChatToBottom(smooth = true) {
   container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
 }
 
+function refreshMessage(msgId) {
+  const msgs = getMessagesFor(activeServerId, activeChannelId);
+  const msg = msgs.find(m => m.id === msgId);
+  const el = document.querySelector('.message[data-msg-id="' + msgId + '"]');
+  if (msg && el) el.replaceWith(buildMessageEl(msg));
+  else if (!msg && el) el.remove();
+}
+
 /* ==========================================================
-   RENDERIZAÇÃO — COLUNA 4: MEMBROS
+   RENDER — MEMBROS + PAINEL DO USUÁRIO
    ========================================================== */
+function selfMemberEntry() {
+  return {
+    name: state.profile.name,
+    avatar: state.profile.emoji,
+    img: state.profile.img,
+    role: 'Dono do perfil',
+    about: state.profile.about,
+    self: true
+  };
+}
+
 function renderMembers() {
   const panel = $('membersPanel');
   const data = MEMBERS[activeServerId] || DEFAULT_MEMBERS;
   panel.innerHTML = '';
 
-  const buildGroup = (title, members, statusClass) => {
+  const invisible = state.profile.status === 'invisivel';
+  const online = data.online.concat(invisible ? [] : [selfMemberEntry()]);
+  const offline = data.offline.concat(invisible ? [selfMemberEntry()] : []);
+
+  const buildGroup = (title, members, isOnline) => {
     const cat = document.createElement('div');
     cat.className = 'members-category';
     cat.textContent = title + ' — ' + members.length;
     panel.appendChild(cat);
 
     members.forEach(m => {
+      const dotClass = m.self && isOnline ? state.profile.status : (isOnline ? 'online' : 'offline');
       const item = document.createElement('div');
-      item.className = 'member-item ' + statusClass;
+      item.className = 'member-item ' + (isOnline ? 'on' : 'off');
       item.innerHTML =
         '<div class="member-avatar-wrap">' +
-          '<div class="avatar">' + escapeHTML(m.avatar) + '</div>' +
-          '<span class="status-dot ' + statusClass + '"></span>' +
+          '<div class="avatar">' + avatarHTML(m.avatar, m.img) + '</div>' +
+          '<span class="status-dot ' + dotClass + '"></span>' +
         '</div>' +
-        '<div>' +
+        '<div class="member-info">' +
           '<div class="member-name">' + escapeHTML(m.name) + '</div>' +
-          (m.role ? '<div class="member-role">' + escapeHTML(m.role) + '</div>' : '') +
+          (m.role && m.role !== 'Membro' ? '<div class="member-role">' + escapeHTML(m.role) + '</div>' : '') +
         '</div>';
+      item.addEventListener('click', () => openMemberModal(m, isOnline));
       panel.appendChild(item);
     });
   };
 
-  buildGroup('Online', data.online, 'online');
-  buildGroup('Offline', data.offline, 'offline');
+  buildGroup('Online', online, true);
+  buildGroup('Offline', offline, false);
+}
+
+const STATUS_LABEL = { online: 'Online', ausente: 'Ausente', ocupado: 'Não perturbe', invisivel: 'Invisível' };
+
+function renderUserPanel() {
+  const p = state.profile;
+  $('userPanelAvatar').innerHTML = avatarHTML(p.emoji, p.img);
+  $('userPanelName').textContent = p.name;
+  $('userPanelStatus').textContent = p.custom || STATUS_LABEL[p.status] || 'Online';
+  $('userPanelDot').className = 'status-dot ' + p.status;
 }
 
 /* ==========================================================
@@ -1231,11 +1900,13 @@ function selectServer(serverId) {
   const server = getServer(serverId);
   const firstText = server.channels.find(c => c.type === 'text');
   activeChannelId = firstText ? firstText.id : null;
+  closeSearch();
   renderAll();
 }
 
 function selectChannel(channelId) {
   activeChannelId = channelId;
+  closeSearch();
   renderChannelList();
   renderChatHeader();
   renderMessages();
@@ -1244,36 +1915,105 @@ function selectChannel(channelId) {
 }
 
 function renderAll() {
+  applyAppearance();
   renderServerBar();
   renderChannelList();
   renderChatHeader();
   renderMessages();
   renderMembers();
+  renderUserPanel();
 }
 
 /* ==========================================================
-   ENVIO DE MENSAGENS + BOT
+   MENSAGENS + BOT + COMANDOS
    ========================================================== */
+function pushUserMessage(text, img) {
+  const msg = {
+    id: uid(),
+    author: state.profile.name,
+    avatar: state.profile.emoji,
+    mine: true,
+    time: nowTime(),
+    text: text || '',
+    img: img || null,
+    reactions: {}
+  };
+  ensureStored(activeServerId, activeChannelId).push(msg);
+  save();
+  $('chatMessages').appendChild(buildMessageEl(msg));
+  scrollChatToBottom();
+  playSend();
+  return msg;
+}
+
+function pushBotMessage(text, sId, cId, instant) {
+  const doIt = () => {
+    $('typingIndicator').style.visibility = 'hidden';
+    const botMsg = { id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(), text, reactions: {} };
+    ensureStored(sId, cId).push(botMsg);
+    save();
+    if (activeServerId === sId && activeChannelId === cId) {
+      $('chatMessages').appendChild(buildMessageEl(botMsg));
+      scrollChatToBottom();
+    }
+    playReceive();
+  };
+  if (instant) { doIt(); return; }
+  $('typingIndicator').style.visibility = 'visible';
+  setTimeout(doIt, 1000);
+}
+
+function handleCommand(raw) {
+  const cmd = raw.trim().split(/\s+/)[0].toLowerCase();
+  if (!(cmd in JOKE_COMMANDS)) return false;
+
+  pushUserMessage(raw);
+  const sId = activeServerId, cId = activeChannelId;
+
+  setTimeout(() => {
+    switch (cmd) {
+      case '/ajuda':
+        pushBotMessage('📖 Meus comandos:\n/dado — rola um d20\n/moeda — cara ou coroa\n/piada — conta uma piada\n/hora — hora atual\n/limpar — limpa este canal\n\nTambém respondo a "olá", "bom dia", "ajuda", "piada" e mais!', sId, cId, true);
+        break;
+      case '/dado':
+        pushBotMessage('🎲 Você rolou um d20 e tirou… **' + (1 + Math.floor(Math.random() * 20)) + '**!', sId, cId, true);
+        break;
+      case '/moeda':
+        pushBotMessage('🪙 A moeda girou e caiu em… **' + (Math.random() < 0.5 ? 'CARA' : 'COROA') + '**!', sId, cId, true);
+        break;
+      case '/piada': {
+        const jokes = BOT_TRIGGERS.find(t => t.words.includes('piada')).replies;
+        pushBotMessage(jokes[Math.floor(Math.random() * jokes.length)], sId, cId, true);
+        break;
+      }
+      case '/hora':
+        pushBotMessage('🕐 Agora são ' + nowTime() + '. Hora de mais uma mensagem! 😄', sId, cId, true);
+        break;
+      case '/limpar':
+        confirmAction('Limpar canal?', 'Todas as mensagens deste canal serão apagadas.', () => {
+          state.messages[channelKey(sId, cId)] = [];
+          save();
+          renderMessages();
+          pushBotMessage('🧹 Canal limpo! Um recomeço sempre cai bem.', sId, cId, true);
+        });
+        break;
+    }
+  }, 250);
+  return true;
+}
+
 function sendMessage() {
   const input = $('messageInput');
   const text = input.value.trim();
   if (!text) return;
-
-  const msg = {
-    author: CURRENT_USER.name,
-    avatar: CURRENT_USER.avatar,
-    bot: false,
-    time: nowTime(),
-    text: text
-  };
-
-  appendMessageTo(activeServerId, activeChannelId, msg);
-  $('chatMessages').appendChild(buildMessageEl(msg));
-  scrollChatToBottom();
-
   input.value = '';
-  input.focus();
 
+  if (text.startsWith('/')) {
+    if (handleCommand(text)) { input.focus(); return; }
+  }
+
+  pushUserMessage(text);
+  input.focus();
   maybeTriggerBot(text);
 }
 
@@ -1281,110 +2021,536 @@ function maybeTriggerBot(userText) {
   const normalized = userText.toLowerCase();
   const trigger = BOT_TRIGGERS.find(t => t.words.some(w => normalized.includes(w)));
   if (!trigger) return;
-
   const reply = trigger.replies[Math.floor(Math.random() * trigger.replies.length)];
-  const targetServer = activeServerId;
-  const targetChannel = activeChannelId;
-
-  const typing = $('typingIndicator');
-  typing.style.visibility = 'visible';
-
-  setTimeout(() => {
-    typing.style.visibility = 'hidden';
-
-    const botMsg = {
-      author: BOT.name,
-      avatar: BOT.avatar,
-      bot: true,
-      time: nowTime(),
-      text: reply
-    };
-
-    appendMessageTo(targetServer, targetChannel, botMsg);
-
-    // Só desenha na tela se o usuário ainda estiver no mesmo canal
-    if (activeServerId === targetServer && activeChannelId === targetChannel) {
-      $('chatMessages').appendChild(buildMessageEl(botMsg));
-      scrollChatToBottom();
-    }
-  }, 1000);
+  pushBotMessage(reply, activeServerId, activeChannelId, false);
 }
 
 /* ==========================================================
-   MODAL — CRIAR SERVIDOR
+   REAÇÕES, EDITAR, APAGAR
    ========================================================== */
-const SERVER_EMOJIS = ['🚀', '🔥', '🎵', '🎬', '⚽', '🍕', '🐉', '🌌', '🛡️', '💜'];
-let selectedEmoji = SERVER_EMOJIS[0];
+function toggleReaction(msgId, emoji) {
+  const msgs = ensureStored(activeServerId, activeChannelId);
+  const msg = msgs.find(m => m.id === msgId);
+  if (!msg) return;
+  normalizeMsg(msg);
+  const r = msg.reactions[emoji] || { count: 0, me: false };
+  if (r.me) { r.count -= 1; r.me = false; }
+  else { r.count += 1; r.me = true; }
+  if (r.count <= 0) delete msg.reactions[emoji];
+  else msg.reactions[emoji] = r;
+  save();
+  refreshMessage(msgId);
+}
 
-function buildEmojiPicker() {
-  const picker = $('emojiPicker');
+function startEditMessage(msgId) {
+  const msgs = getMessagesFor(activeServerId, activeChannelId);
+  const msg = msgs.find(m => m.id === msgId);
+  const el = document.querySelector('.message[data-msg-id="' + msgId + '"]');
+  if (!msg || !el || !msg.mine) return;
+  editingMessageId = msgId;
+
+  const textEl = el.querySelector('.message-text');
+  const box = document.createElement('div');
+  box.className = 'edit-box';
+  const ta = document.createElement('textarea');
+  ta.value = msg.text;
+  ta.maxLength = 500;
+  const hint = document.createElement('div');
+  hint.className = 'edit-hint';
+  hint.innerHTML = 'Enter para <b class="edit-save">salvar</b> · Esc para <b class="edit-cancel">cancelar</b>';
+  box.appendChild(ta);
+  box.appendChild(hint);
+  textEl.replaceWith(box);
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+
+  const finish = (saveIt) => {
+    editingMessageId = null;
+    if (saveIt) {
+      const newText = ta.value.trim();
+      if (newText && newText !== msg.text) {
+        const stored = ensureStored(activeServerId, activeChannelId).find(m => m.id === msgId);
+        if (stored) { stored.text = newText; stored.edited = true; save(); }
+      }
+    }
+    refreshMessage(msgId);
+  };
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finish(true); }
+    if (e.key === 'Escape') { e.stopPropagation(); finish(false); }
+  });
+  hint.querySelector('.edit-save').addEventListener('click', () => finish(true));
+  hint.querySelector('.edit-cancel').addEventListener('click', () => finish(false));
+}
+
+function deleteMessage(msgId) {
+  confirmAction('Apagar mensagem?', 'Ela sumirá para sempre deste canal.', () => {
+    const msgs = ensureStored(activeServerId, activeChannelId);
+    const idx = msgs.findIndex(m => m.id === msgId);
+    if (idx >= 0) { msgs.splice(idx, 1); save(); }
+    refreshMessage(msgId);
+    showToast('🗑️ Mensagem apagada.');
+  });
+}
+
+/* ==========================================================
+   POPUP DE EMOJIS (reações + input)
+   ========================================================== */
+function openEmojiPop(anchorEl, mode) {
+  emojiPopMode = mode;
+  const pop = $('emojiPop');
+  const list = mode === 'input' ? INPUT_EMOJIS : REACT_EMOJIS;
+  pop.innerHTML = '';
+  list.forEach(em => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = em;
+    b.addEventListener('click', () => {
+      if (emojiPopMode === 'input') {
+        const input = $('messageInput');
+        input.value += em;
+        input.focus();
+      } else {
+        toggleReaction(emojiPopMode, em);
+        closeEmojiPop();
+      }
+    });
+    pop.appendChild(b);
+  });
+  pop.classList.add('open');
+  const rect = anchorEl.getBoundingClientRect();
+  const popRect = pop.getBoundingClientRect();
+  let left = Math.min(rect.left, window.innerWidth - popRect.width - 10);
+  let top = rect.top - popRect.height - 8;
+  if (top < 10) top = rect.bottom + 8;
+  pop.style.left = Math.max(10, left) + 'px';
+  pop.style.top = top + 'px';
+}
+function closeEmojiPop() {
+  $('emojiPop').classList.remove('open');
+  emojiPopMode = null;
+}
+
+/* ==========================================================
+   MODAIS GENÉRICOS
+   ========================================================== */
+function openModal(id) { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+function closeAllModals() {
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  $('lightbox').classList.remove('open');
+  closeEmojiPop();
+}
+function confirmAction(title, text, cb) {
+  $('confirmTitle').textContent = title;
+  $('confirmText').textContent = text;
+  confirmCallback = cb;
+  openModal('confirmModal');
+}
+
+/* ==========================================================
+   MODAL — SERVIDOR (criar/editar)
+   ========================================================== */
+function renderServerEmojiPicker() {
+  const picker = $('serverEmojiPicker');
   picker.innerHTML = '';
   SERVER_EMOJIS.forEach(emoji => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'emoji-option' + (emoji === selectedEmoji ? ' selected' : '');
+    btn.className = 'emoji-option' + (emoji === selectedServerEmoji && !pendingServerImg ? ' selected' : '');
     btn.textContent = emoji;
     btn.addEventListener('click', () => {
-      selectedEmoji = emoji;
-      picker.querySelectorAll('.emoji-option').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
+      selectedServerEmoji = emoji;
+      pendingServerImg = null;
+      updateServerIconPreview();
+      renderServerEmojiPicker();
+    });
+    picker.appendChild(btn);
+  });
+}
+function updateServerIconPreview() {
+  const prev = $('serverIconPreview');
+  prev.innerHTML = pendingServerImg ? '<img src="' + escapeHTML(pendingServerImg) + '" alt="">' : escapeHTML(selectedServerEmoji);
+  $('btnServerImgRemove').style.display = pendingServerImg ? '' : 'none';
+}
+
+function openServerModal(serverId) {
+  editingServerId = serverId;
+  const isEdit = !!serverId;
+  const server = isEdit ? getServer(serverId) : null;
+
+  $('serverModalTitle').textContent = isEdit ? 'Editar servidor' : 'Criar seu servidor';
+  $('serverModalSub').textContent = isEdit
+    ? 'Mude o nome, o ícone ou exclua o servidor.'
+    : 'Seu servidor é onde você e seus amigos se reúnem.';
+  $('btnSaveServer').textContent = isEdit ? 'Salvar alterações' : 'Criar servidor';
+  $('serverNameInput').value = isEdit ? server.name : '';
+  selectedServerEmoji = isEdit ? server.icon : SERVER_EMOJIS[0];
+  pendingServerImg = isEdit ? server.img : null;
+  $('serverDangerZone').style.display = isEdit ? '' : 'none';
+
+  updateServerIconPreview();
+  renderServerEmojiPicker();
+  openModal('serverModal');
+  setTimeout(() => $('serverNameInput').focus(), 60);
+}
+
+function saveServerModal() {
+  const name = $('serverNameInput').value.trim();
+  if (!name) {
+    showToast('⚠️ Dê um nome ao servidor primeiro!');
+    $('serverNameInput').focus();
+    return;
+  }
+
+  if (editingServerId) {
+    const server = getServer(editingServerId);
+    server.name = name;
+    server.icon = selectedServerEmoji;
+    server.img = pendingServerImg;
+    save();
+    closeModal('serverModal');
+    renderAll();
+    showToast('✅ Servidor atualizado!');
+    return;
+  }
+
+  const newServer = {
+    id: 'custom_' + uid(),
+    icon: selectedServerEmoji,
+    img: pendingServerImg,
+    name,
+    custom: true,
+    channels: [
+      { id: 'geral', type: 'text', name: 'geral', desc: 'Canal principal de ' + name },
+      { id: 'off-topic', type: 'text', name: 'off-topic', desc: 'Assuntos aleatórios e descontração' },
+      { id: 'voz1', type: 'voice', name: 'Sala de Voz 1', users: 0 }
+    ]
+  };
+  state.servers.push(newServer);
+  state.messages[channelKey(newServer.id, 'geral')] = [{
+    id: uid(), author: BOT.name, avatar: BOT.avatar, bot: true, time: nowTime(),
+    text: '🎉 Servidor "' + name + '" criado com sucesso! Este é o seu novo espaço — convide seus amigos e comece a conversar!',
+    reactions: {}
+  }];
+  save();
+  closeModal('serverModal');
+  selectServer(newServer.id);
+  showToast('✅ Servidor "' + name + '" criado!');
+}
+
+function deleteServer() {
+  if (!editingServerId) return;
+  if (state.servers.length <= 1) {
+    showToast('⚠️ Você precisa manter pelo menos um servidor.');
+    return;
+  }
+  const server = getServer(editingServerId);
+  confirmAction('Excluir "' + server.name + '"?', 'Todos os canais e mensagens deste servidor serão apagados.', () => {
+    server.channels.forEach(c => delete state.messages[channelKey(server.id, c.id)]);
+    state.servers = state.servers.filter(s => s.id !== server.id);
+    if (voiceConn && voiceConn.serverId === server.id) voiceConn = null;
+    save();
+    closeModal('serverModal');
+    selectServer(state.servers[0].id);
+    showToast('🗑️ Servidor excluído.');
+  });
+}
+
+/* ==========================================================
+   MODAL — CANAL (criar/editar)
+   ========================================================== */
+function openChannelModal(channelId, presetType) {
+  editingChannelId = channelId;
+  const isEdit = !!channelId;
+  const server = getServer(activeServerId);
+  const ch = isEdit ? getChannel(server, channelId) : null;
+
+  $('channelModalTitle').textContent = isEdit ? 'Editar canal' : 'Criar canal';
+  $('channelModalSub').textContent = isEdit
+    ? 'Renomeie, mude a descrição ou exclua o canal.'
+    : 'Canais organizam as conversas do servidor.';
+  $('btnSaveChannel').textContent = isEdit ? 'Salvar alterações' : 'Criar canal';
+  $('channelTypeSelect').value = isEdit ? ch.type : (presetType || 'text');
+  $('channelTypeSelect').disabled = isEdit;
+  $('channelNameInput').value = isEdit ? ch.name : '';
+  $('channelDescInput').value = isEdit ? (ch.desc || '') : '';
+  $('channelDangerZone').style.display = isEdit ? '' : 'none';
+
+  openModal('channelModal');
+  setTimeout(() => $('channelNameInput').focus(), 60);
+}
+
+function saveChannelModal() {
+  const server = getServer(activeServerId);
+  const type = $('channelTypeSelect').value;
+  let name = $('channelNameInput').value.trim();
+  const desc = $('channelDescInput').value.trim();
+  if (!name) {
+    showToast('⚠️ Dê um nome ao canal primeiro!');
+    $('channelNameInput').focus();
+    return;
+  }
+  if (type === 'text') name = slugify(name);
+
+  if (editingChannelId) {
+    const ch = getChannel(server, editingChannelId);
+    ch.name = name;
+    ch.desc = desc;
+    save();
+    closeModal('channelModal');
+    renderChannelList();
+    renderChatHeader();
+    renderMessages();
+    showToast('✅ Canal atualizado!');
+    return;
+  }
+
+  const newCh = { id: slugify(name) + '_' + uid(), type, name, desc };
+  if (type === 'voice') newCh.users = 0;
+  server.channels.push(newCh);
+  save();
+  closeModal('channelModal');
+  if (type === 'text') selectChannel(newCh.id);
+  else renderChannelList();
+  showToast('✅ Canal ' + (type === 'text' ? '#' : '🔊 ') + name + ' criado!');
+}
+
+function deleteChannel() {
+  if (!editingChannelId) return;
+  const server = getServer(activeServerId);
+  const ch = getChannel(server, editingChannelId);
+  if (ch.type === 'text' && server.channels.filter(c => c.type === 'text').length <= 1) {
+    showToast('⚠️ O servidor precisa de pelo menos um canal de texto.');
+    return;
+  }
+  confirmAction('Excluir #' + ch.name + '?', 'As mensagens deste canal serão apagadas.', () => {
+    delete state.messages[channelKey(server.id, ch.id)];
+    server.channels = server.channels.filter(c => c.id !== ch.id);
+    if (voiceConn && voiceConn.serverId === server.id && voiceConn.channelId === ch.id) voiceConn = null;
+    if (activeChannelId === ch.id) {
+      const firstText = server.channels.find(c => c.type === 'text');
+      activeChannelId = firstText ? firstText.id : null;
+    }
+    save();
+    closeModal('channelModal');
+    renderChannelList();
+    renderChatHeader();
+    renderMessages();
+    showToast('🗑️ Canal excluído.');
+  });
+}
+
+/* ==========================================================
+   CONFIGURAÇÕES — PERFIL
+   ========================================================== */
+function renderAvatarEmojiPicker() {
+  const picker = $('avatarEmojiPicker');
+  const currentImg = pendingAvatarImg === undefined ? state.profile.img : pendingAvatarImg;
+  picker.innerHTML = '';
+  AVATAR_EMOJIS.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'emoji-option' + (emoji === state.profile.emoji && !currentImg ? ' selected' : '');
+    btn.textContent = emoji;
+    btn.addEventListener('click', () => {
+      state.profile.emoji = emoji;
+      pendingAvatarImg = null;
+      updateProfilePreview();
+      renderAvatarEmojiPicker();
     });
     picker.appendChild(btn);
   });
 }
 
-function openCreateServerModal() {
-  selectedEmoji = SERVER_EMOJIS[0];
-  buildEmojiPicker();
-  $('newServerName').value = '';
-  $('modalOverlay').classList.add('open');
-  setTimeout(() => $('newServerName').focus(), 60);
+function renderBannerSwatches() {
+  const row = $('bannerSwatches');
+  row.innerHTML = '';
+  BANNER_COLORS.forEach(color => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'swatch' + (color === state.profile.banner ? ' selected' : '');
+    b.style.background = color;
+    b.title = color;
+    b.addEventListener('click', () => {
+      state.profile.banner = color;
+      updateProfilePreview();
+      renderBannerSwatches();
+    });
+    row.appendChild(b);
+  });
+  const custom = document.createElement('input');
+  custom.type = 'color';
+  custom.className = 'swatch-custom';
+  custom.value = state.profile.banner;
+  custom.title = 'Cor personalizada';
+  custom.addEventListener('input', () => {
+    state.profile.banner = custom.value;
+    updateProfilePreview();
+  });
+  row.appendChild(custom);
 }
 
-function closeCreateServerModal() {
-  $('modalOverlay').classList.remove('open');
+function updateProfilePreview() {
+  const img = pendingAvatarImg === undefined ? state.profile.img : pendingAvatarImg;
+  $('profileAvatarPreview').innerHTML = avatarHTML(state.profile.emoji, img);
+  $('profileBannerPreview').style.background = state.profile.banner;
+  $('profileNamePreview').textContent = $('profileNameInput').value.trim() || state.profile.name;
+  $('btnAvatarRemove').style.display = img ? '' : 'none';
 }
 
-function createServer() {
-  const nameInput = $('newServerName');
-  const name = nameInput.value.trim();
+function openSettings(tab) {
+  pendingAvatarImg = undefined;
+  $('profileNameInput').value = state.profile.name;
+  $('profileStatusSelect').value = state.profile.status;
+  $('profileCustomInput').value = state.profile.custom;
+  $('profileAboutInput').value = state.profile.about;
+  renderAvatarEmojiPicker();
+  renderBannerSwatches();
+  updateProfilePreview();
+  renderThemeGrid();
+  renderAccentSwatches();
+  $('fontSizeRange').value = state.appearance.font;
+  $('fontSizeValue').textContent = state.appearance.font + 'px';
+  setToggle($('toggleCompact'), state.appearance.compact);
+  setToggle($('toggleSound'), state.appearance.sound);
+  switchTab(tab || 'tabProfile');
+  openModal('settingsModal');
+}
+
+function saveProfile() {
+  const name = $('profileNameInput').value.trim();
   if (!name) {
-    showToast('⚠️ Dê um nome ao seu servidor primeiro!');
-    nameInput.focus();
+    showToast('⚠️ Seu nome não pode ficar vazio!');
     return;
   }
-
-  const newServer = {
-    id: 'custom_' + Date.now(),
-    icon: selectedEmoji,
-    name: name,
-    custom: true,
-    channels: [
-      { id: 'geral',      type: 'text',  name: 'geral',      desc: 'Canal principal de ' + name },
-      { id: 'off-topic',  type: 'text',  name: 'off-topic',  desc: 'Assuntos aleatórios e descontração' },
-      { id: 'voz1',       type: 'voice', name: 'Sala de Voz 1', users: 0 }
-    ]
-  };
-
-  servers.push(newServer);
-  persistCustomServers();
-
-  // Mensagem de boas-vindas do bot no novo servidor
-  appendMessageTo(newServer.id, 'geral', {
-    author: BOT.name,
-    avatar: BOT.avatar,
-    bot: true,
-    time: nowTime(),
-    text: '🎉 Servidor "' + name + '" criado com sucesso! Este é o seu novo espaço — convide seus amigos e comece a conversar!'
-  });
-
-  closeCreateServerModal();
-  selectServer(newServer.id);
-  showToast('✅ Servidor "' + name + '" criado!');
+  state.profile.name = name;
+  state.profile.status = $('profileStatusSelect').value;
+  state.profile.custom = $('profileCustomInput').value.trim();
+  state.profile.about = $('profileAboutInput').value.trim();
+  if (pendingAvatarImg !== undefined) state.profile.img = pendingAvatarImg;
+  save();
+  closeModal('settingsModal');
+  renderAll();
+  showToast('✅ Perfil salvo!');
 }
 
 /* ==========================================================
-   MENU MOBILE (GAVETA)
+   CONFIGURAÇÕES — APARÊNCIA
+   ========================================================== */
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.toggle('active', p.id === tabId));
+}
+
+function renderThemeGrid() {
+  const grid = $('themeGrid');
+  grid.innerHTML = '';
+  Object.entries(THEMES).forEach(([key, t]) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'theme-card' + (state.appearance.theme === key ? ' selected' : '');
+    card.innerHTML =
+      '<span class="theme-swatches">' +
+        '<i style="background:' + t.app + '"></i>' +
+        '<i style="background:' + t.channels + '"></i>' +
+        '<i style="background:' + t.chat + '"></i>' +
+        '<i style="background:' + t.input + '"></i>' +
+      '</span>' +
+      '<span class="theme-name">' + escapeHTML(t.name) + '</span>';
+    card.addEventListener('click', () => {
+      state.appearance.theme = key;
+      save();
+      applyAppearance();
+      renderThemeGrid();
+      showToast('🎨 Tema "' + t.name + '" aplicado!');
+    });
+    grid.appendChild(card);
+  });
+}
+
+function renderAccentSwatches() {
+  const row = $('accentSwatches');
+  row.innerHTML = '';
+  ACCENT_COLORS.forEach(color => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'swatch' + (color === state.appearance.accent ? ' selected' : '');
+    b.style.background = color;
+    b.title = color;
+    b.addEventListener('click', () => {
+      state.appearance.accent = color;
+      save();
+      applyAppearance();
+      renderAccentSwatches();
+    });
+    row.appendChild(b);
+  });
+  const custom = document.createElement('input');
+  custom.type = 'color';
+  custom.className = 'swatch-custom';
+  custom.value = state.appearance.accent;
+  custom.title = 'Cor personalizada';
+  custom.addEventListener('input', () => {
+    state.appearance.accent = custom.value;
+    save();
+    applyAppearance();
+  });
+  row.appendChild(custom);
+}
+
+function setToggle(el, on) {
+  el.classList.toggle('on', !!on);
+  el.setAttribute('aria-checked', on ? 'true' : 'false');
+}
+
+/* ==========================================================
+   CARTÃO DE MEMBRO
+   ========================================================== */
+function openMemberModal(member, isOnline) {
+  const self = member.self;
+  $('memberBanner').style.background = self ? state.profile.banner : 'var(--accent)';
+  $('memberAvatar').innerHTML = avatarHTML(member.avatar, member.img);
+  $('memberName').textContent = member.name;
+  const status = self ? (state.profile.custom || STATUS_LABEL[state.profile.status]) : (isOnline ? 'Online' : 'Offline');
+  $('memberTag').textContent = status;
+  $('memberAbout').textContent = (self ? state.profile.about : member.about) || 'Membro da comunidade.';
+  $('memberRole').textContent = member.role || 'Membro';
+  openModal('memberModal');
+}
+
+/* ==========================================================
+   BUSCA
+   ========================================================== */
+function applySearchFilter() {
+  const q = $('searchInput').value.trim().toLowerCase();
+  const msgs = document.querySelectorAll('#chatMessages .message');
+  let visible = 0;
+  msgs.forEach(el => {
+    const match = !q || el.textContent.toLowerCase().includes(q);
+    el.classList.toggle('hidden-by-search', !match);
+    if (match) visible++;
+  });
+  $('searchCount').textContent = q ? visible + ' resultado' + (visible === 1 ? '' : 's') : '';
+}
+function toggleSearch() {
+  const bar = $('searchBar');
+  const open = !bar.classList.contains('open');
+  bar.classList.toggle('open', open);
+  $('btnSearch').classList.toggle('on', open);
+  if (open) $('searchInput').focus();
+  else closeSearch();
+}
+function closeSearch() {
+  $('searchBar').classList.remove('open');
+  $('btnSearch').classList.remove('on');
+  $('searchInput').value = '';
+  $('searchCount').textContent = '';
+  document.querySelectorAll('.hidden-by-search').forEach(el => el.classList.remove('hidden-by-search'));
+}
+
+/* ==========================================================
+   GAVETA MOBILE
    ========================================================== */
 function openDrawer() {
   $('sidebarDrawer').classList.add('open');
@@ -1400,31 +2566,173 @@ function closeDrawer() {
    ========================================================== */
 $('sendBtn').addEventListener('click', sendMessage);
 $('messageInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+$('attachBtn').addEventListener('click', () => $('fileAttach').click());
+$('fileAttach').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    const dataURI = await resizeImage(file, 720);
+    const caption = $('messageInput').value.trim();
+    $('messageInput').value = '';
+    pushUserMessage(caption, dataURI);
+    showToast('🖼️ Imagem enviada!');
+  } catch (err) {
+    showToast('⚠️ Não consegui ler essa imagem.');
   }
 });
 
-$('attachBtn').addEventListener('click', () => {
-  showToast('📎 Anexar arquivos é uma simulação nesta demo!');
+$('emojiBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  if ($('emojiPop').classList.contains('open') && emojiPopMode === 'input') closeEmojiPop();
+  else openEmojiPop($('emojiBtn'), 'input');
 });
 
-$('btnCreateServer').addEventListener('click', createServer);
-$('btnCancelServer').addEventListener('click', closeCreateServerModal);
-$('newServerName').addEventListener('keydown', e => {
-  if (e.key === 'Enter') createServer();
+// Delegação de eventos nas mensagens (reagir, editar, apagar, zoom)
+$('chatMessages').addEventListener('click', e => {
+  const msgEl = e.target.closest('.message');
+  if (!msgEl) return;
+  const msgId = msgEl.dataset.msgId;
+
+  if (e.target.closest('.act-react')) {
+    e.stopPropagation();
+    openEmojiPop(e.target.closest('.act-react'), msgId);
+    return;
+  }
+  if (e.target.closest('.act-edit')) { startEditMessage(msgId); return; }
+  if (e.target.closest('.act-del')) { deleteMessage(msgId); return; }
+
+  const chip = e.target.closest('.reaction-chip');
+  if (chip) { toggleReaction(msgId, chip.dataset.react); return; }
+
+  const img = e.target.closest('.message-img');
+  if (img) {
+    $('lightboxImg').src = img.src;
+    $('lightbox').classList.add('open');
+  }
 });
-$('modalOverlay').addEventListener('click', e => {
-  if (e.target === $('modalOverlay')) closeCreateServerModal();
+$('lightbox').addEventListener('click', () => $('lightbox').classList.remove('open'));
+
+// Fechar popup de emoji ao clicar fora
+document.addEventListener('click', e => {
+  if (!e.target.closest('.emoji-pop') && !e.target.closest('.act-react') && !e.target.closest('.emoji-btn')) {
+    closeEmojiPop();
+  }
+});
+
+// Servidor: header abre edição
+$('serverHeader').addEventListener('click', () => openServerModal(activeServerId));
+$('btnSaveServer').addEventListener('click', saveServerModal);
+$('serverNameInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveServerModal(); });
+$('btnDeleteServer').addEventListener('click', deleteServer);
+$('btnServerUpload').addEventListener('click', () => $('fileServerIcon').click());
+$('fileServerIcon').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    pendingServerImg = await resizeImage(file, 128);
+    updateServerIconPreview();
+    renderServerEmojiPicker();
+  } catch (err) { showToast('⚠️ Não consegui ler essa imagem.'); }
+});
+$('btnServerImgRemove').addEventListener('click', () => {
+  pendingServerImg = null;
+  updateServerIconPreview();
+  renderServerEmojiPicker();
+});
+
+// Canal
+$('btnSaveChannel').addEventListener('click', saveChannelModal);
+$('channelNameInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveChannelModal(); });
+$('btnDeleteChannel').addEventListener('click', deleteChannel);
+
+// Configurações / perfil
+$('btnSettings').addEventListener('click', () => openSettings('tabTheme'));
+$('btnProfile').addEventListener('click', () => openSettings('tabProfile'));
+$('userPanelInfo').addEventListener('click', () => openSettings('tabProfile'));
+$('userPanelAvatarWrap').addEventListener('click', () => openSettings('tabProfile'));
+$('btnSaveProfile').addEventListener('click', saveProfile);
+$('profileNameInput').addEventListener('input', updateProfilePreview);
+$('btnAvatarUpload').addEventListener('click', () => $('fileAvatar').click());
+$('fileAvatar').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    pendingAvatarImg = await resizeImage(file, 128);
+    updateProfilePreview();
+    renderAvatarEmojiPicker();
+  } catch (err) { showToast('⚠️ Não consegui ler essa imagem.'); }
+});
+$('btnAvatarRemove').addEventListener('click', () => {
+  pendingAvatarImg = null;
+  updateProfilePreview();
+  renderAvatarEmojiPicker();
+});
+
+document.querySelectorAll('.tab-nav button').forEach(b => {
+  b.addEventListener('click', () => switchTab(b.dataset.tab));
+});
+
+$('fontSizeRange').addEventListener('input', e => {
+  state.appearance.font = parseInt(e.target.value, 10);
+  $('fontSizeValue').textContent = state.appearance.font + 'px';
+  save();
+  applyAppearance();
+});
+$('toggleCompact').addEventListener('click', () => {
+  state.appearance.compact = !state.appearance.compact;
+  setToggle($('toggleCompact'), state.appearance.compact);
+  save();
+  applyAppearance();
+});
+$('toggleSound').addEventListener('click', () => {
+  state.appearance.sound = !state.appearance.sound;
+  setToggle($('toggleSound'), state.appearance.sound);
+  save();
+  if (state.appearance.sound) playSend();
+});
+$('btnResetAll').addEventListener('click', () => {
+  confirmAction('Restaurar padrões?', 'Todas as mensagens, servidores e personalizações serão apagados.', () => {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(OLD_MSG_KEY);
+    localStorage.removeItem(OLD_SRV_KEY);
+    location.reload();
+  });
+});
+
+// Confirmação genérica
+$('btnConfirmYes').addEventListener('click', () => {
+  closeModal('confirmModal');
+  const cb = confirmCallback;
+  confirmCallback = null;
+  if (cb) cb();
+});
+
+// Botões "fechar" declarativos
+document.querySelectorAll('[data-close]').forEach(b => {
+  b.addEventListener('click', () => closeModal(b.dataset.close));
+});
+// Clique fora fecha o modal
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeCreateServerModal();
-    closeDrawer();
-  }
+  if (e.key === 'Escape') { closeAllModals(); closeDrawer(); closeSearch(); }
 });
 
+// Busca / membros / voz / mobile
+$('btnSearch').addEventListener('click', toggleSearch);
+$('btnSearchClose').addEventListener('click', closeSearch);
+$('searchInput').addEventListener('input', applySearchFilter);
+$('btnMembersToggle').addEventListener('click', () => {
+  $('appRoot').classList.toggle('members-hidden');
+});
+$('voiceDisconnect').addEventListener('click', leaveVoice);
 $('mobileMenuBtn').addEventListener('click', openDrawer);
 $('drawerOverlay').addEventListener('click', closeDrawer);
 
@@ -1432,8 +2740,9 @@ $('drawerOverlay').addEventListener('click', closeDrawer);
    INICIALIZAÇÃO
    ========================================================== */
 loadState();
-activeServerId = servers[0].id;
-activeChannelId = servers[0].channels.find(c => c.type === 'text').id;
+activeServerId = state.servers[0].id;
+const initCh = state.servers[0].channels.find(c => c.type === 'text');
+activeChannelId = initCh ? initCh.id : null;
 renderAll();
 </script>
 
