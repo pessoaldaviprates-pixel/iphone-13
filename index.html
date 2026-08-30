@@ -256,6 +256,9 @@
   .rank-meta{font-size:.68rem;color:var(--dim);margin-top:2px}
   .rank-fase{font-family:"Russo One",sans-serif;font-size:1rem;color:var(--amber);flex:none;text-align:right}
   .rank-fase span{display:block;font-family:"Chakra Petch",sans-serif;font-size:.55rem;letter-spacing:.12em;color:var(--dim)}
+  #nuvem-status{font-size:.68rem;line-height:1.45;padding:2px 4px}
+  .nuvem-ok{color:rgba(77,232,255,.75)}
+  .nuvem-erro{color:var(--amber);font-weight:600}
   #presente-aviso{
     display:none;font-size:.78rem;font-weight:700;color:#04121c;
     background:var(--amber);border-radius:12px;padding:11px 14px;line-height:1.35;
@@ -735,6 +738,7 @@
     <button class="ghost-btn" id="btn-reliquias">◈ RELÍQUIAS <span id="menu-amu-badge"></span></button>
     <button class="ghost-btn" id="btn-tree">✦ HABILIDADES <span id="menu-pts-badge"></span></button>
     <button class="ghost-btn" id="btn-rank" style="display:none">🏆 RANKING ONLINE</button>
+    <div id="nuvem-status" style="display:none"></div>
     <div id="presente-aviso"></div>
     <button class="ghost-btn" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     <div id="cloud-status"></div>
@@ -1107,14 +1111,47 @@ function nuvemAparelho() {
 }
 function nuvemId(nome) { return nuvemAparelho() + "_" + nuvemHash(nome); }
 
+let nuvemStatus = "?";   // "?" ainda não testado | "ok" | "erro"
+let nuvemErroDetalhe = "";
 async function nuvemReq(caminho, opcoes) {
   if (!nuvemAtiva()) return null;
   try {
     const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json", opcoes || {});
-    if (!r.ok) return null;
+    if (!r.ok) {
+      nuvemStatus = "erro";
+      nuvemErroDetalhe = (r.status === 401 || r.status === 403)
+        ? "as regras do banco estão bloqueando (passo 3 do NUVEM.md)"
+        : "o servidor respondeu " + r.status;
+      nuvemMostrarStatus();
+      return null;
+    }
+    nuvemStatus = "ok";
+    nuvemMostrarStatus();
     const txt = await r.text();
     return txt && txt !== "null" ? JSON.parse(txt) : null;
-  } catch (e) { return null; }
+  } catch (e) {
+    nuvemStatus = "erro";
+    nuvemErroDetalhe = "não foi possível alcançar o endereço";
+    nuvemMostrarStatus();
+    return null;
+  }
+}
+function nuvemMostrarStatus() {
+  const el = $("nuvem-status");
+  if (!el) return;
+  if (!nuvemAtiva()) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  if (nuvemStatus === "ok") {
+    el.className = "nuvem-ok";
+    el.textContent = "☁ Modo online ligado";
+  } else if (nuvemStatus === "erro") {
+    el.className = "nuvem-erro";
+    el.textContent = "☁ Sem conexão com a nuvem — " + nuvemErroDetalhe +
+      ". Confira o endereço no arquivo config.js.";
+  } else {
+    el.className = "nuvem-ok";
+    el.textContent = "☁ Conectando…";
+  }
 }
 
 /* envia o resumo do piloto atual (só apelido e números do jogo) */
@@ -1652,6 +1689,7 @@ function addUlt(v) {
 function refreshMenu() {
   $("menu-hello").textContent = ROOT.current ? "Piloto: " + ROOT.current : "Defesa do setor 7";
   $("btn-rank").style.display = nuvemAtiva() ? "block" : "none";
+  nuvemMostrarStatus();
   $("menu-gems").textContent = fmt(save.crystals);
   $("menu-progress").textContent = save.best + "/" + TOTAL_FASES;
   $("menu-hi").textContent = fmt(save.hi);
