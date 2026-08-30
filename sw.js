@@ -4,7 +4,7 @@
      Assim uma versão nova chega assim que você abre o jogo com internet,
      e ele continua funcionando offline com a última versão baixada.
    - Ícones, manifesto e fontes: cache primeiro (não mudam quase nunca).      */
-const CACHE = "neon-nebula-v6";
+const CACHE = "neon-nebula-v7";
 const ASSETS = [
   "./",
   "./index.html",
