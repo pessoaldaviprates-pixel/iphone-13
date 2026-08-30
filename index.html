@@ -178,6 +178,9 @@
   }
   .ghost-btn:active{background:rgba(77,232,255,.15)}
   .menu-btns{display:flex;flex-direction:column;gap:12px;width:min(80vw,310px)}
+  #screen-menu.show{justify-content:flex-start;padding-top:calc(24px + env(safe-area-inset-top));overflow-y:auto}
+  #screen-menu.show > *{flex:none}
+  #screen-menu.show::after{content:"";display:block;height:25vh;flex:none}
   .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
   .gem{color:var(--amber);font-weight:700}
   .gem::before{content:"◆ "}
@@ -373,6 +376,29 @@
     display:none;font-size:.78rem;font-weight:700;color:#04121c;
     background:var(--amber);border-radius:12px;padding:11px 14px;line-height:1.35;
   }
+  /* relatório de novidades, sempre aberto no canto do menu */
+  #novidades{
+    position:fixed;z-index:11;display:none;
+    left:50%;transform:translateX(-50%);
+    bottom:calc(8px + env(safe-area-inset-bottom));
+    width:min(92vw,340px);max-height:21vh;
+    background:rgba(10,18,40,.92);border:1px solid var(--line);border-radius:14px;
+    padding:9px 12px;overflow:hidden;display:none;flex-direction:column;
+    box-shadow:0 -6px 26px rgba(0,0,0,.45);
+  }
+  @media (min-height:760px){ #novidades{max-height:25vh} }
+  #novidades.on{display:flex}
+  .nov-topo{
+    display:flex;align-items:baseline;justify-content:space-between;gap:6px;
+    padding-bottom:7px;margin-bottom:7px;border-bottom:1px solid rgba(77,232,255,.2);
+  }
+  .nov-topo b{font-family:"Russo One",sans-serif;font-size:.62rem;letter-spacing:.16em;color:var(--cyan)}
+  .nov-topo span{font-size:.58rem;color:var(--amber);font-weight:700}
+  .nov-lista{overflow-y:auto;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}
+  .nov-item b{display:block;font-size:.6rem;letter-spacing:.1em;color:var(--amber);margin-bottom:2px}
+  .nov-item ul{margin:0;padding-left:13px}
+  .nov-item li{font-size:.63rem;line-height:1.45;color:rgba(234,242,255,.8)}
+  @media (max-width:360px){ #novidades{width:44vw;font-size:.9em} }
   #presente-jogo{
     position:fixed;left:50%;transform:translateX(-50%) translateY(-20px);
     top:calc(120px + env(safe-area-inset-top));z-index:9;pointer-events:none;
@@ -643,6 +669,13 @@
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
 <div id="presente-jogo"></div>
+<aside id="novidades">
+  <div class="nov-topo">
+    <b>NOVIDADES</b>
+    <span id="nov-versao"></span>
+  </div>
+  <div class="nov-lista" id="nov-lista"></div>
+</aside>
 <div id="mp-placar">
   <span id="mp-nome"></span>
   <div class="mp-barra"><i id="mp-hp"></i><b id="mp-hp-txt"></b></div>
@@ -1227,7 +1260,7 @@ window.addEventListener("orientationchange", () => setTimeout(resize, 250));
 
 /* ---------- Utilidades ---------- */
 const TAU = Math.PI * 2;
-const TOTAL_FASES = 120;
+const TOTAL_FASES = 270;   // 120 originais + 150 novas
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
 const dist2 = (ax, ay, bx, by) => { const dx = ax - bx, dy = ay - by; return dx * dx + dy * dy; };
@@ -2213,7 +2246,7 @@ function totalFasesDoModo() {
 }
 function faseWaves(f)  {
   if (typeof MP !== "undefined" && MP && MP.modo === "coop") return 3 + Math.floor((f - 1) / 22);
-  return 3 + Math.floor((f - 1) / 25);
+  return Math.min(14, 3 + Math.floor((f - 1) / 25));
 }
 function isBossFase(f) {
   if (typeof MP !== "undefined" && MP && MP.modo === "coop") return f % 4 === 0;   // chefe a cada 4 fases
@@ -2241,6 +2274,8 @@ function showScreen(name) {
   for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "flex" : "none";
   $("god-badge").style.display = (name === null && save.godMode) ? "block" : "none";
+  const nov = $("novidades");
+  if (nov) nov.classList.toggle("on", name === "menu");
   if (name !== null) $("hab-bar").style.display = "none";
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
@@ -3224,7 +3259,10 @@ $("adm-import").addEventListener("click", () => {
 /* ---------- Seleção de fases ---------- */
 const SECTOR_NAMES = [
   "SETOR 1 — PERIFERIA", "SETOR 2 — CAMPO DE ASTEROIDES", "SETOR 3 — NEBULOSA ROSA",
-  "SETOR 4 — CINTURÃO ESCURO", "SETOR 5 — TEMPESTADE IÔNICA", "SETOR 6 — NÚCLEO PROFUNDO"
+  "SETOR 4 — CINTURÃO ESCURO", "SETOR 5 — TEMPESTADE IÔNICA", "SETOR 6 — NÚCLEO PROFUNDO",
+  "SETOR 7 — CEMITÉRIO DE NAVES", "SETOR 8 — ANEL DE PLASMA", "SETOR 9 — FENDA GELADA",
+  "SETOR 10 — OLHO DA TEMPESTADE", "SETOR 11 — FORJA ESTELAR", "SETOR 12 — MAR DE DESTROÇOS",
+  "SETOR 13 — LIMIAR DO VAZIO", "SETOR 14 — CORAÇÃO DA NEBULOSA"
 ];
 function renderLevels() {
   $("levels-gems").textContent = fmt(save.crystals);
@@ -3786,13 +3824,31 @@ const MP = {
   modo: null,      // "coop" | "pvp"
   host: false,
   eu: null,        // meu id dentro da sala
-  outros: {},      // id -> {nome, nave, x, y, hp, hpMax, pontos, tiros, vivo, ts}
-  enviando: 0,
-  lendo: 0,
-  loop: null,
+  outros: {},      // id -> estado do outro piloto
+  loopRapido: null,   // posição (frequente e leve)
+  loopLento: null,    // sala inteira (menos vezes)
   fase: 1,
+  onda: 1,
+  semente: 0,
+  meuDano: 0,      // dano que EU dei no chefe (somado com o do parceiro)
+  danoTotal: 0,
   fim: null
 };
+function mpCoop() { return !!MP.sala && MP.modo === "coop"; }
+
+/* sorteio igual nos dois aparelhos: mesma semente, mesmos inimigos */
+function rngDe(semente) {
+  let x = semente >>> 0;
+  return function () {
+    x ^= x << 13; x >>>= 0;
+    x ^= x >> 17;
+    x ^= x << 5;  x >>>= 0;
+    return x / 4294967296;
+  };
+}
+function sementeDaOnda(fase, onda) {
+  return (parseInt(MP.sala || "0", 10) * 7919 + fase * 131 + onda * 17 + 1) >>> 0;
+}
 function mpAtivo() { return !!MP.sala && S.mode === "playing"; }
 function mpMeuId() { return nuvemId(save.__name || "?") ; }
 function mpCaminho() { return "salas/" + MP.sala; }
@@ -3870,9 +3926,15 @@ async function mpLerSala() {
   const sala = await nuvemReq(mpCaminho());
   if (!sala) return null;
   MP.modo = sala.modo;
-  MP.outros = {};
   const js = sala.jogadores || {};
-  for (const id in js) if (id !== MP.eu) MP.outros[id] = js[id];
+  // mescla nos objetos que já existem, para não perder a suavização
+  for (const id in js) {
+    if (id === MP.eu) continue;
+    if (!MP.outros[id]) MP.outros[id] = {};
+    Object.assign(MP.outros[id], js[id]);
+  }
+  for (const id in MP.outros) if (!js[id]) delete MP.outros[id];
+  MP.ticks = (MP.ticks || 0) + 1;
   if (sala.estado === "jogando" && S.mode === "sala") {
     MP.fase = sala.fase || 1;
     iniciarPartidaMultijogador();
@@ -3915,34 +3977,124 @@ function renderSala(sala) {
 
 /* ----- laço de sincronização ----- */
 function mpIniciarLoop() {
-  if (MP.loop) clearInterval(MP.loop);
-  MP.loop = setInterval(mpTick, 260);
+  mpPararLoop();
+  // no lobby o envio é por temporizador; em partida, pelo laço do jogo
+  MP.loopRapido = setInterval(() => { if (S.mode === "sala") mpEnviarPosicao(); }, 400);
+  MP.loopPos = setInterval(mpLerJogadores, 170);   // só as posições: leve e frequente
+  MP.loopLento = setInterval(mpTick, 620);         // sala inteira: onda, fase, chefe
+}
+
+/* leitura enxuta: só o nó dos jogadores, para o parceiro andar liso */
+let mpLendoPos = false;
+async function mpLerJogadores() {
+  if (!MP.sala || mpLendoPos || S.mode !== "playing") return;
+  mpLendoPos = true;
+  try {
+    const js = await nuvemReq(mpCaminho() + "/jogadores");
+    if (js) {
+      for (const id in js) {
+        if (id === MP.eu) continue;
+        if (!MP.outros[id]) MP.outros[id] = {};
+        Object.assign(MP.outros[id], js[id]);
+      }
+      for (const id in MP.outros) if (!js[id]) delete MP.outros[id];
+      MP.ticks = (MP.ticks || 0) + 1;
+    }
+  } catch (e) {}
+  mpLendoPos = false;
 }
 function mpPararLoop() {
-  if (MP.loop) clearInterval(MP.loop);
-  MP.loop = null;
+  if (MP.loopRapido) clearInterval(MP.loopRapido);
+  if (MP.loopPos) clearInterval(MP.loopPos);
+  if (MP.loopLento) clearInterval(MP.loopLento);
+  MP.loopRapido = MP.loopPos = MP.loopLento = null;
+}
+
+/* envia só o essencial, para chegar rápido */
+let mpEnviando = false;
+async function mpEnviarPosicao() {
+  if (!MP.sala || mpEnviando) return;
+  if (S.mode !== "playing" && S.mode !== "gameover" && S.mode !== "paused") return;
+  mpEnviando = true;
+  try {
+    const leve = {
+      nome: save.__name || "Piloto",
+      nave: save.ship,
+      hpMax: ST ? ST.maxHp : 100,
+      rank: save.rank || 0,
+      x: Math.round(player.x), y: Math.round(player.y),
+      hp: Math.max(0, Math.round(player.hp)),
+      vivo: player.alive && player.hp > 0,
+      pontos: S.score,
+      dano: Math.round(MP.meuDano),
+      onda: S.waveIdx,
+      ts: Date.now()
+    };
+    if (MP.modo === "pvp") {
+      leve.tiros = bullets.slice(-6).map(b => [Math.round(b.x), Math.round(b.y),
+                                               Math.round(b.vx), Math.round(b.vy)]);
+    }
+    await nuvemReq(mpCaminho() + "/jogadores/" + MP.eu, {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(leve)
+    });
+  } catch (e) {}
+  mpEnviando = false;
 }
 async function mpTick() {
   if (!MP.sala) { mpPararLoop(); return; }
-  // envia o meu estado
-  const meu = mpMeuResumo(false);
-  if (S.mode === "playing" || S.mode === "gameover" || S.mode === "paused") {
-    meu.x = Math.round(player.x); meu.y = Math.round(player.y);
-    meu.hp = Math.max(0, Math.round(player.hp));
-    meu.vivo = player.alive && player.hp > 0;
-    meu.pontos = S.score;
-    meu.fase = S.fase;
-    // últimos tiros, para o outro ver e (no duelo) tomar dano
-    meu.tiros = bullets.slice(-8).map(b => [Math.round(b.x), Math.round(b.y),
-                                            Math.round(b.vx), Math.round(b.vy)]);
-  }
-  nuvemReq(mpCaminho() + "/jogadores/" + MP.eu, {
-    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(meu)
-  });
+  if (S.mode === "sala") await mpEnviarPosicao();
   const sala = await mpLerSala();
   if (S.mode === "sala") renderSala(sala);
-  if (S.mode === "playing" && MP.modo === "pvp") mpChecarFimDuelo();
+  if (S.mode === "playing") {
+    if (MP.modo === "pvp") mpChecarFimDuelo();
+    else mpSincronizarCoop(sala);
+  }
   mpAtualizarPlacar();
+}
+
+/* mantém os dois na mesma onda, na mesma fase e com o MESMO chefe */
+function mpSincronizarCoop(sala) {
+  if (!sala || !mpCoop()) return;
+  // soma o dano de todos no chefe
+  let total = MP.meuDano;
+  for (const id in MP.outros) total += (MP.outros[id].dano || 0);
+  MP.danoTotal = total;
+  if (boss && !boss.entering) {
+    const restante = boss.maxHp - total;
+    if (restante <= 0 && bossHpLeft() > 0) {
+      boss.hp = 0;
+      if (boss.kind === "colosso") { boss.coreHp = 0; boss.pods = []; }
+      bossDefeated();
+    } else if (boss.kind !== "colosso") {
+      boss.hp = Math.max(1, restante);
+    }
+  }
+  // o anfitrião manda a onda; o convidado acompanha
+  if (MP.host) {
+    if (sala.onda !== S.waveIdx) {
+      nuvemReq(mpCaminho() + "/onda", {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(S.waveIdx)
+      });
+    }
+    if (sala.fase !== S.fase) {
+      nuvemReq(mpCaminho() + "/fase", {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(S.fase)
+      });
+    }
+  } else {
+    if (sala.fase && sala.fase !== S.fase) {
+      MP.fase = sala.fase;
+      MP.meuDano = 0;
+      startGame(sala.fase);
+      return;
+    }
+    if (sala.onda && sala.onda !== S.waveIdx) {
+      S.waveIdx = sala.onda;
+      enemies = [];
+      MP.meuDano = 0;
+      setupWave();
+    }
+  }
 }
 
 function mpOutroPrincipal() {
@@ -4760,6 +4912,7 @@ function startGame(fase) {
   S.score = 0; S.runGems = 0; S.shake = 0; S.time = 0;
   S.ultCharge = 0; S.furyT = 0; S.hiveT = 0; S.barrage = null; S.singu = null;
   S.inicioFase = Date.now();
+  MP.meuDano = 0; MP.danoTotal = 0;
   player.lives = ST.maxLives;
   player.hp = ST.maxHp;
   player.weapon = 1;
@@ -4795,6 +4948,8 @@ function waveIsBoss() { return isBossFase(S.fase) && S.waveIdx === S.nWaves; }
 
 function setupWave() {
   atualizarLeitura();
+  // no cooperativo os dois aparelhos sorteiam a MESMA onda
+  S.rng = mpCoop() ? rngDe(sementeDaOnda(S.fase, S.waveIdx)) : Math.random;
   S.waveState = "spawning";
   if (waveIsBoss()) {
     S.toSpawn = 0;
@@ -4875,34 +5030,36 @@ function adapt() {
 }
 
 /* ---------- Inimigos comuns ---------- */
-function pickEnemyType() {
+function pickEnemyType(R) {
   const dl = dLevel();
-  const roll = Math.random();
+  const roll = (R || Math.random)();
   if (dl >= 8 && roll < 0.2) return "tank";
   if (dl >= 4 && roll < 0.5) return "striker";
   return "drone";
 }
 function spawnEnemy(forceType) {
-  const type = forceType || pickEnemyType();
+  const R = S.rng || Math.random;
+  const rr = (a, b) => a + R() * (b - a);
+  const type = forceType || pickEnemyType(R);
   const f = S.fase;
   const spd = Math.min(f * 2, 130);
   const e = {
     type,
-    x: rand(30, W - 30), y: -40,
-    t: rand(0, TAU),
-    fireTimer: rand(1, 2.5),
+    x: rr(30, W - 30), y: -40,
+    t: rr(0, TAU),
+    fireTimer: rr(1, 2.5),
     hitFlash: 0, slowT: 0, frozenT: 0
   };
   const A = adapt();
   if (type === "drone") {
-    e.r = 15; e.hp = 1 + Math.floor(f / 8); e.speed = rand(55, 80) + spd * 0.5;
-    e.amp = rand(30, 70); e.score = 10;
+    e.r = 15; e.hp = 1 + Math.floor(f / 8); e.speed = rr(55, 80) + spd * 0.5;
+    e.amp = rr(30, 70); e.score = 10;
   } else if (type === "striker") {
-    e.r = 14; e.hp = 2 + Math.floor(f / 7); e.speed = rand(95, 125) + spd * 0.5;
-    e.amp = rand(10, 30); e.score = 25;
+    e.r = 14; e.hp = 2 + Math.floor(f / 7); e.speed = rr(95, 125) + spd * 0.5;
+    e.amp = rr(10, 30); e.score = 25;
   } else {
-    e.r = 24; e.hp = 5 + Math.floor(f / 5) * 2; e.speed = rand(30, 42);
-    e.amp = rand(5, 15); e.score = 40;
+    e.r = 24; e.hp = 5 + Math.floor(f / 5) * 2; e.speed = rr(30, 42);
+    e.amp = rr(5, 15); e.score = 40;
   }
   e.hp = Math.max(1, Math.round(e.hp * A.vida));
   e.speed *= A.velocidade;
@@ -4994,10 +5151,15 @@ function damageBossZone(z, d) {
   } else if (boss.kind === "colosso") {
     if (boss.pods.length > 0) { addText(z.x, z.y - 30, "IMUNE", "#9FB0CC"); return; }
     boss.coreHp -= d;
+    if (mpCoop()) MP.meuDano += d;
+  } else if (mpCoop()) {
+    // no cooperativo o dano dos dois é somado no mesmo chefe
+    MP.meuDano += d;
+    boss.hp = Math.max(0, boss.maxHp - (MP.danoTotal + d));
   } else {
     boss.hp -= d;
   }
-  if (bossHpLeft() <= 0) bossDefeated();
+  if (bossHpLeft() <= 0 && !mpCoop()) bossDefeated();
 }
 function damageBossAny(d) {
   if (!boss || boss.entering) return;
@@ -6295,7 +6457,8 @@ function drawBoss() {
   ctx.fillStyle = "rgba(10,18,40,.8)";
   ctx.fillRect(bx - 2, by - 2, bw + 4, 12);
   ctx.fillStyle = "#FF4D8F";
-  ctx.fillRect(bx, by, bw * clamp(bossHpLeft() / boss.maxHp, 0, 1), 8);
+  const vidaChefe = mpCoop() ? Math.max(0, boss.maxHp - MP.danoTotal) : bossHpLeft();
+  ctx.fillRect(bx, by, bw * clamp(vidaChefe / boss.maxHp, 0, 1), 8);
   ctx.strokeStyle = "rgba(255,77,143,.5)";
   ctx.lineWidth = 1;
   ctx.strokeRect(bx - 2, by - 2, bw + 4, 12);
@@ -6355,6 +6518,7 @@ function drawBullet(b) {
   }
 }
 
+let dtDesenho = 0.016;
 function draw() {
   ctx.fillStyle = "#060A18";
   ctx.fillRect(0, 0, W, H);
@@ -6471,9 +6635,22 @@ function draw() {
     for (const id in MP.outros) {
       const o = MP.outros[id];
       if (!o || o.x === undefined || o.vivo === false) continue;
-      // posição suavizada, para o atraso da internet não dar solavancos
-      o.dx = o.dx === undefined ? o.x : lerp(o.dx, o.x, 0.18);
-      o.dy = o.dy === undefined ? o.y : lerp(o.dy, o.y, 0.18);
+      // suavização com previsão: usa a velocidade recente para adiantar
+      if (o.px === undefined) { o.px = o.x; o.py = o.y; o.pts = o.ts || Date.now(); }
+      if (o.x !== o.px || o.y !== o.py) {
+        const agora = o.ts || Date.now();
+        const dtms = Math.max(60, agora - (o.pts || agora));
+        o.vx = (o.x - o.px) / dtms * 1000;
+        o.vy = (o.y - o.py) / dtms * 1000;
+        o.px = o.x; o.py = o.y; o.pts = agora;
+      }
+      const atraso = clamp((Date.now() - (o.pts || Date.now())) / 1000, 0, 0.4);
+      const alvoX = o.x + (o.vx || 0) * atraso * 0.7;
+      const alvoY = o.y + (o.vy || 0) * atraso * 0.7;
+      // aproximação por tempo: liso mesmo se um quadro demorar
+      const k = 1 - Math.pow(0.0006, dtDesenho);
+      o.dx = o.dx === undefined ? alvoX : lerp(o.dx, alvoX, k);
+      o.dy = o.dy === undefined ? alvoY : lerp(o.dy, alvoY, k);
       ctx.save();
       ctx.globalAlpha = 0.92;
       ctx.translate(o.dx, o.dy);
@@ -6566,7 +6743,13 @@ function loop(now) {
     render3D(ofCtx, save.ship, cw / 2, ch / 2 + 10, 5.6, ofTheta, cw, ch);
   } else {
     update(dt);
+    dtDesenho = dt;
     draw();
+    // enquanto joga, a posição vai pelo laço de desenho: mais constante
+    if (MP.sala && now - (MP.ultimoEnvio || 0) > 110) {
+      MP.ultimoEnvio = now;
+      mpEnviarPosicao();
+    }
   }
   requestAnimationFrame(loop);
 }
@@ -6630,11 +6813,48 @@ $("cloud-btn").addEventListener("click", async () => {
   }
 });
 
+/* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
+const NOVIDADES = [
+  { v: "2.2", itens: [
+      "Cooperativo consertado: os dois enfrentam os MESMOS inimigos e o MESMO chefe, com o dano somado",
+      "Movimento do parceiro bem mais liso (envio 4x mais rápido, com previsão)",
+      "+150 fases no modo normal — agora são 270",
+      "Este relatório de novidades no canto do menu"
+    ] },
+  { v: "2.1", itens: [
+      "Inimigos que leem suas melhorias: mais defesa traz mais inimigos",
+      "60 naves novas, cada uma com virtude e defeito (112 no total)",
+      "10 ranks, de Bronze a Pilot Spirit",
+      "Cooperativo com 200 fases próprias e tudo zerado no multijogador",
+      "Painel ADM agora vale na hora, sem o jogador abrir o jogo"
+    ] },
+  { v: "2.0", itens: [
+      "Senha desenho no login",
+      "Vida própria por nave, conforme as melhorias",
+      "Cooperativo e competitivo com salas por código",
+      "Amigos e cinco tabelas de classificação"
+    ] },
+  { v: "1.7", itens: [
+      "Maverick e B-2 Spirit, aeronaves exclusivas do administrador",
+      "Buraco negro e Super Nova",
+      "6 chefes diferentes"
+    ] }
+];
+function renderNovidades() {
+  const cx = $("nov-lista");
+  if (!cx) return;
+  $("nov-versao").textContent = "v" + VERSAO;
+  cx.innerHTML = NOVIDADES.map(n =>
+    '<div class="nov-item"><b>v' + n.v + "</b><ul>" +
+    n.itens.map(i => "<li>" + i + "</li>").join("") + "</ul></div>").join("");
+}
+
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.1";
+const VERSAO = "2.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
+  renderNovidades();
 })();
 
 /* ---------- Service worker (offline + atualização automática) ---------- */
