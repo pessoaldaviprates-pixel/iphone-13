@@ -79,12 +79,38 @@ No Firebase, aba **Regras** do Realtime Database, cole isto e publique:
         ".read": true,
         ".write": true
       }
+    },
+    "arena": {
+      ".read": true,
+      ".write": true
+    },
+    "fila": {
+      ".read": true,
+      ".write": true
+    },
+    "cenas": {
+      "$id": {
+        ".read": true,
+        ".write": true
+      }
     }
   }
 }
 ```
 
-> A leitura de `contas` e `salas` fica **dentro de cada item** (`$id`), e não na lista inteira: assim ninguém consegue baixar a lista de todas as contas — é preciso saber o nome exato.
+> A leitura de `contas`, `salas` e `cenas` fica **dentro de cada item** (`$id`), e não na lista inteira: assim ninguém consegue baixar a lista de todas as contas — é preciso saber o nome exato.
+
+### Para que serve cada parte
+
+| Nó | O que guarda |
+|---|---|
+| `pilotos` | O resumo público de cada piloto: fase, cristais, rank, em que tela está, versão do jogo. É o que alimenta o ranking e a janela **AO VIVO** do painel. |
+| `presentes` | A caixa que o administrador montou e que ainda não foi aberta. |
+| `contas` | O progresso completo ligado ao nome e à senha desenho, para entrar em qualquer celular. |
+| `salas` | As partidas de cooperativo e os duelos privados. |
+| `arena` | A **arena infinita**: a onda de agora, o recorde e quantos inimigos e chefes cada um já derrubou. Nunca zera. |
+| `fila` | Quem está procurando partida ranqueada agora. Cada entrada some sozinha depois do duelo. |
+| `cenas` | O resumo da tela de quem está jogando (posições da nave, dos inimigos e do chefe), para os amigos poderem assistir. Quem não quiser aparecer desliga em **👁 TRANSMISSÃO** no menu. |
 
 Isso limita o que pode ser gravado e evita que o banco vire depósito de
 lixo. **Não deixe no "modo de teste" para sempre** — ele expira em 30 dias e,

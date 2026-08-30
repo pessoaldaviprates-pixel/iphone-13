@@ -254,7 +254,7 @@
     font-size:.58rem;letter-spacing:.28em;color:var(--dim);font-weight:700;
     margin-top:4px;text-align:left;padding-left:2px;
   }
-  .menu-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:2px}
+  .menu-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
   .chip{
     position:relative;font-family:"Chakra Petch",sans-serif;font-weight:600;
     font-size:.7rem;letter-spacing:.06em;padding:9px 14px;cursor:pointer;
@@ -262,7 +262,7 @@
   }
   .chip:active{background:rgba(77,232,255,.15)}
   .chip i{
-    font-style:normal;position:absolute;top:-4px;right:-4px;
+    font-style:normal;position:absolute;top:-5px;right:-5px;
     background:var(--danger);color:#fff;border-radius:7px;
     font-size:.48rem;font-weight:700;padding:1px 5px;display:none;
   }
@@ -1460,6 +1460,7 @@
     <div id="presente-aviso"></div>
     <div class="menu-chips">
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
+      <button class="chip" id="btn-transmitir" title="Deixar (ou não) os amigos verem a sua tela">👁 TRANSMISSÃO</button>
       <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     </div>
     <div id="cloud-status"></div>
@@ -1872,6 +1873,9 @@ function defaultSave() {
     tempos: {},              // fase -> melhor tempo em segundos
     rank: 0, vitorias: 0, derrotas: 0,   // modo competitivo
     coopBest: 0,                         // progresso do cooperativo (200 fases)
+    arenaOnda: 0,            // maior onda que você alcançou na arena
+    transmitir: true,        // deixa os amigos verem a sua tela
+    controle: "auto",        // auto | pc | toque
     amigos: []               // apelidos dos amigos
   };
 }
@@ -3155,6 +3159,13 @@ function refreshMenu() {
   $("menu-up-badge").textContent = meusUp + "/" + totalUp;
   const nb = $("nov-badge");
   if (nb) nb.classList.toggle("on", novidadesNovas());
+  const tb = $("btn-transmitir");
+  if (tb) {
+    const lig = save.transmitir !== false;
+    tb.textContent = lig ? "👁 TRANSMISSÃO LIGADA" : "🚫 TRANSMISSÃO DESLIGADA";
+    tb.style.color = lig ? "var(--cyan)" : "var(--dim)";
+    tb.style.display = nuvemAtiva() ? "" : "none";
+  }
   if (typeof arenaAtualizarSelo === "function") arenaAtualizarSelo();
 }
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
@@ -6083,6 +6094,15 @@ $("btn-hangar").addEventListener("click", () => { AudioSys.resume(); S.mode = "h
 $("btn-reliquias").addEventListener("click", () => { AudioSys.resume(); S.mode = "reliquias"; renderReliquias(); showScreen("reliquias"); });
 $("btn-tree").addEventListener("click", () => { AudioSys.resume(); S.mode = "tree"; renderTree(); showScreen("tree"); });
 $("btn-novidades").addEventListener("click", () => { AudioSys.resume(); abrirNovidades(); });
+$("btn-transmitir").addEventListener("click", () => {
+  save.transmitir = save.transmitir === false;
+  persist();
+  AudioSys.buy();
+  if (save.transmitir === false && save.__name) {
+    nuvemReq("cenas/" + nuvemId(save.__name), { method: "DELETE" });
+  }
+  refreshMenu();
+});
 $("btn-rank").addEventListener("click", () => {
   AudioSys.resume();
   S.mode = "rank";
@@ -8664,6 +8684,16 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.6", itens: [
+      "ARENA INFINITA: uma arena só para todo mundo, ondas sem fim, todos aliados. A onda continua de onde o último parou e o placar de inimigos e chefes derrubados soma o de todos",
+      "RANQUEADA com busca de partida: o jogo acha alguém do seu nível sozinho, sem código",
+      "Dá para ver a tela de quem está jogando: toque no 👁 na lista de amigos",
+      "O online ficou MUITO mais rápido: o servidor agora avisa na hora em vez de o jogo ficar perguntando (20 ms em vez de meio segundo)",
+      "No computador a nave segue o cursor sozinha e as habilidades saem nas teclas Q W E R T A S D F G, espaço e shift",
+      "Menu novo, com a sua nave, o seu rank e a barra de progresso",
+      "As novidades saíram do canto da tela e viraram esta aba",
+      "Painel do administrador com a janela AO VIVO: quem está jogando agora, em que tela e com qual versão"
+    ] },
   { v: "2.5", itens: [
       "Caixa de presente: o administrador manda vários itens de uma vez e você abre tudo junto",
       "O presente já entra na conta antes de você abrir a caixa — nada de bug",
@@ -8726,7 +8756,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.5";
+const VERSAO = "2.6";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
