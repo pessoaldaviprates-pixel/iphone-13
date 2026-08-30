@@ -135,6 +135,36 @@ O painel tem busca por nome e, para o piloto selecionado:
 
 > ⚠️ **Sem o modo online, o painel é local.** O jogo roda no aparelho de cada jogador, então você administra apenas os pilotos salvos **no seu aparelho** — o piloto que um amigo criar no celular dele não aparece para você. Para que apareça, ligue o modo online (abaixo). Vale lembrar também que a senha do ADM protege contra o acesso casual, mas quem souber abrir o código do navegador consegue contornar: em jogo sem servidor não existe proteção real do lado do cliente.
 
+## Login com senha desenho
+
+Cada piloto tem uma **senha desenho** (padrão de 3×3, como o do celular): ligue pelo menos 4 pontos. Quem já tinha conta é levado a criar a senha no próximo login, **sem perder nada do progresso**.
+
+## Vida por nave
+
+Cada nave tem **vida própria**, calculada a partir da nave escolhida, das melhorias de casco, das peças de blindagem, da árvore de habilidades e dos amuletos. A barra fica no HUD: o dano tira vida e, quando ela zera, custa um coração e a nave volta com vida cheia. As exclusivas são bem mais resistentes (Maverick e B-2).
+
+## Jogar com amigos (cooperativo e competitivo)
+
+Com o modo online ligado, o menu ganha **👥 JOGAR COM AMIGOS**, com três abas:
+
+**🤝 Cooperativo** — crie uma sala (código de 4 números) ou entre no código do amigo. Vocês enfrentam a mesma fase ao mesmo tempo, veem a nave um do outro voando junto, a vida e a pontuação de cada um.
+
+**⚔ Competitivo** — duelo um contra um usando as habilidades da sua nave. Quem zerar a vida do adversário primeiro vence. Há **7 ranks** (Bronze → Prata → Ouro → Platina → Diamante → Mestre → Lendário): vitória dá +25 pontos (mais um bônus se o adversário for de rank alto) e derrota tira 12. Se o adversário abandonar, você vence por desistência.
+
+**👥 Amigos** — o botão **👤+** adiciona amigos pelo nome ou pela lista de quem está online, mostrando quem está jogando agora.
+
+## Tabelas de classificação
+
+A tela **🏆 RANKING** tem cinco tabelas:
+
+| Aba | Ordena por |
+|---|---|
+| **Fases** | fase mais avançada |
+| **Horas jogadas** | tempo total dentro de partidas |
+| **Fases mais rápidas** | melhor tempo para concluir uma fase |
+| **Mais aviões** | quantidade de naves no hangar |
+| **Competitivo** | pontos de rank, vitórias e derrotas |
+
 ## Modo online (opcional, grátis)
 
 Preenchendo o `NUVEM_URL` no arquivo **`config.js`** (raiz do repositório, 15 linhas — é o único arquivo que você edita) com um Realtime Database gratuito do Firebase, o jogo ganha:
