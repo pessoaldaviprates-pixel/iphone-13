@@ -237,6 +237,29 @@
     max-height:0;overflow:hidden;transition:max-height .2s,padding .2s;
   }
   #adm-msg.on{max-height:60px;padding:11px 12px}
+  /* ranking online */
+  .rank-list{display:flex;flex-direction:column;gap:8px;max-width:520px;margin:0 auto}
+  .rank-row{
+    display:flex;align-items:center;gap:12px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:11px 13px;
+  }
+  .rank-row.eu{border-color:var(--cyan);box-shadow:0 0 14px rgba(77,232,255,.25)}
+  .rank-pos{
+    width:34px;flex:none;text-align:center;
+    font-family:"Russo One",sans-serif;font-size:1rem;color:var(--dim);
+  }
+  .rank-row:nth-child(1) .rank-pos{color:var(--amber)}
+  .rank-row:nth-child(2) .rank-pos{color:#D6E2F5}
+  .rank-row:nth-child(3) .rank-pos{color:#E0995C}
+  .rank-info{flex:1;min-width:0}
+  .rank-nome{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rank-meta{font-size:.68rem;color:var(--dim);margin-top:2px}
+  .rank-fase{font-family:"Russo One",sans-serif;font-size:1rem;color:var(--amber);flex:none;text-align:right}
+  .rank-fase span{display:block;font-family:"Chakra Petch",sans-serif;font-size:.55rem;letter-spacing:.12em;color:var(--dim)}
+  #presente-aviso{
+    display:none;font-size:.78rem;font-weight:700;color:#04121c;
+    background:var(--amber);border-radius:12px;padding:11px 14px;line-height:1.35;
+  }
   .god-badge{
     position:fixed;left:50%;transform:translateX(-50%);
     top:calc(96px + env(safe-area-inset-top));z-index:6;pointer-events:none;
@@ -527,6 +550,29 @@
 
     <div id="adm-panel" style="display:none">
 
+      <div class="adm-card" id="adm-nuvem" style="display:none">
+        <div class="adm-h gold">JOGADORES ONLINE</div>
+        <div class="adm-row">
+          <input id="adm-nuvem-busca" placeholder="Buscar jogador pelo nome" autocomplete="off">
+          <button class="adm-btn" id="adm-nuvem-load">ATUALIZAR</button>
+        </div>
+        <div class="profile-list" id="adm-nuvem-lista" style="margin-top:10px"></div>
+        <div id="adm-nuvem-sel" style="display:none;margin-top:12px">
+          <div class="adm-h gold" id="adm-nuvem-alvo"></div>
+          <div class="adm-row">
+            <input id="adm-nuvem-gem" type="number" inputmode="numeric" placeholder="Cristais" value="10000">
+            <button class="adm-btn gold" id="adm-nuvem-dar">ENVIAR</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" id="adm-nuvem-naves">TODAS AS NAVES</button>
+            <button class="adm-btn" id="adm-nuvem-fases">TODAS AS FASES</button>
+            <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
+            <button class="adm-btn gold" id="adm-nuvem-tudo">ENVIAR TUDO</button>
+          </div>
+          <p class="adm-note" style="margin-top:10px">O presente é entregue quando a pessoa abrir o jogo.</p>
+        </div>
+      </div>
+
       <div class="adm-card">
         <div class="adm-h">PILOTOS NESTE APARELHO</div>
         <input class="adm-search" id="adm-search" placeholder="Buscar piloto pelo nome" autocomplete="off">
@@ -687,6 +733,8 @@
     <button class="ghost-btn" id="btn-hangar">▲ HANGAR <span id="menu-ship-badge"></span></button>
     <button class="ghost-btn" id="btn-reliquias">◈ RELÍQUIAS <span id="menu-amu-badge"></span></button>
     <button class="ghost-btn" id="btn-tree">✦ HABILIDADES <span id="menu-pts-badge"></span></button>
+    <button class="ghost-btn" id="btn-rank" style="display:none">🏆 RANKING ONLINE</button>
+    <div id="presente-aviso"></div>
     <button class="ghost-btn" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     <div id="cloud-status"></div>
     <button class="adm-link" id="btn-logout" style="align-self:center">↩ TROCAR DE PILOTO</button>
@@ -774,6 +822,16 @@
     <div id="amu-reveal"></div>
     <div class="amu-list" id="amu-inv"></div>
   </div>
+</div>
+
+<!-- RANKING ONLINE -->
+<div class="page" id="screen-rank">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">RANKING</div>
+    <div class="page-gems" id="rank-count"></div>
+  </div>
+  <div class="scroll"><div class="rank-list" id="rank-list"></div></div>
 </div>
 
 <!-- ÁRVORE DE HABILIDADES -->
@@ -1019,6 +1077,143 @@ function loginAs(name) {
   save.__name = name;
   persist();
   calcStats();
+}
+
+/* =====================================================================
+   NUVEM (opcional) — deixa os pilotos de todo mundo aparecerem para você
+   ---------------------------------------------------------------------
+   Sem preencher nada aqui, o jogo funciona exatamente como antes, só no
+   aparelho. Para ligar o modo online, crie um Realtime Database gratuito
+   no Firebase e cole o endereço dele em NUVEM_URL. O passo a passo está
+   no arquivo NUVEM.md do repositório.
+   ===================================================================== */
+const NUVEM_URL = "";   // ex.: "https://meu-jogo-default-rtdb.firebaseio.com"
+
+function nuvemAtiva() { return typeof NUVEM_URL === "string" && NUVEM_URL.indexOf("http") === 0; }
+
+function nuvemHash(t) {
+  let h = 5381;
+  for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+  return h.toString(16);
+}
+function nuvemAparelho() {
+  let id = storageGet("nn_device", null);
+  if (!id) {
+    id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    storageSet("nn_device", id);
+  }
+  return id;
+}
+function nuvemId(nome) { return nuvemAparelho() + "_" + nuvemHash(nome); }
+
+async function nuvemReq(caminho, opcoes) {
+  if (!nuvemAtiva()) return null;
+  try {
+    const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json", opcoes || {});
+    if (!r.ok) return null;
+    const txt = await r.text();
+    return txt && txt !== "null" ? JSON.parse(txt) : null;
+  } catch (e) { return null; }
+}
+
+/* envia o resumo do piloto atual (só apelido e números do jogo) */
+let nuvemUltimoEnvio = 0;
+async function nuvemEnviar(forcar) {
+  if (!nuvemAtiva() || !save.__name) return;
+  const agora = Date.now();
+  if (!forcar && agora - nuvemUltimoEnvio < 15000) return;
+  nuvemUltimoEnvio = agora;
+  const resumo = {
+    nome: save.__name,
+    fase: save.best || 0,
+    cristais: save.crystals || 0,
+    naves: save.ships ? save.ships.length : 1,
+    amuletos: save.amulets ? save.amulets.length : 0,
+    habilidades: Object.keys(save.skills || {}).length,
+    recorde: save.hi || 0,
+    atualizado: agora
+  };
+  await nuvemReq("pilotos/" + nuvemId(save.__name), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(resumo)
+  });
+}
+
+async function nuvemListar() {
+  const dados = await nuvemReq("pilotos");
+  if (!dados) return [];
+  return Object.keys(dados).map(id => Object.assign({ id }, dados[id]))
+    .filter(p => p && p.nome)
+    .sort((a, b) => (b.fase - a.fase) || (b.recorde - a.recorde));
+}
+
+async function nuvemEnviarPresente(id, presente) {
+  // junta com um presente que ainda não foi retirado, para não sobrescrever
+  const pendente = (await nuvemReq("presentes/" + id)) || {};
+  const novo = Object.assign({}, pendente);
+  if (presente.cristais) novo.cristais = (novo.cristais || 0) + presente.cristais;
+  if (presente.naves) novo.naves = true;
+  if (presente.fases) novo.fases = true;
+  if (presente.lendarios) novo.lendarios = true;
+  if (presente.tudo) novo.tudo = true;
+  novo.quando = Date.now();
+  return nuvemReq("presentes/" + id, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(novo)
+  });
+}
+
+function aplicarPresente(p, g) {
+  const partes = [];
+  if (g.tudo) {
+    admDesbloquearTudo(p);
+    partes.push("tudo desbloqueado");
+  }
+  if (g.cristais) {
+    p.crystals = (p.crystals || 0) + g.cristais;
+    partes.push("+" + fmt(g.cristais) + " cristais");
+  }
+  if (g.naves) {
+    p.ships = [];
+    for (let i = 0; i < 50; i++) p.ships.push(i);
+    partes.push("todas as naves");
+  }
+  if (g.fases) {
+    p.best = TOTAL_FASES;
+    p.pts = Math.max(p.pts || 0, TOTAL_FASES);
+    partes.push("todas as fases");
+  }
+  if (g.lendarios) {
+    for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
+    partes.push("amuletos lendários");
+  }
+  return partes.join(", ");
+}
+
+/* verifica se chegou presente do administrador */
+async function nuvemVerificarPresentes() {
+  if (!nuvemAtiva() || !save.__name) return;
+  const id = nuvemId(save.__name);
+  const g = await nuvemReq("presentes/" + id);
+  if (!g) return;
+  const texto = aplicarPresente(save, g);
+  await nuvemReq("presentes/" + id, { method: "DELETE" });
+  persist();
+  calcStats();
+  if (S.mode === "menu") refreshMenu();
+  if (texto) {
+    AudioSys.power();
+    vibrate([40, 60, 40]);
+    const el = $("presente-aviso");
+    if (el) {
+      el.textContent = "🎁 Presente recebido: " + texto + "!";
+      el.style.display = "block";
+      setTimeout(() => { el.style.display = "none"; }, 9000);
+    }
+  }
+  nuvemEnviar(true);
 }
 
 /* ---------- Loja de melhorias ---------- */
@@ -1420,7 +1615,7 @@ const SCREENS = {
   login: $("screen-login"), adm: $("screen-adm"),
   menu: $("screen-menu"), levels: $("screen-levels"), shop: $("screen-shop"),
   hangar: $("screen-hangar"), oficina: $("screen-oficina"), reliquias: $("screen-reliquias"),
-  tree: $("screen-tree"),
+  tree: $("screen-tree"), rank: $("screen-rank"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
 function showScreen(name) {
@@ -1455,6 +1650,7 @@ function addUlt(v) {
 }
 function refreshMenu() {
   $("menu-hello").textContent = ROOT.current ? "Piloto: " + ROOT.current : "Defesa do setor 7";
+  $("btn-rank").style.display = nuvemAtiva() ? "block" : "none";
   $("menu-gems").textContent = fmt(save.crystals);
   $("menu-progress").textContent = save.best + "/" + TOTAL_FASES;
   $("menu-hi").textContent = fmt(save.hi);
@@ -1489,6 +1685,8 @@ function renderLogin() {
       S.mode = "menu";
       refreshMenu();
       showScreen("menu");
+      nuvemEnviar(true);
+      nuvemVerificarPresentes();
     });
     list.appendChild(b);
   }
@@ -1504,6 +1702,8 @@ $("btn-new").addEventListener("click", () => {
   S.mode = "menu";
   refreshMenu();
   showScreen("menu");
+  nuvemEnviar(true);
+  nuvemVerificarPresentes();
 });
 $("btn-logout").addEventListener("click", () => {
   persist();
@@ -1683,10 +1883,74 @@ $("btn-adm-enter").addEventListener("click", () => {
   $("adm-pass-row").style.display = "none";
   $("adm-panel").style.display = "block";
   admRenderPlayers();
+  if (nuvemAtiva()) {
+    $("adm-nuvem").style.display = "block";
+    admNuvemCarregar();
+  }
   AudioSys.buy();
 });
 $("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
 $("adm-search").addEventListener("input", admRenderPlayers);
+
+/* ---- jogadores online (só aparece com a nuvem ligada) ---- */
+let admNuvemLista = [];
+let admNuvemAlvo = null;
+
+async function admNuvemCarregar() {
+  const el = $("adm-nuvem-lista");
+  el.innerHTML = '<div class="adm-note">Buscando jogadores…</div>';
+  admNuvemLista = await nuvemListar();
+  admNuvemRender();
+}
+function admNuvemRender() {
+  const el = $("adm-nuvem-lista");
+  const busca = ($("adm-nuvem-busca").value || "").trim().toLowerCase();
+  const lista = admNuvemLista.filter(p => !busca || String(p.nome).toLowerCase().indexOf(busca) >= 0);
+  el.innerHTML = "";
+  if (!lista.length) {
+    const d = document.createElement("div");
+    d.className = "adm-note";
+    d.textContent = admNuvemLista.length ? "Nenhum jogador com esse nome." :
+      "Nenhum jogador online ainda. Eles aparecem aqui ao abrir o jogo.";
+    el.appendChild(d);
+    return;
+  }
+  for (const p of lista.slice(0, 80)) {
+    const b = document.createElement("button");
+    b.className = "profile-btn" + (admNuvemAlvo && admNuvemAlvo.id === p.id ? " sel" : "");
+    b.innerHTML = '<span class="profile-name">' + escaparTexto(p.nome) + "</span>" +
+      '<span class="profile-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
+      " · " + (p.naves || 1) + " naves</span>";
+    b.addEventListener("click", () => {
+      admNuvemAlvo = p;
+      $("adm-nuvem-sel").style.display = "block";
+      $("adm-nuvem-alvo").textContent = "PRESENTE PARA " + String(p.nome).toUpperCase();
+      admNuvemRender();
+    });
+    el.appendChild(b);
+  }
+}
+async function admNuvemPresente(presente, msg) {
+  if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
+  admMsg("Enviando…");
+  const ok = await nuvemEnviarPresente(admNuvemAlvo.id, presente);
+  if (ok === null) { admMsg("Não deu para enviar. Confira a conexão."); AudioSys.deny(); return; }
+  admMsg(msg + " → " + admNuvemAlvo.nome);
+  AudioSys.buy();
+  vibrate(20);
+}
+$("adm-nuvem-load").addEventListener("click", admNuvemCarregar);
+$("adm-nuvem-busca").addEventListener("input", admNuvemRender);
+$("adm-nuvem-dar").addEventListener("click", () =>
+  admNuvemPresente({ cristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Cristais enviados"));
+$("adm-nuvem-naves").addEventListener("click", () =>
+  admNuvemPresente({ naves: true }, "Naves enviadas"));
+$("adm-nuvem-fases").addEventListener("click", () =>
+  admNuvemPresente({ fases: true }, "Fases liberadas"));
+$("adm-nuvem-lend").addEventListener("click", () =>
+  admNuvemPresente({ lendarios: true }, "Lendários enviados"));
+$("adm-nuvem-tudo").addEventListener("click", () =>
+  admNuvemPresente({ tudo: true }, "Tudo enviado"));
 
 /* ---- ações rápidas ---- */
 $("adm-tudo").addEventListener("click", () => admAct(admDesbloquearTudo, "Tudo desbloqueado"));
@@ -2668,6 +2932,46 @@ $("btn-shop").addEventListener("click", () => { AudioSys.resume(); S.mode = "sho
 $("btn-hangar").addEventListener("click", () => { AudioSys.resume(); S.mode = "hangar"; renderHangar(true); showScreen("hangar"); });
 $("btn-reliquias").addEventListener("click", () => { AudioSys.resume(); S.mode = "reliquias"; renderReliquias(); showScreen("reliquias"); });
 $("btn-tree").addEventListener("click", () => { AudioSys.resume(); S.mode = "tree"; renderTree(); showScreen("tree"); });
+$("btn-rank").addEventListener("click", () => {
+  AudioSys.resume();
+  S.mode = "rank";
+  renderRanking();
+  showScreen("rank");
+});
+
+async function renderRanking() {
+  const lista = $("rank-list");
+  lista.innerHTML = '<div class="adm-note" style="text-align:center;max-width:none">Carregando o ranking…</div>';
+  $("rank-count").textContent = "";
+  const pilotos = await nuvemListar();
+  lista.innerHTML = "";
+  if (!pilotos.length) {
+    lista.innerHTML = '<div class="adm-note" style="text-align:center;max-width:none">' +
+      "Ninguém no ranking ainda. Jogue uma fase para aparecer aqui!</div>";
+    return;
+  }
+  $("rank-count").textContent = pilotos.length + " piloto" + (pilotos.length === 1 ? "" : "s");
+  const meuId = save.__name ? nuvemId(save.__name) : null;
+  pilotos.slice(0, 100).forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "rank-row" + (p.id === meuId ? " eu" : "");
+    row.innerHTML =
+      '<div class="rank-pos">' + (i + 1) + "</div>" +
+      '<div class="rank-info"><div class="rank-nome">' + escaparTexto(p.nome) +
+        (p.id === meuId ? " (você)" : "") + "</div>" +
+      '<div class="rank-meta">◆ ' + fmt(p.cristais || 0) + " · " + (p.naves || 1) +
+        " naves · recorde " + fmt(p.recorde || 0) + "</div></div>" +
+      '<div class="rank-fase">' + (p.fase || 0) + "<span>FASE</span></div>";
+    lista.appendChild(row);
+  });
+}
+
+/* nomes vêm de outros jogadores: trate sempre como texto, nunca como HTML */
+function escaparTexto(t) {
+  return String(t == null ? "" : t)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").slice(0, 40);
+}
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   S.mode = "menu";
@@ -3317,6 +3621,7 @@ function faseVictory() {
   else va.style.display = "none";
   $("btn-next").style.display = S.fase >= TOTAL_FASES ? "none" : "inline-block";
   showScreen("victory");
+  nuvemEnviar(true);
 }
 function gameOver() {
   S.mode = "gameover";
@@ -3327,6 +3632,7 @@ function gameOver() {
   $("go-gems").textContent = "+" + fmt(gems) + " cristais recuperados";
   $("go-record").style.display = isRecord ? "block" : "none";
   showScreen("over");
+  nuvemEnviar(false);
 }
 </script>
 <script>
