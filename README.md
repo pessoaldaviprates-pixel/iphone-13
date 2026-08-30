@@ -7,7 +7,7 @@ Jogo de tiro espacial **completo para celular**, feito em HTML5 — sem dependê
 - Na abertura, **crie seu piloto** (tela de login) — cada piloto tem o próprio progresso salvo
 - **Arraste o dedo** em qualquer lugar da tela para pilotar a nave (o tiro é automático)
 - No computador: setas ou **WASD** para mover, **P**/Esc para pausar, **X** para a ultimate, **C** para a capa
-- **120 fases** divididas em 6 setores, com **chefe a cada 5 fases** (cada vez mais fortes)
+- **270 fases** divididas em 14 setores, com **chefe a cada 5 fases** (cada vez mais fortes)
 - O botão redondo **ULT** (canto inferior direito) carrega conforme você destrói inimigos: cada nave tem uma **ultimate diferente**
 - Inimigos soltam **cristais ◆** e itens:
   - **W** (ciano) — melhora a arma (até tiro triplo)
@@ -193,6 +193,8 @@ Com o modo online ligado, o menu ganha **👥 JOGAR COM AMIGOS**, com três abas
 | ☀ | **Pilot Spirit** | 6.000 |
 
 > **Jogo limpo:** no cooperativo e no competitivo, **todas as melhorias são ignoradas** — valem apenas a nave escolhida e a habilidade de quem joga. Ninguém ganha por ter gastado mais cristais.
+
+No cooperativo os dois enfrentam **exatamente os mesmos inimigos e o mesmo chefe** (sorteio sincronizado pela sala), e o **dano no chefe é somado** entre os dois — ninguém derrota o chefe antes do outro.
 
 **Cooperativo tem 200 fases próprias**, com chefe a cada 4 fases e até 12 ondas por fase, com progresso separado do modo campanha.
 
