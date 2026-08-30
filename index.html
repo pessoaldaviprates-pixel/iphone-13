@@ -1402,8 +1402,12 @@ function mergeSave(parsed) {
   s.weaponSel = (parsed && parsed.weaponSel) || {};
   s.amulets = (parsed && Array.isArray(parsed.amulets)) ? parsed.amulets : [];
   s.equipped = (parsed && Array.isArray(parsed.equipped)) ? parsed.equipped.slice(0, 3) : [];
-  // conserta saves antigos: naves que não existem mais, ou fora da lista
-  s.ships = s.ships.filter(i => typeof i === "number" && i >= 0 && i < SHIPS.length);
+  // conserta saves antigos: naves que não existem mais, ou fora da lista.
+  // A frota pode ainda não ter sido montada quando o save é lido, então o
+  // limite é obtido com cuidado — sem isso o perfil inteiro deixa de carregar.
+  let totalNaves = 9999;
+  try { if (SHIPS && SHIPS.length) totalNaves = SHIPS.length; } catch (e) {}
+  s.ships = s.ships.filter(i => typeof i === "number" && i >= 0 && i < totalNaves);
   if (!s.ships.length) s.ships = [0];
   if (typeof s.ship !== "number" || s.ships.indexOf(s.ship) < 0) s.ship = s.ships[0];
   return s;
