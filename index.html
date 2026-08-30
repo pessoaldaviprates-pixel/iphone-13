@@ -821,6 +821,100 @@
     text-align:center;padding:2px 4px 8px;
   }
 
+  /* painel do mundo: eventos, boosts e travessuras */
+  .mundo-linha{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .mundo-linha input[type=number]{width:74px;flex:none;padding:9px 8px;text-align:center}
+  .mundo-linha select{
+    flex:none;padding:9px 8px;border-radius:11px;font-size:.78rem;
+    background:rgba(6,10,24,.8);border:1px solid var(--line);color:var(--ink);
+  }
+  .mundo-linha #msg-tipo{flex:1;min-width:110px}
+  .mundo-un,.mundo-rot{font-size:.62rem;letter-spacing:.12em;color:var(--dim);font-weight:700}
+  .mundo-grade{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:8px;margin-top:12px;
+  }
+  .mundo-op{
+    cursor:pointer;text-align:left;padding:10px 11px;position:relative;
+    background:var(--panel2);border:1px solid var(--line);border-radius:13px;
+  }
+  .mundo-op:active{background:rgba(77,232,255,.14)}
+  .mundo-op.ligado{box-shadow:0 0 0 1px currentColor inset}
+  .mundo-op b{display:block;font-size:1.15rem;line-height:1.1;margin-bottom:3px}
+  .mundo-op strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.66rem;letter-spacing:.08em;color:var(--ink);
+  }
+  .mundo-op span{display:block;font-size:.58rem;color:var(--dim);line-height:1.4;margin-top:3px}
+  .mundo-op .lig{
+    position:absolute;top:7px;right:8px;font-size:.5rem;font-weight:700;letter-spacing:.06em;
+    background:#4CE07A;color:#04121c;border-radius:6px;padding:1px 5px;
+  }
+  .mundo-op .mult{
+    display:flex;align-items:center;gap:5px;margin-top:7px;
+  }
+  .mundo-op .mult input{
+    width:52px;padding:6px 4px;text-align:center;font-size:.78rem;
+  }
+  .mundo-op .mult .x{font-size:.68rem;font-weight:700;color:var(--amber)}
+  .msg-rapidas{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .msg-rapida{
+    cursor:pointer;font-size:.6rem;letter-spacing:.04em;padding:6px 10px;border-radius:9px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .msg-rapida:active{background:rgba(77,232,255,.16)}
+  .mundo-agora{display:flex;flex-direction:column;gap:6px}
+  .mundo-item{
+    display:flex;align-items:center;gap:9px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px 11px;
+  }
+  .mundo-item b{font-size:1rem;flex:none}
+  .mundo-item .n{flex:1;min-width:0;font-size:.74rem;font-weight:700}
+  .mundo-item .t{font-size:.66rem;color:var(--amber);font-weight:700}
+  .mundo-item button{
+    flex:none;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:.72rem;
+    background:transparent;border:1px solid var(--line);color:var(--danger);
+  }
+
+  /* recado do administrador para o jogo inteiro */
+  /* fica ABAIXO do placar, para não tapar a vida nem a fase */
+  #aviso-global{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(78px + env(safe-area-inset-top));z-index:46;display:none;
+    max-width:min(94vw,460px);text-align:center;
+    background:rgba(10,18,40,.96);border:1px solid var(--cyan);border-radius:14px;
+    padding:9px 16px;box-shadow:0 6px 26px rgba(0,0,0,.55);
+  }
+  #aviso-global.on{display:block}
+  #aviso-global b{
+    display:block;font-family:"Russo One",sans-serif;font-size:.56rem;
+    letter-spacing:.22em;color:var(--cyan);margin-bottom:3px;
+  }
+  #aviso-global span{
+    display:block;font-size:.82rem;font-weight:600;line-height:1.35;
+    color:var(--ink);word-break:break-word;
+  }
+  #aviso-global.alerta{border-color:var(--danger);background:rgba(30,8,12,.96)}
+  #aviso-global.alerta b{color:var(--danger)}
+  #aviso-global.festa{border-color:var(--magenta);background:rgba(30,8,24,.96)}
+  #aviso-global.festa b{color:var(--magenta)}
+  #aviso-global.premio{border-color:var(--amber);background:rgba(30,22,6,.96)}
+  #aviso-global.premio b{color:var(--amber)}
+  @media (prefers-reduced-motion:no-preference){
+    #aviso-global.on{animation:avisoEntra .45s ease-out}
+    @keyframes avisoEntra{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,0)}}
+  }
+
+  /* selo do evento que está rolando */
+  #evento-selo{
+    position:fixed;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));
+    z-index:12;display:none;align-items:center;gap:7px;
+    background:rgba(10,18,40,.9);border:1px solid var(--line);border-radius:12px;
+    padding:6px 11px;font-size:.62rem;letter-spacing:.04em;pointer-events:none;
+  }
+  #evento-selo.on{display:flex}
+  #evento-selo b{font-size:1rem}
+  #evento-selo i{font-style:normal;color:var(--dim);margin-left:4px}
+
   /* faixa da fila da ranqueada, que fica visível fora da tela dela */
   #fila-faixa{
     position:fixed;left:50%;transform:translateX(-50%);
@@ -1294,6 +1388,8 @@
     <button class="ghost-btn" id="erro-fechar">CONTINUAR MESMO ASSIM</button>
   </div>
 </div>
+<div id="aviso-global"></div>
+<div id="evento-selo"></div>
 <div id="arena-hud"></div>
 <div id="fila-faixa"></div>
 <div id="mp-placar">
@@ -1363,6 +1459,88 @@
     </div>
 
     <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-mundo" style="display:none">
+        <div class="adm-h gold">📢 RECADO PARA O JOGO INTEIRO</div>
+        <p class="adm-note" style="max-width:none">Aparece na tela de todo mundo na hora, esteja onde estiver.</p>
+        <input id="msg-texto" maxlength="160" placeholder="Escreva o recado…" autocomplete="off">
+        <div class="mundo-linha" style="margin-top:8px">
+          <select id="msg-tipo">
+            <option value="normal">💬 Recado</option>
+            <option value="alerta">⚠ Alerta</option>
+            <option value="festa">🎉 Festa</option>
+            <option value="premio">🏆 Prêmio</option>
+          </select>
+          <input id="msg-tempo" type="number" inputmode="numeric" min="5" value="60">
+          <span class="mundo-un">seg</span>
+          <button class="adm-btn gold" id="msg-enviar">ENVIAR</button>
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn" id="msg-limpar">APAGAR O RECADO</button>
+        </div>
+        <div class="msg-rapidas" id="msg-rapidas"></div>
+      </div>
+
+      <div class="adm-card" id="adm-eventos" style="display:none">
+        <div class="adm-h gold">🎆 EVENTOS — MÚSICA E DECORAÇÃO</div>
+        <p class="adm-note" style="max-width:none">
+          Aperte e começa na hora para todo mundo: o céu muda, a decoração cai
+          na tela e a música da fase vira a do evento.
+        </p>
+        <div class="mundo-linha" style="margin-top:10px">
+          <span class="mundo-rot">DURAÇÃO</span>
+          <input id="ev-tempo" type="number" inputmode="numeric" min="1" value="10">
+          <select id="ev-un">
+            <option value="60">minutos</option>
+            <option value="1">segundos</option>
+            <option value="3600">horas</option>
+          </select>
+        </div>
+        <div class="mundo-grade" id="lista-eventos"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn danger" id="ev-parar">PARAR O EVENTO</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-boosts" style="display:none">
+        <div class="adm-h gold">⚡ BOOSTS PARA TODO MUNDO</div>
+        <p class="adm-note" style="max-width:none">
+          Escolha quantas vezes mais e por quanto tempo. Vale para todos os
+          jogadores ao mesmo tempo, e acaba sozinho na hora marcada.
+        </p>
+        <div class="mundo-grade boost" id="lista-boosts"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold" id="boost-tudo">⚡ LIGAR TUDO (5x POR 1h)</button>
+          <button class="adm-btn danger" id="boost-parar">DESLIGAR TODOS</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-trolls" style="display:none">
+        <div class="adm-h red">😈 TRAVESSURAS</div>
+        <p class="adm-note" style="max-width:none">
+          Pegadinhas que valem para todo mundo pelo tempo que você escolher.
+          Elas se apagam sozinhas — ninguém fica preso nelas.
+        </p>
+        <div class="mundo-linha" style="margin-top:10px">
+          <span class="mundo-rot">DURAÇÃO</span>
+          <input id="tr-tempo" type="number" inputmode="numeric" min="1" value="60">
+          <select id="tr-un">
+            <option value="1">segundos</option>
+            <option value="60">minutos</option>
+            <option value="3600">horas</option>
+          </select>
+        </div>
+        <div class="mundo-grade" id="lista-trolls"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn danger" id="tr-caos">🔥 MODO CAOS (tudo junto)</button>
+          <button class="adm-btn" id="tr-parar">PARAR AS TRAVESSURAS</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-agora" style="display:none">
+        <div class="adm-h">🌍 O QUE ESTÁ VALENDO AGORA</div>
+        <div class="mundo-agora" id="mundo-agora"></div>
+      </div>
 
       <div class="adm-card" id="adm-vivo" style="display:none">
         <div class="adm-h gold">
@@ -2855,6 +3033,215 @@ async function nuvemVerificarPresentes() {
   nuvemEnviar(true);
 }
 
+/* =====================================================================
+   MUNDO — o que o administrador liga para todo mundo ao mesmo tempo
+   ---------------------------------------------------------------------
+   Um só nó na nuvem (mundo/) guarda o que está valendo agora: o aviso na
+   tela, os multiplicadores, as travessuras e o evento com música e
+   decoração. Todo jogo escuta esse nó pelo fluxo, então quando você
+   aperta o botão aqui, acende na hora no aparelho de todo mundo.
+   Cada coisa tem hora para acabar (campo "ate"), então nada fica ligado
+   para sempre por esquecimento.
+   ===================================================================== */
+const MUNDO = { aviso: null, efeitos: {}, evento: null, fechar: null, relogio: null };
+
+/* ---- catálogo: o que dá para ligar ---- */
+const BOOSTS = [
+  { id: "pontos",   nome: "PONTOS",      icone: "★", cor: "#4DE8FF",
+    desc: "Multiplica os pontos de todo mundo", unidade: "h", padraoTempo: 2, padraoMult: 2 },
+  { id: "cristais", nome: "CRISTAIS",    icone: "◆", cor: "#FFC145",
+    desc: "Multiplica os cristais ganhos", unidade: "h", padraoTempo: 2, padraoMult: 3 },
+  { id: "dano",     nome: "DANO",        icone: "▲", cor: "#FF4D8F",
+    desc: "Multiplica o dano das naves", unidade: "h", padraoTempo: 1, padraoMult: 2 },
+  { id: "vida",     nome: "VIDA",        icone: "♥", cor: "#7CF7C0",
+    desc: "Multiplica a vida máxima", unidade: "h", padraoTempo: 1, padraoMult: 2 },
+  { id: "cadencia", nome: "CADÊNCIA",    icone: "≣", cor: "#C34DFF",
+    desc: "Multiplica a velocidade de tiro", unidade: "h", padraoTempo: 1, padraoMult: 2 },
+  { id: "drop",     nome: "SORTE",       icone: "✦", cor: "#FFD97A",
+    desc: "Multiplica a chance de itens caírem", unidade: "h", padraoTempo: 2, padraoMult: 3 }
+];
+
+const TROLLS = [
+  { id: "invertido", nome: "CONTROLE INVERTIDO", icone: "⇄", cor: "#FF5252",
+    desc: "A nave anda ao contrário do dedo" },
+  { id: "gravidade", nome: "GRAVIDADE",          icone: "⇩", cor: "#FF9E4D",
+    desc: "A nave é puxada para baixo sem parar" },
+  { id: "gelo",      nome: "CHÃO DE GELO",       icone: "❄", cor: "#4DE8FF",
+    desc: "A nave escorrega e demora a parar" },
+  { id: "bebado",    nome: "TONTURA",            icone: "@", cor: "#C34DFF",
+    desc: "A tela balança e gira devagar" },
+  { id: "escuro",    nome: "APAGÃO",             icone: "◐", cor: "#8899AA",
+    desc: "Só dá para ver um círculo em volta da nave" },
+  { id: "espelho",   nome: "ESPELHO",            icone: "◫", cor: "#FF4D8F",
+    desc: "A tela inteira fica espelhada" },
+  { id: "gigante",   nome: "INIMIGOS GIGANTES",  icone: "⬤", cor: "#FF5252",
+    desc: "Os inimigos ficam enormes" },
+  { id: "mini",      nome: "INIMIGOS MINÚSCULOS", icone: "·", cor: "#7CF7C0",
+    desc: "Os inimigos ficam pequenininhos e difíceis de acertar" },
+  { id: "turbo",     nome: "TUDO ACELERADO",     icone: "»", cor: "#FFC145",
+    desc: "O jogo inteiro roda mais rápido" },
+  { id: "lesma",     nome: "CÂMERA LENTA",       icone: "«", cor: "#8899AA",
+    desc: "O jogo inteiro roda devagar" },
+  { id: "discoteca", nome: "DISCOTECA",          icone: "◉", cor: "#C34DFF",
+    desc: "As cores da tela piscam sem parar" },
+  { id: "chuvisco",  nome: "CHUVA DE INIMIGOS",  icone: "☂", cor: "#FF5252",
+    desc: "Nasce muito mais inimigo do que o normal" },
+  { id: "tremor",    nome: "TERREMOTO",          icone: "≈", cor: "#FF9E4D",
+    desc: "A tela treme o tempo todo" },
+  { id: "fantasma",  nome: "NAVE FANTASMA",      icone: "◍", cor: "#8899AA",
+    desc: "A própria nave fica quase invisível para o dono" }
+];
+
+const EVENTOS = [
+  { id: "natal",      nome: "NATAL",           icone: "🎄", cor: "#FF5252",
+    desc: "Neve caindo, cores de Natal e música de sino",
+    fundo: ["#0A1A2E", "#12304A"], nota: [0, 4, 7, 12], bpm: 92, timbre: "sine",
+    particula: "neve", brilho: "rgba(255,255,255,.75)" },
+  { id: "halloween",  nome: "HALLOWEEN",       icone: "🎃", cor: "#FF9E4D",
+    desc: "Céu roxo, morcegos e música arrepiante",
+    fundo: ["#1A0A22", "#2E1038"], nota: [0, 1, 6, 8], bpm: 76, timbre: "sawtooth",
+    particula: "morcego", brilho: "rgba(255,158,77,.6)" },
+  { id: "festa",      nome: "FESTA",           icone: "🎉", cor: "#FF4D8F",
+    desc: "Luzes de discoteca, confete e música dançante",
+    fundo: ["#22062E", "#3A0A4A"], nota: [0, 3, 5, 7, 10], bpm: 138, timbre: "square",
+    particula: "confete", brilho: "rgba(255,77,143,.7)" },
+  { id: "ouro",       nome: "CHUVA DE OURO",   icone: "💰", cor: "#FFC145",
+    desc: "Tudo dourado, cristais caindo do céu e fanfarra",
+    fundo: ["#2A1E04", "#40300A"], nota: [0, 4, 7, 9], bpm: 118, timbre: "triangle",
+    particula: "ouro", brilho: "rgba(255,193,69,.8)" },
+  { id: "apocalipse", nome: "APOCALIPSE",      icone: "☄", cor: "#FF5252",
+    desc: "Céu vermelho, meteoros e música de guerra",
+    fundo: ["#2A0808", "#4A1010"], nota: [0, 1, 5, 6], bpm: 148, timbre: "sawtooth",
+    particula: "meteoro", brilho: "rgba(255,82,82,.7)" },
+  { id: "aurora",     nome: "AURORA",          icone: "🌌", cor: "#7CF7C0",
+    desc: "Aurora boreal no céu e música calma",
+    fundo: ["#04182A", "#0A2E3A"], nota: [0, 2, 4, 7, 9], bpm: 68, timbre: "sine",
+    particula: "aurora", brilho: "rgba(124,247,192,.55)" },
+  { id: "neon",       nome: "RAVE NEON",       icone: "⚡", cor: "#C34DFF",
+    desc: "Neon piscando e batida pesada",
+    fundo: ["#12042A", "#26064A"], nota: [0, 3, 7, 10], bpm: 160, timbre: "square",
+    particula: "neon", brilho: "rgba(195,77,255,.75)" },
+  { id: "oceano",     nome: "FUNDO DO MAR",    icone: "🌊", cor: "#4DE8FF",
+    desc: "Bolhas subindo, tudo azul e música tranquila",
+    fundo: ["#04162A", "#062A44"], nota: [0, 2, 5, 7], bpm: 74, timbre: "sine",
+    particula: "bolha", brilho: "rgba(77,232,255,.55)" },
+  { id: "vulcao",     nome: "VULCÃO",          icone: "🌋", cor: "#FF7B4D",
+    desc: "Brasas subindo e música pesada",
+    fundo: ["#2A0E04", "#44180A"], nota: [0, 3, 6, 8], bpm: 128, timbre: "sawtooth",
+    particula: "brasa", brilho: "rgba(255,123,77,.7)" },
+  { id: "matrix",     nome: "CÓDIGO",          icone: "▤", cor: "#7CF7C0",
+    desc: "Chuva de código verde e música eletrônica",
+    fundo: ["#02160C", "#042A14"], nota: [0, 2, 3, 7], bpm: 132, timbre: "square",
+    particula: "codigo", brilho: "rgba(124,247,192,.7)" },
+  { id: "arcoiris",   nome: "ARCO-ÍRIS",       icone: "🌈", cor: "#FF4D8F",
+    desc: "O céu troca de cor devagar, tudo colorido",
+    fundo: ["#1A0A2A", "#2A0A3A"], nota: [0, 4, 7, 11], bpm: 104, timbre: "triangle",
+    particula: "arco", brilho: "rgba(255,255,255,.5)" },
+  { id: "guerra",     nome: "ZONA DE GUERRA",  icone: "💥", cor: "#FF9E4D",
+    desc: "Sirene, fumaça e clarões ao longe",
+    fundo: ["#1A1206", "#2E2008"], nota: [0, 1, 3, 6], bpm: 112, timbre: "sawtooth",
+    particula: "fumaca", brilho: "rgba(255,158,77,.5)" }
+];
+
+function mundoAtivo(tipo) {
+  const e = MUNDO.efeitos[tipo];
+  return e && e.ate > Date.now() ? e : null;
+}
+function mundoMult(tipo) {
+  const e = mundoAtivo(tipo);
+  return e ? (e.mult || 1) : 1;
+}
+function eventoAtual() {
+  if (!MUNDO.evento || MUNDO.evento.ate <= Date.now()) return null;
+  return EVENTOS.find(e => e.id === MUNDO.evento.id) || null;
+}
+function mundoLimpar() {
+  const agora = Date.now();
+  for (const k in MUNDO.efeitos) if (!MUNDO.efeitos[k] || MUNDO.efeitos[k].ate <= agora) delete MUNDO.efeitos[k];
+  if (MUNDO.aviso && MUNDO.aviso.ate <= agora) MUNDO.aviso = null;
+  if (MUNDO.evento && MUNDO.evento.ate <= agora) MUNDO.evento = null;
+}
+
+function mundoAplicar(d) {
+  MUNDO.aviso = (d && d.aviso) || null;
+  MUNDO.efeitos = (d && d.efeitos) || {};
+  MUNDO.evento = (d && d.evento) || null;
+  mundoLimpar();
+  try { calcStats(); } catch (e) {}
+  mundoMostrarAviso();
+  mundoSelo();
+  mundoTrocarMusica();
+}
+function mundoLigar() {
+  if (MUNDO.fechar || !nuvemAtiva()) return;
+  MUNDO.fechar = nuvemFluxo("mundo", mundoAplicar, () => {
+    MUNDO.relogio = setInterval(async () => {
+      mundoAplicar(await nuvemReq("mundo"));
+    }, 8000);
+  });
+  // relógio só para apagar o que venceu
+  setInterval(() => {
+    const antes = Object.keys(MUNDO.efeitos).length + (MUNDO.evento ? 1 : 0);
+    mundoLimpar();
+    if (Object.keys(MUNDO.efeitos).length + (MUNDO.evento ? 1 : 0) !== antes) {
+      try { calcStats(); } catch (e) {}
+      mundoMostrarAviso();
+      mundoTrocarMusica();
+    }
+    mundoSelo();
+  }, 3000);
+}
+let avisoUltimo = "";
+function mundoMostrarAviso() {
+  const el = $("aviso-global");
+  if (!el) return;
+  const a = MUNDO.aviso;
+  if (!a || !a.texto) { el.classList.remove("on"); avisoUltimo = ""; return; }
+  el.className = "on " + (a.tipo || "normal");
+  el.innerHTML = '<b>' + (a.de ? escaparTexto(a.de) : "ADMINISTRADOR") + "</b>" +
+                 "<span>" + escaparTexto(a.texto) + "</span>";
+  if (a.texto + a.quando !== avisoUltimo) {
+    avisoUltimo = a.texto + a.quando;
+    try { AudioSys.power(); vibrate([30, 50, 30]); } catch (e) {}
+  }
+}
+function tempoRestante(ate) {
+  const s2 = Math.max(0, Math.round((ate - Date.now()) / 1000));
+  if (s2 >= 3600) return Math.floor(s2 / 3600) + "h" + String(Math.floor((s2 % 3600) / 60)).padStart(2, "0");
+  if (s2 >= 60) return Math.floor(s2 / 60) + "min";
+  return s2 + "s";
+}
+function mundoSelo() {
+  const el = $("evento-selo");
+  if (!el) return;
+  const ev = eventoAtual();
+  const ativos = Object.keys(MUNDO.efeitos);
+  if (!ev && !ativos.length) { el.classList.remove("on"); return; }
+  el.classList.add("on");
+  let txt = "";
+  if (ev) txt += "<b>" + ev.icone + "</b>" + ev.nome + "<i>" + tempoRestante(MUNDO.evento.ate) + "</i>";
+  for (const k of ativos.slice(0, 4)) {
+    const bo = BOOSTS.find(b => b.id === k);
+    const tr = TROLLS.find(t => t.id === k);
+    const e = MUNDO.efeitos[k];
+    if (bo) txt += (txt ? " · " : "") + '<span style="color:' + bo.cor + '">' + bo.icone +
+                   " " + (e.mult || 1) + "x</span>";
+    else if (tr) txt += (txt ? " · " : "") + '<span style="color:' + tr.cor + '">' + tr.icone + "</span>";
+  }
+  el.innerHTML = txt;
+}
+
+function mundoTrocarMusica() {
+  const ev = eventoAtual();
+  const id = ev ? ev.id : "";
+  if (Musica.eventoAtual === id) return;
+  Musica.eventoAtual = id;
+  Musica.parar();
+  if (S.mode === "playing") {
+    try { Musica.tocar(S.fase, isBossFase(S.fase)); } catch (e) {}
+  }
+}
+
 /* ---------- Loja de melhorias ---------- */
 const UPGRADES = [
   { id: "dmg",    icon: "▲", name: "Canhões",   desc: "+8% de dano por nível",                max: 15, base: 25 },
@@ -3592,22 +3979,23 @@ function calcStats() {
   }
   ST = {
     dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk) * sh.baseDmg *
-         (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg * (1 + A.dano / 100),
+         (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg * (1 + A.dano / 100) *
+         mundoMult("dano"),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
                   (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100) * (sh.baseRate || 1) *
-                  (1 + (sh.bonusCad || 0))),
+                  (1 + (sh.bonusCad || 0)) * mundoMult("cadencia")),
     maxHp: Math.max(40, Math.round(
       (80 + (sh.baseHp || 120)) *
       (1 + 0.12 * u.hull) * (1 + 0.08 * (P.armor || 0)) *
-      (1 + 0.02 * def) * (1 + A.vida * 0.08))),
+      (1 + 0.02 * def) * (1 + A.vida * 0.08) * mundoMult("vida"))),
     maxLives: 3 + u.hull + (hasSkill("def", 40) ? 2 : 0) + Math.floor((P.armor || 0) / 2) + pw("lives") + A.vida,
     shieldDur: (6 + 1.5 * u.shield) * (1 + 0.02 * def) * (1 + pw("ghost") / 100) * (1 + A.escudo / 100),
     invulnDur: 2.2 * (1 + 0.02 * def) * (1 + pw("ghost") / 100),
     speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) * (1 + A.motor / 100),
     crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
-                 (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)),
-    dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100),
+                 (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)) * mundoMult("cristais"),
+    dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100) * mundoMult("drop"),
     sideShot: hasSkill("atk", 10),
     missiles: hasSkill("atk", 20),
     critChance: hasSkill("atk", 30) ? 0.15 : 0,
@@ -3754,10 +4142,15 @@ const Musica = {
   montar(fase, chefe) {
     const r = rngDe(((fase * 2654435761) ^ 0x9e37) >>> 0);
     const setor = Math.floor((fase - 1) / 20) % ESCALAS.length;
-    const escala = ESCALAS[chefe ? 3 : setor];
-    const raiz = 110 * Math.pow(2, ((fase * 5) % 12) / 12) / 2;   // tônica grave
-    const bpm = (chefe ? 132 : 96) + Math.floor(r() * 26) + Math.min(28, Math.floor(fase / 12));
-    const timbre = TIMBRES[Math.floor(r() * TIMBRES.length)];
+    // quando o administrador liga um evento, a trilha dele manda na fase
+    let ev = null;
+    try { ev = eventoAtual(); } catch (e) {}
+    const escala = ev ? ev.nota : ESCALAS[chefe ? 3 : setor];
+    const raiz = ev ? 98 * Math.pow(2, ((fase * 3) % 12) / 12) / 2
+                    : 110 * Math.pow(2, ((fase * 5) % 12) / 12) / 2;
+    const bpm = ev ? ev.bpm + (chefe ? 14 : 0)
+                   : (chefe ? 132 : 96) + Math.floor(r() * 26) + Math.min(28, Math.floor(fase / 12));
+    const timbre = ev ? ev.timbre : TIMBRES[Math.floor(r() * TIMBRES.length)];
     const compasso = 16;
     const melodia = [], baixo = [], batida = [];
     for (let i = 0; i < compasso; i++) {
@@ -4101,6 +4494,7 @@ function mostrarAvisoLimpeza() {
 function entrarNoMenu(name) {
   loginAs(name);
   ligarBatimento();
+  try { mundoLigar(); } catch (e) {}
   try { cenaEscutarPedidos(); } catch (e) {}
   atualizarModoPC();
   S.mode = "menu";
@@ -4572,6 +4966,16 @@ $("btn-adm-enter").addEventListener("click", () => {
   if (nuvemAtiva()) {
     $("adm-nuvem").style.display = "block";
     $("adm-vivo").style.display = "block";
+    for (const id of ["adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls", "adm-agora"]) {
+      $(id).style.display = "block";
+    }
+    admRenderRecadosProntos();
+    mundoLigar();
+    nuvemReq("mundo").then(d => { mundoAplicar(d); admRenderMundo(); });
+    admRenderMundo();
+    if (!admRelogioMundo) admRelogioMundo = setInterval(() => {
+      if (S.mode === "adm") admRenderMundoAgora();
+    }, 4000);
     admNuvemCarregar();
     vivoLigar();
   }
@@ -4581,10 +4985,268 @@ $("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-a
 $("adm-search").addEventListener("input", admRenderPlayers);
 
 /* =====================================================================
+   PAINEL DO MUNDO — recados, eventos, boosts e travessuras
+   ---------------------------------------------------------------------
+   Tudo escreve no mesmo nó mundo/ da nuvem, e como todo jogo escuta esse
+   nó pelo fluxo, o efeito acende na hora no aparelho de todo mundo.
+   Cada botão tem a sua caixinha de tempo (e de "quantas vezes mais"),
+   então dá para regular na hora sem mexer em código.
+   ===================================================================== */
+const RECADOS_PRONTOS = [
+  ["🎉 EVENTO COMEÇANDO AGORA!", "festa"],
+  ["⚡ BOOST LIGADO — aproveitem!", "premio"],
+  ["⚠ Manutenção em 5 minutos", "alerta"],
+  ["🏆 Parabéns ao primeiro do ranking!", "premio"],
+  ["😈 Boa sorte com o que vem aí…", "alerta"],
+  ["🎁 Presentes a caminho!", "premio"],
+  ["🔥 Quem chegar mais longe ganha prêmio", "festa"],
+  ["👋 Bom jogo a todos!", "normal"]
+];
+
+function admSegundos(idTempo, idUnidade, padrao) {
+  const n = Math.max(1, parseInt($(idTempo).value, 10) || padrao || 1);
+  const u = idUnidade ? (parseInt($(idUnidade).value, 10) || 1) : 1;
+  return n * u;
+}
+async function mundoEscrever(caminho, valor) {
+  const ok = await nuvemReq("mundo/" + caminho, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(valor)
+  });
+  // acende na hora aqui também, sem esperar o fluxo dar a volta
+  mundoAplicar(await nuvemReq("mundo"));
+  admRenderMundo();
+  return ok;
+}
+async function mundoApagar(caminho) {
+  await nuvemReq("mundo/" + caminho, { method: "DELETE" });
+  mundoAplicar(await nuvemReq("mundo"));
+  admRenderMundo();
+}
+
+/* ----- recados ----- */
+async function admEnviarRecado(texto, tipo) {
+  const t = (texto !== undefined ? texto : ($("msg-texto").value || "")).trim();
+  if (!t) { admMsg("Escreva o recado primeiro."); AudioSys.deny(); return; }
+  const seg = admSegundos("msg-tempo", null, 60);
+  await mundoEscrever("aviso", {
+    texto: t.slice(0, 160), tipo: tipo || $("msg-tipo").value || "normal",
+    de: "ADMINISTRADOR", quando: Date.now(), ate: Date.now() + seg * 1000
+  });
+  admMsg("Recado no ar por " + seg + "s");
+  AudioSys.buy();
+}
+function admRenderRecadosProntos() {
+  const cx = $("msg-rapidas");
+  if (!cx) return;
+  cx.innerHTML = "";
+  for (const [txt, tipo] of RECADOS_PRONTOS) {
+    const b = document.createElement("button");
+    b.className = "msg-rapida";
+    b.textContent = txt;
+    b.addEventListener("click", () => {
+      $("msg-texto").value = txt;
+      $("msg-tipo").value = tipo;
+      admEnviarRecado(txt, tipo);
+    });
+    cx.appendChild(b);
+  }
+}
+
+/* ----- eventos ----- */
+function admRenderEventos() {
+  const cx = $("lista-eventos");
+  if (!cx) return;
+  cx.innerHTML = "";
+  const atual = eventoAtual();
+  for (const ev of EVENTOS) {
+    const b = document.createElement("button");
+    b.className = "mundo-op" + (atual && atual.id === ev.id ? " ligado" : "");
+    b.style.color = ev.cor;
+    b.innerHTML = "<b>" + ev.icone + "</b><strong style=\"color:" + ev.cor + "\">" + ev.nome +
+      "</strong><span>" + ev.desc + "</span>" +
+      (atual && atual.id === ev.id ? '<span class="lig">NO AR</span>' : "");
+    b.addEventListener("click", async () => {
+      const seg = admSegundos("ev-tempo", "ev-un", 10);
+      await mundoEscrever("evento", { id: ev.id, ate: Date.now() + seg * 1000, quando: Date.now() });
+      admEnviarRecado(ev.icone + " " + ev.nome + " COMEÇOU!", "festa");
+      admMsg(ev.nome + " no ar por " + seg + "s");
+      AudioSys.victory();
+    });
+    cx.appendChild(b);
+  }
+}
+
+/* ----- boosts ----- */
+function admRenderBoosts() {
+  const cx = $("lista-boosts");
+  if (!cx) return;
+  cx.innerHTML = "";
+  for (const bo of BOOSTS) {
+    const ativo = mundoAtivo(bo.id);
+    const div = document.createElement("div");
+    div.className = "mundo-op" + (ativo ? " ligado" : "");
+    div.style.color = bo.cor;
+    div.innerHTML = "<b>" + bo.icone + "</b><strong style=\"color:" + bo.cor + "\">" + bo.nome +
+      "</strong><span>" + bo.desc + "</span>" +
+      (ativo ? '<span class="lig">' + (ativo.mult || 1) + "x</span>" : "");
+    const linha = document.createElement("div");
+    linha.className = "mult";
+    const mult = document.createElement("input");
+    mult.type = "number"; mult.min = "1"; mult.max = "999";
+    mult.value = String(bo.padraoMult);
+    mult.id = "bo-mult-" + bo.id;
+    const x = document.createElement("span"); x.className = "x"; x.textContent = "x por";
+    const hor = document.createElement("input");
+    hor.type = "number"; hor.min = "1"; hor.value = String(bo.padraoTempo);
+    hor.id = "bo-hora-" + bo.id;
+    const un = document.createElement("span"); un.className = "x"; un.textContent = "h";
+    linha.appendChild(mult); linha.appendChild(x); linha.appendChild(hor); linha.appendChild(un);
+    for (const el of [mult, hor]) el.addEventListener("click", e => e.stopPropagation());
+    div.appendChild(linha);
+    const btn = document.createElement("button");
+    btn.className = "adm-btn gold";
+    btn.style.marginTop = "8px";
+    btn.style.width = "100%";
+    btn.textContent = ativo ? "RENOVAR" : "LIGAR";
+    btn.addEventListener("click", async e => {
+      e.stopPropagation();
+      const m = Math.max(1, parseInt(mult.value, 10) || 2);
+      const h = Math.max(0.1, parseFloat(hor.value) || 1);
+      await mundoEscrever("efeitos/" + bo.id, { mult: m, ate: Date.now() + h * 3600000 });
+      admEnviarRecado("⚡ " + bo.nome + " x" + m + " ligado por " + h + "h!", "premio");
+      admMsg(bo.nome + " x" + m + " por " + h + "h");
+      AudioSys.power();
+    });
+    div.appendChild(btn);
+    cx.appendChild(div);
+  }
+}
+
+/* ----- travessuras ----- */
+function admRenderTrolls() {
+  const cx = $("lista-trolls");
+  if (!cx) return;
+  cx.innerHTML = "";
+  for (const tr of TROLLS) {
+    const ativo = mundoAtivo(tr.id);
+    const b = document.createElement("button");
+    b.className = "mundo-op" + (ativo ? " ligado" : "");
+    b.style.color = tr.cor;
+    b.innerHTML = "<b>" + tr.icone + "</b><strong style=\"color:" + tr.cor + "\">" + tr.nome +
+      "</strong><span>" + tr.desc + "</span>" +
+      (ativo ? '<span class="lig">' + tempoRestante(ativo.ate) + "</span>" : "");
+    b.addEventListener("click", async () => {
+      if (mundoAtivo(tr.id)) { await mundoApagar("efeitos/" + tr.id); admMsg(tr.nome + " desligado"); return; }
+      const seg = admSegundos("tr-tempo", "tr-un", 60);
+      await mundoEscrever("efeitos/" + tr.id, { ate: Date.now() + seg * 1000 });
+      admMsg(tr.nome + " por " + seg + "s");
+      AudioSys.deny();
+    });
+    cx.appendChild(b);
+  }
+}
+
+/* ----- o que está valendo agora ----- */
+function admRenderMundoAgora() {
+  const cx = $("mundo-agora");
+  if (!cx) return;
+  mundoLimpar();
+  cx.innerHTML = "";
+  const linha = (icone, nome, ate, aoTirar, cor) => {
+    const d = document.createElement("div");
+    d.className = "mundo-item";
+    d.innerHTML = '<b style="color:' + (cor || "var(--cyan)") + '">' + icone + "</b>" +
+      '<span class="n">' + nome + '</span><span class="t">' + tempoRestante(ate) + "</span>";
+    const x = document.createElement("button");
+    x.textContent = "✕";
+    x.addEventListener("click", aoTirar);
+    d.appendChild(x);
+    cx.appendChild(d);
+  };
+  let n = 0;
+  if (MUNDO.aviso) {
+    n++;
+    linha("📢", "Recado: " + escaparTexto(String(MUNDO.aviso.texto).slice(0, 30)),
+          MUNDO.aviso.ate, () => mundoApagar("aviso"), "var(--cyan)");
+  }
+  const ev = eventoAtual();
+  if (ev) { n++; linha(ev.icone, ev.nome, MUNDO.evento.ate, () => mundoApagar("evento"), ev.cor); }
+  for (const k in MUNDO.efeitos) {
+    const bo = BOOSTS.find(x => x.id === k), tr = TROLLS.find(x => x.id === k);
+    const def = bo || tr;
+    if (!def) continue;
+    n++;
+    linha(def.icone, def.nome + (bo ? " x" + (MUNDO.efeitos[k].mult || 1) : ""),
+          MUNDO.efeitos[k].ate, () => mundoApagar("efeitos/" + k), def.cor);
+  }
+  if (!n) cx.innerHTML = '<div class="adm-note">Nada ligado agora. O jogo está no normal.</div>';
+}
+
+function admRenderMundo() {
+  admRenderEventos();
+  admRenderBoosts();
+  admRenderTrolls();
+  admRenderMundoAgora();
+}
+
+$("msg-enviar").addEventListener("click", () => admEnviarRecado());
+$("msg-texto").addEventListener("keydown", e => { if (e.key === "Enter") admEnviarRecado(); });
+$("msg-limpar").addEventListener("click", async () => {
+  await mundoApagar("aviso");
+  admMsg("Recado apagado");
+});
+$("ev-parar").addEventListener("click", async () => {
+  await mundoApagar("evento");
+  admMsg("Evento parado");
+});
+$("boost-parar").addEventListener("click", async () => {
+  for (const bo of BOOSTS) await nuvemReq("mundo/efeitos/" + bo.id, { method: "DELETE" });
+  mundoAplicar(await nuvemReq("mundo"));
+  admRenderMundo();
+  admMsg("Todos os boosts desligados");
+});
+$("boost-tudo").addEventListener("click", async () => {
+  const ate = Date.now() + 3600000;
+  for (const bo of BOOSTS) {
+    await nuvemReq("mundo/efeitos/" + bo.id, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mult: 5, ate: ate })
+    });
+  }
+  mundoAplicar(await nuvemReq("mundo"));
+  admRenderMundo();
+  admEnviarRecado("⚡ TUDO 5x POR UMA HORA! Aproveitem!", "premio");
+  admMsg("Todos os boosts em 5x por 1h");
+  AudioSys.victory();
+});
+$("tr-parar").addEventListener("click", async () => {
+  for (const tr of TROLLS) await nuvemReq("mundo/efeitos/" + tr.id, { method: "DELETE" });
+  mundoAplicar(await nuvemReq("mundo"));
+  admRenderMundo();
+  admMsg("Travessuras desligadas");
+});
+$("tr-caos").addEventListener("click", async () => {
+  const seg = admSegundos("tr-tempo", "tr-un", 60);
+  const ate = Date.now() + seg * 1000;
+  for (const tr of TROLLS) {
+    if (tr.id === "lesma") continue;   // essa briga com o turbo
+    await nuvemReq("mundo/efeitos/" + tr.id, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ate: ate })
+    });
+  }
+  mundoAplicar(await nuvemReq("mundo"));
+  admRenderMundo();
+  admEnviarRecado("🔥 MODO CAOS! Segurem-se!", "alerta");
+  admMsg("Modo caos por " + seg + "s");
+});
+
+/* =====================================================================
    Janela AO VIVO — quem está com o jogo aberto, em que tela, desde
    quando e com qual versão. Usa o fluxo (push), então muda sozinha.
    ===================================================================== */
 let vivoFechar = null, vivoDados = {}, vivoPausado = false, vivoRelogio = null;
+let admRelogioMundo = null;
 
 function tempoRelativo(ms) {
   if (!ms) return "—";
@@ -7757,6 +8419,11 @@ canvas.addEventListener("pointerdown", e => {
 canvas.addEventListener("pointermove", e => {
   if (modoPC && e.pointerType === "mouse") {
     if (S.mode !== "playing" || !player.alive) return;
+    if (mundoAtivo("invertido")) {
+      player.tx = clamp(W - e.clientX, player.r, W - player.r);
+      player.ty = clamp(H - e.clientY, player.r, H - player.r);
+      return;
+    }
     // segue o cursor direto: onde o mouse está, a nave vai
     player.tx = clamp(e.clientX, player.r, W - player.r);
     player.ty = clamp(e.clientY, player.r, H - player.r);
@@ -7764,7 +8431,7 @@ canvas.addEventListener("pointermove", e => {
   }
   if (!dragging || e.pointerId !== dragId) return;
   e.preventDefault();
-  const k = ST.speedK;
+  const k = ST.speedK * mundoSinalControle();
   player.tx = clamp(shipStartX + (e.clientX - dragStartX) * k, player.r, W - player.r);
   player.ty = clamp(shipStartY + (e.clientY - dragStartY) * k, player.r, H - player.r);
 });
@@ -8588,7 +9255,8 @@ function setupWave() {
     // a onda engorda até o fim do jogo: 6 inimigos na primeira fase,
     // 60 lá na 270 — e no difícil passa disso
     const base = 6 + Math.min(Math.round(Math.pow(dl, 0.92) * 0.85), 54);
-    S.toSpawn = Math.max(3, Math.round(base * A.quantidade * D.qtd));
+    S.toSpawn = Math.max(3, Math.round(base * A.quantidade * D.qtd *
+                (mundoAtivo("chuvisco") ? 2.4 : 1)));
     S.spawnTimer = 0.5;
     // a onda também dura mais: eles entram em fila, não todos de uma vez
     S.spawnInterval = clamp(1.05 - dl * 0.004, 0.34, 1.05) / (A.velocidade * D.vel);
@@ -8692,6 +9360,8 @@ function spawnEnemy(forceType) {
     e.r = 24; e.hp = 5 + Math.floor(f / 5) * 2; e.speed = rr(30, 42);
     e.amp = rr(5, 15); e.score = 40;
   }
+  if (mundoAtivo("gigante")) { e.r = Math.round(e.r * 2.1); e.hp = Math.round(e.hp * 1.6); }
+  if (mundoAtivo("mini")) { e.r = Math.max(5, Math.round(e.r * 0.45)); e.speed *= 1.35; }
   const D = dificuldadeAtual();
   e.hp = Math.max(1, Math.round(e.hp * A.vida * D.vida));
   e.speed *= A.velocidade * D.vel;
@@ -9080,7 +9750,7 @@ function damageEnemy(e, idx, dmg, crit) {
   return false;
 }
 function killEnemy(e) {
-  S.score += e.score;
+  S.score += Math.round(e.score * mundoMult("pontos"));
   arenaContar(false);
   mpAvisarAbate(e);
   explosion(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF4D8F", e.type === "tank" ? 26 : 14);
@@ -9247,6 +9917,15 @@ function gameOver() {
 </script>
 <script>
 "use strict";
+/* quanto o mundo acelera ou segura o jogo (travessuras do administrador) */
+function mundoRitmo() {
+  let k = 1;
+  if (mundoAtivo("turbo")) k *= 1.75;
+  if (mundoAtivo("lesma")) k *= 0.55;
+  return k;
+}
+function mundoSinalControle() { return mundoAtivo("invertido") ? -1 : 1; }
+
 /* ---------- Atualização ---------- */
 function update(dt) {
   S.time += dt;
@@ -9428,6 +10107,14 @@ function update(dt) {
       S.singu = null;
     }
   }
+
+  /* --- travessuras do administrador --- */
+  if (mundoAtivo("gravidade")) player.ty = Math.min(H - player.r, player.ty + 150 * dt);
+  if (mundoAtivo("gelo")) {
+    player.tx = clamp(player.tx + (player.tx - player.x) * 1.8 * dt * 6, player.r, W - player.r);
+    player.ty = clamp(player.ty + (player.ty - player.y) * 1.8 * dt * 6, player.r, H - player.r);
+  }
+  if (mundoAtivo("tremor")) S.shake = Math.max(S.shake, 5);
 
   /* --- jogador --- */
   if (player.alive) {
@@ -9957,6 +10644,10 @@ function drawShipSprite(g, idx, s2) {
 
 function drawShip() {
   if (!player.alive) return;
+  if (mundoAtivo("fantasma")) {
+    ctx.save();
+    ctx.globalAlpha = 0.16;
+  }
   const blinking = player.invuln > 0 && player.invis <= 0 && Math.floor(S.time * 12) % 2 === 0;
   if (blinking) return;
 
@@ -10000,6 +10691,7 @@ function drawShip() {
       ctx.restore();
     }
   }
+  if (mundoAtivo("fantasma")) ctx.restore();
 }
 
 function drawEnemy(e) {
@@ -10315,9 +11007,127 @@ function drawBullet(b) {
 }
 
 let dtDesenho = 0.016;
+/* ---------------------------------------------------------------------
+   Decoração dos eventos: cada evento tem o seu céu e as suas partículas.
+   Tudo desenhado na hora, sem imagem nenhuma para baixar.
+   --------------------------------------------------------------------- */
+let decoP = [];
+function decoAtualizar(dt) {
+  const ev = eventoAtual();
+  if (!ev) { if (decoP.length) decoP.length = 0; return; }
+  const alvo = ev.particula === "codigo" ? 46 : 34;
+  while (decoP.length < alvo) {
+    decoP.push({ x: rand(0, W), y: rand(-H, H), v: rand(24, 120),
+                 s: rand(1.4, 4.6), a: rand(0, TAU), giro: rand(-2, 2),
+                 h: Math.floor(rand(0, 360)), txt: String.fromCharCode(48 + Math.floor(rand(0, 10))) });
+  }
+  for (const p of decoP) {
+    p.a += p.giro * dt;
+    if (ev.particula === "bolha" || ev.particula === "brasa" || ev.particula === "fumaca") {
+      p.y -= p.v * dt;
+      p.x += Math.sin(p.a) * 18 * dt;
+      if (p.y < -20) { p.y = H + 20; p.x = rand(0, W); }
+    } else if (ev.particula === "aurora" || ev.particula === "arco") {
+      p.x += Math.cos(p.a) * 20 * dt;
+      p.y += Math.sin(p.a * 0.6) * 12 * dt;
+    } else {
+      p.y += p.v * dt * (ev.particula === "meteoro" ? 3.4 : 1);
+      p.x += (ev.particula === "neve" ? Math.sin(p.a) * 22 : (ev.particula === "meteoro" ? -70 : 0)) * dt;
+      if (p.y > H + 24) { p.y = -20; p.x = rand(0, W); }
+      if (p.x < -30) p.x = W + 20;
+    }
+  }
+}
+function decoDesenhar() {
+  const ev = eventoAtual();
+  if (!ev) return;
+  const t = S.time;
+  ctx.save();
+  for (const p of decoP) {
+    if (ev.particula === "neve") {
+      ctx.fillStyle = "rgba(255,255,255," + (0.4 + (p.s / 6)) + ")";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 0.7, 0, TAU); ctx.fill();
+    } else if (ev.particula === "morcego") {
+      ctx.fillStyle = "rgba(20,10,26,.85)";
+      const w = p.s * 3;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.quadraticCurveTo(p.x - w, p.y - Math.sin(t * 8 + p.a) * 5 - 4, p.x - w * 1.6, p.y + 2);
+      ctx.quadraticCurveTo(p.x - w * 0.6, p.y + 3, p.x, p.y + 2);
+      ctx.quadraticCurveTo(p.x + w * 0.6, p.y + 3, p.x + w * 1.6, p.y + 2);
+      ctx.quadraticCurveTo(p.x + w, p.y - Math.sin(t * 8 + p.a) * 5 - 4, p.x, p.y);
+      ctx.fill();
+    } else if (ev.particula === "confete" || ev.particula === "arco") {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+      ctx.fillStyle = "hsl(" + ((p.h + t * 40) % 360) + ",90%,62%)";
+      ctx.fillRect(-p.s, -p.s * 0.5, p.s * 2, p.s);
+      ctx.restore();
+    } else if (ev.particula === "ouro") {
+      ctx.fillStyle = "rgba(255,193,69,.9)";
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+      ctx.beginPath();
+      ctx.moveTo(0, -p.s * 1.4); ctx.lineTo(p.s, 0); ctx.lineTo(0, p.s * 1.4); ctx.lineTo(-p.s, 0);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+    } else if (ev.particula === "meteoro") {
+      const g2 = ctx.createLinearGradient(p.x, p.y, p.x + 22, p.y - 34);
+      g2.addColorStop(0, "rgba(255,120,60,.9)");
+      g2.addColorStop(1, "rgba(255,120,60,0)");
+      ctx.strokeStyle = g2; ctx.lineWidth = p.s * 0.8;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 22, p.y - 34); ctx.stroke();
+    } else if (ev.particula === "bolha") {
+      ctx.strokeStyle = "rgba(160,230,255,.55)"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 1.5, 0, TAU); ctx.stroke();
+    } else if (ev.particula === "brasa") {
+      ctx.fillStyle = "rgba(255," + (100 + p.s * 20) + ",40,.8)";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 0.6, 0, TAU); ctx.fill();
+    } else if (ev.particula === "fumaca") {
+      ctx.fillStyle = "rgba(120,110,90,.18)";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 6, 0, TAU); ctx.fill();
+    } else if (ev.particula === "codigo") {
+      ctx.fillStyle = "rgba(124,247,192," + (0.25 + p.s / 8) + ")";
+      ctx.font = "700 " + (8 + p.s * 2) + "px ui-monospace,monospace";
+      ctx.fillText(p.txt, p.x, p.y);
+      if (Math.random() < 0.04) p.txt = String.fromCharCode(48 + Math.floor(rand(0, 10)));
+    } else if (ev.particula === "aurora") {
+      const g3 = ctx.createLinearGradient(p.x - 60, p.y - 90, p.x + 60, p.y + 90);
+      g3.addColorStop(0, "rgba(124,247,192,0)");
+      g3.addColorStop(0.5, "rgba(124,247,192,.13)");
+      g3.addColorStop(1, "rgba(77,232,255,0)");
+      ctx.fillStyle = g3;
+      ctx.fillRect(p.x - 60, 0, 120, H);
+    } else if (ev.particula === "neon") {
+      ctx.strokeStyle = "hsl(" + ((p.h + t * 120) % 360) + ",95%,62%)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y - p.s * 6); ctx.lineTo(p.x, p.y + p.s * 6); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
 function draw() {
-  ctx.fillStyle = "#060A18";
+  const ev = eventoAtual();
+  ctx.fillStyle = ev ? ev.fundo[0] : "#060A18";
   ctx.fillRect(0, 0, W, H);
+  if (ev) {
+    const gf = ctx.createLinearGradient(0, 0, 0, H);
+    gf.addColorStop(0, ev.fundo[1]);
+    gf.addColorStop(1, ev.fundo[0]);
+    ctx.fillStyle = gf;
+    ctx.fillRect(0, 0, W, H);
+    if (ev.id === "arcoiris") {
+      ctx.fillStyle = "hsla(" + ((S.time * 40) % 360) + ",80%,50%,.12)";
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (ev.id === "guerra" && Math.sin(S.time * 2.2) > 0.94) {
+      ctx.fillStyle = "rgba(255,200,120,.10)";
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+  // discoteca é travessura, vale com ou sem evento
+  if (mundoAtivo("discoteca")) {
+    ctx.fillStyle = "hsla(" + ((S.time * 320) % 360) + ",95%,55%,.16)";
+    ctx.fillRect(0, 0, W, H);
+  }
 
   const g = ctx.createRadialGradient(W * 0.75, H * 0.2, 0, W * 0.75, H * 0.2, H * 0.8);
   g.addColorStop(0, "rgba(255,77,143,0.07)");
@@ -10338,9 +11148,19 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
+  decoDesenhar();
+
   if (S.mode !== "playing" && S.mode !== "paused") return;
 
   ctx.save();
+  // travessuras que mexem na tela inteira
+  if (mundoAtivo("espelho")) { ctx.translate(W, 0); ctx.scale(-1, 1); }
+  if (mundoAtivo("bebado")) {
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(Math.sin(S.time * 0.7) * 0.13);
+    ctx.scale(1 + Math.sin(S.time * 1.1) * 0.04, 1 + Math.cos(S.time * 0.9) * 0.04);
+    ctx.translate(-W / 2, -H / 2);
+  }
   if (S.shake > 0.5) ctx.translate(rand(-S.shake, S.shake) * 0.5, rand(-S.shake, S.shake) * 0.5);
 
   // singularidade
@@ -10528,6 +11348,23 @@ function draw() {
   }
 
   ctx.restore();
+
+  // apagão: só um círculo em volta da nave fica visível
+  if (mundoAtivo("escuro") && player.alive) {
+    const raio = 130;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, W, H);
+    ctx.arc(player.x, player.y, raio, 0, TAU, true);
+    ctx.fillStyle = "rgba(2,4,10,.94)";
+    ctx.fill();
+    const gl = ctx.createRadialGradient(player.x, player.y, raio * 0.6, player.x, player.y, raio);
+    gl.addColorStop(0, "rgba(2,4,10,0)");
+    gl.addColorStop(1, "rgba(2,4,10,.94)");
+    ctx.fillStyle = gl;
+    ctx.beginPath(); ctx.arc(player.x, player.y, raio, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
 }
 
 /* ---------- Loop ---------- */
@@ -10551,7 +11388,8 @@ function loopInterno(now) {
     const cw = of3d.width / DPR, ch = of3d.height / DPR;
     render3D(ofCtx, save.ship, cw / 2, ch / 2 + 10, 5.6, ofTheta, cw, ch);
   } else {
-    update(dt);
+    update(dt * mundoRitmo());
+    decoAtualizar(dt);
     dtDesenho = dt;
     draw();
     // enquanto joga, a posição vai pelo laço de desenho: mais constante
@@ -10908,6 +11746,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.3", itens: [
+      "O administrador agora pode mandar recados que aparecem na tela de todo mundo na hora",
+      "12 EVENTOS com música e decoração próprias: Natal com neve, Halloween com morcegos, Festa com confete, Chuva de Ouro, Apocalipse, Aurora, Rave Neon, Fundo do Mar, Vulcão, Código, Arco-íris e Zona de Guerra",
+      "BOOSTS para todo mundo: pontos, cristais, dano, vida, cadência e sorte — com o multiplicador e as horas escolhidos na hora",
+      "14 TRAVESSURAS: controle invertido, gravidade, gelo, tontura, apagão, espelho, inimigos gigantes ou minúsculos, câmera lenta, turbo, discoteca, chuva de inimigos, terremoto e nave fantasma",
+      "Tudo tem hora para acabar e um selo no canto mostrando o que está valendo e quanto falta"
+    ] },
   { v: "3.2", itens: [
       "O placar lá em cima parou de invadir a caixa de pontos e cristais: agora são três caixas separadas que nunca se encostam, em qualquer tamanho de tela",
       "As habilidades saíram do meio da tela e viraram uma fila em cima do botão de ultimate; se forem muitas, abre uma segunda fila ao lado"
@@ -11018,7 +11863,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.2";
+const VERSAO = "3.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
