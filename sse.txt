@@ -1,0 +1,6 @@
+event: put
+data: {"path":"/","data":{"a":1}}
+
+event: put
+data: {"path":"/b","data":5}
+

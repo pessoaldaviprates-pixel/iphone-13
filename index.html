@@ -128,6 +128,24 @@
   }
   .hab-btn.pronta{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(77,232,255,.45)}
   .hab-btn.combo{border-style:dashed;border-color:rgba(255,193,69,.6);color:var(--amber);cursor:default}
+  .hab-tecla{
+    position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+    background:rgba(6,10,24,.95);border:1px solid var(--line);border-radius:5px;
+    font-family:"Chakra Petch",sans-serif;font-size:.52rem;font-weight:700;
+    letter-spacing:.04em;padding:1px 4px;color:var(--dim);line-height:1.2;
+  }
+  .hab-btn.pronta .hab-tecla{color:var(--cyan);border-color:var(--cyan)}
+  #pc-dica{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(6px + env(safe-area-inset-bottom));
+    display:none;z-index:6;pointer-events:none;
+    font-size:.6rem;letter-spacing:.06em;color:rgba(234,242,255,.45);
+    background:rgba(6,10,24,.55);border-radius:10px;padding:5px 12px;
+    white-space:nowrap;max-width:96vw;overflow:hidden;text-overflow:ellipsis;
+  }
+  #pc-dica b{color:var(--cyan);font-weight:700;margin-left:12px}
+  #pc-dica b:first-child{margin-left:0}
+
   .hab-cd{
     position:absolute;inset:-2px;border-radius:50%;
     font-family:"Chakra Petch",sans-serif;font-size:.62rem;font-weight:700;
@@ -177,18 +195,94 @@
     background:transparent;border:1px solid var(--line);border-radius:12px;cursor:pointer;
   }
   .ghost-btn:active{background:rgba(77,232,255,.15)}
-  .menu-btns{display:flex;flex-direction:column;gap:12px;width:min(80vw,310px)}
+  .menu-btns{display:flex;flex-direction:column;gap:12px;width:min(92vw,360px)}
+
+  /* cartão do piloto */
+  .piloto-cartao{
+    display:flex;align-items:center;gap:12px;width:min(92vw,360px);
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:10px 12px;text-align:left;
+  }
+  .piloto-nave{width:56px;height:56px;flex:none}
+  .piloto-info{flex:1;min-width:0}
+  .piloto-nome{
+    font-family:"Russo One",sans-serif;font-size:.95rem;letter-spacing:.06em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .piloto-rank{font-size:.62rem;letter-spacing:.14em;font-weight:700;color:var(--amber);margin-top:1px}
+  .piloto-barra{
+    height:6px;border-radius:4px;background:rgba(255,255,255,.1);
+    margin:7px 0 4px;overflow:hidden;
+  }
+  .piloto-barra i{
+    display:block;height:100%;width:0;border-radius:4px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));
+    box-shadow:0 0 10px rgba(77,232,255,.5);transition:width .4s ease;
+  }
+  .piloto-meta{font-size:.62rem;color:var(--dim);letter-spacing:.04em}
+  .piloto-trocar{
+    flex:none;width:34px;height:34px;border-radius:10px;cursor:pointer;
+    background:transparent;border:1px solid var(--line);font-size:1rem;
+  }
+  .piloto-trocar:active{background:rgba(77,232,255,.15)}
+
+  /* grade de atalhos */
+  .menu-grade{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .tile{
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:13px 8px 11px;cursor:pointer;text-align:center;
+    background:var(--panel2);border:1px solid var(--line);border-radius:14px;
+  }
+  .tile:active{background:rgba(77,232,255,.15)}
+  .tile b{font-size:1.35rem;line-height:1;color:var(--cyan);font-weight:400}
+  .tile span{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.66rem;letter-spacing:.1em;color:rgba(234,242,255,.9);
+  }
+  .tile i{
+    font-style:normal;font-size:.58rem;letter-spacing:.04em;color:var(--dim);
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:.8em;
+  }
+  .tile.amber{border-color:rgba(255,193,69,.45)}   .tile.amber b{color:var(--amber)}
+  .tile.roxo{border-color:rgba(195,77,255,.45)}    .tile.roxo b{color:var(--violet)}
+  .tile.magenta{border-color:rgba(255,77,143,.45)} .tile.magenta b{color:var(--magenta)}
+  .tile .selo{
+    position:absolute;top:-5px;right:-4px;background:var(--danger);color:#fff;
+    border-radius:8px;font-size:.5rem;font-weight:700;letter-spacing:.06em;padding:2px 5px;
+  }
+  .menu-secao{
+    font-size:.58rem;letter-spacing:.28em;color:var(--dim);font-weight:700;
+    margin-top:4px;text-align:left;padding-left:2px;
+  }
+  .menu-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:2px}
+  .chip{
+    position:relative;font-family:"Chakra Petch",sans-serif;font-weight:600;
+    font-size:.7rem;letter-spacing:.06em;padding:9px 14px;cursor:pointer;
+    background:transparent;border:1px solid var(--line);border-radius:11px;color:var(--dim);
+  }
+  .chip:active{background:rgba(77,232,255,.15)}
+  .chip i{
+    font-style:normal;position:absolute;top:-4px;right:-4px;
+    background:var(--danger);color:#fff;border-radius:7px;
+    font-size:.48rem;font-weight:700;padding:1px 5px;display:none;
+  }
+  .chip i.on{display:block}
   #screen-menu.show{justify-content:flex-start;padding-top:calc(24px + env(safe-area-inset-top));overflow-y:auto}
   #screen-menu.show > *{flex:none}
   #screen-menu.show::after{content:"";display:block;height:25vh;flex:none}
   .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
+  #screen-menu.show{gap:11px}
+  #screen-menu .brand{font-size:clamp(1.7rem,8vw,2.6rem);margin-bottom:2px}
   .gem{color:var(--amber);font-weight:700}
   .gem::before{content:"◆ "}
   .stat-panel{
-    display:flex;gap:24px;padding:12px 22px;
+    display:flex;gap:18px;padding:10px 18px;justify-content:center;
+    width:min(92vw,360px);
     background:var(--panel);border:1px solid var(--line);border-radius:14px;
   }
-  .stat-panel .hud-value{font-size:1.35rem}
+  .stat-panel .hud-value{font-size:1.2rem;white-space:nowrap}
+  .stat-panel .hud-col{flex:1;min-width:0}
+  .stat-panel .gem::before{content:"◆ ";font-size:.8em}
   #go-title{
     font-family:"Russo One",sans-serif;
     font-size:clamp(1.8rem,8.5vw,3rem);
@@ -412,29 +506,23 @@
     display:none;font-size:.78rem;font-weight:700;color:#04121c;
     background:var(--amber);border-radius:12px;padding:11px 14px;line-height:1.35;
   }
-  /* relatório de novidades, sempre aberto no canto do menu */
-  #novidades{
-    position:fixed;z-index:11;display:none;
-    left:50%;transform:translateX(-50%);
-    bottom:calc(8px + env(safe-area-inset-bottom));
-    width:min(92vw,340px);max-height:21vh;
-    background:rgba(10,18,40,.92);border:1px solid var(--line);border-radius:14px;
-    padding:9px 12px;overflow:hidden;display:none;flex-direction:column;
-    box-shadow:0 -6px 26px rgba(0,0,0,.45);
+  /* aba de novidades */
+  .nov-lista{display:flex;flex-direction:column;gap:14px}
+  .nov-item{
+    background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
   }
-  @media (min-height:760px){ #novidades{max-height:25vh} }
-  #novidades.on{display:flex}
-  .nov-topo{
-    display:flex;align-items:baseline;justify-content:space-between;gap:6px;
-    padding-bottom:7px;margin-bottom:7px;border-bottom:1px solid rgba(77,232,255,.2);
+  .nov-item.novo{border-color:var(--amber);box-shadow:0 0 18px rgba(255,193,69,.18)}
+  .nov-item b{
+    display:block;font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.14em;
+    color:var(--amber);margin-bottom:7px;
   }
-  .nov-topo b{font-family:"Russo One",sans-serif;font-size:.62rem;letter-spacing:.16em;color:var(--cyan)}
-  .nov-topo span{font-size:.58rem;color:var(--amber);font-weight:700}
-  .nov-lista{overflow-y:auto;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}
-  .nov-item b{display:block;font-size:.6rem;letter-spacing:.1em;color:var(--amber);margin-bottom:2px}
-  .nov-item ul{margin:0;padding-left:13px}
-  .nov-item li{font-size:.63rem;line-height:1.45;color:rgba(234,242,255,.8)}
-  @media (max-width:360px){ #novidades{width:44vw;font-size:.9em} }
+  .nov-item ul{margin:0;padding-left:16px}
+  .nov-item li{font-size:.8rem;line-height:1.6;color:rgba(234,242,255,.85);margin-bottom:3px}
+  .nov-selo{
+    display:inline-block;margin-left:8px;vertical-align:middle;
+    background:var(--amber);color:#04121c;border-radius:6px;
+    font-size:.5rem;letter-spacing:.1em;padding:2px 6px;
+  }
   #atualiza-box{
     position:fixed;left:50%;transform:translateX(-50%);
     top:calc(10px + env(safe-area-inset-top));z-index:41;
@@ -555,6 +643,160 @@
     font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--danger);
     text-shadow:0 0 12px rgba(255,82,82,.8);display:none;
   }
+
+  /* ranqueada */
+  .rank-cartao{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;
+  }
+  .rk-sim{
+    width:58px;height:58px;flex:none;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;font-size:1.9rem;
+    background:rgba(255,193,69,.12);border:1px solid rgba(255,193,69,.4);
+  }
+  .rk-txt{flex:1;min-width:0;text-align:left}
+  .rk-nome{font-family:"Russo One",sans-serif;font-size:1.05rem;letter-spacing:.08em}
+  .rk-pts{font-size:.68rem;color:var(--dim);margin-top:2px}
+  .rk-barra{height:7px;border-radius:4px;background:rgba(255,255,255,.1);margin:8px 0 5px;overflow:hidden}
+  .rk-barra i{display:block;height:100%;width:0;border-radius:4px;
+              background:linear-gradient(90deg,var(--amber),var(--magenta));transition:width .4s}
+  .rk-prox{font-size:.62rem;color:var(--dim)}
+  .rk-placar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
+  .rk-placar div{
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    padding:11px 8px;text-align:center;
+  }
+  .rk-placar b{display:block;font-family:"Russo One",sans-serif;font-size:1.2rem}
+  .rk-placar span{display:block;font-size:.55rem;letter-spacing:.14em;color:var(--dim);margin-top:3px}
+  .rk-busca{display:none;text-align:center;margin-top:16px}
+  .rk-busca.on{display:block}
+  .rk-radar{position:relative;width:96px;height:96px;margin:0 auto 12px}
+  .rk-radar i{
+    position:absolute;inset:0;border-radius:50%;border:2px solid var(--magenta);opacity:0;
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .rk-radar i{animation:radar 2.1s ease-out infinite}
+    .rk-radar i:nth-child(2){animation-delay:.7s}
+    .rk-radar i:nth-child(3){animation-delay:1.4s}
+    @keyframes radar{0%{transform:scale(.25);opacity:.9}100%{transform:scale(1);opacity:0}}
+  }
+  .rk-busca-txt{font-size:.8rem;color:var(--cyan);letter-spacing:.06em}
+
+  /* arena */
+  .adm-h.roxo{color:var(--violet)}
+  .arena-nums{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .arena-num{
+    background:var(--panel2);border:1px solid var(--line);border-radius:13px;
+    padding:12px 10px;text-align:center;
+  }
+  .arena-num b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.5rem;
+    color:var(--violet);text-shadow:0 0 16px rgba(195,77,255,.5);line-height:1.1;
+  }
+  .arena-num span{display:block;font-size:.56rem;letter-spacing:.16em;color:var(--dim);margin-top:3px}
+  .arena-num.destaque b{color:var(--amber);text-shadow:0 0 16px rgba(255,193,69,.5)}
+  .arena-gente{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+  .arena-p{
+    display:flex;align-items:center;gap:9px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px 11px;
+  }
+  .arena-p canvas{width:34px;height:34px;flex:none}
+  .arena-p .n{flex:1;min-width:0;font-weight:700;font-size:.78rem;
+              white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .arena-p .v{font-size:.62rem;color:var(--cyan)}
+  #arena-hud{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(58px + env(safe-area-inset-top));z-index:6;display:none;
+    background:rgba(10,18,40,.82);border:1px solid rgba(195,77,255,.4);border-radius:12px;
+    padding:5px 12px;font-size:.62rem;letter-spacing:.05em;white-space:nowrap;
+  }
+  #arena-hud.on{display:block}
+  #arena-hud b{color:var(--violet);font-weight:700}
+  #arena-hud i{font-style:normal;color:var(--amber);font-weight:700;margin-left:8px}
+
+  .amigo-linha{display:flex;align-items:stretch;gap:7px}
+  .amigo-linha .profile-btn{flex:1;min-width:0}
+  .amigo-linha .vivo-olho{width:42px;height:auto;align-self:stretch}
+  .amigo-linha .vivo-olho:disabled{opacity:.35}
+
+  /* visor: ver a tela de outro jogador */
+  #assistir{position:fixed;inset:0;z-index:130;display:none;background:#04070f;flex-direction:column}
+  #assistir.on{display:flex}
+  .as-topo{
+    display:flex;align-items:center;gap:10px;flex:none;
+    padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+    border-bottom:1px solid var(--line);background:rgba(10,18,40,.9);
+  }
+  .as-fechar{
+    width:36px;height:36px;flex:none;border-radius:11px;cursor:pointer;font-size:1.3rem;
+    background:transparent;border:1px solid var(--line);
+  }
+  .as-quem{flex:1;min-width:0;text-align:left}
+  .as-quem b{
+    display:block;font-family:"Russo One",sans-serif;font-size:.86rem;letter-spacing:.06em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .as-quem span{font-size:.66rem;color:var(--cyan)}
+  .as-luz{
+    width:10px;height:10px;border-radius:50%;flex:none;
+    background:rgba(234,242,255,.25);
+  }
+  .as-luz.on{background:#FF5252;box-shadow:0 0 10px #FF5252}
+  @media (prefers-reduced-motion:no-preference){ .as-luz.on{animation:pulsa 1.4s ease-in-out infinite} }
+  #as-tela{flex:1;width:100%;min-height:0;display:block;background:#060A18}
+  .as-hud{
+    flex:none;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+    padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);background:rgba(10,18,40,.9);
+  }
+  .as-chip{
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:5px 10px;font-size:.62rem;letter-spacing:.05em;
+  }
+  .as-chip b{color:var(--cyan);font-weight:700}
+  .as-aviso{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    background:rgba(10,18,40,.94);border:1px solid var(--line);border-radius:14px;
+    padding:14px 18px;font-size:.78rem;color:var(--dim);text-align:center;max-width:80vw;
+  }
+
+  /* janela AO VIVO do painel */
+  .pulso{
+    display:inline-block;width:8px;height:8px;border-radius:50%;
+    background:#4CE07A;box-shadow:0 0 8px #4CE07A;vertical-align:middle;margin-right:5px;
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .pulso{animation:pulsa 1.6s ease-in-out infinite}
+    @keyframes pulsa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  }
+  .vivo-cont{float:right;font-size:.62rem;color:var(--dim);letter-spacing:.06em;font-weight:600}
+  .vivo-lista{display:flex;flex-direction:column;gap:7px;margin-top:10px;max-height:52vh;overflow-y:auto}
+  .vivo-row{
+    display:flex;align-items:center;gap:9px;cursor:pointer;text-align:left;width:100%;
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 11px;
+  }
+  .vivo-row.off{opacity:.5}
+  .vivo-row.sel{border-color:var(--amber);box-shadow:0 0 14px rgba(255,193,69,.22)}
+  .vivo-luz{width:9px;height:9px;border-radius:50%;flex:none;background:rgba(234,242,255,.25)}
+  .vivo-row.on .vivo-luz{background:#4CE07A;box-shadow:0 0 8px #4CE07A}
+  .vivo-row.jogando .vivo-luz{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+  .vivo-txt{flex:1;min-width:0}
+  .vivo-nome{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.82rem;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .vivo-onde{font-size:.66rem;color:var(--cyan);margin-top:1px}
+  .vivo-meta{font-size:.6rem;color:var(--dim);margin-top:2px}
+  .vivo-ver{
+    flex:none;font-size:.55rem;font-weight:700;letter-spacing:.05em;
+    border-radius:7px;padding:3px 6px;border:1px solid var(--line);color:var(--dim);
+  }
+  .vivo-ver.velha{border-color:var(--danger);color:var(--danger)}
+  .vivo-olho{
+    flex:none;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:.95rem;
+    background:transparent;border:1px solid var(--line);color:var(--cyan);
+  }
+  .vivo-olho:active{background:rgba(77,232,255,.18)}
 
   /* ---------- Telas com rolagem ---------- */
   .page{
@@ -805,6 +1047,13 @@
   <button id="ult-btn">ULT</button>
   <button id="cloak-btn">CAPA</button>
   <div id="hab-bar"></div>
+  <div id="pc-dica">
+    <b>MOUSE</b> a nave segue o cursor
+    <b>Q W E R T A S D F G</b> habilidades
+    <b>ESPAÇO</b> ultimate
+    <b>SHIFT</b> capa
+    <b>ESC</b> pausa
+  </div>
 </div>
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
@@ -813,6 +1062,20 @@
   <span id="atualiza-txt">Nova versão disponível</span>
   <button id="atualiza-btn">ATUALIZAR</button>
 </div>
+<div id="assistir">
+  <div class="as-topo">
+    <button class="as-fechar" id="as-fechar" aria-label="Fechar">‹</button>
+    <div class="as-quem">
+      <b id="as-nome">—</b>
+      <span id="as-onde">conectando…</span>
+    </div>
+    <span class="as-luz" id="as-luz"></span>
+  </div>
+  <canvas id="as-tela"></canvas>
+  <div class="as-hud" id="as-hud"></div>
+  <div class="as-aviso" id="as-aviso">Esperando a transmissão…</div>
+</div>
+
 <div id="caixa-presente">
   <div class="cp-fundo"></div>
   <div class="cp-conteudo">
@@ -838,13 +1101,7 @@
     <button class="ghost-btn" id="erro-fechar">CONTINUAR MESMO ASSIM</button>
   </div>
 </div>
-<aside id="novidades">
-  <div class="nov-topo">
-    <b>NOVIDADES</b>
-    <span id="nov-versao"></span>
-  </div>
-  <div class="nov-lista" id="nov-lista"></div>
-</aside>
+<div id="arena-hud"></div>
 <div id="mp-placar">
   <span id="mp-nome"></span>
   <div class="mp-barra"><i id="mp-hp"></i><b id="mp-hp-txt"></b></div>
@@ -912,6 +1169,19 @@
     </div>
 
     <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-vivo" style="display:none">
+        <div class="adm-h gold">
+          <span class="pulso"></span> AO VIVO
+          <span class="vivo-cont" id="vivo-cont"></span>
+        </div>
+        <p class="adm-note" style="max-width:none">Quem está com o jogo aberto agora, em que tela, desde quando e com qual versão.</p>
+        <div class="vivo-lista" id="vivo-lista"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn" id="vivo-atualizar">ATUALIZAR AGORA</button>
+          <button class="adm-btn" id="vivo-auto">⏸ PAUSAR</button>
+        </div>
+      </div>
 
       <div class="adm-card" id="adm-nuvem" style="display:none">
         <div class="adm-h gold">JOGADORES ONLINE</div>
@@ -1141,8 +1411,19 @@
 
 <!-- MENU PRINCIPAL -->
 <div class="screen" id="screen-menu">
-  <div class="tagline" id="menu-hello">Defesa do setor 7</div>
   <h1 class="brand">NEON<br><em>NEBULA</em></h1>
+
+  <div class="piloto-cartao">
+    <canvas class="piloto-nave" id="menu-nave" width="128" height="128"></canvas>
+    <div class="piloto-info">
+      <div class="piloto-nome" id="menu-hello">Piloto</div>
+      <div class="piloto-rank" id="menu-rank">▲ BRONZE</div>
+      <div class="piloto-barra"><i id="menu-barra"></i></div>
+      <div class="piloto-meta" id="menu-meta">Fase 0 de 270</div>
+    </div>
+    <button class="piloto-trocar" id="btn-logout" aria-label="Trocar de piloto">↩</button>
+  </div>
+
   <div class="stat-panel">
     <div class="hud-col" style="align-items:center">
       <span class="hud-label">CRISTAIS</span>
@@ -1157,19 +1438,31 @@
       <span class="hud-value" id="menu-hi">0</span>
     </div>
   </div>
+
   <div class="menu-btns">
-    <button class="big-btn" id="btn-play">JOGAR</button>
-    <button class="big-btn amber" id="btn-shop">⬡ MELHORIAS</button>
-    <button class="ghost-btn" id="btn-hangar">▲ HANGAR <span id="menu-ship-badge"></span></button>
-    <button class="ghost-btn" id="btn-reliquias">◈ RELÍQUIAS <span id="menu-amu-badge"></span></button>
-    <button class="ghost-btn" id="btn-tree">✦ HABILIDADES <span id="menu-pts-badge"></span></button>
-    <button class="ghost-btn" id="btn-multi" style="display:none">👥 JOGAR COM AMIGOS</button>
-    <button class="ghost-btn" id="btn-rank" style="display:none">🏆 RANKING ONLINE</button>
+    <button class="big-btn" id="btn-play">▶ JOGAR</button>
+    <div class="menu-grade">
+      <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
+      <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
+      <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
+      <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
+    </div>
+
+    <div class="menu-secao" id="menu-online-h">ONLINE</div>
+    <div class="menu-grade online" id="menu-online">
+      <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
+      <button class="tile magenta" id="btn-ranked"><b>⚔</b><span>RANQUEADA</span><i id="ranked-badge"></i></button>
+      <button class="tile" id="btn-multi"><b>👥</b><span>COM AMIGOS</span><i></i></button>
+      <button class="tile" id="btn-rank"><b>🏆</b><span>RANKING</span><i></i></button>
+    </div>
+
     <div id="nuvem-status" style="display:none"></div>
     <div id="presente-aviso"></div>
-    <button class="ghost-btn" id="cloud-btn">☁ SALVAR NA NUVEM</button>
+    <div class="menu-chips">
+      <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
+      <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
+    </div>
     <div id="cloud-status"></div>
-    <button class="adm-link" id="btn-logout" style="align-self:center">↩ TROCAR DE PILOTO</button>
   </div>
 </div>
 
@@ -1287,8 +1580,8 @@
 
     <div id="multi-pvp" class="multi-painel" style="display:none">
       <div class="adm-card">
-        <div class="adm-h red">DUELO</div>
-        <p class="adm-note" style="max-width:none">Você contra outro piloto, com as habilidades da sua nave. Quem zerar a vida do adversário primeiro vence e leva pontos de rank.</p>
+        <div class="adm-h red">DUELO PRIVADO</div>
+        <p class="adm-note" style="max-width:none">Duelo combinado com quem você quiser, pelo código. Para achar adversário sozinho, use a <b>RANQUEADA</b> no menu — lá o jogo procura alguém do seu nível.</p>
         <div class="rank-row" style="margin-top:12px">
           <div class="rank-info">
             <div class="rank-nome" id="pvp-meu-rank">BRONZE</div>
@@ -1360,6 +1653,84 @@
   </div>
   <div class="abas" id="rank-abas"></div>
   <div class="scroll"><div class="rank-list" id="rank-list"></div></div>
+</div>
+
+<!-- RANQUEADA -->
+<div class="page" id="screen-ranked">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">RANQUEADA</div>
+    <div class="page-gems" id="ranked-fila"></div>
+  </div>
+  <div class="scroll">
+    <div class="rank-cartao">
+      <div class="rk-sim" id="rk-sim">▲</div>
+      <div class="rk-txt">
+        <div class="rk-nome" id="rk-nome">BRONZE</div>
+        <div class="rk-pts" id="rk-pts">0 pontos</div>
+        <div class="rk-barra"><i id="rk-barra"></i></div>
+        <div class="rk-prox" id="rk-prox"></div>
+      </div>
+    </div>
+    <div class="rk-placar" id="rk-placar"></div>
+
+    <div class="adm-grid" style="margin-top:14px">
+      <button class="adm-btn danger wide" id="rk-procurar">⚔ PROCURAR PARTIDA</button>
+    </div>
+    <div class="rk-busca" id="rk-busca">
+      <div class="rk-radar"><i></i><i></i><i></i></div>
+      <div class="rk-busca-txt" id="rk-busca-txt">Procurando adversário…</div>
+      <button class="adm-btn" id="rk-cancelar" style="margin-top:12px">CANCELAR</button>
+    </div>
+    <p class="adm-note" style="margin-top:10px">
+      Não precisa de código: o jogo acha alguém do seu nível sozinho. Tudo fica
+      zerado dos dois lados, então vence quem jogar melhor. Ganhou, sobe pontos
+      de rank; perdeu, desce um pouco.
+    </p>
+  </div>
+</div>
+
+<!-- ARENA INFINITA -->
+<div class="page" id="screen-arena">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">ARENA INFINITA</div>
+    <div class="page-gems" id="arena-online"></div>
+  </div>
+  <div class="scroll">
+    <div class="adm-card">
+      <div class="adm-h roxo">A ARENA NUNCA ZERA</div>
+      <p class="adm-note" style="max-width:none">
+        Uma só arena para todo mundo. Ondas sem fim, todos são aliados e ninguém
+        atira em ninguém. A onda continua de onde o último parou — mesmo que você
+        feche o jogo. A cada 5 ondas vem um chefe.
+      </p>
+      <div class="arena-nums" id="arena-nums"></div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-h">QUEM ESTÁ NA ARENA AGORA</div>
+      <div class="arena-gente" id="arena-gente"></div>
+    </div>
+
+    <div class="adm-grid" style="margin-top:4px">
+      <button class="adm-btn gold wide" id="arena-entrar">∞ ENTRAR NA ARENA</button>
+    </div>
+    <p class="adm-note" style="margin-top:8px">
+      Na arena tudo fica zerado, igual para todo mundo: valem só a sua nave e a sua
+      mão. O que você derrubar entra na conta de todos.
+    </p>
+  </div>
+</div>
+
+<!-- NOVIDADES -->
+<div class="page" id="screen-novidades">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">NOVIDADES</div>
+    <div class="page-gems" id="nov-versao"></div>
+  </div>
+  <div class="scroll"><div class="nov-lista" id="nov-lista"></div></div>
 </div>
 
 <!-- ÁRVORE DE HABILIDADES -->
@@ -1687,6 +2058,110 @@ async function nuvemReq(caminho, opcoes) {
     return null;
   }
 }
+
+/* =====================================================================
+   Protocolo rápido: fluxo (streaming) em vez de ficar perguntando
+   ---------------------------------------------------------------------
+   O Realtime Database sabe EMPURRAR as mudanças pela mesma porta HTTPS
+   (text/event-stream). Em vez de pedir a sala 6 vezes por segundo, a
+   gente abre UMA conexão e o servidor avisa na hora que algo mudou.
+   Isso tira o atraso do multijogador e gasta muito menos rede.
+   Se o aparelho ou a rede não aceitarem, cai sozinho no modo antigo
+   (perguntar de tempo em tempo), então nunca fica sem funcionar.
+   ===================================================================== */
+function nuvemTemFluxo() {
+  return typeof ReadableStream === "function" &&
+         typeof TextDecoder === "function" &&
+         typeof AbortController === "function";
+}
+
+/* aplica um evento do fluxo sobre um objeto local, seguindo o caminho */
+function fluxoAplicar(raiz, caminho, dados, mesclar) {
+  const partes = String(caminho || "/").split("/").filter(Boolean);
+  if (!partes.length) {
+    if (!mesclar) return dados === null ? {} : dados;
+    if (dados && typeof dados === "object") Object.assign(raiz, dados);
+    return raiz;
+  }
+  let cur = raiz;
+  for (let i = 0; i < partes.length - 1; i++) {
+    if (typeof cur[partes[i]] !== "object" || cur[partes[i]] === null) cur[partes[i]] = {};
+    cur = cur[partes[i]];
+  }
+  const ultimo = partes[partes.length - 1];
+  if (dados === null) delete cur[ultimo];
+  else if (mesclar && typeof cur[ultimo] === "object" && cur[ultimo] &&
+           typeof dados === "object") Object.assign(cur[ultimo], dados);
+  else cur[ultimo] = dados;
+  return raiz;
+}
+
+/* abre o fluxo de um caminho. aoMudar(objetoCompleto) roda a cada novidade.
+   devolve uma função para fechar.                                          */
+function nuvemFluxo(caminho, aoMudar, aoFalhar) {
+  if (!nuvemAtiva() || !nuvemTemFluxo()) { if (aoFalhar) aoFalhar(); return () => {}; }
+  let parado = false;
+  let ctrl = null;
+  let estado = {};
+  let tentativas = 0;
+
+  async function conectar() {
+    if (parado) return;
+    ctrl = new AbortController();
+    try {
+      const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json",
+        { headers: { Accept: "text/event-stream" }, signal: ctrl.signal });
+      if (!r.ok || !r.body) throw new Error("sem fluxo");
+      nuvemStatus = "ok";
+      tentativas = 0;
+      const leitor = r.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "", evento = "";
+      while (!parado) {
+        const { value, done } = await leitor.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let corte;
+        while ((corte = buf.indexOf("\n")) >= 0) {
+          const linha = buf.slice(0, corte).replace(/\r$/, "");
+          buf = buf.slice(corte + 1);
+          if (linha.indexOf("event:") === 0) { evento = linha.slice(6).trim(); continue; }
+          if (linha.indexOf("data:") !== 0) continue;
+          const cru = linha.slice(5).trim();
+          if (evento !== "put" && evento !== "patch") continue;
+          let pacote = null;
+          try { pacote = JSON.parse(cru); } catch (e) { continue; }
+          if (!pacote) continue;
+          estado = fluxoAplicar(estado, pacote.path, pacote.data, evento === "patch") || {};
+          try { aoMudar(estado); } catch (e) {}
+        }
+      }
+    } catch (e) {
+      if (parado) return;
+      tentativas++;
+      if (tentativas === 1 && aoFalhar) aoFalhar();   // avisa para ligar a reserva
+      // tenta de novo, com espera crescente e limitada
+      setTimeout(conectar, Math.min(400 * tentativas, 4000));
+      return;
+    }
+    if (!parado) setTimeout(conectar, 300);
+  }
+  conectar();
+  return () => { parado = true; try { ctrl && ctrl.abort(); } catch (e) {} };
+}
+
+/* escrita leve: não mexe no aviso de status nem espera resposta.
+   Usada no meio da partida, onde o que importa é sair rápido.             */
+function nuvemSoltar(caminho, valor, metodo) {
+  if (!nuvemAtiva()) return Promise.resolve(null);
+  return fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json", {
+    method: metodo || "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(valor)
+  }).catch(() => null);
+}
+function nuvemJuntar(caminho, obj) { return nuvemSoltar(caminho, obj, "PATCH"); }
+
 function nuvemMostrarStatus() {
   const el = $("nuvem-status");
   if (!el) return;
@@ -1714,6 +2189,9 @@ async function nuvemEnviar(forcar) {
   nuvemUltimoEnvio = agora;
   const resumo = {
     nome: save.__name,
+    versao: VERSAO,
+    entrou: sessaoComecou,
+    onde: ondeEstou(),
     fase: save.best || 0,
     cristais: save.crystals || 0,
     naves: save.ships ? save.ships.length : 1,
@@ -1734,6 +2212,42 @@ async function nuvemEnviar(forcar) {
   });
   nuvemLimparAntigo(save.__name);
   contaEnviar(forcar);
+}
+
+/* ---------------------------------------------------------------------
+   Telemetria leve: em que tela a pessoa está, desde quando e com que
+   versão. É o que alimenta a janela AO VIVO do painel do administrador.
+   --------------------------------------------------------------------- */
+const sessaoComecou = Date.now();
+function ondeEstou() {
+  const m = S && S.mode;
+  if (m === "playing") {
+    if (MP && MP.modo === "arena") return "Arena · onda " + (S.waveIdx || 1);
+    if (MP && MP.modo === "pvp") return "Ranqueada";
+    if (MP && MP.sala) return "Cooperativo · fase " + (S.fase || 1);
+    return "Jogando a fase " + (S.fase || 1);
+  }
+  const nomes = {
+    menu: "No menu", shop: "Nas melhorias", hangar: "No hangar",
+    oficina: "Na oficina 3D", reliquias: "Nas relíquias", tree: "Na árvore",
+    levels: "Escolhendo a fase", rank: "Vendo o ranking", multi: "Procurando gente",
+    sala: "Numa sala", novidades: "Lendo as novidades", paused: "Em pausa",
+    victory: "Terminou a fase", gameover: "Perdeu a fase", cutscene: "Na apresentação",
+    login: "Na tela de entrada", senha: "Digitando a senha", adm: "No painel"
+  };
+  return nomes[m] || "No jogo";
+}
+
+/* bate o ponto de vez em quando, para o painel saber quem está ativo */
+let batimentoTimer = null;
+function ligarBatimento() {
+  if (batimentoTimer) clearInterval(batimentoTimer);
+  batimentoTimer = setInterval(() => {
+    if (!nuvemAtiva() || !save.__name) return;
+    nuvemJuntar("pilotos/" + nuvemId(save.__name), {
+      onde: ondeEstou(), atualizado: Date.now(), versao: VERSAO
+    });
+  }, 20000);
 }
 
 /* menor tempo entre todas as fases concluídas, para a tabela de velocidade */
@@ -2519,9 +3033,11 @@ makeStars();
 /* ---------- Parâmetros de fase ---------- */
 const FASES_COOP = 200;
 function totalFasesDoModo() {
+  if (typeof MP !== "undefined" && MP && MP.modo === "arena") return 999999;   // sem fim
   return (typeof MP !== "undefined" && MP && MP.modo === "coop") ? FASES_COOP : TOTAL_FASES;
 }
 function faseWaves(f)  {
+  if (typeof MP !== "undefined" && MP && MP.modo === "arena") return 1;
   if (typeof MP !== "undefined" && MP && MP.modo === "coop") return 3 + Math.floor((f - 1) / 22);
   return Math.min(14, 3 + Math.floor((f - 1) / 25));
 }
@@ -2543,7 +3059,8 @@ const SCREENS = {
   menu: $("screen-menu"), levels: $("screen-levels"), shop: $("screen-shop"),
   hangar: $("screen-hangar"), oficina: $("screen-oficina"), reliquias: $("screen-reliquias"),
   tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
-  multi: $("screen-multi"), sala: $("screen-sala"),
+  multi: $("screen-multi"), sala: $("screen-sala"), novidades: $("screen-novidades"),
+  arena: $("screen-arena"), ranked: $("screen-ranked"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
 function showScreen(name) {
@@ -2551,9 +3068,9 @@ function showScreen(name) {
   for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "flex" : "none";
   $("god-badge").style.display = (name === null && save.godMode) ? "block" : "none";
-  const nov = $("novidades");
-  if (nov) nov.classList.toggle("on", name === "menu");
   if (name !== null) $("hab-bar").style.display = "none";
+  const dica = $("pc-dica");
+  if (dica) dica.style.display = (name === null && modoPC) ? "block" : "none";
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
 }
@@ -2600,17 +3117,45 @@ function checarPresentesPeriodicamente() {
 setInterval(checarPresentesPeriodicamente, 6000);
 
 function refreshMenu() {
-  $("menu-hello").textContent = ROOT.current ? "Piloto: " + ROOT.current : "Defesa do setor 7";
-  $("btn-rank").style.display = nuvemAtiva() ? "block" : "none";
-  $("btn-multi").style.display = nuvemAtiva() ? "block" : "none";
+  $("menu-hello").textContent = ROOT.current || "Piloto";
+  const online = nuvemAtiva();
+  $("menu-online").style.display = online ? "grid" : "none";
+  $("menu-online-h").style.display = online ? "block" : "none";
   nuvemMostrarStatus();
   $("menu-gems").textContent = fmt(save.crystals);
   $("menu-progress").textContent = save.best + "/" + TOTAL_FASES;
   $("menu-hi").textContent = fmt(save.hi);
+
+  // rank e barra de progresso das fases
+  const pts = save.rank || 0;
+  const r = $("menu-rank");
+  r.textContent = simboloDoRank(pts) + " " + nomeDoRank(pts);
+  r.style.color = corDoRank(pts);
+  const frac = clamp((save.best || 0) / TOTAL_FASES, 0, 1);
+  $("menu-barra").style.width = (frac * 100) + "%";
+  $("menu-meta").textContent = "Fase " + (save.best || 0) + " de " + TOTAL_FASES +
+    " · " + Math.round(frac * 100) + "%";
+
+  // nave atual desenhada no cartão
+  try {
+    const cv = $("menu-nave");
+    const c2 = cv.getContext("2d");
+    c2.setTransform(1, 0, 0, 1, 0, 0);
+    c2.clearRect(0, 0, cv.width, cv.height);
+    c2.setTransform(2.2, 0, 0, 2.2, cv.width / 2, cv.height / 2 + 6);
+    drawShipSprite(c2, naveValida(save.ship), 15);
+  } catch (e) {}
+
   const avail = ptsAvailable();
-  $("menu-pts-badge").textContent = avail > 0 ? "(" + avail + ")" : "";
-  $("menu-ship-badge").textContent = "· " + (SHIPS[save.ship] || SHIPS[0]).name;
-  $("menu-amu-badge").textContent = save.amulets.length ? "(" + save.amulets.length + ")" : "";
+  $("menu-pts-badge").textContent = avail > 0 ? avail + " ponto" + (avail > 1 ? "s" : "") : "árvore";
+  $("menu-ship-badge").textContent = (SHIPS[naveValida(save.ship)] || SHIPS[0]).name;
+  $("menu-amu-badge").textContent = save.amulets.length ? save.amulets.length + " equipados" : "nenhum";
+  const totalUp = UPGRADES.reduce((a, u) => a + u.max, 0);
+  const meusUp = UPGRADES.reduce((a, u) => a + (save.upgrades[u.id] || 0), 0);
+  $("menu-up-badge").textContent = meusUp + "/" + totalUp;
+  const nb = $("nov-badge");
+  if (nb) nb.classList.toggle("on", novidadesNovas());
+  if (typeof arenaAtualizarSelo === "function") arenaAtualizarSelo();
 }
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
 
@@ -2641,6 +3186,8 @@ function renderLogin() {
 }
 function entrarNoMenu(name) {
   loginAs(name);
+  ligarBatimento();
+  atualizarModoPC();
   S.mode = "menu";
   refreshMenu();
   showScreen("menu");
@@ -3108,12 +3655,118 @@ $("btn-adm-enter").addEventListener("click", () => {
   admRenderPlayers();
   if (nuvemAtiva()) {
     $("adm-nuvem").style.display = "block";
+    $("adm-vivo").style.display = "block";
     admNuvemCarregar();
+    vivoLigar();
   }
   AudioSys.buy();
 });
 $("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
 $("adm-search").addEventListener("input", admRenderPlayers);
+
+/* =====================================================================
+   Janela AO VIVO — quem está com o jogo aberto, em que tela, desde
+   quando e com qual versão. Usa o fluxo (push), então muda sozinha.
+   ===================================================================== */
+let vivoFechar = null, vivoDados = {}, vivoPausado = false, vivoRelogio = null;
+
+function tempoRelativo(ms) {
+  if (!ms) return "—";
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (s < 45) return "agora";
+  if (s < 90) return "há 1 min";
+  if (s < 3600) return "há " + Math.round(s / 60) + " min";
+  if (s < 86400) return "há " + Math.round(s / 3600) + "h";
+  return "há " + Math.round(s / 86400) + " dias";
+}
+function duracao(ms) {
+  if (!ms) return "—";
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (s < 60) return s + "s";
+  if (s < 3600) return Math.floor(s / 60) + " min";
+  const h = Math.floor(s / 3600);
+  return h + "h" + String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+}
+function estaOnline(p) { return Date.now() - (p.atualizado || 0) < 70000; }
+
+function vivoLigar() {
+  vivoDesligar();
+  vivoFechar = nuvemFluxo("pilotos", dados => {
+    vivoDados = dados || {};
+    if (!vivoPausado) vivoRender();
+  }, () => {
+    // sem fluxo: busca de tempo em tempo
+    vivoRelogio = setInterval(async () => {
+      if (vivoPausado) return;
+      const d = await nuvemReq("pilotos");
+      vivoDados = d || {};
+      vivoRender();
+    }, 5000);
+  });
+  // relógio só para atualizar os textos "há X min"
+  if (!vivoRelogio) vivoRelogio = setInterval(() => { if (!vivoPausado) vivoRender(); }, 15000);
+}
+function vivoDesligar() {
+  if (vivoFechar) { vivoFechar(); vivoFechar = null; }
+  if (vivoRelogio) { clearInterval(vivoRelogio); vivoRelogio = null; }
+}
+function vivoRender() {
+  const box = $("vivo-lista");
+  if (!box) return;
+  const lista = Object.keys(vivoDados)
+    .map(id => Object.assign({ id }, vivoDados[id]))
+    .filter(p => p && p.nome)
+    .sort((a, b) => (estaOnline(b) ? 1 : 0) - (estaOnline(a) ? 1 : 0) ||
+                    (b.atualizado || 0) - (a.atualizado || 0));
+  const ligados = lista.filter(estaOnline).length;
+  $("vivo-cont").textContent = ligados + " de " + lista.length + " com o jogo aberto";
+  box.innerHTML = "";
+  if (!lista.length) {
+    box.innerHTML = '<div class="adm-note">Ninguém apareceu ainda.</div>';
+    return;
+  }
+  for (const p of lista.slice(0, 60)) {
+    const on = estaOnline(p);
+    const jogando = on && /Jogando|Arena|Cooperativo|Ranqueada/.test(p.onde || "");
+    const row = document.createElement("div");
+    row.className = "vivo-row" + (on ? " on" : " off") + (jogando ? " jogando" : "") +
+                    (admNuvemAlvo && admNuvemAlvo.id === p.id ? " sel" : "");
+    const ver = String(p.versao || "?");
+    const velha = ver !== VERSAO;
+    row.innerHTML =
+      '<span class="vivo-luz"></span>' +
+      '<div class="vivo-txt">' +
+        '<div class="vivo-nome">' + escaparTexto(p.nome) + "</div>" +
+        '<div class="vivo-onde">' + escaparTexto(on ? (p.onde || "No jogo") : "Fechado") + "</div>" +
+        '<div class="vivo-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
+          " · " + (on ? "aberto há " + duracao(p.entrou) : "visto " + tempoRelativo(p.atualizado)) +
+        "</div>" +
+      "</div>" +
+      '<span class="vivo-ver' + (velha ? " velha" : "") + '">v' + escaparTexto(ver) + "</span>";
+    const olho = document.createElement("button");
+    olho.className = "vivo-olho";
+    olho.textContent = "👁";
+    olho.title = "Ver a tela de " + p.nome;
+    olho.addEventListener("click", e => { e.stopPropagation(); assistirJogador(p); });
+    row.appendChild(olho);
+    row.addEventListener("click", () => {
+      admNuvemSelecionar(p);
+      $("adm-nuvem-sel").scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+    box.appendChild(row);
+  }
+}
+$("vivo-atualizar").addEventListener("click", async () => {
+  const d = await nuvemReq("pilotos");
+  vivoDados = d || {};
+  vivoRender();
+  admMsg("Lista atualizada");
+});
+$("vivo-auto").addEventListener("click", () => {
+  vivoPausado = !vivoPausado;
+  $("vivo-auto").textContent = vivoPausado ? "▶ RETOMAR" : "⏸ PAUSAR";
+  if (!vivoPausado) vivoRender();
+});
 
 /* ---- jogadores online (só aparece com a nuvem ligada) ---- */
 let admNuvemLista = [];
@@ -3156,11 +3809,19 @@ async function admNuvemSelecionar(p) {
   const visto = p.atualizado ? new Date(p.atualizado).toLocaleString("pt-BR") : "—";
   $("adm-nuvem-stats").innerHTML = [
     ["CRISTAIS", fmt(p.cristais || 0)],
-    ["FASE", (p.fase || 0) + "/120"],
-    ["NAVES", (p.naves || 1) + "/50"],
-    ["AMULETOS", p.amuletos || 0]
+    ["FASE", (p.fase || 0) + "/" + TOTAL_FASES],
+    ["NAVES", (p.naves || 1) + "/" + SHIPS.length],
+    ["AMULETOS", p.amuletos || 0],
+    ["RANK", simboloDoRank(p.rank || 0)],
+    ["VERSÃO", "v" + (p.versao || "?")]
   ].map(d => '<div class="adm-stat"><b>' + d[1] + "</b><span>" + d[0] + "</span></div>").join("");
-  $("adm-nuvem-pendente").textContent = "Visto pela última vez: " + visto;
+  $("adm-nuvem-pendente").innerHTML =
+    (estaOnline(p) ? "🟢 <b>" + escaparTexto(p.onde || "No jogo") + "</b> · com o jogo aberto há " +
+                     duracao(p.entrou)
+                   : "⚫ Fechado · visto " + tempoRelativo(p.atualizado)) +
+    "<br>Última vez: " + visto +
+    ((p.versao && p.versao !== VERSAO) ? " · ⚠ está na v" + escaparTexto(p.versao) +
+      " (a atual é a v" + VERSAO + ")" : "");
   renderCaixaAdm();
   admNuvemRender();
   admNuvemVerPendente();
@@ -3169,12 +3830,15 @@ async function admNuvemVerPendente() {
   if (!admNuvemAlvo) return;
   const g = await nuvemComandoPendente(admNuvemAlvo.id);
   const el = $("adm-nuvem-pendente");
-  const visto = admNuvemAlvo.atualizado
-    ? new Date(admNuvemAlvo.atualizado).toLocaleString("pt-BR") : "—";
-  if (!g) { el.textContent = "Visto pela última vez: " + visto; return; }
+  const antigo = el.querySelector(".pend");
+  if (antigo) antigo.remove();
+  if (!g) return;
   const itens = Object.keys(g).filter(k => k !== "quando");
-  el.textContent = "Visto pela última vez: " + visto +
-    " · ⏳ pendente: " + itens.join(", ");
+  const aviso = document.createElement("div");
+  aviso.className = "pend";
+  aviso.style.color = "var(--amber)";
+  aviso.textContent = "⏳ Caixa esperando: " + itens.join(", ");
+  el.appendChild(aviso);
 }
 /* aplica o efeito também no registro público do jogador, para o ranking e a
    lista do painel mudarem na hora — sem esperar a pessoa abrir o jogo */
@@ -4329,20 +4993,7 @@ async function mpLerSala() {
   if (!MP.sala) return null;
   const sala = await nuvemReq(mpCaminho());
   if (!sala) return null;
-  MP.modo = sala.modo;
-  const js = sala.jogadores || {};
-  // mescla nos objetos que já existem, para não perder a suavização
-  for (const id in js) {
-    if (id === MP.eu) continue;
-    if (!MP.outros[id]) MP.outros[id] = {};
-    Object.assign(MP.outros[id], js[id]);
-  }
-  for (const id in MP.outros) if (!js[id]) delete MP.outros[id];
-  MP.ticks = (MP.ticks || 0) + 1;
-  if (sala.estado === "jogando" && S.mode === "sala") {
-    MP.fase = sala.fase || 1;
-    iniciarPartidaMultijogador();
-  }
+  mpAplicarSala(sala);
   return sala;
 }
 function renderSala(sala) {
@@ -4382,10 +5033,31 @@ function renderSala(sala) {
 /* ----- laço de sincronização ----- */
 function mpIniciarLoop() {
   mpPararLoop();
+  if (MP.modo === "arena") return;   // a arena tem o fluxo dela
   // no lobby o envio é por temporizador; em partida, pelo laço do jogo
   MP.loopRapido = setInterval(() => { if (S.mode === "sala") mpEnviarPosicao(); }, 400);
-  MP.loopPos = setInterval(mpLerJogadores, 170);   // só as posições: leve e frequente
-  MP.loopLento = setInterval(mpTick, 620);         // sala inteira: onda, fase, chefe
+
+  // 1º: tenta o fluxo (o servidor empurra as mudanças na hora — sem atraso)
+  MP.fluindo = false;
+  MP.fecharFluxo = nuvemFluxo(mpCaminho(), sala => {
+    MP.fluindo = true;
+    mpAplicarSala(sala);
+    if (S.mode === "sala") renderSala(sala);
+    if (S.mode === "playing") {
+      if (MP.modo === "pvp") mpChecarFimDuelo();
+      else mpSincronizarCoop(sala);
+    }
+    mpAtualizarPlacar();
+  }, () => { MP.fluindo = false; mpLigarReserva(); });
+
+  // 2º: rede de segurança. Com o fluxo vivo ela quase não é usada.
+  mpLigarReserva();
+}
+function mpLigarReserva() {
+  if (MP.loopPos) clearInterval(MP.loopPos);
+  if (MP.loopLento) clearInterval(MP.loopLento);
+  MP.loopPos = setInterval(() => { if (!MP.fluindo) mpLerJogadores(); }, 170);
+  MP.loopLento = setInterval(() => { mpTick(); }, MP.fluindo ? 2500 : 620);
 }
 
 /* leitura enxuta: só o nó dos jogadores, para o parceiro andar liso */
@@ -4394,14 +5066,15 @@ async function mpLerJogadores() {
   if (!MP.sala || mpLendoPos || S.mode !== "playing") return;
   mpLendoPos = true;
   try {
-    const js = await nuvemReq(mpCaminho() + "/jogadores");
+    const js = await nuvemReq(mpCaminho() + "/p");
     if (js) {
       for (const id in js) {
         if (id === MP.eu) continue;
+        const d = mpDesempacotar(js[id]);
+        if (!d) continue;
         if (!MP.outros[id]) MP.outros[id] = {};
-        Object.assign(MP.outros[id], js[id]);
+        Object.assign(MP.outros[id], d);
       }
-      for (const id in MP.outros) if (!js[id]) delete MP.outros[id];
       MP.ticks = (MP.ticks || 0) + 1;
     }
   } catch (e) {}
@@ -4412,42 +5085,100 @@ function mpPararLoop() {
   if (MP.loopPos) clearInterval(MP.loopPos);
   if (MP.loopLento) clearInterval(MP.loopLento);
   MP.loopRapido = MP.loopPos = MP.loopLento = null;
+  if (MP.fecharFluxo) { MP.fecharFluxo(); MP.fecharFluxo = null; }
+  MP.fluindo = false;
 }
 
-/* envia só o essencial, para chegar rápido */
+/* mescla o que veio da sala (do fluxo ou da leitura normal) */
+function mpAplicarSala(sala) {
+  if (!sala) return;
+  if (sala.modo) MP.modo = sala.modo;
+  MP.salaCache = sala;
+  const estaticos = sala.jogadores || {};
+  const moveis = sala.p || {};
+  const vistos = {};
+  for (const id in estaticos) {
+    if (id === MP.eu) continue;
+    vistos[id] = true;
+    if (!MP.outros[id]) MP.outros[id] = {};
+    Object.assign(MP.outros[id], estaticos[id]);
+  }
+  for (const id in moveis) {
+    if (id === MP.eu) continue;
+    const d = mpDesempacotar(moveis[id]);
+    if (!d) continue;
+    vistos[id] = true;
+    if (!MP.outros[id]) MP.outros[id] = {};
+    Object.assign(MP.outros[id], d);
+  }
+  for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
+  if (sala.t) {
+    for (const id in sala.t) {
+      if (id !== MP.eu && MP.outros[id]) MP.outros[id].tiros = sala.t[id];
+    }
+  }
+  MP.ticks = (MP.ticks || 0) + 1;
+  if (sala.estado === "jogando" && S.mode === "sala") {
+    MP.fase = sala.fase || 1;
+    iniciarPartidaMultijogador();
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Envio da posição: uma LINHA de texto, não um objeto.
+   Quanto menor o pacote, mais rápido ele sai do celular e chega no outro.
+   Vai num galho separado (p/) para o fluxo avisar só o que mudou.
+   --------------------------------------------------------------------- */
+function mpEmpacotar() {
+  const t = [
+    Math.round(player.x), Math.round(player.y),
+    Math.max(0, Math.round(player.hp)),
+    Math.round(ST ? ST.maxHp : 100),
+    (player.alive && player.hp > 0) ? 1 : 0,
+    Math.round(S.score || 0),
+    Math.round(MP.meuDano || 0),
+    S.waveIdx || 0,
+    save.ship || 0,
+    save.rank || 0,
+    Date.now() % 100000000,
+    (save.__name || "Piloto").replace(/,/g, " ")
+  ];
+  return t.join(",");
+}
+function mpDesempacotar(linha) {
+  const t = String(linha).split(",");
+  if (t.length < 12) return null;
+  return {
+    x: +t[0], y: +t[1], hp: +t[2], hpMax: +t[3], vivo: t[4] === "1",
+    pontos: +t[5], dano: +t[6], onda: +t[7], nave: +t[8], rank: +t[9],
+    ts: +t[10], nome: t.slice(11).join(",")
+  };
+}
 let mpEnviando = false;
 async function mpEnviarPosicao() {
   if (!MP.sala || mpEnviando) return;
-  if (S.mode !== "playing" && S.mode !== "gameover" && S.mode !== "paused") return;
+  if (S.mode !== "playing" && S.mode !== "gameover" &&
+      S.mode !== "paused" && S.mode !== "sala") return;
   mpEnviando = true;
   try {
-    const leve = {
-      nome: save.__name || "Piloto",
-      nave: save.ship,
-      hpMax: ST ? ST.maxHp : 100,
-      rank: save.rank || 0,
-      x: Math.round(player.x), y: Math.round(player.y),
-      hp: Math.max(0, Math.round(player.hp)),
-      vivo: player.alive && player.hp > 0,
-      pontos: S.score,
-      dano: Math.round(MP.meuDano),
-      onda: S.waveIdx,
-      ts: Date.now()
-    };
-    if (MP.modo === "pvp") {
-      leve.tiros = bullets.slice(-6).map(b => [Math.round(b.x), Math.round(b.y),
-                                               Math.round(b.vx), Math.round(b.vy)]);
+    if (S.mode === "sala") {
+      await nuvemSoltar(mpCaminho() + "/jogadores/" + MP.eu, mpMeuResumo(true));
+    } else {
+      await nuvemSoltar((MP.modo === "arena" ? "arena" : mpCaminho()) + "/p/" + MP.eu,
+                        mpEmpacotar());
+      if (MP.modo === "pvp") {
+        const tiros = bullets.slice(-6).map(b => [Math.round(b.x), Math.round(b.y),
+                                                  Math.round(b.vx), Math.round(b.vy)]);
+        nuvemSoltar(mpCaminho() + "/t/" + MP.eu, tiros);
+      }
     }
-    await nuvemReq(mpCaminho() + "/jogadores/" + MP.eu, {
-      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(leve)
-    });
   } catch (e) {}
   mpEnviando = false;
 }
 async function mpTick() {
   if (!MP.sala) { mpPararLoop(); return; }
   if (S.mode === "sala") await mpEnviarPosicao();
-  const sala = await mpLerSala();
+  const sala = MP.fluindo ? MP.salaCache : await mpLerSala();
   if (S.mode === "sala") renderSala(sala);
   if (S.mode === "playing") {
     if (MP.modo === "pvp") mpChecarFimDuelo();
@@ -4606,8 +5337,14 @@ function finalizarDuelo(resultado, oponente) {
 async function mpSair(voltarMenu, atraso) {
   if (MP.sala) {
     const caminho = mpCaminho() + "/jogadores/" + MP.eu;
-    if (atraso) setTimeout(() => nuvemReq(caminho, { method: "DELETE" }), 7000);
-    else nuvemReq(caminho, { method: "DELETE" });
+    const movel = mpCaminho() + "/p/" + MP.eu;
+    const tiros = mpCaminho() + "/t/" + MP.eu;
+    const limpar = () => {
+      nuvemReq(caminho, { method: "DELETE" });
+      nuvemReq(movel, { method: "DELETE" });
+      nuvemReq(tiros, { method: "DELETE" });
+    };
+    if (atraso) setTimeout(limpar, 7000); else limpar();
     if (MP.host) nuvemReq(mpCaminho() + "/estado", {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify("fim")
     });
@@ -4618,6 +5355,353 @@ async function mpSair(voltarMenu, atraso) {
   $("mp-placar").style.display = "none";
   if (voltarMenu !== false) { S.duelo = false; goMenu(); }
 }
+
+/* =====================================================================
+   RANQUEADA — achar partida sozinho, sem código
+   ---------------------------------------------------------------------
+   Cada um que aperta PROCURAR se anota em fila/<id> com o seu rank.
+   Todo mundo lê a fila e escolhe o adversário de rank mais parecido.
+   Para os dois não criarem sala ao mesmo tempo, quem tem o id MENOR cria
+   e escreve o código na entrada do outro; o outro só entra. Sem sorteio,
+   sem espera e sem duas salas.
+   ===================================================================== */
+const FILA = { procurando: false, relogio: null, desde: 0, fechar: null };
+
+function rkAtualizarCartao() {
+  const pts = save.rank || 0;
+  $("rk-sim").textContent = simboloDoRank(pts);
+  $("rk-sim").style.color = corDoRank(pts);
+  $("rk-nome").textContent = nomeDoRank(pts);
+  $("rk-nome").style.color = corDoRank(pts);
+  $("rk-pts").textContent = fmt(pts) + " pontos de rank";
+  const prox = proximoRank(pts);
+  const atualMin = (RANKS.filter(r => pts >= r.min).pop() || RANKS[0]).min;
+  if (prox) {
+    const frac = clamp((pts - atualMin) / Math.max(1, prox.min - atualMin), 0, 1);
+    $("rk-barra").style.width = (frac * 100) + "%";
+    $("rk-prox").textContent = "Faltam " + fmt(prox.min - pts) + " para " + prox.sim + " " + prox.nome;
+  } else {
+    $("rk-barra").style.width = "100%";
+    $("rk-prox").textContent = "Rank máximo alcançado";
+  }
+  const v = save.vitorias || 0, d = save.derrotas || 0;
+  const tot = v + d;
+  $("rk-placar").innerHTML =
+    '<div><b style="color:#4CE07A">' + v + "</b><span>VITÓRIAS</span></div>" +
+    '<div><b style="color:var(--danger)">' + d + "</b><span>DERROTAS</span></div>" +
+    "<div><b>" + (tot ? Math.round(v / tot * 100) : 0) + "%</b><span>APROVEITAMENTO</span></div>";
+}
+function abrirRanked() {
+  S.mode = "ranked";
+  rkAtualizarCartao();
+  $("rk-busca").classList.remove("on");
+  showScreen("ranked");
+  rkContarFila();
+}
+async function rkContarFila() {
+  const f = await nuvemReq("fila");
+  const n = f ? Object.keys(f).filter(k => Date.now() - ((f[k] && f[k].ts) || 0) < 25000).length : 0;
+  const el = $("ranked-fila");
+  if (el) el.textContent = n ? n + " na fila" : "";
+}
+
+async function rkProcurar() {
+  if (!nuvemAtiva()) return;
+  AudioSys.resume();
+  FILA.procurando = true;
+  FILA.desde = Date.now();
+  $("rk-busca").classList.add("on");
+  $("rk-procurar").style.display = "none";
+  $("rk-busca-txt").textContent = "Procurando adversário…";
+  const eu = mpMeuId();
+  await nuvemSoltar("fila/" + eu, {
+    nome: save.__name || "Piloto", rank: save.rank || 0, nave: save.ship, ts: Date.now()
+  });
+  if (FILA.relogio) clearInterval(FILA.relogio);
+  FILA.relogio = setInterval(rkTentar, 1100);
+  rkTentar();
+}
+async function rkTentar() {
+  if (!FILA.procurando) return;
+  const eu = mpMeuId();
+  const fila = (await nuvemReq("fila")) || {};
+  const minha = fila[eu];
+
+  // alguém já me escolheu e criou a sala: é só entrar
+  if (minha && minha.sala) {
+    rkPararBusca(false);
+    await nuvemReq("fila/" + eu, { method: "DELETE" });
+    $("rk-busca-txt").textContent = "Adversário encontrado!";
+    await mpEntrarSala(minha.sala, "pvp");
+    return;
+  }
+  // me mantenho vivo na fila
+  nuvemJuntar("fila/" + eu, { ts: Date.now() });
+
+  const meuRank = save.rank || 0;
+  const candidatos = Object.keys(fila)
+    .filter(id => id !== eu && fila[id] && !fila[id].sala &&
+                  Date.now() - (fila[id].ts || 0) < 25000)
+    .sort((a, b) => Math.abs((fila[a].rank || 0) - meuRank) -
+                    Math.abs((fila[b].rank || 0) - meuRank));
+  const espera = (Date.now() - FILA.desde) / 1000;
+  $("rk-busca-txt").textContent = candidatos.length
+    ? "Achei alguém! Preparando o duelo…"
+    : "Procurando adversário… " + Math.round(espera) + "s";
+  if (!candidatos.length) return;
+
+  // só o de id menor cria a sala — assim nunca nascem duas
+  const alvo = candidatos[0];
+  if (eu > alvo) return;                 // o outro cria; eu espero o código
+  // rank muito diferente: espera um pouco antes de aceitar
+  const dif = Math.abs((fila[alvo].rank || 0) - meuRank);
+  if (dif > 900 && espera < 12) return;
+
+  rkPararBusca(false);
+  await mpCriarSala("pvp");
+  if (!MP.sala) { rkProcurar(); return; }
+  await nuvemJuntar("fila/" + alvo, { sala: MP.sala });
+  await nuvemReq("fila/" + eu, { method: "DELETE" });
+  $("sala-dica").textContent = "Adversário a caminho…";
+  // o duelo começa sozinho assim que o outro entrar
+  FILA.autoComecar = setInterval(() => {
+    if (S.mode !== "sala") { clearInterval(FILA.autoComecar); return; }
+    if (Object.keys(MP.outros).length >= 1) {
+      clearInterval(FILA.autoComecar);
+      mpComecar();
+    }
+  }, 400);
+}
+function rkPararBusca(limpar) {
+  FILA.procurando = false;
+  if (FILA.relogio) { clearInterval(FILA.relogio); FILA.relogio = null; }
+  $("rk-busca").classList.remove("on");
+  $("rk-procurar").style.display = "";
+  if (limpar) nuvemReq("fila/" + mpMeuId(), { method: "DELETE" });
+}
+$("btn-ranked").addEventListener("click", () => { AudioSys.resume(); abrirRanked(); });
+$("rk-procurar").addEventListener("click", rkProcurar);
+$("rk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
+
+/* =====================================================================
+   ARENA INFINITA
+   ---------------------------------------------------------------------
+   Uma arena só, para todo mundo, que nunca zera. Todos são aliados.
+   Como não dá para o servidor mandar os inimigos, cada aparelho SORTEIA
+   os mesmos inimigos a partir do número da onda: o sorteio é o mesmo em
+   todo mundo, então ninguém precisa esperar a rede para jogar — por isso
+   não trava nem fica lento. A rede só carrega três coisinhas:
+     arena/onda   — a onda de agora (só sobe)
+     arena/k/<id> — quantos inimigos e chefes CADA UM já derrubou
+     arena/p/<id> — a posição da nave, para todos se verem
+   O total mostrado é a soma de todo mundo, então nunca some nada e não
+   existe briga de escrita entre os aparelhos.
+   ===================================================================== */
+const ARENA = {
+  ligada: false, onda: 1, recorde: 1,
+  meus: { i: 0, c: 0 },      // o que EU já derrubei nesta arena (acumulado)
+  totais: { i: 0, c: 0 },
+  gente: {}, fechar: null, envio: 0, sujo: false
+};
+function arenaModo() { return typeof MP !== "undefined" && MP && MP.modo === "arena"; }
+function arenaCaminho() { return "arena"; }
+function arenaOndaChefe(o) { return o % 5 === 0; }
+
+function arenaAplicar(d) {
+  if (!d) return;
+  ARENA.onda = Math.max(1, d.onda || 1);
+  ARENA.recorde = Math.max(ARENA.recorde, d.recorde || ARENA.onda);
+  const k = d.k || {};
+  let ti = 0, tc = 0;
+  for (const id in k) { ti += (k[id] && k[id].i) || 0; tc += (k[id] && k[id].c) || 0; }
+  ARENA.totais = { i: ti, c: tc };
+  ARENA.gente = {};
+  const est = d.jogadores || {}, mov = d.p || {};
+  for (const id in est) ARENA.gente[id] = Object.assign({}, est[id]);
+  for (const id in mov) {
+    const o = mpDesempacotar(mov[id]);
+    if (o) ARENA.gente[id] = Object.assign(ARENA.gente[id] || {}, o);
+  }
+  // durante a partida, os outros pilotos aparecem voando junto
+  if (arenaModo()) {
+    const vistos = {};
+    for (const id in mov) {
+      if (id === MP.eu) continue;
+      const o = mpDesempacotar(mov[id]);
+      if (!o) continue;
+      vistos[id] = true;
+      if (!MP.outros[id]) MP.outros[id] = {};
+      Object.assign(MP.outros[id], o);
+    }
+    for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
+    // alguém puxou a onda para a frente: acompanha na hora
+    if (S.mode === "playing" && ARENA.onda > S.fase) arenaIrParaOnda(ARENA.onda);
+  }
+  arenaRenderTela();
+  arenaRenderHud();
+}
+function arenaLigarFluxo() {
+  if (ARENA.fechar) return;
+  ARENA.fechar = nuvemFluxo(arenaCaminho(), arenaAplicar, () => {
+    ARENA.relogio = setInterval(async () => {
+      const d = await nuvemReq(arenaCaminho());
+      arenaAplicar(d);
+    }, 1200);
+  });
+}
+function arenaDesligarFluxo() {
+  if (ARENA.fechar) { ARENA.fechar(); ARENA.fechar = null; }
+  if (ARENA.relogio) { clearInterval(ARENA.relogio); ARENA.relogio = null; }
+}
+
+async function abrirArena() {
+  if (!nuvemAtiva()) return;
+  S.mode = "arena";
+  showScreen("arena");
+  arenaLigarFluxo();
+  const d = await nuvemReq(arenaCaminho());
+  if (!d) {
+    // primeira vez: cria a arena
+    await nuvemSoltar(arenaCaminho() + "/onda", 1);
+    await nuvemSoltar(arenaCaminho() + "/recorde", 1);
+    ARENA.onda = 1;
+  } else arenaAplicar(d);
+  arenaRenderTela();
+}
+function arenaRenderTela() {
+  if (S.mode !== "arena") return;
+  const nums = $("arena-nums");
+  if (!nums) return;
+  nums.innerHTML =
+    '<div class="arena-num destaque"><b>' + fmt(ARENA.onda) + "</b><span>ONDA DE AGORA</span></div>" +
+    '<div class="arena-num"><b>' + fmt(ARENA.recorde) + "</b><span>MAIOR ONDA</span></div>" +
+    '<div class="arena-num"><b>' + fmt(ARENA.totais.i) + "</b><span>INIMIGOS DERRUBADOS</span></div>" +
+    '<div class="arena-num"><b>' + fmt(ARENA.totais.c) + "</b><span>CHEFES DERRUBADOS</span></div>";
+  const box = $("arena-gente");
+  const ids = Object.keys(ARENA.gente).filter(id => ARENA.gente[id] && ARENA.gente[id].nome);
+  $("arena-online").textContent = ids.length + (ids.length === 1 ? " piloto" : " pilotos");
+  box.innerHTML = "";
+  if (!ids.length) {
+    box.innerHTML = '<div class="adm-note">Ninguém agora. Entre e comece a onda ' + ARENA.onda + ".</div>";
+    return;
+  }
+  for (const id of ids.slice(0, 20)) {
+    const g = ARENA.gente[id];
+    const row = document.createElement("div");
+    row.className = "arena-p";
+    const cv = document.createElement("canvas");
+    cv.width = 68; cv.height = 68;
+    const c2 = cv.getContext("2d");
+    c2.setTransform(1.9, 0, 0, 1.9, 34, 36);
+    try { drawShipSprite(c2, naveValida(g.nave || 0), 13); } catch (e) {}
+    const n = document.createElement("div");
+    n.className = "n";
+    n.textContent = escaparTexto(g.nome) + (id === nuvemId(save.__name || "") ? " (você)" : "");
+    const v = document.createElement("div");
+    v.className = "v";
+    v.textContent = g.hp !== undefined ? Math.max(0, g.hp) + " de vida" : "pronto";
+    row.appendChild(cv); row.appendChild(n); row.appendChild(v);
+    box.appendChild(row);
+  }
+}
+function arenaRenderHud() {
+  const el = $("arena-hud");
+  if (!el) return;
+  const mostra = arenaModo() && S.mode === "playing";
+  el.classList.toggle("on", mostra);
+  if (!mostra) return;
+  el.innerHTML = "ONDA <b>" + fmt(S.fase) + "</b>" +
+    "<i>☠ " + fmt(ARENA.totais.i) + "</i>" +
+    "<i>👑 " + fmt(ARENA.totais.c) + "</i>" +
+    "<i>👥 " + (Object.keys(MP.outros).length + 1) + "</i>";
+}
+function arenaAtualizarSelo() {
+  const b = $("arena-badge");
+  if (b) b.textContent = ARENA.onda > 1 ? "onda " + fmt(ARENA.onda) : "sem fim";
+  const r = $("ranked-badge");
+  if (r) r.textContent = simboloDoRank(save.rank || 0) + " " + (save.rank || 0);
+}
+
+async function arenaEntrar() {
+  if (!nuvemAtiva()) return;
+  AudioSys.resume();
+  MP.sala = "arena"; MP.modo = "arena"; MP.host = false;
+  MP.eu = mpMeuId(); MP.outros = {}; MP.fim = null; MP.meuDano = 0;
+  ARENA.ligada = true;
+  calcStats();
+  // recupera o que eu já tinha derrubado nesta arena, para nunca diminuir
+  const meu = await nuvemReq(arenaCaminho() + "/k/" + MP.eu);
+  ARENA.meus = { i: (meu && meu.i) || 0, c: (meu && meu.c) || 0 };
+  await nuvemSoltar(arenaCaminho() + "/jogadores/" + MP.eu, {
+    nome: save.__name || "Piloto", nave: save.ship, rank: save.rank || 0, ts: Date.now()
+  });
+  const d = await nuvemReq(arenaCaminho());
+  arenaAplicar(d);
+  arenaLigarFluxo();
+  arenaComecarOnda(Math.max(1, ARENA.onda));
+}
+function arenaComecarOnda(onda) {
+  startGame(onda);
+  S.banner = { text: "ARENA · ONDA " + onda, sub: "todo mundo é aliado", t: 2.2 };
+  arenaRenderHud();
+}
+/* pula para a onda que a arena está, sem parar o jogo */
+function arenaIrParaOnda(onda) {
+  if (!arenaModo() || S.mode !== "playing" || onda === S.fase) return;
+  S.fase = onda;
+  S.waveIdx = 1;
+  S.nWaves = 1;
+  enemies = []; enemyBullets = []; boss = null;
+  MP.meuDano = 0;
+  setupWave();
+  S.banner = { text: "ONDA " + onda, sub: arenaOndaChefe(onda) ? "⚠ CHEFE" : "", t: 1.5 };
+}
+/* eu limpei a minha onda: soma o que derrubei e puxa a arena para a frente */
+function arenaProximaOnda() {
+  const prox = S.fase + 1;
+  arenaSalvarPlacar(true);
+  if (prox > ARENA.onda) {
+    ARENA.onda = prox;
+    nuvemSoltar(arenaCaminho() + "/onda", prox);
+    if (prox > ARENA.recorde) {
+      ARENA.recorde = prox;
+      nuvemSoltar(arenaCaminho() + "/recorde", prox);
+    }
+  }
+  save.arenaOnda = Math.max(save.arenaOnda || 0, S.fase);
+  save.crystals += 6 + Math.round(S.fase * 1.5);
+  persist();
+  arenaIrParaOnda(Math.max(prox, ARENA.onda));
+}
+/* conta um abate meu (some no total de todo mundo) */
+function arenaContar(chefe) {
+  if (!arenaModo()) return;
+  if (chefe) ARENA.meus.c++; else ARENA.meus.i++;
+  ARENA.sujo = true;
+  arenaSalvarPlacar(false);
+}
+function arenaSalvarPlacar(agora) {
+  if (!arenaModo() || !ARENA.sujo) return;
+  const t = Date.now();
+  if (!agora && t - ARENA.envio < 1500) return;   // junta os abates e manda de uma vez
+  ARENA.envio = t;
+  ARENA.sujo = false;
+  nuvemSoltar(arenaCaminho() + "/k/" + MP.eu, { i: ARENA.meus.i, c: ARENA.meus.c });
+}
+function arenaSair() {
+  arenaSalvarPlacar(true);
+  if (MP.eu) {
+    nuvemReq(arenaCaminho() + "/jogadores/" + MP.eu, { method: "DELETE" });
+    nuvemReq(arenaCaminho() + "/p/" + MP.eu, { method: "DELETE" });
+  }
+  ARENA.ligada = false;
+  MP.sala = null; MP.modo = null; MP.outros = {};
+  calcStats();
+  $("arena-hud").classList.remove("on");
+  $("mp-placar").style.display = "none";
+}
+$("btn-arena").addEventListener("click", () => { AudioSys.resume(); abrirArena(); });
+$("arena-entrar").addEventListener("click", arenaEntrar);
 
 /* ----- telas e botões ----- */
 function abrirMulti(aba) {
@@ -4658,18 +5742,36 @@ async function renderAmigos() {
   for (const o of online) porNome[o.nome] = o;
   for (const nome of amigos) {
     const o = porNome[nome];
+    const linha = document.createElement("div");
+    linha.className = "amigo-linha";
     const b = document.createElement("button");
     b.className = "profile-btn";
-    const ativo = o && (Date.now() - (o.atualizado || 0) < 5 * 60 * 1000);
+    const ativo = o && estaOnline(o);
     b.innerHTML = '<span class="profile-name">' + escaparTexto(nome) + "</span>" +
-      '<span class="profile-meta">' + (o ? "fase " + (o.fase || 0) : "sem dados") +
-      (ativo ? " · 🟢 online" : "") + "</span>";
-    b.addEventListener("click", () => {
-      save.amigos = (save.amigos || []).filter(x => x !== nome);
+      '<span class="profile-meta">' +
+        (ativo ? "🟢 " + escaparTexto(o.onde || "no jogo")
+               : (o ? "⚫ fase " + (o.fase || 0) + " · visto " + tempoRelativo(o.atualizado)
+                    : "sem dados")) +
+      "</span>";
+    b.addEventListener("click", () => { if (o) assistirJogador(o); });
+    const olho = document.createElement("button");
+    olho.className = "vivo-olho";
+    olho.textContent = "👁";
+    olho.title = "Ver a tela de " + nome;
+    olho.disabled = !o;
+    olho.addEventListener("click", () => { if (o) assistirJogador(o); });
+    const x = document.createElement("button");
+    x.className = "vivo-olho";
+    x.textContent = "✕";
+    x.title = "Remover " + nome;
+    x.style.color = "var(--danger)";
+    x.addEventListener("click", () => {
+      save.amigos = (save.amigos || []).filter(y => y !== nome);
       persist();
       renderAmigos();
     });
-    lista.appendChild(b);
+    linha.appendChild(b); linha.appendChild(olho); linha.appendChild(x);
+    lista.appendChild(linha);
   }
   const box = $("online-lista");
   box.innerHTML = "";
@@ -4677,20 +5779,30 @@ async function renderAmigos() {
   const outros = online.filter(o => o.nome !== meu).slice(0, 30);
   if (!outros.length) box.innerHTML = '<div class="adm-note">Ninguém online agora.</div>';
   for (const o of outros) {
+    const linha = document.createElement("div");
+    linha.className = "amigo-linha";
     const b = document.createElement("button");
     b.className = "profile-btn";
     const jaAmigo = (save.amigos || []).indexOf(o.nome) >= 0;
-    b.innerHTML = '<span class="profile-name">' + escaparTexto(o.nome) + "</span>" +
-      '<span class="profile-meta">' + (jaAmigo ? "já é seu amigo" : "👤+ adicionar") + "</span>";
+    b.innerHTML = '<span class="profile-name">' + escaparTexto(o.nome) +
+        (estaOnline(o) ? ' <span style="color:#4CE07A">●</span>' : "") + "</span>" +
+      '<span class="profile-meta">' + (jaAmigo ? "já é seu amigo · toque para ver a tela"
+                                               : "👤+ adicionar") + "</span>";
     b.addEventListener("click", () => {
-      if (jaAmigo) return;
+      if (jaAmigo) { assistirJogador(o); return; }
       save.amigos = save.amigos || [];
       save.amigos.push(o.nome);
       persist();
       AudioSys.buy();
       renderAmigos();
     });
-    box.appendChild(b);
+    const olho = document.createElement("button");
+    olho.className = "vivo-olho";
+    olho.textContent = "👁";
+    olho.title = "Ver a tela de " + o.nome;
+    olho.addEventListener("click", () => assistirJogador(o));
+    linha.appendChild(b); linha.appendChild(olho);
+    box.appendChild(linha);
   }
 }
 
@@ -4879,15 +5991,42 @@ function drawCutscene(dt) {
 </script>
 <script>
 "use strict";
-/* ---------- Controles ---------- */
+/* ---------- Controles ----------
+   Celular: arrastar o dedo (a nave acompanha o movimento).
+   Computador: a nave SEGUE O CURSOR sozinha, sem clicar nem segurar, e as
+   habilidades saem por teclas vizinhas (mão esquerda no teclado, direita
+   no mouse).                                                                */
 let dragging = false, dragId = null;
 let dragStartX = 0, dragStartY = 0, shipStartX = 0, shipStartY = 0;
+
+/* teclas coladas umas nas outras, na ordem em que as habilidades aparecem */
+const TECLAS_HAB = ["q", "w", "e", "r", "t", "a", "s", "d", "f", "g"];
+const ROTULOS_TECLA = { " ": "ESPAÇO", "shift": "SHIFT" };
+function nomeDaTecla(t) { return ROTULOS_TECLA[t] || t.toUpperCase(); }
+
+function ehComputador() {
+  if (save && save.controle === "pc") return true;
+  if (save && save.controle === "toque") return false;
+  try {
+    return window.matchMedia("(pointer: fine)").matches &&
+           !window.matchMedia("(any-pointer: coarse)").matches;
+  } catch (e) { return false; }
+}
+let modoPC = false;
+function atualizarModoPC() {
+  modoPC = ehComputador();
+  document.body.classList.toggle("pc", modoPC);
+  const d = $("pc-dica");
+  if (d) d.style.display = modoPC ? "block" : "none";
+  renderHabBar(true);
+}
 
 canvas.addEventListener("pointerdown", e => {
   e.preventDefault();
   AudioSys.resume();
   if (S.mode === "cutscene") return;
   if (S.mode !== "playing" || !player.alive) return;
+  if (modoPC && e.pointerType === "mouse") return;   // no PC não precisa clicar
   dragging = true;
   dragId = e.pointerId;
   dragStartX = e.clientX; dragStartY = e.clientY;
@@ -4895,6 +6034,13 @@ canvas.addEventListener("pointerdown", e => {
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
 });
 canvas.addEventListener("pointermove", e => {
+  if (modoPC && e.pointerType === "mouse") {
+    if (S.mode !== "playing" || !player.alive) return;
+    // segue o cursor direto: onde o mouse está, a nave vai
+    player.tx = clamp(e.clientX, player.r, W - player.r);
+    player.ty = clamp(e.clientY, player.r, H - player.r);
+    return;
+  }
   if (!dragging || e.pointerId !== dragId) return;
   e.preventDefault();
   const k = ST.speedK;
@@ -4911,13 +6057,24 @@ document.addEventListener("touchmove", e => {
 
 const keys = {};
 window.addEventListener("keydown", e => {
-  if (e.target && e.target.tagName === "INPUT") return;
+  if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" ||
+                   e.target.tagName === "TEXTAREA")) return;
   keys[e.key] = true;
-  if ((e.key === "p" || e.key === "P" || e.key === "Escape") && (S.mode === "playing" || S.mode === "paused")) togglePause();
-  if ((e.key === "x" || e.key === "X") && S.mode === "playing") tryUlt();
-  if ((e.key === "c" || e.key === "C") && S.mode === "playing") tryCloak();
+  const t = String(e.key).toLowerCase();
+  if ((t === "p" || e.key === "Escape") && (S.mode === "playing" || S.mode === "paused")) togglePause();
+  if (S.mode !== "playing") return;
+  if (t === "x" || e.key === " ") { e.preventDefault(); tryUlt(); return; }
+  if (t === "c" || e.key === "Shift") { tryCloak(); return; }
+  const i = TECLAS_HAB.indexOf(t);
+  if (i >= 0) {
+    const lista = habilidadesDaNave().filter(h => !h.combo);
+    if (lista[i]) { e.preventDefault(); usarHabilidade(lista[i]); }
+  }
 });
 window.addEventListener("keyup", e => { keys[e.key] = false; });
+try {
+  window.matchMedia("(pointer: fine)").addEventListener("change", atualizarModoPC);
+} catch (e) {}
 
 /* ---------- Navegação ---------- */
 $("btn-play").addEventListener("click", () => { AudioSys.resume(); S.mode = "levels"; renderLevels(); showScreen("levels"); });
@@ -4925,6 +6082,7 @@ $("btn-shop").addEventListener("click", () => { AudioSys.resume(); S.mode = "sho
 $("btn-hangar").addEventListener("click", () => { AudioSys.resume(); S.mode = "hangar"; renderHangar(true); showScreen("hangar"); });
 $("btn-reliquias").addEventListener("click", () => { AudioSys.resume(); S.mode = "reliquias"; renderReliquias(); showScreen("reliquias"); });
 $("btn-tree").addEventListener("click", () => { AudioSys.resume(); S.mode = "tree"; renderTree(); showScreen("tree"); });
+$("btn-novidades").addEventListener("click", () => { AudioSys.resume(); abrirNovidades(); });
 $("btn-rank").addEventListener("click", () => {
   AudioSys.resume();
   S.mode = "rank";
@@ -5035,6 +6193,9 @@ function escaparTexto(t) {
 }
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
+  if (typeof FILA !== "undefined" && FILA.procurando) rkPararBusca(true);
+  if (arenaModo()) arenaSair();
+  if (S.mode !== "arena") arenaDesligarFluxo();
   S.mode = "menu";
   refreshMenu();
   showScreen("menu");
@@ -5044,11 +6205,16 @@ $("btn-resume").addEventListener("click", () => togglePause());
 $("btn-pause").addEventListener("click", () => togglePause());
 $("btn-quit").addEventListener("click", () => {
   bankRunGems(0.5);
-  if (MP.sala) mpSair(false);
+  if (arenaModo()) arenaSair();
+  else if (MP.sala) mpSair(false);
   S.duelo = false;
   goMenu();
 });
-$("btn-retry").addEventListener("click", () => { AudioSys.resume(); startGame(S.fase); });
+$("btn-retry").addEventListener("click", () => {
+  AudioSys.resume();
+  if (arenaModo()) { arenaComecarOnda(Math.max(1, ARENA.onda)); return; }
+  startGame(S.fase);
+});
 $("btn-next").addEventListener("click", () => { AudioSys.resume(); startGame(Math.min(S.fase + 1, TOTAL_FASES)); });
 $("btn-vic-shop").addEventListener("click", () => { S.mode = "shop"; renderShop(); showScreen("shop"); });
 $("btn-go-shop").addEventListener("click", () => { S.mode = "shop"; renderShop(); showScreen("shop"); });
@@ -5270,20 +6436,25 @@ function usarHabilidade(h) {
   renderHabBar();
 }
 
-function renderHabBar() {
+function renderHabBar(forcar) {
   const bar = $("hab-bar");
+  if (!bar) return;
   const lista = habilidadesDaNave();
   if (!lista.length || S.mode !== "playing") { bar.style.display = "none"; return; }
   bar.style.display = "flex";
-  if (bar.dataset.nave !== String(save.ship)) {
-    bar.dataset.nave = String(save.ship);
+  const marca = save.ship + "|" + (modoPC ? "pc" : "t");
+  if (forcar || bar.dataset.nave !== marca) {
+    bar.dataset.nave = marca;
     bar.innerHTML = "";
+    let n = 0;
     for (const h of lista) {
       const b = document.createElement("button");
       b.className = "hab-btn" + (h.combo ? " combo" : "");
       b.dataset.id = h.id;
-      b.title = h.nome + " — " + h.desc;
-      b.innerHTML = '<span class="ic">' + h.icone + '</span>';
+      const tecla = h.combo ? null : TECLAS_HAB[n++];
+      b.title = h.nome + " — " + h.desc + (tecla && modoPC ? "  [" + tecla.toUpperCase() + "]" : "");
+      b.innerHTML = '<span class="ic">' + h.icone + "</span>" +
+        (tecla && modoPC ? '<span class="hab-tecla">' + tecla.toUpperCase() + "</span>" : "");
       if (!h.combo) b.addEventListener("click", () => usarHabilidade(h));
       bar.appendChild(b);
     }
@@ -5349,12 +6520,17 @@ function startGame(fase) {
   showScreen(null);
 }
 
-function waveIsBoss() { return isBossFase(S.fase) && S.waveIdx === S.nWaves; }
+function waveIsBoss() {
+  if (typeof MP !== "undefined" && MP && MP.modo === "arena") return arenaOndaChefe(S.fase);
+  return isBossFase(S.fase) && S.waveIdx === S.nWaves;
+}
 
 function setupWave() {
   atualizarLeitura();
   // no cooperativo os dois aparelhos sorteiam a MESMA onda
-  S.rng = mpCoop() ? rngDe(sementeDaOnda(S.fase, S.waveIdx)) : Math.random;
+  S.rng = (typeof MP !== "undefined" && MP && MP.modo === "arena")
+    ? rngDe((S.fase * 2654435761) >>> 0)
+    : (mpCoop() ? rngDe(sementeDaOnda(S.fase, S.waveIdx)) : Math.random);
   S.waveState = "spawning";
   if (waveIsBoss()) {
     S.toSpawn = 0;
@@ -5740,6 +6916,7 @@ function updateBoss(dt) {
 
 function bossDefeated() {
   if (!boss) return;
+  arenaContar(true);
   const bonus = 500 + S.fase * 20;
   S.score += bonus;
   addText(boss.x, boss.y, "+" + bonus, "#FFC145");
@@ -5852,6 +7029,7 @@ function damageEnemy(e, idx, dmg, crit) {
 }
 function killEnemy(e) {
   S.score += e.score;
+  arenaContar(false);
   explosion(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF4D8F", e.type === "tank" ? 26 : 14);
   AudioSys.explode();
   S.shake = Math.max(S.shake, e.type === "tank" ? 6 : 3);
@@ -6001,6 +7179,7 @@ function gameOver() {
     return;
   }
   S.mode = "gameover";
+  if (arenaModo()) arenaSalvarPlacar(true);
   const isRecord = S.score > save.hi && S.score > 0;
   const gems = bankRunGems(0.5);
   $("go-score").textContent = S.score;
@@ -6317,6 +7496,7 @@ function update(dt) {
   if (S.waveState === "done") {
     S.interTimer -= dt;
     if (S.interTimer <= 0) {
+      if (arenaModo()) { arenaProximaOnda(); return; }
       if (S.waveIdx >= S.nWaves) { faseVictory(); return; }
       S.waveIdx++;
       setupWave();
@@ -7164,6 +8344,7 @@ function loopInterno(now) {
       MP.ultimoEnvio = now;
       mpEnviarPosicao();
     }
+    cenaPublicar();
   }
   requestAnimationFrame(loop);
 }
@@ -7226,6 +8407,167 @@ $("cloud-btn").addEventListener("click", async () => {
     $("cloud-status").textContent = "Não deu para salvar na nuvem agora. Tente de novo.";
   }
 });
+
+/* =====================================================================
+   Ver a tela de outro jogador
+   ---------------------------------------------------------------------
+   Não dá para mandar vídeo por um banco de dados. Então o jogo manda um
+   RESUMO da cena (posições da nave, dos inimigos, das balas e do chefe)
+   umas 3 vezes por segundo, num texto curtinho. Quem está assistindo
+   redesenha a cena na tela dele. Fica igual a ver o jogo da pessoa, e
+   pesa quase nada.
+   ===================================================================== */
+let cenaUltima = 0;
+function cenaPublicar() {
+  if (!nuvemAtiva() || !save.__name || S.mode !== "playing") return;
+  if (save.transmitir === false) return;
+  const agora = Date.now();
+  if (agora - cenaUltima < 330) return;
+  cenaUltima = agora;
+  const q = n => Math.round(n);
+  const ini = enemies.slice(0, 22)
+    .map(e => q(e.x) + "," + q(e.y) + "," + q(e.r || 12)).join("|");
+  const bal = bullets.slice(0, 18).map(b => q(b.x) + "," + q(b.y)).join("|");
+  const inim = enemyBullets.slice(0, 26).map(b => q(b.x) + "," + q(b.y)).join("|");
+  let chefe = "";
+  if (boss) {
+    const frac = boss.maxHp ? clamp(bossHpLeft() / boss.maxHp, 0, 1) : 0;
+    chefe = q(boss.x) + "," + q(boss.y) + "," + Math.round(frac * 100) + "," +
+            q(boss.r || 60) + "," + (boss.kind || "chefe");
+  }
+  const cab = [
+    q(player.x), q(player.y), q(Math.max(0, player.hp)), q(ST ? ST.maxHp : 100),
+    save.ship || 0, S.waveIdx || 0, S.nWaves || 0, S.fase || 0, S.score || 0,
+    q(W), q(H), player.invis > 0 ? 1 : 0
+  ].join(",");
+  nuvemSoltar("cenas/" + nuvemId(save.__name),
+    { q: [cab, ini, bal, inim, chefe].join(";"), t: agora, n: save.__name });
+}
+
+/* ----- lado de quem assiste ----- */
+const AS = { fechar: null, cena: null, quem: null, raf: null, ultimo: 0 };
+function assistirJogador(p) {
+  AS.quem = p;
+  AS.cena = null;
+  AS.ultimo = 0;
+  $("as-nome").textContent = p.nome;
+  $("as-onde").textContent = p.onde || "…";
+  $("as-aviso").style.display = "block";
+  $("as-aviso").textContent = "Esperando a transmissão de " + p.nome + "…";
+  $("assistir").classList.add("on");
+  if (AS.fechar) AS.fechar();
+  AS.fechar = nuvemFluxo("cenas/" + p.id, d => {
+    if (!d || !d.q) return;
+    AS.cena = asLer(d.q);
+    AS.ultimo = Date.now();
+    $("as-aviso").style.display = "none";
+  }, () => {
+    // sem fluxo: busca rápida
+    AS.relogio = setInterval(async () => {
+      const d = await nuvemReq("cenas/" + p.id);
+      if (d && d.q) { AS.cena = asLer(d.q); AS.ultimo = Date.now(); $("as-aviso").style.display = "none"; }
+    }, 400);
+  });
+  asLaco();
+}
+function fecharAssistir() {
+  $("assistir").classList.remove("on");
+  if (AS.fechar) { AS.fechar(); AS.fechar = null; }
+  if (AS.relogio) { clearInterval(AS.relogio); AS.relogio = null; }
+  if (AS.raf) { cancelAnimationFrame(AS.raf); AS.raf = null; }
+  AS.cena = null; AS.quem = null;
+}
+$("as-fechar").addEventListener("click", fecharAssistir);
+
+function asLer(txt) {
+  const p = String(txt).split(";");
+  const c = (p[0] || "").split(",").map(Number);
+  const pontos = t => !t ? [] : t.split("|").map(v => v.split(",").map(Number));
+  return {
+    x: c[0], y: c[1], hp: c[2], hpMax: c[3], nave: c[4],
+    onda: c[5], nOndas: c[6], fase: c[7], pontos: c[8],
+    W: c[9] || 390, H: c[10] || 844, invis: c[11] === 1,
+    inimigos: pontos(p[1]), balas: pontos(p[2]), tiros: pontos(p[3]),
+    chefe: p[4] ? (() => {
+      const b = p[4].split(",");
+      return { x: +b[0], y: +b[1], frac: (+b[2]) / 100, r: +b[3], tipo: b[4] };
+    })() : null
+  };
+}
+function asLaco() {
+  const cv = $("as-tela");
+  const g = cv.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cw = cv.clientWidth, ch = cv.clientHeight;
+  if (cv.width !== Math.round(cw * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, cw, ch);
+
+  const c = AS.cena;
+  const vivo = c && Date.now() - AS.ultimo < 3500;
+  $("as-luz").classList.toggle("on", !!vivo);
+
+  // fundo
+  g.fillStyle = "#060A18";
+  g.fillRect(0, 0, cw, ch);
+  if (c) {
+    // escala a tela da pessoa para caber na minha, sem distorcer
+    const k = Math.min(cw / c.W, ch / c.H);
+    const ox = (cw - c.W * k) / 2, oy = (ch - c.H * k) / 2;
+    g.save();
+    g.translate(ox, oy);
+    g.scale(k, k);
+    g.strokeStyle = "rgba(77,232,255,.18)";
+    g.lineWidth = 2 / k;
+    g.strokeRect(0, 0, c.W, c.H);
+
+    // balas inimigas
+    g.fillStyle = "#FF6B8A";
+    for (const b of c.tiros) { g.beginPath(); g.arc(b[0], b[1], 4, 0, TAU); g.fill(); }
+    // tiros do jogador
+    g.fillStyle = "#7CF7C0";
+    for (const b of c.balas) { g.fillRect(b[0] - 2, b[1] - 8, 4, 14); }
+    // inimigos
+    for (const e of c.inimigos) {
+      g.fillStyle = "rgba(255,77,143,.85)";
+      g.beginPath(); g.arc(e[0], e[1], e[2] || 12, 0, TAU); g.fill();
+      g.strokeStyle = "rgba(255,255,255,.35)"; g.lineWidth = 1.5 / k; g.stroke();
+    }
+    // chefe
+    if (c.chefe) {
+      g.fillStyle = "rgba(195,77,255,.5)";
+      g.beginPath(); g.arc(c.chefe.x, c.chefe.y, c.chefe.r, 0, TAU); g.fill();
+      g.strokeStyle = "#C34DFF"; g.lineWidth = 3 / k; g.stroke();
+      const bw = c.W * 0.6, bx = (c.W - bw) / 2;
+      g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(bx, 24, bw, 9);
+      g.fillStyle = "#FF4D8F"; g.fillRect(bx, 24, bw * c.chefe.frac, 9);
+    }
+    // a nave da pessoa
+    g.save();
+    g.translate(c.x, c.y);
+    g.globalAlpha = c.invis ? 0.4 : 1;
+    try { drawShipSprite(g, naveValida(c.nave), 16); } catch (e) {
+      g.fillStyle = "#4DE8FF"; g.beginPath(); g.arc(0, 0, 14, 0, TAU); g.fill();
+    }
+    g.restore();
+    g.restore();
+
+    const frac = clamp(c.hp / (c.hpMax || 1), 0, 1);
+    $("as-hud").innerHTML =
+      '<span class="as-chip">VIDA <b>' + Math.max(0, c.hp) + "/" + c.hpMax + "</b></span>" +
+      '<span class="as-chip">FASE <b>' + c.fase + "</b></span>" +
+      '<span class="as-chip">ONDA <b>' + c.onda + "/" + c.nOndas + "</b></span>" +
+      '<span class="as-chip">PONTOS <b>' + fmt(c.pontos) + "</b></span>" +
+      '<span class="as-chip">NAVE <b>' + escaparTexto((SHIPS[naveValida(c.nave)] || {}).name || "?") + "</b></span>" +
+      '<span class="as-chip">' + (frac > 0 ? "" : "CAIU ") + (vivo ? "AO VIVO" : "PAUSADO") + "</span>";
+  }
+  if (!vivo && c) {
+    $("as-aviso").style.display = "block";
+    $("as-aviso").textContent = (AS.quem ? AS.quem.nome : "A pessoa") +
+      " saiu da partida. A imagem volta quando ela entrar em uma fase.";
+  }
+  AS.raf = requestAnimationFrame(asLaco);
+}
 
 /* ---------- Caixa de presente ---------- */
 let presenteGuardado = null;
@@ -7368,9 +8710,19 @@ function renderNovidades() {
   const cx = $("nov-lista");
   if (!cx) return;
   $("nov-versao").textContent = "v" + VERSAO;
-  cx.innerHTML = NOVIDADES.map(n =>
-    '<div class="nov-item"><b>v' + n.v + "</b><ul>" +
-    n.itens.map(i => "<li>" + i + "</li>").join("") + "</ul></div>").join("");
+  cx.innerHTML = NOVIDADES.map((n, i) =>
+    '<div class="nov-item' + (i === 0 ? " novo" : "") + '"><b>v' + n.v +
+    (i === 0 ? '<span class="nov-selo">AGORA</span>' : "") + "</b><ul>" +
+    n.itens.map(t => "<li>" + t + "</li>").join("") + "</ul></div>").join("");
+}
+/* marca no menu quando ainda não leram a versão nova */
+function novidadesNovas() { return storageGet("nn_leu_versao", "") !== VERSAO; }
+function abrirNovidades() {
+  storageSet("nn_leu_versao", VERSAO);
+  renderNovidades();
+  S.mode = "novidades";
+  showScreen("novidades");
+  refreshMenu();
 }
 
 /* ---------- Versão do jogo ---------- */
