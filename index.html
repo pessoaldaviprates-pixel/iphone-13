@@ -31,15 +31,29 @@
     --dim:rgba(234,242,255,.55);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  /* a página inteira fica presa: nada de arrastar, esticar ou balançar.
+     Só o que tem a classe .scroll ou .page rola, e só na vertical.       */
   html,body{
-    height:100%;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    width:100%;height:100%;
+    margin:0;padding:0;
     overflow:hidden;
     background:var(--bg);
     color:var(--ink);
     font-family:"Chakra Petch","Segoe UI",system-ui,sans-serif;
     overscroll-behavior:none;
+    touch-action:none;
     -webkit-user-select:none;user-select:none;
+    -webkit-text-size-adjust:100%;
   }
+  .scroll,.login-rolagem,.inv-lista,.vivo-lista,.cn-etapa .scroll,
+  .cp-conteudo,#screen-menu.show,#erro-box{
+    touch-action:pan-y;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .cn-filtros{touch-action:pan-x;overscroll-behavior:contain}
   #game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
   button{font-family:inherit;color:inherit}
   input{
@@ -1617,7 +1631,7 @@
     <div class="menu-grade online" id="menu-online">
       <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
       <button class="tile magenta" id="btn-ranked"><b>⚔</b><span>RANQUEADA</span><i id="ranked-badge"></i></button>
-      <button class="tile" id="btn-multi"><b>👥</b><span>COM AMIGOS</span><i></i></button>
+      <button class="tile" id="btn-multi"><b>👥</b><span>AMIGOS</span><i id="amigos-badge"></i></button>
       <button class="tile" id="btn-rank"><b>🏆</b><span>RANKING</span><i></i></button>
     </div>
 
@@ -1625,7 +1639,6 @@
     <div id="presente-aviso"></div>
     <div class="menu-chips">
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
-      <button class="chip" id="btn-transmitir" title="Deixar (ou não) os amigos verem a sua tela">👁 TRANSMISSÃO</button>
       <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     </div>
     <div id="cloud-status"></div>
@@ -1778,7 +1791,7 @@
     </button>
   </div>
   <div class="abas" id="multi-abas">
-    <button class="aba on" data-modo="coop">🤝 COOPERATIVO</button>
+    <button class="aba on" data-modo="coop" id="aba-coop">🤝 COOPERATIVO</button>
     <button class="aba" data-modo="pvp">⚔ COMPETITIVO</button>
     <button class="aba" data-modo="amigos">👥 AMIGOS</button>
   </div>
@@ -2091,6 +2104,8 @@ function defaultSave() {
     tempos: {},              // fase -> melhor tempo em segundos
     rank: 0, vitorias: 0, derrotas: 0,   // modo competitivo
     coopBest: 0,                         // progresso do cooperativo (200 fases)
+    arenaMortos: 0,          // inimigos que você derrubou na arena infinita
+    arenaChefes: 0,          // chefes que você derrubou na arena infinita
     dificuldade: "medio",    // facil | medio | dificil (o online é sempre médio)
     criadas: [],             // naves montadas por você na oficina de construção
     limpezaNaves: 0,         // número da última limpeza de naves aplicada
@@ -2431,6 +2446,9 @@ async function nuvemEnviar(forcar) {
     rank: save.rank || 0,
     vitorias: save.vitorias || 0,
     derrotas: save.derrotas || 0,
+    arenaOnda: save.arenaOnda || 0,
+    arenaMortos: save.arenaMortos || 0,
+    arenaChefes: save.arenaChefes || 0,
     atualizado: agora
   };
   await nuvemReq("pilotos/" + nuvemId(save.__name), {
@@ -3964,13 +3982,6 @@ function refreshMenu() {
   $("menu-up-badge").textContent = meusUp + "/" + totalUp;
   const nb = $("nov-badge");
   if (nb) nb.classList.toggle("on", novidadesNovas());
-  const tb = $("btn-transmitir");
-  if (tb) {
-    const lig = save.transmitir !== false;
-    tb.textContent = lig ? "👁 TRANSMISSÃO LIGADA" : "🚫 TRANSMISSÃO DESLIGADA";
-    tb.style.color = lig ? "var(--cyan)" : "var(--dim)";
-    tb.style.display = nuvemAtiva() ? "" : "none";
-  }
   if (typeof arenaAtualizarSelo === "function") arenaAtualizarSelo();
 }
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
@@ -4014,6 +4025,7 @@ function mostrarAvisoLimpeza() {
 function entrarNoMenu(name) {
   loginAs(name);
   ligarBatimento();
+  try { cenaEscutarPedidos(); } catch (e) {}
   atualizarModoPC();
   S.mode = "menu";
   refreshMenu();
@@ -4881,10 +4893,14 @@ function invRender() {
     const bt = document.createElement("button");
     bt.className = "adm-btn danger";
     bt.textContent = "TIRAR";
-    bt.addEventListener("click", () => {
+    bt.addEventListener("click", async () => {
       const n = Math.max(0, parseInt($("inv-tirar-qtd").value, 10) || 0);
       if (!n) return;
-      porNaCaixa({ tirarCristais: n }, "Tirar " + fmt(n) + " cristais");
+      admMsg("Tirando…");
+      await admNuvemPresente({ tirarCristais: n }, "Cristais retirados");
+      await invCarregar();
+      admMsg("Tirados ◆ " + fmt(n));
+      AudioSys.buy();
     });
     linha.appendChild(bt);
     lista.appendChild(linha);
@@ -4892,17 +4908,24 @@ function invRender() {
     tudo.className = "adm-btn danger";
     tudo.style.marginTop = "8px";
     tudo.textContent = "TIRAR TODOS OS CRISTAIS";
-    tudo.addEventListener("click", () => porNaCaixa({ setCristais: 0 }, "Zerar cristais"));
+    tudo.addEventListener("click", async () => {
+      admMsg("Zerando…");
+      await admNuvemPresente({ setCristais: 0 }, "Cristais zerados");
+      await invCarregar();
+      AudioSys.buy();
+    });
     lista.appendChild(tudo);
   }
 
   if (invAba !== "cristais") {
+    const n = invContarMarcados();
     const acoes = document.createElement("div");
     acoes.className = "inv-acoes";
-    const por = document.createElement("button");
-    por.className = "adm-btn danger";
-    por.textContent = "PÔR NA CAIXA O QUE MARQUEI";
-    por.addEventListener("click", invMandarParaCaixa);
+    const agora = document.createElement("button");
+    agora.className = "adm-btn danger";
+    agora.textContent = n ? "✕ TIRAR AGORA (" + n + ")" : "✕ TIRAR AGORA";
+    agora.disabled = !n;
+    agora.addEventListener("click", invTirarAgora);
     const limpar = document.createElement("button");
     limpar.className = "adm-btn";
     limpar.textContent = "DESMARCAR";
@@ -4911,9 +4934,64 @@ function invRender() {
       invNiveis = {};
       invRender();
     });
-    acoes.appendChild(por); acoes.appendChild(limpar);
+    acoes.appendChild(agora); acoes.appendChild(limpar);
     box.appendChild(acoes);
+
+    const dica = document.createElement("p");
+    dica.className = "adm-note";
+    dica.style.marginTop = "8px";
+    dica.innerHTML = n
+      ? "<b>" + n + "</b> item(ns) marcado(s). <b>TIRAR AGORA</b> já apaga da conta. " +
+        "Se preferir juntar com outras coisas num pacote só, use PÔR NA CAIXA."
+      : "Toque no <b>✕</b> de cada item para marcar o que quer tirar.";
+    box.appendChild(dica);
+
+    const caixa = document.createElement("button");
+    caixa.className = "adm-btn";
+    caixa.style.marginTop = "8px";
+    caixa.style.width = "100%";
+    caixa.textContent = "📦 PÔR NA CAIXA EM VEZ DE TIRAR AGORA";
+    caixa.disabled = !n;
+    caixa.addEventListener("click", invMandarParaCaixa);
+    box.appendChild(caixa);
   }
+}
+function invMontarRetirada() {
+  const sv = invSave();
+  const naves = Object.keys(invMarcado.naves).map(Number);
+  const amuletos = Object.keys(invMarcado.amuletos).map(Number);
+  const hab = Object.keys(invMarcado.hab);
+  const pecas = Object.keys(invMarcado.pecas).map(Number);
+  const ups = {};
+  for (const u of UPGRADES) {
+    const atual = (sv.upgrades || {})[u.id] || 0;
+    if (invNiveis[u.id] !== undefined && invNiveis[u.id] !== atual) ups[u.id] = invNiveis[u.id];
+  }
+  const p = {};
+  if (naves.length) p.remNaves = naves;
+  if (amuletos.length) p.remAmuletos = amuletos;
+  if (hab.length) p.remHab = hab;
+  if (pecas.length) p.remPecas = pecas;
+  if (Object.keys(ups).length) p.remUp = ups;
+  return p;
+}
+function invContarMarcados() {
+  const p = invMontarRetirada();
+  return (p.remNaves || []).length + (p.remAmuletos || []).length +
+         (p.remHab || []).length + (p.remPecas || []).length +
+         Object.keys(p.remUp || {}).length;
+}
+/* tira na hora: monta, envia e recarrega o inventário — sem passar pela caixa */
+async function invTirarAgora() {
+  const p = invMontarRetirada();
+  if (!invContarMarcados()) { admMsg("Marque o que quer tirar primeiro."); AudioSys.deny(); return; }
+  admMsg("Tirando…");
+  await admNuvemPresente(p, "Itens retirados");
+  invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
+  invNiveis = {};
+  await invCarregar();
+  admMsg("Pronto: os itens saíram da conta.");
+  AudioSys.buy();
 }
 function invMandarParaCaixa() {
   const sv = invSave();
@@ -5025,11 +5103,31 @@ $("caixa-enviar").addEventListener("click", async () => {
   await admNuvemPresente(pacote, "Caixa enviada");
 });
 
+/* Aplica a mudança JÁ na conta guardada na nuvem.
+   Sem isto, tirar um item só valia quando a pessoa abrisse o jogo — e no
+   painel parecia que nada tinha acontecido, porque o inventário lido da
+   nuvem continuava igual.                                                 */
+async function admAplicarNaConta(nome, presente) {
+  if (!nome) return false;
+  const conta = await nuvemReq("contas/" + contaId(nome));
+  if (!conta || !conta.save) return false;
+  const copia = JSON.parse(JSON.stringify(conta.save));
+  try { aplicarPresente(copia, presente); } catch (e) { return false; }
+  conta.save = copia;
+  conta.atualizado = Date.now();
+  await nuvemReq("contas/" + contaId(nome), {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(conta)
+  });
+  if (invConta && invConta.nome === conta.nome) { invConta = conta; invRender(); }
+  return true;
+}
+
 async function admNuvemPresente(presente, msg) {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
   admMsg("Enviando…");
   const ok = await nuvemEnviarPresente(admNuvemAlvo.id, presente);
   if (ok === null) { admMsg("Não deu para enviar. Confira a conexão."); AudioSys.deny(); return; }
+  await admAplicarNaConta(admNuvemAlvo.nome, presente);
   // reflete na hora no registro público
   const atual = Object.assign({}, admNuvemAlvo);
   admEfeitoImediato(atual, presente);
@@ -6316,6 +6414,13 @@ const MP = {
   danoTotal: 0,
   fim: null
 };
+/* ---------------------------------------------------------------------
+   O cooperativo está DESLIGADO por enquanto, a pedido.
+   Nada foi apagado: todo o código continua aqui e volta a funcionar
+   trocando esta chave para true (e a aba reaparece sozinha no menu).
+   --------------------------------------------------------------------- */
+const COOP_LIGADO = false;
+
 function mpCoop() { return !!MP.sala && MP.modo === "coop"; }
 
 /* sorteio igual nos dois aparelhos: mesma semente, mesmos inimigos */
@@ -7198,12 +7303,14 @@ function arenaProximaOnda() {
   save.arenaOnda = Math.max(save.arenaOnda || 0, S.fase);
   save.crystals += 6 + Math.round(S.fase * 1.5);
   persist();
+  nuvemEnviar(false);
   arenaIrParaOnda(Math.max(prox, ARENA.onda));
 }
 /* conta um abate meu (some no total de todo mundo) */
 function arenaContar(chefe) {
   if (!arenaModo()) return;
-  if (chefe) ARENA.meus.c++; else ARENA.meus.i++;
+  if (chefe) { ARENA.meus.c++; save.arenaChefes = (save.arenaChefes || 0) + 1; }
+  else { ARENA.meus.i++; save.arenaMortos = (save.arenaMortos || 0) + 1; }
   ARENA.sujo = true;
   arenaSalvarPlacar(false);
 }
@@ -7233,6 +7340,9 @@ $("arena-entrar").addEventListener("click", arenaEntrar);
 /* ----- telas e botões ----- */
 function abrirMulti(aba) {
   S.mode = "multi";
+  const c = $("aba-coop");
+  if (c) c.style.display = COOP_LIGADO ? "" : "none";
+  if (!COOP_LIGADO && (!aba || aba === "coop")) aba = "amigos";
   trocarAbaMulti(aba || "coop");
   atualizarPvpCartao();
   showScreen("multi");
@@ -7338,8 +7448,14 @@ $("btn-amigos").addEventListener("click", () => trocarAbaMulti("amigos"));
 for (const b of document.querySelectorAll("#multi-abas .aba")) {
   b.addEventListener("click", () => trocarAbaMulti(b.dataset.modo));
 }
-$("coop-criar").addEventListener("click", () => { AudioSys.resume(); mpCriarSala("coop"); });
-$("coop-entrar").addEventListener("click", () => { AudioSys.resume(); mpEntrarSala($("coop-codigo").value, "coop"); });
+$("coop-criar").addEventListener("click", () => {
+  if (!COOP_LIGADO) { avisoMulti("O cooperativo está em manutenção."); AudioSys.deny(); return; }
+  AudioSys.resume(); mpCriarSala("coop");
+});
+$("coop-entrar").addEventListener("click", () => {
+  if (!COOP_LIGADO) { avisoMulti("O cooperativo está em manutenção."); AudioSys.deny(); return; }
+  AudioSys.resume(); mpEntrarSala($("coop-codigo").value, "coop");
+});
 $("pvp-criar").addEventListener("click", () => { AudioSys.resume(); mpCriarSala("pvp"); });
 $("pvp-entrar").addEventListener("click", () => { AudioSys.resume(); mpEntrarSala($("pvp-codigo").value, "pvp"); });
 $("sala-comecar").addEventListener("click", () => { AudioSys.resume(); mpComecar(); });
@@ -7578,8 +7694,26 @@ function endDrag(e) { if (e.pointerId === dragId) { dragging = false; dragId = n
 canvas.addEventListener("pointerup", endDrag);
 canvas.addEventListener("pointercancel", endDrag);
 canvas.addEventListener("contextmenu", e => e.preventDefault());
+/* durante a partida nada mais rola: o dedo é só para pilotar */
 document.addEventListener("touchmove", e => {
-  if (e.target === canvas || e.target === of3d) e.preventDefault();
+  if (e.target === canvas || e.target === of3d) { e.preventDefault(); return; }
+  if (S.mode === "playing" || S.mode === "cutscene") { e.preventDefault(); return; }
+  // fora da partida, deixa rolar apenas dentro de quem tem rolagem própria
+  let n = e.target;
+  while (n && n !== document.body) {
+    if (n.classList && (n.classList.contains("scroll") ||
+        n.classList.contains("login-rolagem") || n.classList.contains("inv-lista") ||
+        n.classList.contains("vivo-lista") || n.classList.contains("cn-filtros") ||
+        n.classList.contains("cp-conteudo") || n.id === "screen-menu" ||
+        n.id === "erro-box" || n.classList.contains("nov-lista"))) return;
+    n = n.parentNode;
+  }
+  e.preventDefault();
+}, { passive: false });
+/* o gesto de puxar para recarregar também fica de fora */
+document.addEventListener("gesturestart", e => e.preventDefault(), { passive: false });
+document.addEventListener("dblclick", e => {
+  if (S.mode === "playing") e.preventDefault();
 }, { passive: false });
 
 const keys = {};
@@ -7610,15 +7744,6 @@ $("btn-hangar").addEventListener("click", () => { AudioSys.resume(); S.mode = "h
 $("btn-reliquias").addEventListener("click", () => { AudioSys.resume(); S.mode = "reliquias"; renderReliquias(); showScreen("reliquias"); });
 $("btn-tree").addEventListener("click", () => { AudioSys.resume(); S.mode = "tree"; renderTree(); showScreen("tree"); });
 $("btn-novidades").addEventListener("click", () => { AudioSys.resume(); abrirNovidades(); });
-$("btn-transmitir").addEventListener("click", () => {
-  save.transmitir = save.transmitir === false;
-  persist();
-  AudioSys.buy();
-  if (save.transmitir === false && save.__name) {
-    nuvemReq("cenas/" + nuvemId(save.__name), { method: "DELETE" });
-  }
-  refreshMenu();
-});
 $("btn-rank").addEventListener("click", () => {
   AudioSys.resume();
   S.mode = "rank";
@@ -7644,6 +7769,18 @@ const TABELAS = [
     ordena: (a, b) => (b.naves || 1) - (a.naves || 1),
     valor: p => (p.naves || 1), rotulo: "NAVES",
     meta: p => "fase " + (p.fase || 0) + " · " + (p.amuletos || 0) + " amuletos" },
+  { id: "arena", nome: "ARENA — ONDAS",
+    filtra: p => (p.arenaOnda || 0) > 0,
+    ordena: (a, b) => (b.arenaOnda || 0) - (a.arenaOnda || 0) ||
+                      (b.arenaMortos || 0) - (a.arenaMortos || 0),
+    valor: p => (p.arenaOnda || 0), rotulo: "ONDA",
+    meta: p => "☠ " + fmt(p.arenaMortos || 0) + " abatidos · 👑 " + fmt(p.arenaChefes || 0) + " chefes" },
+  { id: "abates", nome: "ARENA — ABATES",
+    filtra: p => (p.arenaMortos || 0) + (p.arenaChefes || 0) > 0,
+    ordena: (a, b) => ((b.arenaMortos || 0) + (b.arenaChefes || 0) * 25) -
+                      ((a.arenaMortos || 0) + (a.arenaChefes || 0) * 25),
+    valor: p => fmt(p.arenaMortos || 0), rotulo: "ABATIDOS",
+    meta: p => "👑 " + fmt(p.arenaChefes || 0) + " chefes · onda " + (p.arenaOnda || 0) },
   { id: "pvp",   nome: "COMPETITIVO",
     filtra: p => (p.vitorias || 0) + (p.derrotas || 0) > 0,
     ordena: (a, b) => (b.rank || 0) - (a.rank || 0) || (b.vitorias || 0) - (a.vitorias || 0),
@@ -7867,10 +8004,11 @@ function danoEmArea(x, y, raio, dano, cor) {
 function limparTiros(msg) {
   const n = enemyBullets.length;
   for (const b of enemyBullets) {
+    if (!b) continue;
     particles.push({ x: b.x, y: b.y, vx: rand(-60, 60), vy: rand(-60, 60),
                      t: 0.3, max: 0.3, color: "#9FF3FF", r: 2.5 });
   }
-  enemyBullets = [];
+  enemyBullets.length = 0;
   if (msg) addText(player.x, player.y - 34, msg, "#4DE8FF");
   return n;
 }
@@ -7883,8 +8021,8 @@ function superNova(x, y) {
   explosion(x, y, "#FFFFFF", 70, 520);
   explosion(x, y, "#FFC145", 60, 420);
   explosion(x, y, "#FF4D8F", 50, 360);
-  enemyBullets = [];
-  buracos = [];
+  enemyBullets.length = 0;
+  buracos.length = 0;
   // varre os inimigos da tela e castiga o chefe (efeito só de jogo)
   for (let j = enemies.length - 1; j >= 0; j--) damageEnemy(enemies[j], j, 99999, false);
   if (boss && !boss.entering) {
@@ -8612,7 +8750,7 @@ function blastArea(x, y, radius, dmg) {
   }
 }
 function novaBlast() {
-  enemyBullets = [];
+  enemyBullets.length = 0;
   blastArea(player.x, player.y, 180, 3 * ST.dmg);
   explosion(player.x, player.y, "#C34DFF", 34, 300);
   addText(player.x, player.y - 40, "NOVA DE CHOQUE", "#C34DFF");
@@ -8664,7 +8802,7 @@ function hitPlayer() {
       player.revivesUsed++;
       player.lives = 1;
       player.invuln = 3;
-      enemyBullets = [];
+      enemyBullets.length = 0;
       addText(player.x, player.y - 40, "SISTEMA DE EMERGÊNCIA", "#FFC145");
       AudioSys.power();
       updateHud();
@@ -9065,7 +9203,9 @@ function update(dt) {
 
   /* --- balas do jogador --- */
   for (let i = bullets.length - 1; i >= 0; i--) {
+    if (i >= bullets.length) { i = bullets.length; continue; }
     const b = bullets[i];
+    if (!b) continue;
     b.x += b.vx * dt; b.y += b.vy * dt;
     if (b.y < -20 || b.y > H + 20 || b.x < -20 || b.x > W + 20) { bullets.splice(i, 1); continue; }
 
@@ -9158,7 +9298,9 @@ function update(dt) {
   /* --- inimigos --- */
   const dl = Math.min(dLevel(), 60);
   for (let i = enemies.length - 1; i >= 0; i--) {
+    if (i >= enemies.length) { i = enemies.length; continue; }
     const e = enemies[i];
+    if (!e) continue;
     e.t += dt;
     if (e.hitFlash > 0) e.hitFlash -= dt;
     if (e.slowT > 0) e.slowT -= dt;
@@ -9192,6 +9334,7 @@ function update(dt) {
         dist2(e.x, e.y, player.x, player.y) < (e.r + player.r - 4) * (e.r + player.r - 4)) {
       killEnemy(e);
       enemies.splice(i, 1);
+      // hitPlayer pode limpar listas inteiras (Nova de Choque, Emergência)
       if (player.invis <= 0) hitPlayer();
       else addText(player.x, player.y - 26, "ABATIDO!", "#C34DFF");
     }
@@ -9216,7 +9359,9 @@ function update(dt) {
         if (o.sim.length > 60) o.sim = o.sim.slice(-60);
       }
       for (let i = o.sim.length - 1; i >= 0; i--) {
+        if (i >= o.sim.length) { i = o.sim.length; continue; }
         const b = o.sim[i];
+        if (!b) continue;
         b.t -= dt;
         b.x += b.vx * dt; b.y += b.vy * dt;
         if (b.t <= 0 || b.y > H + 30 || b.y < -30) { o.sim.splice(i, 1); continue; }
@@ -9229,9 +9374,14 @@ function update(dt) {
     }
   }
 
-  /* --- balas inimigas --- */
+  /* --- balas inimigas ---
+     Cuidado: levar dano pode disparar a Nova de Choque ou o Sistema de
+     Emergência, e os dois LIMPAM esta mesma lista no meio do laço. Por
+     isso o índice é conferido a cada volta.                              */
   for (let i = enemyBullets.length - 1; i >= 0; i--) {
+    if (i >= enemyBullets.length) { i = enemyBullets.length; continue; }
     const b = enemyBullets[i];
+    if (!b) continue;
     if (b.homing) {
       b.life -= dt;
       if (b.life <= 0) { enemyBullets.splice(i, 1); continue; }
@@ -9253,7 +9403,9 @@ function update(dt) {
 
   /* --- power-ups --- */
   for (let i = powerups.length - 1; i >= 0; i--) {
+    if (i >= powerups.length) { i = powerups.length; continue; }
     const p = powerups[i];
+    if (!p) continue;
     p.t += dt;
     p.y += p.vy * dt;
     p.x += Math.sin(p.t * 3) * 20 * dt;
@@ -9902,6 +10054,7 @@ function draw() {
 
   ctx.shadowColor = "#FF4D8F"; ctx.shadowBlur = 8;
   for (const b of enemyBullets) {
+    if (!b) continue;
     ctx.fillStyle = b.homing ? "#FF5252" : "#FF87B3";
     ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill();
   }
@@ -10109,13 +10262,31 @@ $("cloud-btn").addEventListener("click", async () => {
    redesenha a cena na tela dele. Fica igual a ver o jogo da pessoa, e
    pesa quase nada.
    ===================================================================== */
-let cenaUltima = 0;
+/* ---------------------------------------------------------------------
+   A tela só é transmitida enquanto ALGUÉM está olhando.
+   Antes ela subia o tempo todo, gastando rede à toa. Agora quem abre o
+   👁 deixa um pedido em pedidos/<id>; o jogo do outro lado escuta esse
+   pedido (uma conexão minúscula) e só então começa a mandar a cena.
+   Parou de olhar, para de transmitir sozinho em poucos segundos.
+   --------------------------------------------------------------------- */
+let cenaUltima = 0, cenaPedido = 0, cenaFechar = null;
+function cenaEscutarPedidos() {
+  if (cenaFechar || !nuvemAtiva() || !save.__name) return;
+  cenaFechar = nuvemFluxo("pedidos/" + nuvemId(save.__name), d => {
+    cenaPedido = (d && d.ver) || 0;
+  }, () => {
+    cenaRelogio = setInterval(async () => {
+      const d = await nuvemReq("pedidos/" + nuvemId(save.__name));
+      cenaPedido = (d && d.ver) || 0;
+    }, 4000);
+  });
+}
+let cenaRelogio = null;
 function cenaPublicar() {
   if (!nuvemAtiva() || !save.__name || S.mode !== "playing") return;
-  if (save.transmitir === false) return;
+  if (Date.now() - cenaPedido > 12000) return;      // ninguém olhando
   const agora = Date.now();
-  // numa sala a rede já está ocupada com o parceiro: transmite mais devagar
-  const espera = MP.sala ? 900 : 500;
+  const espera = MP.sala ? 700 : 400;
   if (agora - cenaUltima < espera) return;
   cenaUltima = agora;
   const q = n => Math.round(n);
@@ -10147,8 +10318,15 @@ function assistirJogador(p) {
   $("as-nome").textContent = p.nome;
   $("as-onde").textContent = p.onde || "…";
   $("as-aviso").style.display = "block";
-  $("as-aviso").textContent = "Esperando a transmissão de " + p.nome + "…";
+  $("as-aviso").textContent = "Pedindo a tela de " + p.nome +
+    "… (só aparece quando a pessoa estiver dentro de uma fase)";
   $("assistir").classList.add("on");
+  // avisa que estou olhando, e vai renovando enquanto a janela estiver aberta
+  nuvemSoltar("pedidos/" + p.id, { ver: Date.now(), por: save.__name || "adm" });
+  if (AS.aviso) clearInterval(AS.aviso);
+  AS.aviso = setInterval(() => {
+    nuvemSoltar("pedidos/" + p.id, { ver: Date.now(), por: save.__name || "adm" });
+  }, 5000);
   if (AS.fechar) AS.fechar();
   AS.fechar = nuvemFluxo("cenas/" + p.id, d => {
     if (!d || !d.q) return;
@@ -10166,6 +10344,8 @@ function assistirJogador(p) {
 }
 function fecharAssistir() {
   $("assistir").classList.remove("on");
+  if (AS.aviso) { clearInterval(AS.aviso); AS.aviso = null; }
+  if (AS.quem) nuvemReq("pedidos/" + AS.quem.id, { method: "DELETE" });
   if (AS.fechar) { AS.fechar(); AS.fechar = null; }
   if (AS.relogio) { clearInterval(AS.relogio); AS.relogio = null; }
   if (AS.raf) { cancelAnimationFrame(AS.raf); AS.raf = null; }
@@ -10358,6 +10538,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.0", itens: [
+      "CORRIGIDO o travamento ao levar dano com a Nova de Choque: a habilidade limpava as balas no meio do laço do jogo e quebrava tudo",
+      "A tela não arrasta mais: a página ficou presa e só rola onde tem de rolar",
+      "Duas tabelas novas: quem chegou mais longe na ARENA e quem mais derrubou inimigos lá",
+      "O cooperativo saiu do menu por enquanto (nada foi perdido, ele volta depois)",
+      "No painel: botão TIRAR AGORA no inventário, que apaga o item da conta na hora e já mostra o resultado",
+      "A transmissão de tela saiu do menu: agora só liga sozinha quando alguém está olhando de verdade"
+    ] },
   { v: "2.9", itens: [
       "MÚSICA no jogo: cada uma das 270 fases tem a sua trilha, e os chefes têm um tema mais tenso. Dá para desligar no 🎵 do canto",
       "Cooperativo destravado: o jogo mandava 30 pedidos por segundo para a nuvem e entupia a conexão do celular. Agora vai tudo num pacote só e o ritmo se ajusta à sua internet",
@@ -10449,7 +10637,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.9";
+const VERSAO = "3.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
