@@ -78,14 +78,25 @@ Na tela **Relíquias** você equipa até **3 amuletos** ao mesmo tempo. Eles cae
 
 ## Painel de administrador
 
-Na tela de login há o botão **⚙ PAINEL ADM**. No primeiro acesso, a senha que você digitar vira a senha do administrador (fica gravada no save). Lá dentro dá para **puxar qualquer jogador pelo nome** e conceder:
+Na tela de login há o botão **⚙ PAINEL ADM**. A senha padrão é **`neonadmin`**.
 
-- +10.000 cristais · +25 pontos de habilidade
-- Todas as 50 naves · Todas as 120 fases
-- A Capa da Invisibilidade lendária
-- Zerar o jogador (com confirmação em dois toques)
+**Troque a senha antes de divulgar o jogo:** abra o jogo, aperte F12 (console do navegador), rode `admHash("suasenhanova")` e cole o resultado na constante `ADM_MASTER`, no começo do bloco *Painel ADM* do `index.html`.
 
-> O painel é **local**: administra os pilotos salvos neste jogo (aparelho + save da nuvem), já que o jogo não usa servidor.
+O painel tem busca por nome e, para o piloto selecionado:
+
+| Seção | O que dá para fazer |
+|---|---|
+| **Rápido** | Desbloquear tudo de uma vez · modo invencível · entrar como aquele piloto |
+| **Cristais** | Dar ou definir **qualquer quantidade** (campo livre), atalhos de +1 mil a +1 milhão, máximo e zerar |
+| **Progresso** | Definir fase, pontos de habilidade e recorde; liberar as 120 fases |
+| **Naves** | Dar uma nave específica (lista das 50), todas as naves, peças no máximo, melhorias no máximo, liberar pinturas e armas |
+| **Habilidades** | Desbloquear as 120 ou limpar a árvore |
+| **Amuletos** | Dar amuleto escolhendo tipo e raridade, os 3 lendários, um de cada, ou apagar todos |
+| **Perfil** | Renomear, duplicar, exportar save, zerar e apagar (com confirmação em dois toques) |
+| **Todos** | Criar piloto, dar 10 mil cristais a todos, exportar tudo |
+| **Cópia de segurança** | Exportar e importar saves em texto — serve para levar o progresso de um celular para outro |
+
+> ⚠️ **O painel é local.** O jogo roda inteiro no aparelho de cada jogador e **não existe servidor**: você administra apenas os pilotos salvos **no seu aparelho**. Não é possível ver nem alterar o progresso de quem baixou o jogo. Pelo mesmo motivo, a senha do ADM protege contra o acesso casual, mas quem souber abrir o código do navegador consegue contornar — em jogo sem servidor não existe proteção real do lado do cliente.
 
 ## Onde o progresso é salvo (banco de dados)
 

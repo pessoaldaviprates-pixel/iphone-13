@@ -183,12 +183,66 @@
   .adm-link{font-size:.72rem;color:var(--dim);letter-spacing:.14em;background:none;border:none;cursor:pointer;padding:8px}
 
   /* ---------- Painel ADM ---------- */
-  .adm-box{display:flex;flex-direction:column;gap:10px;width:min(86vw,340px)}
-  .adm-note{font-size:.7rem;color:var(--dim);line-height:1.5;max-width:36ch}
-  .adm-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-  .adm-actions .ghost-btn{padding:10px 8px;font-size:.72rem}
-  .adm-actions .danger{border-color:rgba(255,82,82,.5);color:var(--danger)}
-  #adm-msg{font-size:.78rem;color:var(--amber);min-height:1.2em;font-weight:600}
+  .adm-box{display:flex;flex-direction:column;gap:10px;width:min(86vw,340px);margin:0 auto}
+  .adm-note{font-size:.7rem;color:var(--dim);line-height:1.5;max-width:40ch}
+  .adm-card{
+    background:var(--panel2);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin:0 auto 12px auto;max-width:520px;
+  }
+  .adm-card.lock{max-width:340px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+  .adm-h{
+    font-family:"Russo One",sans-serif;font-size:.74rem;letter-spacing:.14em;
+    color:var(--cyan);margin-bottom:10px;text-align:left;
+  }
+  .adm-h.gold{color:var(--amber)}
+  .adm-h.red{color:var(--danger)}
+  .adm-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .adm-row + .adm-row{margin-top:8px}
+  .adm-row input,.adm-row select{
+    flex:1 1 120px;min-width:0;padding:10px 12px;font-size:.88rem;border-radius:11px;
+  }
+  .adm-row select{
+    background:rgba(6,10,24,.8);border:1px solid var(--line);color:var(--ink);
+    font-family:inherit;
+  }
+  .adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px}
+  .adm-grid + .adm-h{margin-top:14px}
+  .adm-btn{
+    padding:11px 8px;border-radius:11px;cursor:pointer;
+    border:1px solid var(--line);background:rgba(77,232,255,.07);color:var(--ink);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.05em;
+  }
+  .adm-btn:active{background:rgba(77,232,255,.2)}
+  .adm-btn.gold{border-color:rgba(255,193,69,.5);color:var(--amber);background:rgba(255,193,69,.08)}
+  .adm-btn.gold:active{background:rgba(255,193,69,.2)}
+  .adm-btn.danger{border-color:rgba(255,82,82,.5);color:var(--danger);background:rgba(255,82,82,.07)}
+  .adm-btn.danger:active{background:rgba(255,82,82,.2)}
+  .adm-btn.wide{grid-column:1/-1}
+  .adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:12px}
+  .adm-stat b{display:block;font-family:"Russo One",sans-serif;font-size:.95rem;font-variant-numeric:tabular-nums}
+  .adm-stat span{font-size:.55rem;letter-spacing:.12em;color:var(--dim)}
+  .adm-search{margin-bottom:10px}
+  #adm-players{width:100%;max-height:none}
+  #adm-players .profile-btn.sel{border-color:var(--amber);background:rgba(255,193,69,.08)}
+  .adm-ta{
+    width:100%;min-height:96px;resize:vertical;padding:10px 12px;border-radius:11px;
+    background:rgba(6,10,24,.8);border:1px solid var(--line);color:var(--ink);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;line-height:1.4;
+  }
+  #adm-msg{
+    position:sticky;bottom:0;z-index:2;
+    font-size:.78rem;color:#04121c;font-weight:700;text-align:center;
+    background:var(--amber);border-radius:12px;padding:0 12px;
+    max-width:520px;margin:0 auto;
+    max-height:0;overflow:hidden;transition:max-height .2s,padding .2s;
+  }
+  #adm-msg.on{max-height:60px;padding:11px 12px}
+  .god-badge{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(96px + env(safe-area-inset-top));z-index:6;pointer-events:none;
+    font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--danger);
+    text-shadow:0 0 12px rgba(255,82,82,.8);display:none;
+  }
 
   /* ---------- Telas com rolagem ---------- */
   .page{
@@ -438,6 +492,7 @@
   <button id="cloak-btn">CAPA</button>
 </div>
 
+<div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
 <button id="cut-skip">PULAR ›</button>
 
 <!-- LOGIN -->
@@ -455,30 +510,157 @@
 </div>
 
 <!-- PAINEL ADM -->
-<div class="screen" id="screen-adm">
-  <div class="tagline">Acesso restrito</div>
-  <h1 class="brand" style="font-size:clamp(1.6rem,7vw,2.6rem)">PAINEL <em>ADM</em></h1>
-  <div class="adm-box" id="adm-pass-row">
-    <input id="adm-pass" type="password" maxlength="24" placeholder="Senha do administrador" autocomplete="off">
-    <button class="big-btn" id="btn-adm-enter">ENTRAR</button>
-    <p class="adm-note" id="adm-pass-note"></p>
+<div class="page" id="screen-adm">
+  <div class="page-head">
+    <button class="back-btn" id="btn-adm-back" aria-label="Voltar">‹</button>
+    <div class="page-title">PAINEL ADM</div>
+    <div class="page-gems" id="adm-count"></div>
   </div>
-  <div class="adm-box" id="adm-panel" style="display:none">
-    <div class="of-h" style="text-align:left">JOGADORES</div>
-    <div class="profile-list" id="adm-players" style="width:100%"></div>
-    <div class="of-h" style="text-align:left;margin-top:6px" id="adm-target">Selecione um jogador acima</div>
-    <div class="adm-actions" id="adm-actions" style="display:none">
-      <button class="ghost-btn" id="adm-give-gems">+10.000 CRISTAIS</button>
-      <button class="ghost-btn" id="adm-give-pts">+25 PONTOS</button>
-      <button class="ghost-btn" id="adm-give-ships">TODAS AS NAVES</button>
-      <button class="ghost-btn" id="adm-give-fases">TODAS AS FASES</button>
-      <button class="ghost-btn" id="adm-give-capa">DAR CAPA LENDÁRIA</button>
-      <button class="ghost-btn danger" id="adm-reset">ZERAR JOGADOR</button>
+  <div class="scroll">
+
+    <div class="adm-card lock" id="adm-pass-row">
+      <div class="adm-h" style="text-align:center;width:100%">ACESSO RESTRITO</div>
+      <input id="adm-pass" type="password" maxlength="32" placeholder="Senha do administrador" autocomplete="off">
+      <button class="big-btn" id="btn-adm-enter">ENTRAR</button>
+      <p class="adm-note" id="adm-pass-note"></p>
     </div>
+
+    <div id="adm-panel" style="display:none">
+
+      <div class="adm-card">
+        <div class="adm-h">PILOTOS NESTE APARELHO</div>
+        <input class="adm-search" id="adm-search" placeholder="Buscar piloto pelo nome" autocomplete="off">
+        <div class="profile-list" id="adm-players"></div>
+      </div>
+
+      <div id="adm-sel-box" style="display:none">
+
+        <div class="adm-card">
+          <div class="adm-h gold" id="adm-target">Piloto</div>
+          <div class="adm-stats" id="adm-stats"></div>
+          <div class="adm-grid">
+            <button class="adm-btn gold wide" id="adm-tudo">⭐ DESBLOQUEAR TUDO</button>
+            <button class="adm-btn" id="adm-god">⚡ MODO INVENCÍVEL</button>
+            <button class="adm-btn" id="adm-usar">USAR ESTE PILOTO</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h gold">CRISTAIS</div>
+          <div class="adm-row">
+            <input id="adm-gem-val" type="number" inputmode="numeric" placeholder="Quantidade" value="10000">
+            <button class="adm-btn gold" id="adm-gem-add">DAR</button>
+            <button class="adm-btn" id="adm-gem-set">DEFINIR</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" data-gem="1000">+1 MIL</button>
+            <button class="adm-btn" data-gem="10000">+10 MIL</button>
+            <button class="adm-btn" data-gem="100000">+100 MIL</button>
+            <button class="adm-btn" data-gem="1000000">+1 MILHÃO</button>
+            <button class="adm-btn" data-gem="999999999">MÁXIMO</button>
+            <button class="adm-btn danger" id="adm-gem-zero">ZERAR</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">PROGRESSO</div>
+          <div class="adm-row">
+            <input id="adm-fase-val" type="number" inputmode="numeric" min="0" max="120" placeholder="Fase" value="120">
+            <button class="adm-btn" id="adm-fase-set">DEFINIR FASE</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-pts-val" type="number" inputmode="numeric" placeholder="Pontos" value="120">
+            <button class="adm-btn" id="adm-pts-set">DEFINIR PONTOS</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-hi-val" type="number" inputmode="numeric" placeholder="Recorde" value="100000">
+            <button class="adm-btn" id="adm-hi-set">DEFINIR RECORDE</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" id="adm-fases-all">TODAS AS FASES</button>
+            <button class="adm-btn danger" id="adm-fases-zero">ZERAR FASES</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">NAVES E OFICINA</div>
+          <div class="adm-row">
+            <select id="adm-ship-sel"></select>
+            <button class="adm-btn" id="adm-ship-give">DAR NAVE</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn gold" id="adm-ships-all">TODAS AS 50 NAVES</button>
+            <button class="adm-btn" id="adm-parts-max">PEÇAS NO MÁXIMO</button>
+            <button class="adm-btn" id="adm-shop-max">MELHORIAS NO MÁXIMO</button>
+            <button class="adm-btn" id="adm-paint-all">PINTURAS E ARMAS</button>
+            <button class="adm-btn danger wide" id="adm-ships-zero">DEIXAR SÓ A NAVE INICIAL</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">HABILIDADES</div>
+          <div class="adm-grid">
+            <button class="adm-btn gold" id="adm-skills-all">DESBLOQUEAR AS 120</button>
+            <button class="adm-btn danger" id="adm-skills-zero">LIMPAR ÁRVORE</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">AMULETOS</div>
+          <div class="adm-row">
+            <select id="adm-amu-tipo"></select>
+            <select id="adm-amu-rar"></select>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn gold" id="adm-amu-give">DAR AMULETO</button>
+            <button class="adm-btn gold" id="adm-amu-lend">OS 3 LENDÁRIOS</button>
+            <button class="adm-btn" id="adm-amu-all">UM DE CADA (ÉPICO)</button>
+            <button class="adm-btn danger" id="adm-amu-zero">APAGAR TODOS</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h red">PERFIL</div>
+          <div class="adm-row">
+            <input id="adm-rename" maxlength="14" placeholder="Novo nome">
+            <button class="adm-btn" id="adm-rename-go">RENOMEAR</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" id="adm-dup">DUPLICAR</button>
+            <button class="adm-btn" id="adm-export">EXPORTAR SAVE</button>
+            <button class="adm-btn danger" id="adm-reset">ZERAR PILOTO</button>
+            <button class="adm-btn danger" id="adm-del">APAGAR PILOTO</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-h">TODOS OS PILOTOS</div>
+        <div class="adm-row">
+          <input id="adm-novo" maxlength="14" placeholder="Criar piloto novo">
+          <button class="adm-btn" id="adm-novo-go">CRIAR</button>
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn gold" id="adm-gem-todos">+10 MIL A TODOS</button>
+          <button class="adm-btn" id="adm-export-tudo">EXPORTAR TUDO</button>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-h">CÓPIA DE SEGURANÇA</div>
+        <textarea class="adm-ta" id="adm-json" placeholder="O save exportado aparece aqui. Para restaurar, cole um save válido e toque em IMPORTAR."></textarea>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn" id="adm-copy">COPIAR</button>
+          <button class="adm-btn gold" id="adm-import">IMPORTAR</button>
+        </div>
+        <p class="adm-note" style="margin-top:10px">Serve para levar o progresso de um celular para outro: exporte aqui, mande o texto para o outro aparelho e importe lá.</p>
+      </div>
+
+      <p class="adm-note" style="text-align:center;max-width:none">O jogo roda inteiro no aparelho de cada jogador. Este painel administra apenas os pilotos salvos <b>neste</b> aparelho.</p>
+    </div>
+
     <div id="adm-msg"></div>
   </div>
-  <button class="ghost-btn" id="btn-adm-back">VOLTAR</button>
-  <div class="credit">PAINEL LOCAL: VALE PARA OS PILOTOS SALVOS NESTE JOGO</div>
 </div>
 
 <!-- MENU PRINCIPAL -->
@@ -726,7 +908,8 @@ function defaultSave() {
     weaponSel: {},           // nave -> arma equipada
     amulets: [],             // {uid, type, rar}
     amuletSeq: 1,
-    equipped: []             // uids equipados (até 3)
+    equipped: [],            // uids equipados (até 3)
+    godMode: false           // ligado pelo painel ADM
   };
 }
 function mergeSave(parsed) {
@@ -1243,6 +1426,7 @@ const SCREENS = {
 function showScreen(name) {
   for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "flex" : "none";
+  $("god-badge").style.display = (name === null && save.godMode) ? "block" : "none";
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
 }
@@ -1328,48 +1512,157 @@ $("btn-logout").addEventListener("click", () => {
   showScreen("login");
 });
 
-/* ---------- Painel ADM ---------- */
+/* ---------- Painel ADM ----------
+   Segurança possível num jogo sem servidor: a senha mestre fica no código
+   (embaralhada), o que impede o acesso casual. Quem souber abrir o código do
+   navegador consegue contornar — não existe proteção real do lado do cliente.
+   Para trocar a senha: abra o console do navegador, rode admHash("suasenha")
+   e cole o resultado em ADM_MASTER abaixo.                                   */
+const ADM_MASTER = "9db9df1e";   // senha padrão: neonadmin
+function admHash(t) {
+  let h = 5381;
+  for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+  return h.toString(16);
+}
+window.admHash = admHash;
+
 let admTarget = null;
+let admConfirmar = null;
+
 function admOpen() {
   S.mode = "adm";
   admTarget = null;
   $("adm-pass").value = "";
-  $("adm-msg").textContent = "";
+  $("adm-search").value = "";
+  admMsg("");
   $("adm-pass-row").style.display = "flex";
   $("adm-panel").style.display = "none";
-  $("adm-pass-note").textContent = ROOT.adminPass
-    ? "Digite a senha do administrador."
-    : "Primeiro acesso: a senha digitada será registrada como a senha do ADM.";
+  $("adm-sel-box").style.display = "none";
+  $("adm-pass-note").textContent = "Digite a senha do administrador.";
   showScreen("adm");
 }
+function admMsg(txt) {
+  const el = $("adm-msg");
+  el.textContent = txt;
+  el.classList.toggle("on", !!txt);
+}
+function admAlvo() { return admTarget ? ROOT.profiles[admTarget] : null; }
+
+/* aplica uma mudança no piloto selecionado */
+function admAct(fn, msg) {
+  const p = admAlvo();
+  if (!p) { admMsg("Selecione um piloto primeiro."); return; }
+  fn(p);
+  p.savedAt = Date.now();
+  persist();
+  if (save.__name === admTarget) { save = ROOT.profiles[admTarget]; save.__name = admTarget; calcStats(); }
+  admMsg(msg + " → " + admTarget);
+  admRenderPlayers();
+  admRenderStats();
+  AudioSys.buy();
+  vibrate(15);
+}
+function admNum(id, padrao) {
+  const v = parseInt(($(id).value || "").replace(/[^0-9-]/g, ""), 10);
+  return isNaN(v) ? padrao : v;
+}
+
 function admRenderPlayers() {
   const list = $("adm-players");
+  const busca = ($("adm-search").value || "").trim().toLowerCase();
   list.innerHTML = "";
-  const names = Object.keys(ROOT.profiles);
+  const names = Object.keys(ROOT.profiles).filter(n => !busca || n.toLowerCase().indexOf(busca) >= 0);
+  $("adm-count").textContent = Object.keys(ROOT.profiles).length + " piloto" +
+    (Object.keys(ROOT.profiles).length === 1 ? "" : "s");
   if (!names.length) {
     const d = document.createElement("div");
     d.className = "adm-note";
-    d.textContent = "Nenhum jogador criado ainda.";
+    d.textContent = busca ? "Nenhum piloto com esse nome." : "Nenhum piloto criado ainda.";
     list.appendChild(d);
+    return;
   }
   for (const name of names) {
     const p = ROOT.profiles[name];
     const b = document.createElement("button");
-    b.className = "profile-btn";
-    if (admTarget === name) b.style.borderColor = "var(--amber)";
-    b.innerHTML = '<span class="profile-name">' + name + '</span>' +
-      '<span class="profile-meta">Fase ' + (p.best || 0) + ' · ◆ ' + fmt(p.crystals || 0) +
-      ' · ' + (p.ships ? p.ships.length : 1) + ' naves</span>';
-    b.addEventListener("click", () => {
-      admTarget = name;
-      $("adm-target").textContent = "Jogador selecionado: " + name;
-      $("adm-actions").style.display = "grid";
-      $("adm-msg").textContent = "";
-      admRenderPlayers();
-    });
+    b.className = "profile-btn" + (admTarget === name ? " sel" : "");
+    b.innerHTML = '<span class="profile-name">' + name + (p.godMode ? " ⚡" : "") + "</span>" +
+      '<span class="profile-meta">Fase ' + (p.best || 0) + " · ◆ " + fmt(p.crystals || 0) +
+      " · " + (p.ships ? p.ships.length : 1) + " naves</span>";
+    b.addEventListener("click", () => { admSelect(name); });
     list.appendChild(b);
   }
 }
+function admSelect(name) {
+  admTarget = name;
+  $("adm-sel-box").style.display = "block";
+  $("adm-target").textContent = "PILOTO: " + name.toUpperCase();
+  $("adm-rename").value = name;
+  admMsg("");
+  admRenderPlayers();
+  admRenderStats();
+}
+function admRenderStats() {
+  const p = admAlvo();
+  if (!p) return;
+  const dados = [
+    ["CRISTAIS", fmt(p.crystals || 0)],
+    ["FASE", (p.best || 0) + "/120"],
+    ["NAVES", (p.ships ? p.ships.length : 1) + "/50"],
+    ["AMULETOS", (p.amulets ? p.amulets.length : 0)],
+    ["PONTOS", (p.pts || 0)],
+    ["HABILID.", Object.keys(p.skills || {}).length + "/120"],
+    ["RECORDE", fmt(p.hi || 0)],
+    ["INVENCÍVEL", p.godMode ? "SIM" : "não"]
+  ];
+  $("adm-stats").innerHTML = dados.map(d =>
+    '<div class="adm-stat"><b>' + d[1] + "</b><span>" + d[0] + "</span></div>").join("");
+  $("adm-god").textContent = p.godMode ? "⚡ TIRAR INVENCÍVEL" : "⚡ MODO INVENCÍVEL";
+}
+
+/* preenche os seletores de nave e amuleto */
+(function admPreencherSelects() {
+  const sn = $("adm-ship-sel");
+  sn.innerHTML = SHIPS.map((sh, i) =>
+    '<option value="' + i + '">' + (i + 1) + ". " + sh.name + " — ◆" + fmt(sh.price) + "</option>").join("");
+  const st = $("adm-amu-tipo");
+  st.innerHTML = AMULET_TYPES.map(t => '<option value="' + t.id + '">' + t.name + "</option>").join("") +
+    AMULET_SPECIALS.map(t => '<option value="' + t.id + '">' + t.name + " (lendário)</option>").join("");
+  const sr = $("adm-amu-rar");
+  sr.innerHTML = RARS.map((r, i) => '<option value="' + i + '"' + (i === 2 ? " selected" : "") + ">" + r.name + "</option>").join("");
+})();
+
+function admDarAmuleto(p, tipo, rar) {
+  p.amuletSeq = p.amuletSeq || 1;
+  p.amulets = p.amulets || [];
+  const especial = AMULET_SPECIALS.some(a => a.id === tipo);
+  p.amulets.push({ uid: p.amuletSeq++, type: tipo, rar: especial ? 3 : rar });
+}
+function admDesbloquearTudo(p) {
+  p.crystals = Math.max(p.crystals || 0, 999999);
+  p.best = TOTAL_FASES;
+  p.pts = TOTAL_FASES;
+  p.hi = Math.max(p.hi || 0, 100000);
+  p.ships = [];
+  for (let i = 0; i < 50; i++) p.ships.push(i);
+  p.skills = {};
+  for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
+  for (const u of UPGRADES) p.upgrades[u.id] = u.max;
+  p.parts = {};
+  for (let i = 0; i < 50; i++) {
+    p.parts[i] = {};
+    for (const part of PARTS) p.parts[i][part.id] = PART_MAX;
+    p.weapons[i] = WEAPONS.map(w => w.id);
+    p.paints[i] = PAINT_HUES.slice();
+    p.glows[i] = PAINT_HUES.slice();
+  }
+  p.amulets = [];
+  p.amuletSeq = 1;
+  for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
+  for (const t of AMULET_TYPES) admDarAmuleto(p, t.id, 3);
+  p.equipped = p.amulets.slice(0, 3).map(a => a.uid);
+}
+
+/* ---- navegação e senha ---- */
 $("btn-goto-adm").addEventListener("click", () => { AudioSys.resume(); admOpen(); });
 $("btn-adm-back").addEventListener("click", () => {
   S.mode = "login";
@@ -1380,55 +1673,260 @@ $("btn-adm-enter").addEventListener("click", () => {
   AudioSys.resume();
   const pass = $("adm-pass").value;
   if (!pass) return;
-  if (!ROOT.adminPass) {
-    ROOT.adminPass = btoa(unescape(encodeURIComponent(pass)));
-    persist();
-  } else if (ROOT.adminPass !== btoa(unescape(encodeURIComponent(pass)))) {
+  if (admHash(pass) !== ADM_MASTER) {
     $("adm-pass-note").textContent = "Senha errada. Tente de novo.";
+    $("adm-pass").value = "";
     AudioSys.deny();
+    vibrate(60);
     return;
   }
   $("adm-pass-row").style.display = "none";
-  $("adm-panel").style.display = "flex";
-  $("adm-target").textContent = "Selecione um jogador acima";
-  $("adm-actions").style.display = "none";
+  $("adm-panel").style.display = "block";
   admRenderPlayers();
   AudioSys.buy();
 });
-function admAct(fn, msg) {
-  if (!admTarget || !ROOT.profiles[admTarget]) return;
-  fn(ROOT.profiles[admTarget]);
-  ROOT.profiles[admTarget].savedAt = Date.now();
-  persist();
-  if (save.__name === admTarget) calcStats();
-  $("adm-msg").textContent = msg + " → " + admTarget;
-  admRenderPlayers();
-  AudioSys.buy();
-}
-$("adm-give-gems").addEventListener("click", () => admAct(p => { p.crystals += 10000; }, "+10.000 cristais"));
-$("adm-give-pts").addEventListener("click", () => admAct(p => { p.pts += 25; }, "+25 pontos de habilidade"));
-$("adm-give-ships").addEventListener("click", () => admAct(p => {
-  p.ships = []; for (let i = 0; i < 50; i++) p.ships.push(i);
-}, "Todas as 50 naves liberadas"));
-$("adm-give-fases").addEventListener("click", () => admAct(p => {
-  p.best = TOTAL_FASES; p.pts = Math.max(p.pts, TOTAL_FASES);
-}, "Todas as fases liberadas"));
-$("adm-give-capa").addEventListener("click", () => admAct(p => {
-  p.amuletSeq = p.amuletSeq || 1;
-  p.amulets = p.amulets || [];
-  p.amulets.push({ uid: p.amuletSeq++, type: "capa", rar: 3 });
-}, "Capa da Invisibilidade entregue"));
-let admResetArm = false;
-$("adm-reset").addEventListener("click", () => {
+$("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
+$("adm-search").addEventListener("input", admRenderPlayers);
+
+/* ---- ações rápidas ---- */
+$("adm-tudo").addEventListener("click", () => admAct(admDesbloquearTudo, "Tudo desbloqueado"));
+$("adm-god").addEventListener("click", () => admAct(p => { p.godMode = !p.godMode; },
+  "Modo invencível alternado"));
+$("adm-usar").addEventListener("click", () => {
   if (!admTarget) return;
-  if (!admResetArm) {
-    admResetArm = true;
-    $("adm-msg").textContent = "Toque de novo em ZERAR para confirmar (" + admTarget + ")";
-    setTimeout(() => { admResetArm = false; }, 4000);
+  loginAs(admTarget);
+  AudioSys.buy();
+  S.mode = "menu";
+  refreshMenu();
+  showScreen("menu");
+});
+
+/* ---- cristais ---- */
+$("adm-gem-add").addEventListener("click", () =>
+  admAct(p => { p.crystals = Math.max(0, (p.crystals || 0) + admNum("adm-gem-val", 0)); },
+    "Cristais adicionados"));
+$("adm-gem-set").addEventListener("click", () =>
+  admAct(p => { p.crystals = Math.max(0, admNum("adm-gem-val", 0)); }, "Cristais definidos"));
+$("adm-gem-zero").addEventListener("click", () => admAct(p => { p.crystals = 0; }, "Cristais zerados"));
+document.querySelectorAll("[data-gem]").forEach(b =>
+  b.addEventListener("click", () => {
+    const v = parseInt(b.dataset.gem, 10);
+    admAct(p => { p.crystals = (p.crystals || 0) + v; }, "+" + fmt(v) + " cristais");
+  }));
+
+/* ---- progresso ---- */
+$("adm-fase-set").addEventListener("click", () =>
+  admAct(p => {
+    p.best = clamp(admNum("adm-fase-val", 0), 0, TOTAL_FASES);
+    p.pts = Math.max(p.pts || 0, p.best);
+  }, "Fase definida"));
+$("adm-pts-set").addEventListener("click", () =>
+  admAct(p => { p.pts = Math.max(0, admNum("adm-pts-val", 0)); }, "Pontos definidos"));
+$("adm-hi-set").addEventListener("click", () =>
+  admAct(p => { p.hi = Math.max(0, admNum("adm-hi-val", 0)); }, "Recorde definido"));
+$("adm-fases-all").addEventListener("click", () =>
+  admAct(p => { p.best = TOTAL_FASES; p.pts = Math.max(p.pts || 0, TOTAL_FASES); }, "Todas as fases liberadas"));
+$("adm-fases-zero").addEventListener("click", () =>
+  admAct(p => { p.best = 0; }, "Fases zeradas"));
+
+/* ---- naves e oficina ---- */
+$("adm-ship-give").addEventListener("click", () => {
+  const i = parseInt($("adm-ship-sel").value, 10) || 0;
+  admAct(p => {
+    if (p.ships.indexOf(i) < 0) p.ships.push(i);
+    p.ship = i;
+  }, "Nave " + SHIPS[i].name + " entregue");
+});
+$("adm-ships-all").addEventListener("click", () =>
+  admAct(p => { p.ships = []; for (let i = 0; i < 50; i++) p.ships.push(i); }, "Todas as 50 naves"));
+$("adm-ships-zero").addEventListener("click", () =>
+  admAct(p => { p.ships = [0]; p.ship = 0; }, "Só a nave inicial"));
+$("adm-parts-max").addEventListener("click", () =>
+  admAct(p => {
+    for (const i of p.ships) {
+      p.parts[i] = p.parts[i] || {};
+      for (const part of PARTS) p.parts[i][part.id] = PART_MAX;
+    }
+  }, "Peças no máximo"));
+$("adm-shop-max").addEventListener("click", () =>
+  admAct(p => { for (const u of UPGRADES) p.upgrades[u.id] = u.max; }, "Melhorias no máximo"));
+$("adm-paint-all").addEventListener("click", () =>
+  admAct(p => {
+    for (let i = 0; i < 50; i++) {
+      p.paints[i] = PAINT_HUES.slice();
+      p.glows[i] = PAINT_HUES.slice();
+      p.weapons[i] = WEAPONS.map(w => w.id);
+    }
+  }, "Pinturas e armas liberadas"));
+
+/* ---- habilidades ---- */
+$("adm-skills-all").addEventListener("click", () =>
+  admAct(p => {
+    p.skills = {};
+    for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
+    p.pts = Math.max(p.pts || 0, 120);
+  }, "120 habilidades desbloqueadas"));
+$("adm-skills-zero").addEventListener("click", () =>
+  admAct(p => { p.skills = {}; }, "Árvore limpa"));
+
+/* ---- amuletos ---- */
+$("adm-amu-give").addEventListener("click", () => {
+  const tipo = $("adm-amu-tipo").value;
+  const rar = parseInt($("adm-amu-rar").value, 10) || 0;
+  admAct(p => admDarAmuleto(p, tipo, rar), "Amuleto entregue");
+});
+$("adm-amu-lend").addEventListener("click", () =>
+  admAct(p => { for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3); }, "3 lendários entregues"));
+$("adm-amu-all").addEventListener("click", () =>
+  admAct(p => { for (const t of AMULET_TYPES) admDarAmuleto(p, t.id, 2); }, "Um amuleto de cada"));
+$("adm-amu-zero").addEventListener("click", () =>
+  admAct(p => { p.amulets = []; p.equipped = []; }, "Amuletos apagados"));
+
+/* ---- perfil ---- */
+$("adm-rename-go").addEventListener("click", () => {
+  const novo = ($("adm-rename").value || "").trim();
+  if (!admTarget || !novo || novo === admTarget) return;
+  if (ROOT.profiles[novo]) { admMsg("Já existe um piloto com esse nome."); AudioSys.deny(); return; }
+  ROOT.profiles[novo] = ROOT.profiles[admTarget];
+  ROOT.profiles[novo].__name = novo;
+  delete ROOT.profiles[admTarget];
+  if (ROOT.current === admTarget) ROOT.current = novo;
+  if (save.__name === admTarget) { save = ROOT.profiles[novo]; }
+  admTarget = novo;
+  persist();
+  AudioSys.buy();
+  admSelect(novo);
+  admMsg("Piloto renomeado para " + novo);
+});
+$("adm-dup").addEventListener("click", () => {
+  const p = admAlvo();
+  if (!p) return;
+  let nome = admTarget + " (cópia)";
+  let n = 2;
+  while (ROOT.profiles[nome]) nome = admTarget + " (cópia " + n++ + ")";
+  ROOT.profiles[nome] = mergeSave(JSON.parse(JSON.stringify(p)));
+  persist();
+  AudioSys.buy();
+  admRenderPlayers();
+  admMsg("Cópia criada: " + nome);
+});
+$("adm-reset").addEventListener("click", () => {
+  if (admConfirmar !== "reset") {
+    admConfirmar = "reset";
+    admMsg("Toque de novo em ZERAR para confirmar.");
+    setTimeout(() => { if (admConfirmar === "reset") admConfirmar = null; }, 4000);
     return;
   }
-  admResetArm = false;
-  admAct(p => { Object.assign(p, defaultSave()); }, "Jogador zerado");
+  admConfirmar = null;
+  admAct(p => { Object.assign(p, defaultSave()); }, "Piloto zerado");
+});
+$("adm-del").addEventListener("click", () => {
+  if (!admTarget) return;
+  if (admConfirmar !== "del") {
+    admConfirmar = "del";
+    admMsg("Toque de novo em APAGAR para excluir " + admTarget + " de vez.");
+    setTimeout(() => { if (admConfirmar === "del") admConfirmar = null; }, 4000);
+    return;
+  }
+  admConfirmar = null;
+  const nome = admTarget;
+  delete ROOT.profiles[nome];
+  if (ROOT.current === nome) ROOT.current = null;
+  if (save.__name === nome) save = defaultSave();
+  admTarget = null;
+  $("adm-sel-box").style.display = "none";
+  persist();
+  admRenderPlayers();
+  admMsg("Piloto " + nome + " apagado");
+});
+
+/* ---- todos os pilotos ---- */
+$("adm-novo-go").addEventListener("click", () => {
+  const nome = ($("adm-novo").value || "").trim();
+  if (!nome) return;
+  if (ROOT.profiles[nome]) { admMsg("Esse nome já existe."); AudioSys.deny(); return; }
+  ROOT.profiles[nome] = defaultSave();
+  ROOT.profiles[nome].savedAt = Date.now();
+  persist();
+  $("adm-novo").value = "";
+  AudioSys.buy();
+  admRenderPlayers();
+  admSelect(nome);
+  admMsg("Piloto " + nome + " criado");
+});
+$("adm-gem-todos").addEventListener("click", () => {
+  let n = 0;
+  for (const nome in ROOT.profiles) {
+    ROOT.profiles[nome].crystals = (ROOT.profiles[nome].crystals || 0) + 10000;
+    ROOT.profiles[nome].savedAt = Date.now();
+    n++;
+  }
+  persist();
+  calcStats();
+  AudioSys.buy();
+  admRenderPlayers();
+  admRenderStats();
+  admMsg("+10.000 cristais para " + n + " piloto" + (n === 1 ? "" : "s"));
+});
+
+/* ---- cópia de segurança ---- */
+$("adm-export").addEventListener("click", () => {
+  const p = admAlvo();
+  if (!p) { admMsg("Selecione um piloto primeiro."); return; }
+  $("adm-json").value = JSON.stringify({ tipo: "piloto", nome: admTarget, dados: p });
+  admMsg("Save de " + admTarget + " exportado abaixo");
+});
+$("adm-export-tudo").addEventListener("click", () => {
+  $("adm-json").value = JSON.stringify({ tipo: "tudo", dados: ROOT.profiles });
+  admMsg("Todos os pilotos exportados abaixo");
+});
+$("adm-copy").addEventListener("click", async () => {
+  const ta = $("adm-json");
+  if (!ta.value) { admMsg("Exporte alguma coisa primeiro."); return; }
+  try {
+    await navigator.clipboard.writeText(ta.value);
+    admMsg("Copiado!");
+  } catch (e) {
+    ta.select();
+    admMsg("Selecionado — use copiar do teclado.");
+  }
+});
+$("adm-import").addEventListener("click", () => {
+  const txt = ($("adm-json").value || "").trim();
+  if (!txt) { admMsg("Cole um save no campo de texto."); return; }
+  let obj;
+  try { obj = JSON.parse(txt); } catch (e) { admMsg("Esse texto não é um save válido."); AudioSys.deny(); return; }
+  try {
+    if (obj.tipo === "piloto" && obj.dados) {
+      let nome = obj.nome || "Importado";
+      let n = 2;
+      while (ROOT.profiles[nome]) nome = (obj.nome || "Importado") + " " + n++;
+      ROOT.profiles[nome] = mergeSave(obj.dados);
+      ROOT.profiles[nome].savedAt = Date.now();
+      persist();
+      admRenderPlayers();
+      admSelect(nome);
+      admMsg("Piloto importado como " + nome);
+    } else if (obj.tipo === "tudo" && obj.dados) {
+      let n = 0;
+      for (const nome in obj.dados) {
+        ROOT.profiles[nome] = mergeSave(obj.dados[nome]);
+        ROOT.profiles[nome].savedAt = Date.now();
+        n++;
+      }
+      persist();
+      admRenderPlayers();
+      admMsg(n + " piloto" + (n === 1 ? "" : "s") + " importado" + (n === 1 ? "" : "s"));
+    } else {
+      admMsg("Save não reconhecido.");
+      AudioSys.deny();
+      return;
+    }
+    AudioSys.buy();
+  } catch (e) {
+    admMsg("Não foi possível importar esse save.");
+    AudioSys.deny();
+  }
 });
 
 /* ---------- Seleção de fases ---------- */
@@ -2743,6 +3241,7 @@ function novaBlast() {
 }
 function hitPlayer() {
   if (player.invuln > 0 || !player.alive || player.invis > 0) return;
+  if (save.godMode) { player.invuln = 0.3; return; }
   if (ST.nova) novaBlast();
   if (player.shield > 0) {
     player.shield = 0;
