@@ -307,6 +307,24 @@
   }
   #adm-msg.on{max-height:60px;padding:11px 12px}
   /* multijogador */
+  .caixa-adm{
+    border:1.5px dashed rgba(255,193,69,.5);border-radius:13px;
+    background:rgba(255,193,69,.05);padding:10px;min-height:56px;
+  }
+  .caixa-vazia{font-size:.7rem;color:var(--dim);text-align:center;padding:8px 4px;line-height:1.4}
+  .caixa-item{
+    display:flex;align-items:center;gap:8px;padding:7px 8px;
+    border-bottom:1px solid rgba(255,193,69,.15);font-size:.75rem;
+  }
+  .caixa-item:last-child{border-bottom:none}
+  .caixa-item b{flex:none;width:20px;text-align:center;color:var(--amber)}
+  .caixa-item span{flex:1;font-weight:600}
+  .caixa-item.ruim b{color:var(--danger)}
+  .caixa-x{
+    flex:none;width:26px;height:26px;border-radius:8px;cursor:pointer;
+    border:1px solid rgba(255,82,82,.4);background:transparent;color:var(--danger);
+    font-size:.8rem;line-height:1;
+  }
   .amigo-btn{
     width:42px;height:42px;flex:none;border-radius:12px;position:relative;cursor:pointer;
     border:1px solid var(--line);background:rgba(77,232,255,.08);font-size:1.05rem;
@@ -433,6 +451,79 @@
     font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;
     padding:8px 12px;letter-spacing:.06em;
   }
+  /* caixa de presente com animação */
+  #caixa-presente{position:fixed;inset:0;z-index:120;display:none}
+  #caixa-presente.on{display:block}
+  .cp-fundo{
+    position:absolute;inset:0;background:#050813;
+    background-image:radial-gradient(circle at 50% 38%,rgba(255,77,143,.22),transparent 62%);
+  }
+  .cp-conteudo{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;text-align:center;
+    padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+  }
+  .cp-de{
+    font-size:.66rem;letter-spacing:.3em;font-weight:700;color:var(--magenta);
+    text-shadow:0 0 14px rgba(255,77,143,.6);
+  }
+  .cp-caixa{position:relative;width:150px;height:150px;cursor:pointer}
+  .cp-corpo{
+    position:absolute;left:14px;right:14px;bottom:8px;height:88px;border-radius:10px;
+    background:linear-gradient(160deg,#FFC145,#E08A1E);
+    box-shadow:0 10px 30px rgba(255,193,69,.35),inset 0 -8px 18px rgba(0,0,0,.2);
+  }
+  .cp-tampa{
+    position:absolute;left:4px;right:4px;top:32px;height:34px;border-radius:9px;
+    background:linear-gradient(160deg,#FFD97A,#F0A62C);
+    box-shadow:0 6px 16px rgba(0,0,0,.35);
+    transform-origin:50% 100%;transition:transform .5s cubic-bezier(.3,-0.4,.4,1.4),opacity .5s;
+  }
+  .cp-fita{
+    position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:22px;height:88px;
+    background:linear-gradient(#FF4D8F,#C7215E);border-radius:3px;
+  }
+  .cp-laco{
+    position:absolute;left:50%;top:16px;transform:translateX(-50%);
+    font-size:2rem;filter:drop-shadow(0 0 10px rgba(255,77,143,.7));
+    transition:transform .5s,opacity .4s;
+  }
+  .cp-raios{
+    position:absolute;left:50%;top:50%;width:6px;height:6px;transform:translate(-50%,-50%) scale(0);
+    border-radius:50%;background:#fff;
+    box-shadow:0 0 60px 40px rgba(255,193,69,.55),0 0 120px 80px rgba(255,77,143,.3);
+    transition:transform .55s ease-out,opacity .8s;opacity:0;
+  }
+  @media (prefers-reduced-motion:no-preference){
+    #caixa-presente:not(.aberta) .cp-caixa{animation:cpTremer 1.5s ease-in-out infinite}
+    @keyframes cpTremer{
+      0%,72%,100%{transform:rotate(0) translateY(0)}
+      78%{transform:rotate(-6deg) translateY(-5px)}
+      84%{transform:rotate(6deg) translateY(-3px)}
+      90%{transform:rotate(-3deg) translateY(0)}
+    }
+  }
+  #caixa-presente.aberta .cp-tampa{transform:translateY(-90px) rotate(-22deg);opacity:0}
+  #caixa-presente.aberta .cp-laco{transform:translate(-50%,-70px) scale(.6);opacity:0}
+  #caixa-presente.aberta .cp-raios{transform:translate(-50%,-50%) scale(1);opacity:1}
+  #caixa-presente.aberta .cp-toque{opacity:0}
+  .cp-toque{font-size:.72rem;color:var(--dim);letter-spacing:.14em;transition:opacity .3s}
+  .cp-itens{
+    display:flex;flex-direction:column;gap:8px;width:min(88vw,340px);
+  }
+  .cp-itens:empty{display:none}
+  #cp-ok{width:min(88vw,340px);flex:none}
+  .cp-item{
+    display:flex;align-items:center;gap:10px;text-align:left;
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+    opacity:0;transform:translateY(10px);
+    animation:cpEntra .35s ease-out forwards;
+  }
+  .cp-item.ruim{border-color:rgba(255,82,82,.5)}
+  @keyframes cpEntra{to{opacity:1;transform:translateY(0)}}
+  .cp-item b{font-size:1.15rem;flex:none;width:26px;text-align:center}
+  .cp-item span{font-size:.8rem;font-weight:600;line-height:1.35}
   #erro-box{
     position:fixed;inset:auto 12px calc(12px + env(safe-area-inset-bottom)) 12px;
     z-index:40;display:none;flex-direction:column;gap:10px;
@@ -722,6 +813,22 @@
   <span id="atualiza-txt">Nova versão disponível</span>
   <button id="atualiza-btn">ATUALIZAR</button>
 </div>
+<div id="caixa-presente">
+  <div class="cp-fundo"></div>
+  <div class="cp-conteudo">
+    <div class="cp-de">O ADMINISTRADOR ENVIOU</div>
+    <div class="cp-caixa" id="cp-caixa">
+      <div class="cp-raios"></div>
+      <div class="cp-tampa"></div>
+      <div class="cp-corpo"></div>
+      <div class="cp-fita"></div>
+      <div class="cp-laco">🎁</div>
+    </div>
+    <div class="cp-toque" id="cp-toque">toque para abrir</div>
+    <div class="cp-itens" id="cp-itens"></div>
+    <button class="big-btn" id="cp-ok" style="display:none">PEGAR TUDO</button>
+  </div>
+</div>
 <div id="erro-box">
   <b>⚠ OCORREU UM ERRO</b>
   <p id="erro-msg"></p>
@@ -867,7 +974,16 @@
             <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
           </div>
 
-          <p class="adm-note" style="margin-top:12px">As mudanças são aplicadas quando a pessoa abrir o jogo. Enquanto isso, elas ficam como "pendente" e podem ser canceladas.</p>
+          <div class="adm-h gold" style="margin-top:16px">🎁 CAIXA DE PRESENTE</div>
+          <div class="caixa-adm" id="caixa-adm">
+            <div class="caixa-vazia" id="caixa-vazia">Toque nos botões acima para colocar itens na caixa.</div>
+            <div id="caixa-itens"></div>
+          </div>
+          <div class="adm-grid" style="margin-top:10px">
+            <button class="adm-btn gold" id="caixa-enviar">📦 ENVIAR A CAIXA</button>
+            <button class="adm-btn danger" id="caixa-limpar">ESVAZIAR</button>
+          </div>
+          <p class="adm-note" style="margin-top:10px">Monte a caixa com quantos itens quiser e envie tudo de uma vez. A pessoa recebe tudo junto, com a animação de abrir.</p>
         </div>
       </div>
 
@@ -1529,7 +1645,22 @@ function nuvemAparelho() {
   }
   return id;
 }
-function nuvemId(nome) { return nuvemAparelho() + "_" + nuvemHash(nome); }
+/* O identificador do piloto na nuvem vem SÓ do nome da conta.
+   Assim a mesma conta é a mesma pessoa em qualquer celular: o ranking não
+   duplica e os presentes do administrador chegam mesmo se você entrar de
+   outro aparelho.                                                          */
+function nuvemId(nome) { return "p" + nuvemHash(nome); }
+/* formato antigo (preso ao aparelho) — só para limpar registros repetidos */
+function nuvemIdAntigo(nome) { return nuvemAparelho() + "_" + nuvemHash(nome); }
+let nuvemLimpou = {};
+async function nuvemLimparAntigo(nome) {
+  if (!nome || nuvemLimpou[nome]) return;
+  nuvemLimpou[nome] = true;
+  const antigo = nuvemIdAntigo(nome);
+  if (antigo === nuvemId(nome)) return;
+  const p = await nuvemReq("pilotos/" + antigo);
+  if (p) await nuvemReq("pilotos/" + antigo, { method: "DELETE" });
+}
 
 let nuvemStatus = "?";   // "?" ainda não testado | "ok" | "erro"
 let nuvemErroDetalhe = "";
@@ -1601,6 +1732,7 @@ async function nuvemEnviar(forcar) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(resumo)
   });
+  nuvemLimparAntigo(save.__name);
   contaEnviar(forcar);
 }
 
@@ -1672,7 +1804,10 @@ async function nuvemEnviarPresente(id, presente) {
   }
   if (presente.tudo) { novo.tudo = true; delete novo.zerarTudo; }
   if (presente.melhorias) novo.melhorias = true;
-  if (typeof presente.exclusiva === "number") novo.exclusiva = presente.exclusiva;
+  if (presente.exclusiva !== undefined) {
+    const juntas = listaExclusivas(novo.exclusiva).concat(listaExclusivas(presente.exclusiva));
+    novo.exclusiva = juntas.filter((v, i) => juntas.indexOf(v) === i);
+  }
   if (typeof presente.setRank === "number") novo.setRank = presente.setRank;
   if (typeof presente.god === "boolean") novo.god = presente.god;
   if (presente.zerarTudo) {
@@ -1702,7 +1837,9 @@ async function nuvemComandoPendente(id) {
 
 function aplicarPresente(p, g) {
   const partes = [];
+  const itens = [];              // {icone, texto, ruim}
   let tirou = false;
+  const anota = (icone, texto, ruim) => itens.push({ icone, texto, ruim: !!ruim });
 
   // 1) o que zera vem primeiro
   if (g.zerarTudo) {
@@ -1710,27 +1847,31 @@ function aplicarPresente(p, g) {
     Object.assign(p, defaultSave());
     if (nome) p.__name = nome;
     partes.push("progresso zerado");
+    anota("⚠", "Seu progresso foi zerado", true);
     tirou = true;
   }
 
   // 2) o que dá tudo
-  if (g.tudo) { admDesbloquearTudo(p); partes.push("tudo desbloqueado"); }
+  if (g.tudo) { admDesbloquearTudo(p); partes.push("tudo desbloqueado"); anota("★", "TUDO desbloqueado"); }
 
   // 3) valores
   if (typeof g.setCristais === "number") {
     p.crystals = Math.max(0, g.setCristais);
     partes.push("cristais definidos em " + fmt(p.crystals));
+    anota("◆", "Cristais definidos em " + fmt(p.crystals), g.setCristais === 0);
     if (g.setCristais === 0) tirou = true;
   }
   if (g.cristais) {
     p.crystals = Math.max(0, (p.crystals || 0) + g.cristais);
     partes.push((g.cristais > 0 ? "+" : "") + fmt(g.cristais) + " cristais");
+    anota("◆", (g.cristais > 0 ? "+" : "") + fmt(g.cristais) + " cristais", g.cristais < 0);
     if (g.cristais < 0) tirou = true;
   }
   if (typeof g.setFase === "number") {
     p.best = clamp(g.setFase, 0, TOTAL_FASES);
     p.pts = Math.max(p.pts || 0, p.best);
     partes.push("fase definida em " + p.best);
+    anota("▶", "Fase definida em " + p.best);
   }
 
   // 4) o que dá
@@ -1738,30 +1879,36 @@ function aplicarPresente(p, g) {
     p.ships = [];
     for (let i = 0; i < MAVERICK; i++) p.ships.push(i);
     partes.push("todas as naves");
+    anota("✈", "Todas as naves liberadas");
   }
   if (g.fases) {
     p.best = TOTAL_FASES;
     p.pts = Math.max(p.pts || 0, TOTAL_FASES);
     partes.push("todas as fases");
+    anota("▶", "Todas as fases liberadas");
   }
   if (g.habilidades) {
     p.skills = {};
     for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
     p.pts = Math.max(p.pts || 0, 120);
     partes.push("todas as habilidades");
+    anota("✦", "Todas as habilidades");
   }
   if (g.lendarios) {
     for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
     partes.push("amuletos lendários");
+    anota("◈", "3 amuletos lendários");
   }
   if (typeof g.setRank === "number") {
     p.rank = Math.max(0, g.setRank);
     partes.push("rank " + nomeDoRank(p.rank));
+    anota(simboloDoRank(p.rank), "Rank " + nomeDoRank(p.rank));
   }
-  if (typeof g.exclusiva === "number" && SHIPS[g.exclusiva]) {
-    if (p.ships.indexOf(g.exclusiva) < 0) p.ships.push(g.exclusiva);
-    p.ship = g.exclusiva;
-    partes.push("aeronave " + SHIPS[g.exclusiva].name);
+  for (const ex of listaExclusivas(g.exclusiva)) {
+    if (p.ships.indexOf(ex) < 0) p.ships.push(ex);
+    p.ship = ex;
+    partes.push("aeronave " + SHIPS[ex].name);
+    anota("★", "Aeronave exclusiva " + SHIPS[ex].name);
   }
   if (g.melhorias) {
     for (const u of UPGRADES) p.upgrades[u.id] = u.max;
@@ -1770,6 +1917,7 @@ function aplicarPresente(p, g) {
       for (const part of PARTS) p.parts[i][part.id] = PART_MAX;
     }
     partes.push("melhorias e peças no máximo");
+    anota("⬡", "Melhorias e peças no máximo");
   }
 
   // 5) o que tira
@@ -1777,24 +1925,38 @@ function aplicarPresente(p, g) {
     p.ships = [0];
     p.ship = 0;
     partes.push("naves removidas");
+    anota("⚠", "Suas naves foram removidas", true);
     tirou = true;
   }
-  if (g.zerarFases) { p.best = 0; partes.push("fases zeradas"); tirou = true; }
-  if (g.zerarHabilidades) { p.skills = {}; partes.push("habilidades zeradas"); tirou = true; }
+  if (g.zerarFases) { p.best = 0; partes.push("fases zeradas"); anota("⚠", "Fases zeradas", true); tirou = true; }
+  if (g.zerarHabilidades) { p.skills = {}; partes.push("habilidades zeradas"); anota("⚠", "Habilidades zeradas", true); tirou = true; }
   if (g.zerarAmuletos) {
     p.amulets = [];
     p.equipped = [];
     partes.push("amuletos removidos");
+    anota("⚠", "Amuletos removidos", true);
     tirou = true;
   }
   if (typeof g.god === "boolean") {
     p.god = undefined;
     p.godMode = g.god;
     partes.push(g.god ? "modo invencível ligado" : "modo invencível desligado");
+    anota("⚡", g.god ? "Modo invencível ligado" : "Modo invencível desligado", !g.god);
   }
 
   if (p.ships.indexOf(p.ship) < 0) p.ship = p.ships[0];
-  return { texto: partes.join(", "), tirou };
+  return { texto: partes.join(", "), tirou, itens };
+}
+
+/* o presente pode trazer uma aeronave exclusiva ou várias */
+function listaExclusivas(v) {
+  const bruto = Array.isArray(v) ? v : (typeof v === "number" ? [v] : []);
+  const saida = [];
+  for (const i of bruto) {
+    const n = parseInt(i, 10);
+    if (SHIPS[n] && saida.indexOf(n) < 0) saida.push(n);
+  }
+  return saida;
 }
 
 /* verifica se chegou presente do administrador */
@@ -1808,27 +1970,25 @@ async function nuvemVerificarPresentes() {
   persist();
   calcStats();
   if (S.mode === "menu") refreshMenu();
-  if (r.texto) {
+
+  // guarda para abrir a caixa quando estiver no menu (nunca sobre o login)
+  if (r.itens && r.itens.length) {
+    presenteGuardado = (presenteGuardado || []).concat(r.itens);
+    if (S.mode === "menu") mostrarCaixaPresente();
+  }
+  // se chegou no meio de uma partida, apenas uma faixa discreta:
+  // a caixa fica guardada e abre quando a pessoa voltar ao menu
+  if (S.mode === "playing" && r.itens && r.itens.length) {
     AudioSys.power();
     vibrate([40, 60, 40]);
-    const texto = (r.tirou ? "⚠ O administrador alterou seu progresso: " : "🎁 Presente recebido: ") +
-      r.texto + (r.tirou ? "." : "!");
-    const el = $("presente-aviso");
-    if (el) {
-      el.textContent = texto;
-      el.style.display = "block";
-      setTimeout(() => { el.style.display = "none"; }, 10000);
-    }
-    // se estiver jogando, mostra o aviso por cima do jogo
     const faixa = $("presente-jogo");
     if (faixa) {
-      faixa.textContent = texto;
+      faixa.textContent = (r.tirou ? "\u26A0 O administrador alterou seu progresso" :
+                                     "\uD83C\uDF81 O administrador enviou uma caixa \u2014 abra no menu");
       faixa.classList.add("on");
       setTimeout(() => faixa.classList.remove("on"), 7000);
     }
-    if (S.mode === "playing") {
-      addText(player.x, player.y - 44, r.tirou ? "ADMIN" : "PRESENTE!", r.tirou ? "#FF5252" : "#FFC145");
-    }
+    addText(player.x, player.y - 44, r.tirou ? "ADMIN" : "PRESENTE!", r.tirou ? "#FF5252" : "#FFC145");
   }
   nuvemEnviar(true);
 }
@@ -2430,6 +2590,8 @@ function addUlt(v) {
 let ultimaChecagemPresente = 0;
 function checarPresentesPeriodicamente() {
   if (!nuvemAtiva() || !save.__name) return;
+  // nada de aplicar presente na tela de login ou de senha
+  if (S.mode === "login" || S.mode === "senha" || S.mode === "adm") return;
   const agora = Date.now();
   if (agora - ultimaChecagemPresente < 12000) return;
   ultimaChecagemPresente = agora;
@@ -2483,7 +2645,10 @@ function entrarNoMenu(name) {
   refreshMenu();
   showScreen("menu");
   nuvemEnviar(true);
-  nuvemVerificarPresentes();
+  // aplica o que estiver esperando e abre a caixa já dentro do menu
+  nuvemVerificarPresentes().then(() => {
+    if (presenteGuardado && presenteGuardado.length) setTimeout(mostrarCaixaPresente, 400);
+  });
 }
 function entrarComPiloto(name) {
   const p = ROOT.profiles[name];
@@ -2984,6 +3149,7 @@ function admNuvemRender() {
   }
 }
 async function admNuvemSelecionar(p) {
+  if (admNuvemAlvo && admNuvemAlvo.id !== p.id) { caixaAdm = {}; }
   admNuvemAlvo = p;
   $("adm-nuvem-sel").style.display = "block";
   $("adm-nuvem-alvo").textContent = "JOGADOR: " + String(p.nome).toUpperCase();
@@ -2995,6 +3161,7 @@ async function admNuvemSelecionar(p) {
     ["AMULETOS", p.amuletos || 0]
   ].map(d => '<div class="adm-stat"><b>' + d[1] + "</b><span>" + d[0] + "</span></div>").join("");
   $("adm-nuvem-pendente").textContent = "Visto pela última vez: " + visto;
+  renderCaixaAdm();
   admNuvemRender();
   admNuvemVerPendente();
 }
@@ -3030,7 +3197,7 @@ function admEfeitoImediato(p, g) {
   if (g.naves) p.naves = 50;
   if (g.fases) p.fase = TOTAL_FASES;
   if (g.habilidades) p.habilidades = 120;
-  if (typeof g.exclusiva === "number") p.naves = (p.naves || 1) + 1;
+  if (g.exclusiva !== undefined) p.naves = (p.naves || 1) + listaExclusivas(g.exclusiva).length;
   if (g.lendarios) p.amuletos = (p.amuletos || 0) + 3;
   if (g.tirarNaves) p.naves = 1;
   if (g.zerarFases) p.fase = 0;
@@ -3038,6 +3205,82 @@ function admEfeitoImediato(p, g) {
   if (g.zerarAmuletos) p.amuletos = 0;
   return p;
 }
+
+/* ----- caixa montada pelo administrador ----- */
+let caixaAdm = {};
+const CAIXA_ROTULOS = {
+  cristais:    v => ["◆", (v > 0 ? "+" : "") + fmt(v) + " cristais", v < 0],
+  setCristais: v => ["◆", "Definir cristais em " + fmt(v), v === 0],
+  setFase:     v => ["▶", "Definir fase em " + v, false],
+  setRank:     v => [simboloDoRank(v), "Rank " + nomeDoRank(v), false],
+  naves:       () => ["✈", "Todas as naves", false],
+  fases:       () => ["▶", "Todas as fases", false],
+  habilidades: () => ["✦", "Todas as habilidades", false],
+  melhorias:   () => ["⬡", "Melhorias e peças no máximo", false],
+  lendarios:   () => ["◈", "3 amuletos lendários", false],
+  tudo:        () => ["★", "TUDO desbloqueado", false],
+  exclusiva:   v => ["★", "Aeronave" + (listaExclusivas(v).length > 1 ? "s " : " ") +
+                          listaExclusivas(v).map(i => SHIPS[i].name).join(" e "), false],
+  god:         v => ["⚡", v ? "Modo invencível ligado" : "Modo invencível desligado", !v],
+  tirarNaves:  () => ["⚠", "Tirar todas as naves", true],
+  zerarFases:  () => ["⚠", "Zerar as fases", true],
+  zerarHabilidades: () => ["⚠", "Zerar as habilidades", true],
+  zerarAmuletos:    () => ["⚠", "Tirar os amuletos", true],
+  zerarTudo:   () => ["⚠", "ZERAR TODO o progresso", true]
+};
+function renderCaixaAdm() {
+  const box = $("caixa-itens");
+  const chaves = Object.keys(caixaAdm);
+  $("caixa-vazia").style.display = chaves.length ? "none" : "block";
+  box.innerHTML = "";
+  for (const k of chaves) {
+    const f = CAIXA_ROTULOS[k];
+    if (!f) continue;
+    const [icone, texto, ruim] = f(caixaAdm[k]);
+    const row = document.createElement("div");
+    row.className = "caixa-item" + (ruim ? " ruim" : "");
+    row.innerHTML = "<b>" + icone + "</b><span>" + texto + "</span>";
+    const x = document.createElement("button");
+    x.className = "caixa-x";
+    x.textContent = "✕";
+    x.addEventListener("click", () => { delete caixaAdm[k]; renderCaixaAdm(); });
+    row.appendChild(x);
+    box.appendChild(row);
+  }
+  $("caixa-enviar").textContent = chaves.length
+    ? "📦 ENVIAR (" + chaves.length + ")" : "📦 ENVIAR A CAIXA";
+}
+function porNaCaixa(presente, msg) {
+  if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
+  for (const k in presente) {
+    if (k === "cristais" && caixaAdm.cristais) caixaAdm.cristais += presente[k];
+    else if (k === "exclusiva") {
+      const juntas = listaExclusivas(caixaAdm.exclusiva).concat(listaExclusivas(presente[k]));
+      caixaAdm.exclusiva = juntas.filter((v, i) => juntas.indexOf(v) === i);
+    }
+    else caixaAdm[k] = presente[k];
+  }
+  // itens que se anulam não convivem na mesma caixa
+  const opostos = [["naves","tirarNaves"],["fases","zerarFases"],
+                   ["habilidades","zerarHabilidades"],["lendarios","zerarAmuletos"],
+                   ["cristais","setCristais"],["tudo","zerarTudo"]];
+  for (const [a, b2] of opostos) {
+    if (presente[a] !== undefined) delete caixaAdm[b2];
+    if (presente[b2] !== undefined) delete caixaAdm[a];
+  }
+  if (caixaAdm.zerarTudo) caixaAdm = { zerarTudo: true };
+  renderCaixaAdm();
+  admMsg(msg + " → na caixa");
+  AudioSys.tone(700, 0.07, "sine", 0.1);
+}
+$("caixa-limpar").addEventListener("click", () => { caixaAdm = {}; renderCaixaAdm(); admMsg("Caixa esvaziada"); });
+$("caixa-enviar").addEventListener("click", async () => {
+  if (!Object.keys(caixaAdm).length) { admMsg("A caixa está vazia."); AudioSys.deny(); return; }
+  const pacote = caixaAdm;
+  caixaAdm = {};
+  renderCaixaAdm();
+  await admNuvemPresente(pacote, "Caixa enviada");
+});
 
 async function admNuvemPresente(presente, msg) {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
@@ -3065,42 +3308,42 @@ let admNuvemConfirmar = null;
 function admNuvemPerigo(chave, presente, msg, aviso) {
   if (admNuvemConfirmar !== chave) {
     admNuvemConfirmar = chave;
-    admMsg("Toque de novo para confirmar: " + aviso);
+    admMsg("Toque de novo para pôr na caixa: " + aviso);
     setTimeout(() => { if (admNuvemConfirmar === chave) admNuvemConfirmar = null; }, 4000);
     return;
   }
   admNuvemConfirmar = null;
-  admNuvemPresente(presente, msg);
+  porNaCaixa(presente, msg);
 }
 $("adm-nuvem-load").addEventListener("click", admNuvemCarregar);
 $("adm-nuvem-busca").addEventListener("input", admNuvemRender);
-/* dar */
+/* dar — tudo vai para a caixa, e a caixa é enviada de uma vez */
 $("adm-nuvem-dar").addEventListener("click", () =>
-  admNuvemPresente({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais enviados"));
+  porNaCaixa({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais"));
 $("adm-nuvem-set").addEventListener("click", () =>
-  admNuvemPresente({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Cristais definidos"));
+  porNaCaixa({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Definir cristais"));
 $("adm-nuvem-fase-set").addEventListener("click", () =>
-  admNuvemPresente({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Fase definida"));
+  porNaCaixa({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Definir fase"));
 $("adm-nuvem-naves").addEventListener("click", () =>
-  admNuvemPresente({ naves: true }, "Naves enviadas"));
+  porNaCaixa({ naves: true }, "Naves"));
 $("adm-nuvem-fases").addEventListener("click", () =>
-  admNuvemPresente({ fases: true }, "Fases liberadas"));
+  porNaCaixa({ fases: true }, "Fases"));
 $("adm-nuvem-hab").addEventListener("click", () =>
-  admNuvemPresente({ habilidades: true }, "Habilidades liberadas"));
+  porNaCaixa({ habilidades: true }, "Habilidades"));
 $("adm-nuvem-melhorias").addEventListener("click", () =>
-  admNuvemPresente({ melhorias: true }, "Melhorias no máximo"));
+  porNaCaixa({ melhorias: true }, "Melhorias"));
 $("adm-nuvem-lend").addEventListener("click", () =>
-  admNuvemPresente({ lendarios: true }, "Lendários enviados"));
+  porNaCaixa({ lendarios: true }, "Lendários"));
 $("adm-nuvem-tudo").addEventListener("click", () =>
-  admNuvemPresente({ tudo: true }, "Tudo enviado"));
+  porNaCaixa({ tudo: true }, "Tudo"));
 $("adm-nuvem-rank").addEventListener("click", () => {
   const v = parseInt($("adm-nuvem-rank-sel").value, 10) || 0;
-  admNuvemPresente({ setRank: v }, "Rank " + nomeDoRank(v) + " enviado");
+  porNaCaixa({ setRank: v }, "Rank " + nomeDoRank(v));
 });
 $("adm-nuvem-maverick").addEventListener("click", () =>
-  admNuvemPresente({ exclusiva: MAVERICK }, "Maverick enviado"));
+  porNaCaixa({ exclusiva: MAVERICK }, "Maverick"));
 $("adm-nuvem-b2").addEventListener("click", () =>
-  admNuvemPresente({ exclusiva: B2 }, "B-2 Spirit enviado"));
+  porNaCaixa({ exclusiva: B2 }, "B-2 Spirit"));
 
 /* tirar e zerar (dois toques) */
 $("adm-nuvem-gem-zero").addEventListener("click", () =>
@@ -3118,9 +3361,9 @@ $("adm-nuvem-zerar").addEventListener("click", () =>
 
 /* outros */
 $("adm-nuvem-god-on").addEventListener("click", () =>
-  admNuvemPresente({ god: true }, "Invencibilidade ligada"));
+  porNaCaixa({ god: true }, "Invencibilidade"));
 $("adm-nuvem-god-off").addEventListener("click", () =>
-  admNuvemPresente({ god: false }, "Invencibilidade desligada"));
+  porNaCaixa({ god: false }, "Tirar invencibilidade"));
 $("adm-nuvem-cancelar").addEventListener("click", async () => {
   if (!admNuvemAlvo) return;
   await nuvemCancelarComando(admNuvemAlvo.id);
@@ -4795,6 +5038,7 @@ function goMenu() {
   S.mode = "menu";
   refreshMenu();
   showScreen("menu");
+  if (presenteGuardado && presenteGuardado.length) setTimeout(mostrarCaixaPresente, 350);
 }
 $("btn-resume").addEventListener("click", () => togglePause());
 $("btn-pause").addEventListener("click", () => togglePause());
@@ -6983,6 +7227,52 @@ $("cloud-btn").addEventListener("click", async () => {
   }
 });
 
+/* ---------- Caixa de presente ---------- */
+let presenteGuardado = null;
+
+function mostrarCaixaPresente() {
+  if (!presenteGuardado || !presenteGuardado.length) return;
+  if (S.mode !== "menu") return;             // só no menu, nunca sobre o login
+  const cx = $("caixa-presente");
+  cx.classList.remove("aberta");
+  $("cp-itens").innerHTML = "";
+  $("cp-ok").style.display = "none";
+  $("cp-toque").textContent = "toque para abrir";
+  cx.classList.add("on");
+  AudioSys.tone(523, 0.12, "sine", 0.12);
+  setTimeout(() => AudioSys.tone(659, 0.14, "sine", 0.12), 140);
+  vibrate([30, 60, 30]);
+}
+
+function abrirCaixaPresente() {
+  const cx = $("caixa-presente");
+  if (cx.classList.contains("aberta")) return;
+  cx.classList.add("aberta");
+  AudioSys.chest();
+  vibrate([40, 40, 80]);
+  const lista = $("cp-itens");
+  lista.innerHTML = "";
+  (presenteGuardado || []).forEach((it, i) => {
+    const el = document.createElement("div");
+    el.className = "cp-item" + (it.ruim ? " ruim" : "");
+    el.style.animationDelay = (0.35 + i * 0.12) + "s";
+    el.innerHTML = "<b style=\"color:" + (it.ruim ? "var(--danger)" : "var(--amber)") + "\">" +
+      it.icone + "</b><span>" + escaparTexto(it.texto) + "</span>";
+    lista.appendChild(el);
+  });
+  setTimeout(() => { $("cp-ok").style.display = "inline-block"; },
+             400 + (presenteGuardado || []).length * 120);
+}
+
+function fecharCaixaPresente() {
+  $("caixa-presente").classList.remove("on");
+  presenteGuardado = null;
+  refreshMenu();
+}
+$("cp-caixa").addEventListener("click", abrirCaixaPresente);
+$("cp-toque").addEventListener("click", abrirCaixaPresente);
+$("cp-ok").addEventListener("click", fecharCaixaPresente);
+
 /* ---------- Rede de segurança: mostra o erro em vez de travar ---------- */
 let ultimoErro = "";
 function mostrarErro(msg, origem) {
@@ -7032,6 +7322,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.5", itens: [
+      "Caixa de presente: o administrador manda vários itens de uma vez e você abre tudo junto",
+      "O presente já entra na conta antes de você abrir a caixa — nada de bug",
+      "A caixa só aparece dentro do menu, nunca por cima da tela de login",
+      "Sua conta é a mesma em qualquer celular: o ranking não repete mais o seu nome",
+      "Presentes chegam mesmo quando você entra de outro aparelho"
+    ] },
   { v: "2.4", itens: [
       "Tela de login: entre com o nome da conta e a senha desenho",
       "A conta agora vai junto na nuvem — dá para entrar em outro celular",
@@ -7077,7 +7374,7 @@ function renderNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.4";
+const VERSAO = "2.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
