@@ -96,7 +96,17 @@ O painel tem busca por nome e, para o piloto selecionado:
 | **Todos** | Criar piloto, dar 10 mil cristais a todos, exportar tudo |
 | **Cópia de segurança** | Exportar e importar saves em texto — serve para levar o progresso de um celular para outro |
 
-> ⚠️ **O painel é local.** O jogo roda inteiro no aparelho de cada jogador e **não existe servidor**: você administra apenas os pilotos salvos **no seu aparelho**. Não é possível ver nem alterar o progresso de quem baixou o jogo. Pelo mesmo motivo, a senha do ADM protege contra o acesso casual, mas quem souber abrir o código do navegador consegue contornar — em jogo sem servidor não existe proteção real do lado do cliente.
+> ⚠️ **Sem o modo online, o painel é local.** O jogo roda no aparelho de cada jogador, então você administra apenas os pilotos salvos **no seu aparelho** — o piloto que um amigo criar no celular dele não aparece para você. Para que apareça, ligue o modo online (abaixo). Vale lembrar também que a senha do ADM protege contra o acesso casual, mas quem souber abrir o código do navegador consegue contornar: em jogo sem servidor não existe proteção real do lado do cliente.
+
+## Modo online (opcional, grátis)
+
+Preenchendo `NUVEM_URL` com um Realtime Database gratuito do Firebase, o jogo ganha:
+
+- 🏆 **Ranking online** no menu, com todos os jogadores
+- 👥 **Lista de jogadores no painel ADM**, com busca pelo nome
+- 🎁 **Presentes à distância** — envie cristais, naves, fases ou os amuletos lendários; a pessoa recebe ao abrir o jogo, com aviso na tela (presentes enviados em sequência se somam)
+
+O passo a passo, incluindo as regras de segurança do banco, está em **[NUVEM.md](NUVEM.md)**. Sem preencher nada, o jogo segue 100% offline e nenhuma conexão é feita.
 
 ## Onde o progresso é salvo (banco de dados)
 
@@ -150,6 +160,7 @@ Os materiais obrigatórios já estão prontos na pasta [`loja/`](loja/): ícones
 | `sw.js` | Service worker — modo offline |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Ícones do app |
 | `INSTALAR.md` | Como distribuir de graça, sem loja e sem servidor |
+| `NUVEM.md` | Como ligar o ranking online e os presentes à distância |
 | `baixar.html` | Página de instalação para compartilhar com os jogadores |
 | `.github/workflows/apk.yml` | Robô que compila o APK do Android automaticamente |
 | `PUBLICAR.md` | Guia de publicação na Google Play e na App Store |
