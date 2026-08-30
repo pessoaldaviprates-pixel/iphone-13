@@ -137,6 +137,18 @@ O painel tem busca por nome e, para o piloto selecionado:
 
 ## Login com senha desenho
 
+Na abertura você digita **o nome da conta** e desenha a **senha** (padrão de 3×3, como o do celular — pelo menos 4 pontos). A tela também lista as contas já salvas no aparelho, para entrar com um toque.
+
+Com o modo online ligado, a conta é guardada na nuvem: dá para **entrar na mesma conta em outro celular** digitando o nome e desenhando a senha — todo o progresso vem junto.
+
+## Atualização automática
+
+O jogo consulta o arquivo `versao.json` e, quando sai uma versão nova, mostra uma faixa **"Versão X disponível"** e se atualiza sozinho (fora de partida). O botão **ATUALIZAR** limpa o cache e recarrega na hora, mesmo se o service worker estiver travado.
+
+Para publicar uma versão nova: mude `VERSAO` no `index.html`, o número em `versao.json` e a versão do cache no `sw.js`.
+
+## Detalhes da senha desenho
+
 Cada piloto tem uma **senha desenho** (padrão de 3×3, como o do celular): ligue pelo menos 4 pontos. Quem já tinha conta é levado a criar a senha no próximo login, **sem perder nada do progresso**.
 
 ## Vida por nave

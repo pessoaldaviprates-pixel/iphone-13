@@ -4,11 +4,12 @@
      Assim uma versão nova chega assim que você abre o jogo com internet,
      e ele continua funcionando offline com a última versão baixada.
    - Ícones, manifesto e fontes: cache primeiro (não mudam quase nunca).      */
-const CACHE = "neon-nebula-v11";
+const CACHE = "neon-nebula-v12";
 const ASSETS = [
   "./",
   "./index.html",
   "./config.js",
+  "./versao.json",
   "./manifest.json",
   "./icon.svg",
   "./icon-192.png",
@@ -38,6 +39,7 @@ self.addEventListener("message", (event) => {
 });
 
 function ehArquivoDoJogo(req, url) {
+  if (url.pathname.endsWith("versao.json")) return true;   // sempre da rede
   if (req.mode === "navigate") return true;
   if (url.origin !== location.origin) return false;
   return /\.(html|js)$/.test(url.pathname) || url.pathname.endsWith("/");
