@@ -63,6 +63,21 @@
   #hud-fase{color:var(--amber);text-shadow:0 0 12px rgba(255,193,69,.55)}
   #hud-lives{font-size:.95rem;color:var(--magenta);letter-spacing:.06em;text-shadow:0 0 10px rgba(255,77,143,.6)}
   #hud-gems{font-size:.85rem;color:var(--amber)}
+  #hud-hp{
+    width:104px;height:13px;border-radius:7px;margin-top:3px;position:relative;
+    background:rgba(6,10,24,.75);border:1px solid rgba(77,232,255,.35);overflow:hidden;
+  }
+  #hud-hp i{
+    display:block;height:100%;width:100%;
+    background:linear-gradient(90deg,#4DE8FF,#7CF7C0);
+    transition:width .12s linear;
+  }
+  #hud-hp i.baixo{background:linear-gradient(90deg,#FF5252,#FF9E4D)}
+  #hud-hp b{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:"Chakra Petch",sans-serif;font-size:.58rem;font-weight:700;
+    color:#04121c;text-shadow:0 0 3px rgba(255,255,255,.5);
+  }
   .hud-btns{display:flex;gap:10px;pointer-events:auto}
   .hud-btn{
     width:42px;height:42px;border-radius:12px;
@@ -201,6 +216,19 @@
   .login-new{display:flex;gap:8px;width:min(80vw,310px)}
   .login-new .ghost-btn{flex:none}
   .adm-link{font-size:.72rem;color:var(--dim);letter-spacing:.14em;background:none;border:none;cursor:pointer;padding:8px}
+
+  /* ---------- Senha desenho ---------- */
+  #senha-canvas{
+    width:min(78vw,300px);height:min(78vw,300px);
+    touch-action:none;border-radius:20px;
+    background:rgba(10,18,40,.55);border:1px solid var(--line);
+  }
+  #senha-titulo{font-family:"Russo One",sans-serif;font-size:1.05rem;letter-spacing:.06em}
+  #senha-dica{font-size:.8rem;color:var(--dim);max-width:30ch;line-height:1.5;min-height:2.6em}
+  #senha-dica.erro{color:var(--danger);font-weight:700}
+  .senha-pontos{display:flex;gap:7px;height:10px;align-items:center}
+  .senha-pt{width:9px;height:9px;border-radius:50%;background:rgba(234,242,255,.2)}
+  .senha-pt.on{background:var(--cyan);box-shadow:0 0 8px rgba(77,232,255,.8)}
 
   /* ---------- Painel ADM ---------- */
   .adm-box{display:flex;flex-direction:column;gap:10px;width:min(86vw,340px);margin:0 auto}
@@ -530,6 +558,7 @@
     <span class="hud-label" id="hud-fase-label">ONDA</span>
     <span class="hud-value" id="hud-fase">FASE 1</span>
     <span class="hud-value" id="hud-lives">♥♥♥</span>
+    <div id="hud-hp"><i id="hud-hp-fill"></i><b id="hud-hp-txt"></b></div>
   </div>
   <div class="hud-btns">
     <button class="hud-btn" id="btn-mute" aria-label="Som ligado/desligado">♪</button>
@@ -555,6 +584,17 @@
   </div>
   <button class="adm-link" id="btn-goto-adm">⚙ PAINEL ADM</button>
   <div class="credit">O PROGRESSO É SALVO POR PILOTO · <span id="versao"></span></div>
+</div>
+
+<!-- SENHA DESENHO -->
+<div class="screen" id="screen-senha">
+  <div class="tagline" id="senha-tag">Segurança</div>
+  <div id="senha-titulo">DESENHE SUA SENHA</div>
+  <div class="senha-pontos" id="senha-pontos"></div>
+  <canvas id="senha-canvas" width="600" height="600"></canvas>
+  <p id="senha-dica">Ligue pelo menos 4 pontos sem soltar o dedo.</p>
+  <button class="ghost-btn" id="senha-refazer">REFAZER</button>
+  <button class="ghost-btn" id="senha-voltar">VOLTAR</button>
 </div>
 
 <!-- PAINEL ADM -->
@@ -1031,7 +1071,12 @@ function defaultSave() {
     amulets: [],             // {uid, type, rar}
     amuletSeq: 1,
     equipped: [],            // uids equipados (até 3)
-    godMode: false           // ligado pelo painel ADM
+    godMode: false,          // ligado pelo painel ADM
+    senha: null,             // senha desenho (embaralhada)
+    tempoJogado: 0,          // segundos dentro de partidas
+    tempos: {},              // fase -> melhor tempo em segundos
+    rank: 0, vitorias: 0, derrotas: 0,   // modo competitivo
+    amigos: []               // apelidos dos amigos
   };
 }
 function mergeSave(parsed) {
@@ -1492,7 +1537,8 @@ for (let i = 0; i < 50; i++) {
     powerMag: m,
     powerDesc: p.desc(m),
     baseDmg: 1 + i * 0.01,
-    baseAgi: 1 + i * 0.008
+    baseAgi: 1 + i * 0.008,
+    baseHp: 100 + i * 4
   });
 }
 /* ---------- Aeronaves exclusivas (só o administrador entrega) ---------- */
@@ -1503,7 +1549,7 @@ SHIPS.push({
   power: "dmg", ultId: "maverick",
   powerName: "Caça de Elite", powerMag: 85,
   powerDesc: "+85% de dano, com 5 habilidades de combate próprias",
-  baseDmg: 2.2, baseAgi: 1.45
+  baseDmg: 2.2, baseAgi: 1.45, baseHp: 460
 });
 SHIPS.push({
   name: "B-2 Spirit", price: 0, exclusiva: true,
@@ -1511,7 +1557,7 @@ SHIPS.push({
   power: "blast", ultId: "b2",
   powerName: "Bombardeiro Furtivo", powerMag: 90,
   powerDesc: "tiros explodem num raio de 90, com 10 habilidades de bombardeio",
-  baseDmg: 3.0, baseAgi: 1.2
+  baseDmg: 3.0, baseAgi: 1.2, baseHp: 620
 });
 function naveExclusiva(i) { return !!(SHIPS[i] && SHIPS[i].exclusiva); }
 
@@ -1723,6 +1769,10 @@ function calcStats() {
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg * (1 + A.dano / 100),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
                   (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100)),
+    maxHp: Math.round(
+      (80 + (SHIPS[save.ship].baseHp || (100 + save.ship * 3))) *
+      (1 + 0.12 * u.hull) * (1 + 0.08 * (P.armor || 0)) *
+      (1 + 0.02 * def) * (1 + A.vida * 0.08)),
     maxLives: 3 + u.hull + (hasSkill("def", 40) ? 2 : 0) + Math.floor((P.armor || 0) / 2) + pw("lives") + A.vida,
     shieldDur: (6 + 1.5 * u.shield) * (1 + 0.02 * def) * (1 + pw("ghost") / 100) * (1 + A.escudo / 100),
     invulnDur: 2.2 * (1 + 0.02 * def) * (1 + pw("ghost") / 100),
@@ -1887,7 +1937,7 @@ const SCREENS = {
   login: $("screen-login"), adm: $("screen-adm"),
   menu: $("screen-menu"), levels: $("screen-levels"), shop: $("screen-shop"),
   hangar: $("screen-hangar"), oficina: $("screen-oficina"), reliquias: $("screen-reliquias"),
-  tree: $("screen-tree"), rank: $("screen-rank"),
+  tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
 function showScreen(name) {
@@ -1904,6 +1954,13 @@ function updateHud() {
   hudFaseLabel.textContent = "ONDA " + Math.min(S.waveIdx, S.nWaves) + "/" + S.nWaves;
   hudFase.textContent = "FASE " + S.fase;
   hudLives.textContent = "♥".repeat(Math.max(0, player.lives));
+  const hpEl = $("hud-hp-fill");
+  if (hpEl && ST) {
+    const frac = clamp(player.hp / ST.maxHp, 0, 1);
+    hpEl.style.width = (frac * 100) + "%";
+    hpEl.classList.toggle("baixo", frac < 0.35);
+    $("hud-hp-txt").textContent = Math.max(0, Math.ceil(player.hp)) + " / " + ST.maxHp;
+  }
 }
 function ultBtnSync() {
   const pct = Math.round(S.ultCharge * 100);
@@ -1955,32 +2012,251 @@ function renderLogin() {
       '<span class="profile-meta">Fase ' + (p.best || 0) + ' · ◆ ' + fmt(p.crystals || 0) + '</span>';
     b.addEventListener("click", () => {
       AudioSys.resume();
-      loginAs(name);
-      S.mode = "menu";
-      refreshMenu();
-      showScreen("menu");
-      nuvemEnviar(true);
-      nuvemVerificarPresentes();
+      entrarComPiloto(name);
     });
     list.appendChild(b);
   }
 }
-$("btn-new").addEventListener("click", () => {
-  AudioSys.resume();
-  const name = $("new-name").value.trim();
-  if (!name) return;
-  if (ROOT.profiles[name]) { $("new-name").value = ""; return; }
+function entrarNoMenu(name) {
   loginAs(name);
-  $("new-name").value = "";
-  AudioSys.buy();
   S.mode = "menu";
   refreshMenu();
   showScreen("menu");
   nuvemEnviar(true);
   nuvemVerificarPresentes();
+}
+function entrarComPiloto(name) {
+  const p = ROOT.profiles[name];
+  if (!p) return;
+  if (!p.senha) {
+    // conta antiga: agora toda conta precisa de senha
+    abrirSenha("criar", name, (ok, hash) => {
+      if (!ok) return;
+      p.senha = hash;
+      p.savedAt = Date.now();
+      persist();
+      entrarNoMenu(name);
+    });
+    senhaEstado.migrar = true;
+    senhaAtualizarTexto();
+    return;
+  }
+  abrirSenha("verificar", name, () => entrarNoMenu(name));
+}
+
+$("btn-new").addEventListener("click", () => {
+  AudioSys.resume();
+  const name = $("new-name").value.trim();
+  if (!name) return;
+  if (ROOT.profiles[name]) { $("new-name").value = ""; return; }
+  abrirSenha("criar", name, (ok, hash) => {
+    if (!ok) return;
+    ROOT.profiles[name] = defaultSave();
+    ROOT.profiles[name].senha = hash;
+    $("new-name").value = "";
+    AudioSys.buy();
+    entrarNoMenu(name);
+  });
 });
 $("btn-logout").addEventListener("click", () => {
   persist();
+  S.mode = "login";
+  renderLogin();
+  showScreen("login");
+});
+
+/* ---------- Senha desenho (padrão de 3x3) ----------
+   O desenho vira uma sequência de pontos (ex.: 0-1-2-5-8) e é guardada
+   embaralhada, nunca em texto puro.                                        */
+const senhaCanvas = $("senha-canvas");
+const senhaCtx2 = senhaCanvas.getContext("2d");
+let senhaEstado = null;   // { modo, nome, primeira, aoTerminar, seq, desenhando, px, py }
+
+function senhaHash(seq) { return admHash("nn|" + seq.join("-")); }
+
+function abrirSenha(modo, nome, aoTerminar) {
+  senhaEstado = { modo, nome, primeira: null, aoTerminar, seq: [], desenhando: false, px: 0, py: 0 };
+  S.mode = "senha";
+  senhaAtualizarTexto();
+  showScreen("senha");
+  requestAnimationFrame(desenharSenha);
+}
+function senhaAtualizarTexto(erro) {
+  const e = senhaEstado;
+  if (!e) return;
+  const tit = $("senha-titulo"), dica = $("senha-dica"), tag = $("senha-tag");
+  dica.classList.toggle("erro", !!erro);
+  if (erro) { dica.textContent = erro; return; }
+  if (e.modo === "verificar") {
+    tag.textContent = "Entrar";
+    tit.textContent = "SENHA DE " + String(e.nome).toUpperCase();
+    dica.textContent = "Desenhe a sua senha para entrar.";
+  } else if (e.modo === "criar") {
+    tag.textContent = e.migrar ? "Nova exigência" : "Nova conta";
+    tit.textContent = "CRIE SUA SENHA";
+    dica.textContent = e.migrar
+      ? "Agora toda conta precisa de senha. Ligue pelo menos 4 pontos e guarde bem o desenho."
+      : "Ligue pelo menos 4 pontos sem soltar o dedo.";
+  } else {
+    tag.textContent = "Confirmação";
+    tit.textContent = "REPITA A SENHA";
+    dica.textContent = "Desenhe o mesmo padrão de novo para confirmar.";
+  }
+  senhaPontinhos();
+}
+function senhaPontinhos() {
+  const e = senhaEstado;
+  const box = $("senha-pontos");
+  box.innerHTML = "";
+  const n = e ? e.seq.length : 0;
+  for (let i = 0; i < Math.max(4, n); i++) {
+    const d = document.createElement("span");
+    d.className = "senha-pt" + (i < n ? " on" : "");
+    box.appendChild(d);
+  }
+}
+function senhaPos(i) {
+  const col = i % 3, lin = Math.floor(i / 3);
+  return { x: 120 + col * 180, y: 120 + lin * 180 };
+}
+function desenharSenha() {
+  if (S.mode !== "senha" || !senhaEstado) return;
+  const g = senhaCtx2, e = senhaEstado;
+  g.clearRect(0, 0, 600, 600);
+  // linhas já feitas
+  g.strokeStyle = "rgba(77,232,255,.85)";
+  g.lineWidth = 9;
+  g.lineCap = "round";
+  g.lineJoin = "round";
+  if (e.seq.length > 1) {
+    g.beginPath();
+    const p0 = senhaPos(e.seq[0]);
+    g.moveTo(p0.x, p0.y);
+    for (let k = 1; k < e.seq.length; k++) {
+      const pk = senhaPos(e.seq[k]);
+      g.lineTo(pk.x, pk.y);
+    }
+    g.stroke();
+  }
+  // linha até o dedo
+  if (e.desenhando && e.seq.length) {
+    const ul = senhaPos(e.seq[e.seq.length - 1]);
+    g.strokeStyle = "rgba(77,232,255,.4)";
+    g.beginPath();
+    g.moveTo(ul.x, ul.y);
+    g.lineTo(e.px, e.py);
+    g.stroke();
+  }
+  // pontos
+  for (let i = 0; i < 9; i++) {
+    const pt = senhaPos(i);
+    const aceso = e.seq.indexOf(i) >= 0;
+    g.beginPath();
+    g.arc(pt.x, pt.y, aceso ? 30 : 22, 0, TAU);
+    g.fillStyle = aceso ? "rgba(77,232,255,.22)" : "rgba(234,242,255,.07)";
+    g.fill();
+    g.lineWidth = 3;
+    g.strokeStyle = aceso ? "#4DE8FF" : "rgba(234,242,255,.28)";
+    g.stroke();
+    if (aceso) {
+      g.beginPath();
+      g.arc(pt.x, pt.y, 11, 0, TAU);
+      g.fillStyle = "#4DE8FF";
+      g.fill();
+    }
+  }
+  requestAnimationFrame(desenharSenha);
+}
+function senhaPonteiro(ev) {
+  const r = senhaCanvas.getBoundingClientRect();
+  return {
+    x: (ev.clientX - r.left) * (600 / r.width),
+    y: (ev.clientY - r.top) * (600 / r.height)
+  };
+}
+function senhaTestarPonto(x, y) {
+  const e = senhaEstado;
+  for (let i = 0; i < 9; i++) {
+    const pt = senhaPos(i);
+    if (dist2(x, y, pt.x, pt.y) < 62 * 62 && e.seq.indexOf(i) < 0) {
+      e.seq.push(i);
+      AudioSys.tone(520 + e.seq.length * 70, 0.05, "sine", 0.09);
+      vibrate(10);
+      senhaPontinhos();
+      return;
+    }
+  }
+}
+senhaCanvas.addEventListener("pointerdown", ev => {
+  if (!senhaEstado) return;
+  ev.preventDefault();
+  AudioSys.resume();
+  senhaEstado.seq = [];
+  senhaEstado.desenhando = true;
+  const p2 = senhaPonteiro(ev);
+  senhaEstado.px = p2.x; senhaEstado.py = p2.y;
+  senhaTestarPonto(p2.x, p2.y);
+  try { senhaCanvas.setPointerCapture(ev.pointerId); } catch (e) {}
+});
+senhaCanvas.addEventListener("pointermove", ev => {
+  if (!senhaEstado || !senhaEstado.desenhando) return;
+  ev.preventDefault();
+  const p2 = senhaPonteiro(ev);
+  senhaEstado.px = p2.x; senhaEstado.py = p2.y;
+  senhaTestarPonto(p2.x, p2.y);
+});
+function senhaSoltar() {
+  const e = senhaEstado;
+  if (!e || !e.desenhando) return;
+  e.desenhando = false;
+  if (e.seq.length < 4) {
+    e.seq = [];
+    senhaAtualizarTexto("Use pelo menos 4 pontos.");
+    AudioSys.deny();
+    return;
+  }
+  const h = senhaHash(e.seq);
+  if (e.modo === "verificar") {
+    const perfil = ROOT.profiles[e.nome];
+    if (perfil && perfil.senha === h) {
+      AudioSys.buy();
+      e.aoTerminar(true);
+    } else {
+      e.seq = [];
+      senhaAtualizarTexto("Senha errada. Tente de novo.");
+      AudioSys.deny();
+      vibrate([60, 40, 60]);
+    }
+  } else if (e.modo === "criar") {
+    e.primeira = h;
+    e.modo = "confirmar";
+    e.seq = [];
+    senhaAtualizarTexto();
+    AudioSys.tone(880, 0.12, "sine", 0.12);
+  } else {
+    if (h === e.primeira) {
+      AudioSys.buy();
+      e.aoTerminar(true, h);
+    } else {
+      e.modo = "criar";
+      e.primeira = null;
+      e.seq = [];
+      senhaAtualizarTexto("Os desenhos não bateram. Comece de novo.");
+      AudioSys.deny();
+      vibrate([60, 40, 60]);
+    }
+  }
+}
+senhaCanvas.addEventListener("pointerup", senhaSoltar);
+senhaCanvas.addEventListener("pointercancel", senhaSoltar);
+$("senha-refazer").addEventListener("click", () => {
+  if (!senhaEstado) return;
+  senhaEstado.seq = [];
+  if (senhaEstado.modo === "confirmar") { senhaEstado.modo = "criar"; senhaEstado.primeira = null; }
+  senhaAtualizarTexto();
+});
+$("senha-voltar").addEventListener("click", () => {
+  senhaEstado = null;
   S.mode = "login";
   renderLogin();
   showScreen("login");
@@ -3643,6 +3919,7 @@ function startGame(fase) {
   S.score = 0; S.runGems = 0; S.shake = 0; S.time = 0;
   S.ultCharge = 0; S.furyT = 0; S.hiveT = 0; S.barrage = null; S.singu = null;
   player.lives = ST.maxLives;
+  player.hp = ST.maxHp;
   player.weapon = 1;
   player.invuln = 2;
   player.shield = ST.startShield ? ST.shieldDur : 0;
@@ -4132,6 +4409,20 @@ function hitPlayer() {
     addText(player.x, player.y - 30, "ESCUDO QUEBROU", "#FFC145");
     return;
   }
+  // o dano tira vida da nave; ao zerar, perde um coração
+  const dano = 55 + S.fase * 1.5;
+  player.hp -= dano;
+  addText(player.x, player.y - 26, "-" + Math.round(dano), "#FF5252");
+  if (player.hp > 0) {
+    player.invuln = ST.invulnDur * 0.55;
+    AudioSys.hit();
+    vibrate(35);
+    S.shake = 7;
+    explosion(player.x, player.y, shipColor(save.ship), 12);
+    updateHud();
+    return;
+  }
+  player.hp = ST.maxHp;
   player.lives--;
   updateHud();
   AudioSys.hurt();
