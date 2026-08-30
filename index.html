@@ -399,6 +399,21 @@
   .nov-item ul{margin:0;padding-left:13px}
   .nov-item li{font-size:.63rem;line-height:1.45;color:rgba(234,242,255,.8)}
   @media (max-width:360px){ #novidades{width:44vw;font-size:.9em} }
+  #erro-box{
+    position:fixed;inset:auto 12px calc(12px + env(safe-area-inset-bottom)) 12px;
+    z-index:40;display:none;flex-direction:column;gap:10px;
+    background:rgba(28,8,12,.97);border:1px solid var(--danger);border-radius:16px;
+    padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.6);
+    max-height:70vh;overflow:auto;
+  }
+  #erro-box.on{display:flex}
+  #erro-box b{font-family:"Russo One",sans-serif;font-size:.8rem;color:var(--danger);letter-spacing:.1em}
+  #erro-msg{
+    font-family:ui-monospace,Menlo,monospace;font-size:.66rem;line-height:1.5;
+    color:rgba(234,242,255,.9);word-break:break-word;white-space:pre-wrap;
+  }
+  .erro-acoes{display:flex;flex-wrap:wrap;gap:8px}
+  .erro-acoes .ghost-btn{flex:1;min-width:110px;padding:10px 8px;font-size:.72rem}
   #presente-jogo{
     position:fixed;left:50%;transform:translateX(-50%) translateY(-20px);
     top:calc(120px + env(safe-area-inset-top));z-index:9;pointer-events:none;
@@ -669,6 +684,15 @@
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
 <div id="presente-jogo"></div>
+<div id="erro-box">
+  <b>⚠ OCORREU UM ERRO</b>
+  <p id="erro-msg"></p>
+  <div class="erro-acoes">
+    <button class="ghost-btn" id="erro-copiar">COPIAR ERRO</button>
+    <button class="ghost-btn" id="erro-menu">VOLTAR AO MENU</button>
+    <button class="ghost-btn" id="erro-fechar">CONTINUAR MESMO ASSIM</button>
+  </div>
+</div>
 <aside id="novidades">
   <div class="nov-topo">
     <b>NOVIDADES</b>
@@ -1321,7 +1345,10 @@ function mergeSave(parsed) {
   s.weaponSel = (parsed && parsed.weaponSel) || {};
   s.amulets = (parsed && Array.isArray(parsed.amulets)) ? parsed.amulets : [];
   s.equipped = (parsed && Array.isArray(parsed.equipped)) ? parsed.equipped.slice(0, 3) : [];
-  if (s.ships.indexOf(s.ship) < 0) s.ship = s.ships[0];
+  // conserta saves antigos: naves que não existem mais, ou fora da lista
+  s.ships = s.ships.filter(i => typeof i === "number" && i >= 0 && i < SHIPS.length);
+  if (!s.ships.length) s.ships = [0];
+  if (typeof s.ship !== "number" || s.ships.indexOf(s.ship) < 0) s.ship = s.ships[0];
   return s;
 }
 function defaultRoot() { return { savedAt: 0, current: null, adminPass: null, profiles: {} }; }
@@ -1910,12 +1937,17 @@ HABILIDADES[B2] = [
 ];
 function habilidadesDaNave() { return HABILIDADES[save.ship] || []; }
 
+function naveValida(i) {
+  return (typeof i === "number" && i >= 0 && i < SHIPS.length) ? i : 0;
+}
 function shipHue(i) {
-  const c = save.custom[i];
+  i = naveValida(i);
+  const c = save.custom ? save.custom[i] : null;
   return (c && typeof c.hue === "number") ? c.hue : SHIPS[i].hue;
 }
 function shipGlowHue(i) {
-  const c = save.custom[i];
+  i = naveValida(i);
+  const c = save.custom ? save.custom[i] : null;
   return (c && typeof c.glow === "number") ? c.glow : shipHue(i);
 }
 function shipColor(i) { return "hsl(" + shipHue(i) + ",100%,66%)"; }
@@ -2086,10 +2118,10 @@ function calcStats() {
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg * (1 + A.dano / 100),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
                   (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100) * (sh.baseRate || 1)),
-    maxHp: Math.round(
-      (80 + (SHIPS[save.ship].baseHp || (100 + save.ship * 3))) *
+    maxHp: Math.max(40, Math.round(
+      (80 + (sh.baseHp || 120)) *
       (1 + 0.12 * u.hull) * (1 + 0.08 * (P.armor || 0)) *
-      (1 + 0.02 * def) * (1 + A.vida * 0.08)),
+      (1 + 0.02 * def) * (1 + A.vida * 0.08))),
     maxLives: 3 + u.hull + (hasSkill("def", 40) ? 2 : 0) + Math.floor((P.armor || 0) / 2) + pw("lives") + A.vida,
     shieldDur: (6 + 1.5 * u.shield) * (1 + 0.02 * def) * (1 + pw("ghost") / 100) * (1 + A.escudo / 100),
     invulnDur: 2.2 * (1 + 0.02 * def) * (1 + pw("ghost") / 100),
@@ -5492,6 +5524,7 @@ function hitPlayer() {
   }
   // o dano tira vida da nave; ao zerar, perde um coração
   const dano = (55 + S.fase * 1.5) * clamp(1 + (LEITURA.geral || 0) * 0.3, 1, 1.3);
+  if (!isFinite(player.hp)) player.hp = ST.maxHp;   // segurança
   player.hp -= dano;
   addText(player.x, player.y - 26, "-" + Math.round(dano), "#FF5252");
   if (player.hp > 0) {
@@ -6147,7 +6180,7 @@ function update(dt) {
 "use strict";
 /* ---------- Desenho ---------- */
 function drawShipSprite(g, idx, s2) {
-  const sh = SHIPS[idx] || SHIPS[0];
+  const sh = SHIPS[naveValida(idx)] || SHIPS[0];
   const k = s2 / 18;
   const color = shipColor(idx);
   g.shadowColor = color;
@@ -6732,6 +6765,14 @@ function draw() {
 /* ---------- Loop ---------- */
 let last = performance.now();
 function loop(now) {
+  try {
+  return loopInterno(now);
+  } catch (e) {
+    mostrarErro(e && e.message, "laço do jogo");
+    requestAnimationFrame(loop);
+  }
+}
+function loopInterno(now) {
   let dt = (now - last) / 1000;
   last = now;
   if (dt > 0.05) dt = 0.05;
@@ -6813,8 +6854,60 @@ $("cloud-btn").addEventListener("click", async () => {
   }
 });
 
+/* ---------- Rede de segurança: mostra o erro em vez de travar ---------- */
+let ultimoErro = "";
+function mostrarErro(msg, origem) {
+  const texto = String(msg || "erro desconhecido") + (origem ? "\n(" + origem + ")" : "");
+  if (texto === ultimoErro) return;          // não repete o mesmo erro
+  ultimoErro = texto;
+  const box = $("erro-box");
+  if (!box) return;
+  const info = [
+    texto,
+    "",
+    "versão " + (typeof VERSAO !== "undefined" ? VERSAO : "?") +
+      " · tela " + S.mode +
+      " · nave " + (save && save.ship) +
+      " · fase " + S.fase +
+      (typeof MP !== "undefined" && MP.sala ? " · sala " + MP.sala + " (" + MP.modo + ")" : "")
+  ].join("\n");
+  $("erro-msg").textContent = info;
+  box.classList.add("on");
+  try { if (S.mode === "playing") togglePause(); } catch (e) {}
+}
+window.addEventListener("error", ev => {
+  mostrarErro(ev.message, (ev.filename || "").split("/").pop() + ":" + ev.lineno);
+});
+window.addEventListener("unhandledrejection", ev => {
+  mostrarErro((ev.reason && ev.reason.message) || ev.reason, "promessa");
+});
+$("erro-copiar").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("erro-msg").textContent); $("erro-copiar").textContent = "COPIADO!"; }
+  catch (e) { const r = document.createRange(); r.selectNode($("erro-msg")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+});
+$("erro-fechar").addEventListener("click", () => { $("erro-box").classList.remove("on"); ultimoErro = ""; });
+$("erro-menu").addEventListener("click", () => {
+  $("erro-box").classList.remove("on");
+  ultimoErro = "";
+  try { if (typeof MP !== "undefined" && MP.sala) mpSair(false); } catch (e) {}
+  try { goMenu(); } catch (e) { location.reload(); }
+});
+
+/* protege o laço do jogo: um erro num quadro não derruba a partida */
+function protegido(fn, nome) {
+  return function () {
+    try { return fn.apply(this, arguments); }
+    catch (e) { mostrarErro(e && e.message, nome); }
+  };
+}
+
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.3", itens: [
+      "Corrigido o travamento ao levar dano (naves de saves antigos)",
+      "Saves com naves que não existem mais são consertados sozinhos",
+      "Se algo der errado, aparece uma tela explicando em vez de travar"
+    ] },
   { v: "2.2", itens: [
       "Cooperativo consertado: os dois enfrentam os MESMOS inimigos e o MESMO chefe, com o dano somado",
       "Movimento do parceiro bem mais liso (envio 4x mais rápido, com previsão)",
@@ -6850,7 +6943,7 @@ function renderNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.2";
+const VERSAO = "2.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
