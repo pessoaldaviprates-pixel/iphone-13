@@ -782,6 +782,21 @@
     text-align:center;padding:2px 4px 8px;
   }
 
+  /* faixa da fila da ranqueada, que fica visível fora da tela dela */
+  #fila-faixa{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(8px + env(safe-area-inset-top));z-index:44;display:none;
+    background:rgba(28,10,22,.95);border:1px solid var(--magenta);border-radius:12px;
+    padding:7px 14px;font-size:.68rem;letter-spacing:.04em;white-space:nowrap;
+    box-shadow:0 4px 20px rgba(0,0,0,.5);
+  }
+  #fila-faixa.on{display:block}
+  #fila-faixa b{color:var(--magenta);font-weight:700}
+  #fila-faixa i{
+    font-style:normal;margin-left:10px;color:var(--dim);cursor:pointer;
+    text-decoration:underline;
+  }
+
   /* ranqueada */
   .rank-cartao{
     display:flex;align-items:center;gap:14px;
@@ -1179,6 +1194,7 @@
     <div id="hud-hp"><i id="hud-hp-fill"></i><b id="hud-hp-txt"></b></div>
   </div>
   <div class="hud-btns">
+    <button class="hud-btn" id="btn-musica" aria-label="Música ligada/desligada">🎵</button>
     <button class="hud-btn" id="btn-mute" aria-label="Som ligado/desligado">♪</button>
     <button class="hud-btn" id="btn-pause" aria-label="Pausar">❚❚</button>
   </div>
@@ -1240,6 +1256,7 @@
   </div>
 </div>
 <div id="arena-hud"></div>
+<div id="fila-faixa"></div>
 <div id="mp-placar">
   <span id="mp-nome"></span>
   <div class="mp-barra"><i id="mp-hp"></i><b id="mp-hp-txt"></b></div>
@@ -1371,6 +1388,7 @@
             <button class="adm-btn danger" id="adm-nuvem-fases-zero">ZERAR FASES</button>
             <button class="adm-btn danger" id="adm-nuvem-hab-zero">ZERAR HABILIDADES</button>
             <button class="adm-btn danger" id="adm-nuvem-amu-zero">TIRAR AMULETOS</button>
+            <button class="adm-btn danger" id="adm-nuvem-naves-criadas">DESFAZER NAVES MONTADAS</button>
             <button class="adm-btn danger" id="adm-nuvem-zerar">ZERAR O JOGADOR</button>
           </div>
 
@@ -2075,6 +2093,7 @@ function defaultSave() {
     coopBest: 0,                         // progresso do cooperativo (200 fases)
     dificuldade: "medio",    // facil | medio | dificil (o online é sempre médio)
     criadas: [],             // naves montadas por você na oficina de construção
+    limpezaNaves: 0,         // número da última limpeza de naves aplicada
     arenaOnda: 0,            // maior onda que você alcançou na arena
     transmitir: true,        // deixa os amigos verem a sua tela
     controle: "auto",        // auto | pc | toque
@@ -2193,6 +2212,7 @@ function loginAs(name) {
   ROOT.current = name;
   save = ROOT.profiles[name];
   save.__name = name;
+  try { aplicarLimpezaDeNaves(); } catch (e) {}
   // as naves que este piloto montou entram no fim da lista
   try { reconstruirNavesCriadas(); } catch (e) {}
   persist();
@@ -2695,6 +2715,12 @@ function aplicarPresente(p, g) {
     anota("⚠", "− " + fmt(g.tirarCristais) + " cristais", true);
     tirou = true;
   }
+  if (g.limparNaves) {
+    const volta = limparNavesCriadas(p);
+    partes.push("naves montadas desfeitas");
+    anota("🛠", "Suas naves montadas foram desfeitas (voltaram ◆ " + fmt(volta) + ")", true);
+    tirou = true;
+  }
   if (g.remPecas && g.remPecas.length) {
     for (const i of g.remPecas) delete p.parts[i];
     partes.push("peças retiradas");
@@ -3107,17 +3133,17 @@ function fazerPecas(enc, i2) {
                 encaixe: enc.id, preco: Math.round(60 + Math.pow(n, 1.7) * 13 + i2 * 8) };
     const zerar = { dmg: 0, hp: 0, cad: 0, agi: 0, gem: 0 };
     Object.assign(p, zerar);
-    if (enc.id === "frente")         { p.dmg = 0.05 + f * 0.55; p.agi = 0.02 + f * 0.10; }
-    else if (enc.id === "tras")      { p.agi = 0.05 + f * 0.40; p.hp = Math.round(f * 60); }
-    else if (enc.id === "dir" || enc.id === "esq") { p.agi = 0.03 + f * 0.22; p.hp = Math.round(15 + f * 90); }
-    else if (enc.id === "teto")      { p.hp = Math.round(20 + f * 150); }
-    else if (enc.id === "baixo")     { p.hp = Math.round(25 + f * 170); p.agi = -f * 0.05; }
-    else if (enc.id === "motor")     { p.agi = 0.08 + f * 0.65; p.cad = f * 0.10; }
-    else if (enc.id === "armas")     { p.dmg = 0.12 + f * 0.95; p.cad = 0.04 + f * 0.35; }
-    else if (enc.id === "bombas")    { p.dmg = 0.20 + f * 1.25; p.agi = -f * 0.08; }
-    else if (enc.id === "armamento") { p.dmg = 0.15 + f * 1.05; p.hp = Math.round(f * 50); }
-    else if (enc.id === "escudo")    { p.hp = Math.round(30 + f * 210); p.agi = -f * 0.04; }
-    else if (enc.id === "sensor")    { p.cad = 0.05 + f * 0.42; p.gem = 0.03 + f * 0.45; }
+    if (enc.id === "frente")         { p.dmg = 0.02 + f * 0.22; p.agi = 0.01 + f * 0.06; }
+    else if (enc.id === "tras")      { p.agi = 0.02 + f * 0.18; p.hp = Math.round(f * 30); }
+    else if (enc.id === "dir" || enc.id === "esq") { p.agi = 0.02 + f * 0.10; p.hp = Math.round(8 + f * 45); }
+    else if (enc.id === "teto")      { p.hp = Math.round(10 + f * 70); }
+    else if (enc.id === "baixo")     { p.hp = Math.round(12 + f * 80); p.agi = -f * 0.05; }
+    else if (enc.id === "motor")     { p.agi = 0.04 + f * 0.28; p.cad = f * 0.05; }
+    else if (enc.id === "armas")     { p.dmg = 0.05 + f * 0.38; p.cad = 0.02 + f * 0.14; }
+    else if (enc.id === "bombas")    { p.dmg = 0.08 + f * 0.50; p.agi = -f * 0.08; }
+    else if (enc.id === "armamento") { p.dmg = 0.06 + f * 0.42; p.hp = Math.round(f * 25); }
+    else if (enc.id === "escudo")    { p.hp = Math.round(15 + f * 100); p.agi = -f * 0.04; }
+    else if (enc.id === "sensor")    { p.cad = 0.02 + f * 0.17; p.gem = 0.02 + f * 0.22; }
     p.dmg = Math.round(p.dmg * 100) / 100;
     p.agi = Math.round(p.agi * 100) / 100;
     p.cad = Math.round(p.cad * 100) / 100;
@@ -3175,11 +3201,11 @@ function naveCriadaDef(c) {
     peso += p.n + 1 + p.hp / 22;          // peça grande e blindada pesa mais
   }
   // 1) retorno decrescente
-  hp  = Math.round(amaciar(hp,  520,  0.30));
-  dmg = amaciar(dmg, 2.20, 0.30);
-  agi = amaciar(agi, 1.35, 0.30);
-  cad = amaciar(cad, 0.25, 0.35);
-  gem = amaciar(gem, 0.20, 0.35);
+  hp  = Math.round(amaciar(hp,  430,  0.25));
+  dmg = amaciar(dmg, 1.85, 0.25);
+  agi = amaciar(agi, 1.28, 0.25);
+  cad = amaciar(cad, 0.12, 0.28);
+  gem = amaciar(gem, 0.12, 0.28);
   // 2) peso: blindagem cobra manobra
   peso = Math.round(peso);
   agi = agi / (1 + peso * 0.0013);
@@ -3189,13 +3215,17 @@ function naveCriadaDef(c) {
                     ["gold", gem * 2.2], ["ghost", agi - 1]];
   escolhas.sort((a, b) => b[1] - a[1]);
   const ultId = escolhas[0][1] > 0 ? escolhas[0][0] : "dmg";
+  /* O bônus de poder é um extra PEQUENO e fixo pela quantidade de peças.
+     Antes ele saía do próprio dano da nave, então o dano contava duas
+     vezes e uma nave montada chegava a 4x o DPS da melhor de fábrica.    */
+  const nPecas = navePecas(c).length;
   return {
     name: c.nome || F.nome,
     price: 0, criada: true, def: c,
     hue: c.hue === undefined ? 190 : c.hue,
     shape: -1, ptsCustom: F.pts,
     power: ultId, powerName: "Feita por você",
-    powerMag: Math.round((dmg - 1) * 100),
+    powerMag: Math.min(20, nPecas * 2),
     powerDesc: "Casco " + F.nome + " (" + F.familia + ") com " +
                navePecas(c).length + " peças instaladas",
     baseDmg: Math.round(dmg * 100) / 100,
@@ -3219,6 +3249,36 @@ function reconstruirNavesCriadas() {
   if (save && save.ship >= SHIPS.length) save.ship = 0;
 }
 function naveCriada(i) { return i >= NAVES_BASE; }
+
+/* ---------------------------------------------------------------------
+   Limpeza das naves montadas
+   ---------------------------------------------------------------------
+   As primeiras naves montadas saíram desequilibradas (o dano contava duas
+   vezes). Em vez de deixar gente jogando com nave quebrada, todas são
+   desmontadas de uma vez e os cristais voltam INTEIROS para a conta, para
+   a pessoa montar de novo com as regras certas.
+   O número da limpeza sobe se um dia precisar acontecer outra vez.
+   --------------------------------------------------------------------- */
+const LIMPEZA_NAVES = 1;
+function limparNavesCriadas(p) {
+  const lista = (p && p.criadas) || [];
+  if (!lista.length) return 0;
+  let volta = 0;
+  for (const c of lista) { try { volta += custoDaNave(c); } catch (e) {} }
+  p.criadas = [];
+  p.crystals = (p.crystals || 0) + volta;
+  if (p.ship >= NAVES_BASE) p.ship = 0;
+  return volta;
+}
+let avisoLimpeza = 0;
+function aplicarLimpezaDeNaves() {
+  if (!save) return;
+  if (save.limpezaNaves === LIMPEZA_NAVES) return;
+  const volta = limparNavesCriadas(save);
+  save.limpezaNaves = LIMPEZA_NAVES;
+  if (volta > 0) avisoLimpeza = volta;
+  persist();
+}
 
 
 /* ---------- Habilidades das aeronaves exclusivas ----------
@@ -3559,6 +3619,161 @@ const AudioSys = {
   chest()    { [392, 523, 659, 880, 1174].forEach((f, i) => setTimeout(() => this.tone(f, 0.14, "triangle", 0.13), i * 100)); },
   beamWarn() { this.tone(1500, 0.3, "sine", 0.08, 900); }
 };
+
+/* =====================================================================
+   MÚSICA — uma trilha diferente para cada fase
+   ---------------------------------------------------------------------
+   Nada de arquivo de som: a música é tocada na hora pelo próprio jogo,
+   como as outras vozes. Cada setor tem uma escala, um andamento e um
+   jeito de tocar; dentro do setor, o número da fase muda a melodia, a
+   linha do baixo e a batida. Assim cada uma das 270 fases tem a sua, sem
+   pesar nada no download.
+   As fases de chefe entram num tema mais tenso e mais rápido.
+   ===================================================================== */
+const ESCALAS = [
+  [0, 2, 3, 5, 7, 8, 10],      // menor natural — sério
+  [0, 2, 4, 7, 9],             // pentatônica maior — aberto
+  [0, 3, 5, 6, 7, 10],         // blues — sujo
+  [0, 1, 5, 7, 8],             // frígia — tenso
+  [0, 2, 3, 5, 7, 9, 10],      // dórica — heroico
+  [0, 2, 4, 6, 8, 10]          // tons inteiros — estranho, do vazio
+];
+const TIMBRES = ["square", "sawtooth", "triangle"];
+
+const Musica = {
+  ligada: storageGet("nn_musica", "1") === "1",
+  tocando: false,
+  timer: null,
+  passo: 0,
+  faseAtual: -1,
+  ganho: null,
+  plano: null,
+
+  preparar() {
+    if (!AudioSys.ctx || this.ganho) return;
+    try {
+      this.ganho = AudioSys.ctx.createGain();
+      this.ganho.gain.value = 0.16;
+      this.ganho.connect(AudioSys.master);
+    } catch (e) { this.ganho = null; }
+  },
+
+  /* monta a trilha da fase: sempre a mesma para a mesma fase */
+  montar(fase, chefe) {
+    const r = rngDe(((fase * 2654435761) ^ 0x9e37) >>> 0);
+    const setor = Math.floor((fase - 1) / 20) % ESCALAS.length;
+    const escala = ESCALAS[chefe ? 3 : setor];
+    const raiz = 110 * Math.pow(2, ((fase * 5) % 12) / 12) / 2;   // tônica grave
+    const bpm = (chefe ? 132 : 96) + Math.floor(r() * 26) + Math.min(28, Math.floor(fase / 12));
+    const timbre = TIMBRES[Math.floor(r() * TIMBRES.length)];
+    const compasso = 16;
+    const melodia = [], baixo = [], batida = [];
+    for (let i = 0; i < compasso; i++) {
+      // melodia: pula alguns tempos para não virar metralhadora de notas
+      melodia.push(r() < (chefe ? 0.78 : 0.6)
+        ? escala[Math.floor(r() * escala.length)] + (r() < 0.3 ? 12 : 0) : null);
+      baixo.push(i % 4 === 0 || (r() < 0.28)
+        ? escala[Math.floor(r() * 3)] : null);
+      batida.push(i % 4 === 0 ? "bumbo" : (i % 4 === 2 ? "caixa" : (r() < 0.35 ? "chimbal" : null)));
+    }
+    return { escala, raiz, bpm, timbre, melodia, baixo, batida, chefe, compasso };
+  },
+
+  nota(semitons, oitava) {
+    return this.plano.raiz * Math.pow(2, semitons / 12) * Math.pow(2, oitava || 0);
+  },
+
+  vozes(freq, dur, tipo, vol) {
+    if (!AudioSys.ctx || !this.ganho || AudioSys.muted) return;
+    const t = AudioSys.ctx.currentTime;
+    const osc = AudioSys.ctx.createOscillator();
+    const g = AudioSys.ctx.createGain();
+    osc.type = tipo;
+    osc.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(this.ganho);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  },
+  percussao(tipo) {
+    if (!AudioSys.ctx || !this.ganho || AudioSys.muted) return;
+    const t = AudioSys.ctx.currentTime;
+    if (tipo === "bumbo") {
+      const osc = AudioSys.ctx.createOscillator();
+      const g = AudioSys.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(150, t);
+      osc.frequency.exponentialRampToValueAtTime(45, t + 0.16);
+      g.gain.setValueAtTime(0.5, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      osc.connect(g); g.connect(this.ganho);
+      osc.start(t); osc.stop(t + 0.22);
+      return;
+    }
+    // caixa e chimbal: ruído curto
+    const dur = tipo === "caixa" ? 0.13 : 0.05;
+    const n = Math.floor(AudioSys.ctx.sampleRate * dur);
+    const buf = AudioSys.ctx.createBuffer(1, n, AudioSys.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = AudioSys.ctx.createBufferSource();
+    src.buffer = buf;
+    const f = AudioSys.ctx.createBiquadFilter();
+    f.type = "highpass";
+    f.frequency.value = tipo === "caixa" ? 1400 : 6000;
+    const g = AudioSys.ctx.createGain();
+    g.gain.value = tipo === "caixa" ? 0.22 : 0.09;
+    src.connect(f); f.connect(g); g.connect(this.ganho);
+    src.start(t);
+  },
+
+  tocar(fase, chefe) {
+    if (!this.ligada) return;
+    AudioSys.resume();
+    this.preparar();
+    if (!AudioSys.ctx || !this.ganho) return;
+    const marca = fase * 2 + (chefe ? 1 : 0);
+    if (this.tocando && this.faseAtual === marca) return;
+    this.parar();
+    this.faseAtual = marca;
+    this.plano = this.montar(fase, chefe);
+    this.passo = 0;
+    this.tocando = true;
+    const intervalo = 60000 / this.plano.bpm / 2;    // colcheias
+    this.timer = setInterval(() => this.bater(), intervalo);
+  },
+  bater() {
+    if (!this.tocando || AudioSys.muted) return;
+    if (S.mode !== "playing") return;               // em pausa, silêncio
+    const p = this.plano;
+    const i = this.passo % p.compasso;
+    const m = p.melodia[i];
+    if (m !== null && m !== undefined) {
+      this.vozes(this.nota(m, 2), 0.22, p.timbre, p.chefe ? 0.12 : 0.09);
+    }
+    const b = p.baixo[i];
+    if (b !== null && b !== undefined) {
+      this.vozes(this.nota(b, 0), 0.3, "triangle", 0.2);
+    }
+    const d = p.batida[i];
+    if (d) this.percussao(d);
+    this.passo++;
+  },
+  parar() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    this.tocando = false;
+    this.faseAtual = -1;
+  },
+  alternar() {
+    this.ligada = !this.ligada;
+    storageSet("nn_musica", this.ligada ? "1" : "0");
+    if (!this.ligada) this.parar();
+    else if (S.mode === "playing") this.tocar(S.fase, isBossFase(S.fase));
+    return this.ligada;
+  }
+};
 </script>
 <script>
 "use strict";
@@ -3785,6 +4000,17 @@ function renderLogin() {
     list.appendChild(b);
   }
 }
+function mostrarAvisoLimpeza() {
+  if (!avisoLimpeza) return;
+  const el = $("presente-aviso");
+  if (!el) { avisoLimpeza = 0; return; }
+  el.textContent = "🛠 As naves que você montou foram desmontadas: elas estavam " +
+    "desequilibradas. Devolvemos ◆ " + fmt(avisoLimpeza) +
+    " para você montar de novo com as regras certas.";
+  el.style.display = "block";
+  setTimeout(() => { el.style.display = "none"; }, 15000);
+  avisoLimpeza = 0;
+}
 function entrarNoMenu(name) {
   loginAs(name);
   ligarBatimento();
@@ -3794,6 +4020,7 @@ function entrarNoMenu(name) {
   showScreen("menu");
   nuvemEnviar(true);
   // aplica o que estiver esperando e abre a caixa já dentro do menu
+  setTimeout(mostrarAvisoLimpeza, 500);
   nuvemVerificarPresentes().then(() => {
     if (presenteGuardado && presenteGuardado.length) setTimeout(mostrarCaixaPresente, 400);
   });
@@ -4741,7 +4968,8 @@ const CAIXA_ROTULOS = {
   remHab:      v => ["⚠", "Tirar " + v.length + " habilidade(s)", true],
   remPecas:    v => ["⚠", "Tirar as peças de " + v.length + " nave(s)", true],
   remUp:       v => ["⚠", "Mexer em " + Object.keys(v).length + " melhoria(s)", true],
-  tirarCristais: v => ["⚠", "Tirar " + fmt(v) + " cristais", true]
+  tirarCristais: v => ["⚠", "Tirar " + fmt(v) + " cristais", true],
+  limparNaves: () => ["🛠", "Desfazer as naves montadas (devolve os cristais)", true]
 };
 function renderCaixaAdm() {
   const box = $("caixa-itens");
@@ -4910,6 +5138,8 @@ function admNuvemAtualizarBotaoOcultar() {
   b.title = fixo ? "Conta do administrador: nunca entra nas tabelas."
                  : "Tira ou devolve este piloto às tabelas do ranking.";
 }
+$("adm-nuvem-naves-criadas").addEventListener("click", () =>
+  porNaCaixa({ limparNaves: true }, "Desfazer naves montadas"));
 $("adm-nuvem-cancelar").addEventListener("click", async () => {
   if (!admNuvemAlvo) return;
   await nuvemCancelarComando(admNuvemAlvo.id);
@@ -6223,9 +6453,14 @@ function mpIniciarLoop() {
 
   // 1º: tenta o fluxo (o servidor empurra as mudanças na hora — sem atraso)
   MP.fluindo = false;
+  MP.ultimoDesenho = 0;
   MP.fecharFluxo = nuvemFluxo(mpCaminho(), sala => {
     MP.fluindo = true;
-    mpAplicarSala(sala);
+    mpAplicarSala(sala);            // isto é barato e tem de ser sempre
+    // já mexer na tela é caro: no máximo 10 vezes por segundo
+    const t = performance.now();
+    if (t - MP.ultimoDesenho < 100) return;
+    MP.ultimoDesenho = t;
     if (S.mode === "sala") renderSala(sala);
     if (S.mode === "playing") {
       if (MP.modo === "pvp") mpChecarFimDuelo();
@@ -6294,24 +6529,9 @@ function mpAplicarSala(sala) {
     vistos[id] = true;
     if (!MP.outros[id]) MP.outros[id] = {};
     Object.assign(MP.outros[id], d);
+    if (d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
   }
   for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
-  if (sala.t) {
-    for (const id in sala.t) {
-      if (id === MP.eu || !MP.outros[id]) continue;
-      const cru = sala.t[id];
-      MP.outros[id].tiros = typeof cru === "string"
-        ? (cru ? cru.split("|").map(p => p.split(",").map(Number)) : [])
-        : cru;
-    }
-  }
-  if (sala.m && MP.modo !== "pvp") {
-    for (const id in sala.m) {
-      if (id === MP.eu) continue;
-      const cru = String(sala.m[id] || "");
-      if (cru) mpAplicarAbates(cru.split(","));
-    }
-  }
   MP.ticks = (MP.ticks || 0) + 1;
   if (sala.estado === "jogando" && S.mode === "sala") {
     MP.fase = sala.fase || 1;
@@ -6383,8 +6603,14 @@ function mpDesenharTirosDoOutro(o) {
    Quanto menor o pacote, mais rápido ele sai do celular e chega no outro.
    Vai num galho separado (p/) para o fluxo avisar só o que mudou.
    --------------------------------------------------------------------- */
+/* Tudo o que o outro precisa saber vai num pacote SÓ:
+     posição ; tiros ; abates
+   Antes eram três requisições separadas a cada 110 ms — trinta por
+   segundo. No computador não dava para notar, mas no celular a conexão
+   entupia e o jogo travava. Agora é uma requisição por vez, e só começa
+   a próxima quando a anterior volta.                                     */
 function mpEmpacotar() {
-  const t = [
+  const cab = [
     Math.round(player.x), Math.round(player.y),
     Math.max(0, Math.round(player.hp)),
     Math.round(ST ? ST.maxHp : 100),
@@ -6395,42 +6621,51 @@ function mpEmpacotar() {
     save.ship || 0,
     save.rank || 0,
     Date.now() % 100000000,
-    (save.__name || "Piloto").replace(/,/g, " ")
-  ];
-  return t.join(",");
+    (save.__name || "Piloto").replace(/[,;|]/g, " ")
+  ].join(",");
+  const tiros = bullets.slice(-8)
+    .map(b => Math.round(b.x) + "," + Math.round(b.y)).join("|");
+  const abates = MP.modo === "pvp" ? "" : mpMeusAbates.slice(-120).join("|");
+  return cab + ";" + tiros + ";" + abates;
 }
 function mpDesempacotar(linha) {
-  const t = String(linha).split(",");
+  const partes = String(linha).split(";");
+  const t = (partes[0] || "").split(",");
   if (t.length < 12) return null;
-  return {
+  const d = {
     x: +t[0], y: +t[1], hp: +t[2], hpMax: +t[3], vivo: t[4] === "1",
     pontos: +t[5], dano: +t[6], onda: +t[7], nave: +t[8], rank: +t[9],
     ts: +t[10], nome: t.slice(11).join(",")
   };
+  d.tiros = partes[1] ? partes[1].split("|").map(p => p.split(",").map(Number)) : [];
+  d.abates = partes[2] ? partes[2].split("|") : [];
+  return d;
 }
 let mpEnviando = false;
+/* mede quanto a rede está demorando, para não empurrar mais do que ela leva */
+const REDE = { ida: 120, intervalo: 110, ruim: 0 };
+function redeAnotar(ms) {
+  REDE.ida = REDE.ida * 0.7 + ms * 0.3;
+  // manda no máximo tão rápido quanto a resposta volta
+  REDE.intervalo = clamp(Math.round(REDE.ida * 1.15), 110, 520);
+  REDE.ruim = REDE.ida > 400 ? Math.min(5, REDE.ruim + 1) : Math.max(0, REDE.ruim - 1);
+}
 async function mpEnviarPosicao() {
   if (!MP.sala || mpEnviando) return;
   if (S.mode !== "playing" && S.mode !== "gameover" &&
       S.mode !== "paused" && S.mode !== "sala") return;
   mpEnviando = true;
+  const t0 = performance.now();
   try {
     if (S.mode === "sala") {
       await nuvemSoltar(mpCaminho() + "/jogadores/" + MP.eu, mpMeuResumo(true));
     } else {
       const raiz = MP.modo === "arena" ? "arena" : mpCaminho();
       await nuvemSoltar(raiz + "/p/" + MP.eu, mpEmpacotar());
-      // os tiros vão em texto curto, para o parceiro ver o ataque chegando
-      const tiros = bullets.slice(-10)
-        .map(b => Math.round(b.x) + "," + Math.round(b.y)).join("|");
-      nuvemSoltar(raiz + "/t/" + MP.eu, tiros);
-      // e a lista de quem eu derrubei, para o abate valer nos dois
-      if (MP.modo !== "pvp" && mpMeusAbates.length !== mpAbatesEnviados) {
-        mpAbatesEnviados = mpMeusAbates.length;
-        nuvemSoltar(raiz + "/m/" + MP.eu, mpMeusAbates.slice(-120).join(","));
-      }
+      mpAbatesEnviados = mpMeusAbates.length;
     }
   } catch (e) {}
+  redeAnotar(performance.now() - t0);
   mpEnviando = false;
 }
 async function mpTick() {
@@ -6596,13 +6831,9 @@ async function mpSair(voltarMenu, atraso) {
   if (MP.sala) {
     const caminho = mpCaminho() + "/jogadores/" + MP.eu;
     const movel = mpCaminho() + "/p/" + MP.eu;
-    const tiros = mpCaminho() + "/t/" + MP.eu;
-    const abates = mpCaminho() + "/m/" + MP.eu;
     const limpar = () => {
       nuvemReq(caminho, { method: "DELETE" });
       nuvemReq(movel, { method: "DELETE" });
-      nuvemReq(tiros, { method: "DELETE" });
-      nuvemReq(abates, { method: "DELETE" });
     };
     if (atraso) setTimeout(limpar, 7000); else limpar();
     if (MP.host) nuvemReq(mpCaminho() + "/estado", {
@@ -6678,8 +6909,29 @@ async function rkProcurar() {
     nome: save.__name || "Piloto", rank: save.rank || 0, nave: save.ship, ts: Date.now()
   });
   if (FILA.relogio) clearInterval(FILA.relogio);
-  FILA.relogio = setInterval(rkTentar, 1100);
+  FILA.relogio = setInterval(rkTentar, 1000);
   rkTentar();
+  rkAtualizarFaixa();
+}
+
+/* ---------------------------------------------------------------------
+   A fila continua rodando fora da tela da ranqueada.
+   Antes, sair da tela cancelava a busca — então só dava partida se as
+   duas pessoas apertassem PROCURAR quase no mesmo segundo, e na prática
+   nunca puxava. Agora você aperta, volta para o menu, joga o que quiser,
+   e quando alguém entrar na fila o duelo começa sozinho.
+   --------------------------------------------------------------------- */
+function rkAtualizarFaixa() {
+  const el = $("fila-faixa");
+  if (!el) return;
+  el.classList.toggle("on", FILA.procurando);
+  if (!FILA.procurando) return;
+  const s2 = Math.round((Date.now() - FILA.desde) / 1000);
+  el.innerHTML = "⚔ Procurando partida… <b>" + (s2 > 90 ? Math.floor(s2 / 60) + "min" : s2 + "s") +
+    "</b>" + (FILA.naFila > 1 ? " · " + FILA.naFila + " na fila" : "") +
+    ' <i id="fila-cancelar">cancelar</i>';
+  const c = $("fila-cancelar");
+  if (c) c.onclick = e => { e.stopPropagation(); rkPararBusca(true); AudioSys.deny(); };
 }
 async function rkTentar() {
   if (!FILA.procurando) return;
@@ -6691,7 +6943,10 @@ async function rkTentar() {
   if (minha && minha.sala) {
     rkPararBusca(false);
     await nuvemReq("fila/" + eu, { method: "DELETE" });
+    if (S.mode === "playing" || S.mode === "paused") return;   // não interrompe partida
     $("rk-busca-txt").textContent = "Adversário encontrado!";
+    AudioSys.power();
+    vibrate([60, 50, 100]);
     await mpEntrarSala(minha.sala, "pvp");
     return;
   }
@@ -6699,15 +6954,21 @@ async function rkTentar() {
   nuvemJuntar("fila/" + eu, { ts: Date.now() });
 
   const meuRank = save.rank || 0;
-  const candidatos = Object.keys(fila)
-    .filter(id => id !== eu && fila[id] && !fila[id].sala &&
-                  Date.now() - (fila[id].ts || 0) < 25000)
+  const vivos = Object.keys(fila).filter(id => fila[id] && Date.now() - (fila[id].ts || 0) < 45000);
+  FILA.naFila = vivos.length;
+  const candidatos = vivos
+    .filter(id => id !== eu && !fila[id].sala)
     .sort((a, b) => Math.abs((fila[a].rank || 0) - meuRank) -
                     Math.abs((fila[b].rank || 0) - meuRank));
   const espera = (Date.now() - FILA.desde) / 1000;
-  $("rk-busca-txt").textContent = candidatos.length
-    ? "Achei alguém! Preparando o duelo…"
-    : "Procurando adversário… " + Math.round(espera) + "s";
+  if (S.mode === "ranked") {
+    $("rk-busca-txt").textContent = candidatos.length
+      ? "Achei alguém! Preparando o duelo…"
+      : "Procurando adversário… " + Math.round(espera) + "s" +
+        (vivos.length > 1 ? " · " + vivos.length + " na fila" : " · você é o único na fila agora");
+    $("ranked-fila").textContent = vivos.length + " na fila";
+  }
+  rkAtualizarFaixa();
   if (!candidatos.length) return;
 
   // só o de id menor cria a sala — assim nunca nascem duas
@@ -6715,7 +6976,7 @@ async function rkTentar() {
   if (eu > alvo) return;                 // o outro cria; eu espero o código
   // rank muito diferente: espera um pouco antes de aceitar
   const dif = Math.abs((fila[alvo].rank || 0) - meuRank);
-  if (dif > 900 && espera < 12) return;
+  if (dif > 900 && espera < 10) return;
 
   rkPararBusca(false);
   await mpCriarSala("pvp");
@@ -6735,8 +6996,10 @@ async function rkTentar() {
 function rkPararBusca(limpar) {
   FILA.procurando = false;
   if (FILA.relogio) { clearInterval(FILA.relogio); FILA.relogio = null; }
+  if (FILA.autoComecar) { clearInterval(FILA.autoComecar); FILA.autoComecar = null; }
   $("rk-busca").classList.remove("on");
   $("rk-procurar").style.display = "";
+  rkAtualizarFaixa();
   if (limpar) nuvemReq("fila/" + mpMeuId(), { method: "DELETE" });
 }
 $("btn-ranked").addEventListener("click", () => { AudioSys.resume(); abrirRanked(); });
@@ -6785,22 +7048,6 @@ function arenaAplicar(d) {
   // durante a partida, os outros pilotos aparecem voando junto
   if (arenaModo()) {
     const vistos = {};
-    if (d.t) {
-      for (const id in d.t) {
-        if (id === MP.eu) continue;
-        const cru = d.t[id];
-        if (!MP.outros[id]) MP.outros[id] = {};
-        MP.outros[id].tiros = typeof cru === "string"
-          ? (cru ? cru.split("|").map(p => p.split(",").map(Number)) : []) : cru;
-      }
-    }
-    if (d.m) {
-      for (const id in d.m) {
-        if (id === MP.eu) continue;
-        const cru = String(d.m[id] || "");
-        if (cru) mpAplicarAbates(cru.split(","));
-      }
-    }
     for (const id in mov) {
       if (id === MP.eu) continue;
       const o = mpDesempacotar(mov[id]);
@@ -6808,11 +7055,15 @@ function arenaAplicar(d) {
       vistos[id] = true;
       if (!MP.outros[id]) MP.outros[id] = {};
       Object.assign(MP.outros[id], o);
+      if (o.abates.length) mpAplicarAbates(o.abates);
     }
     for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
     // alguém puxou a onda para a frente: acompanha na hora
     if (S.mode === "playing" && ARENA.onda > S.fase) arenaIrParaOnda(ARENA.onda);
   }
+  const t = performance.now();
+  if (t - (ARENA.ultimoDesenho || 0) < 120) return;
+  ARENA.ultimoDesenho = t;
   arenaRenderTela();
   arenaRenderHud();
 }
@@ -6969,8 +7220,6 @@ function arenaSair() {
   if (MP.eu) {
     nuvemReq(arenaCaminho() + "/jogadores/" + MP.eu, { method: "DELETE" });
     nuvemReq(arenaCaminho() + "/p/" + MP.eu, { method: "DELETE" });
-    nuvemReq(arenaCaminho() + "/t/" + MP.eu, { method: "DELETE" });
-    nuvemReq(arenaCaminho() + "/m/" + MP.eu, { method: "DELETE" });
   }
   ARENA.ligada = false;
   MP.sala = null; MP.modo = null; MP.outros = {};
@@ -7480,7 +7729,7 @@ function escaparTexto(t) {
 }
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
-  if (typeof FILA !== "undefined" && FILA.procurando) rkPararBusca(true);
+  try { Musica.parar(); } catch (e) {}
   if (arenaModo()) arenaSair();
   if (S.mode !== "arena") arenaDesligarFluxo();
   S.mode = "menu";
@@ -7512,6 +7761,14 @@ $("btn-mute").addEventListener("click", () => {
   AudioSys.setMuted(!AudioSys.muted);
   $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
 });
+$("btn-musica").addEventListener("click", () => {
+  AudioSys.resume();
+  const lig = Musica.alternar();
+  $("btn-musica").textContent = lig ? "🎵" : "🎜";
+  $("btn-musica").style.opacity = lig ? "1" : "0.45";
+});
+$("btn-musica").textContent = Musica.ligada ? "🎵" : "🎜";
+$("btn-musica").style.opacity = Musica.ligada ? "1" : "0.45";
 function togglePause() {
   if (S.mode === "playing") { S.mode = "paused"; showScreen("pause"); }
   else if (S.mode === "paused") { S.mode = "playing"; showScreen(null); last = performance.now(); }
@@ -7769,6 +8026,7 @@ function renderHabBar(forcar) {
 function startGame(fase) {
   calcStats();
   S.mode = "playing";
+  try { Musica.tocar(fase, isBossFase(fase) || arenaOndaChefe(fase)); } catch (e) {}
   S.fase = clamp(fase, 1, totalFasesDoModo());
   S.nWaves = faseWaves(S.fase);
   S.waveIdx = 1;
@@ -7824,6 +8082,7 @@ function setupWave() {
   mpMeusAbates = [];
   if (waveIsBoss()) {
     S.toSpawn = 0;
+    try { Musica.tocar(S.fase, true); } catch (e) {}   // tema do chefe
     spawnBoss();
     S.banner = { text: "⚠ CHEFE ⚠", sub: boss.bname, t: 2.6 };
     AudioSys.bossAlert();
@@ -8433,6 +8692,7 @@ function bankRunGems(mult) {
 }
 function faseVictory() {
   S.mode = "victory";
+  try { Musica.parar(); } catch (e) {}
   const coop = typeof MP !== "undefined" && MP && MP.modo === "coop";
   const first = coop ? (S.fase > (save.coopBest || 0)) : (S.fase > save.best);
   if (first) {
@@ -8478,6 +8738,7 @@ function gameOver() {
     return;
   }
   S.mode = "gameover";
+  try { Musica.parar(); } catch (e) {}
   if (arenaModo()) arenaSalvarPlacar(true);
   const isRecord = S.score > save.hi && S.score > 0;
   const gems = bankRunGems(0.5);
@@ -9771,7 +10032,7 @@ function loopInterno(now) {
     dtDesenho = dt;
     draw();
     // enquanto joga, a posição vai pelo laço de desenho: mais constante
-    if (MP.sala && now - (MP.ultimoEnvio || 0) > 110) {
+    if (MP.sala && now - (MP.ultimoEnvio || 0) > REDE.intervalo) {
       MP.ultimoEnvio = now;
       mpEnviarPosicao();
     }
@@ -9853,7 +10114,9 @@ function cenaPublicar() {
   if (!nuvemAtiva() || !save.__name || S.mode !== "playing") return;
   if (save.transmitir === false) return;
   const agora = Date.now();
-  if (agora - cenaUltima < 330) return;
+  // numa sala a rede já está ocupada com o parceiro: transmite mais devagar
+  const espera = MP.sala ? 900 : 500;
+  if (agora - cenaUltima < espera) return;
   cenaUltima = agora;
   const q = n => Math.round(n);
   const ini = enemies.slice(0, 22)
@@ -10095,6 +10358,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.9", itens: [
+      "MÚSICA no jogo: cada uma das 270 fases tem a sua trilha, e os chefes têm um tema mais tenso. Dá para desligar no 🎵 do canto",
+      "Cooperativo destravado: o jogo mandava 30 pedidos por segundo para a nuvem e entupia a conexão do celular. Agora vai tudo num pacote só e o ritmo se ajusta à sua internet",
+      "Ranqueada agora puxa de verdade: a fila continua procurando mesmo se você voltar ao menu, e o duelo começa sozinho quando alguém aparecer",
+      "Peças da oficina bem mais fracas: uma nave montada estava dando 4x o dano da melhor nave de fábrica",
+      "Todas as naves montadas foram desfeitas e os cristais voltaram inteiros, para montar de novo com as regras certas"
+    ] },
   { v: "2.8", itens: [
       "As contas do administrador saíram do ranking e das tabelas — a disputa agora é só entre os jogadores",
       "Naves montadas equilibradas: empilhar as peças mais caras rende cada vez menos, e peça blindada agora pesa e tira manobra. Quem quer uma fortaleza tem a fortaleza, só que ela não vai ser rápida também",
@@ -10179,7 +10449,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.8";
+const VERSAO = "2.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
