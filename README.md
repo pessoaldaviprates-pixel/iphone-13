@@ -143,13 +143,58 @@ Cada piloto tem uma **senha desenho** (padrão de 3×3, como o do celular): ligu
 
 Cada nave tem **vida própria**, calculada a partir da nave escolhida, das melhorias de casco, das peças de blindagem, da árvore de habilidades e dos amuletos. A barra fica no HUD: o dano tira vida e, quando ela zera, custa um coração e a nave volta com vida cheia. As exclusivas são bem mais resistentes (Maverick e B-2).
 
+## Inimigos que se adaptam a você
+
+Os inimigos "leem" como sua nave está montada e reagem — para melhorar demais a defesa não deixar o jogo sem graça:
+
+| O que você melhorou | Como eles respondem |
+|---|---|
+| **Defesa** (casco, escudo, blindagem) | vêm em **maior quantidade** (até o dobro) |
+| **Dano** (canhões, peças, árvore) | ficam **mais resistentes** (até +85% de vida) |
+| **Cadência** | chegam mais rápido e atiram com mais frequência |
+| **Agilidade** | passam a **mirar prevendo** para onde você vai |
+
+O ataque deles sobe com teto: o dano por acerto aumenta no máximo 30%, então eles ficam mais numerosos e espertos, nunca mais fortes que você. Inimigos mais duros também valem mais pontos.
+
+## 112 naves — cada uma com virtude e defeito
+
+Além das 50 originais e das 2 exclusivas, há **60 naves de troca**: cada uma é ótima em algo e fraca em outra coisa, então nenhuma é a melhor em tudo.
+
+| Tipo | Virtude | Defeito |
+|---|---|---|
+| **Canhoneira** | +55% de dano | −30% de cadência |
+| **Leve** | +45% de agilidade | −35% de vida |
+| **Fortaleza** | +80% de vida | −30% de agilidade |
+| **Metralhadora** | +70% de cadência | −35% de dano |
+| **Saqueadora** | +60% de cristais | −25% de vida |
+| **Equilibrada** | +20% em tudo | −20% de cristais |
+
 ## Jogar com amigos (cooperativo e competitivo)
 
 Com o modo online ligado, o menu ganha **👥 JOGAR COM AMIGOS**, com três abas:
 
 **🤝 Cooperativo** — crie uma sala (código de 4 números) ou entre no código do amigo. Vocês enfrentam a mesma fase ao mesmo tempo, veem a nave um do outro voando junto, a vida e a pontuação de cada um.
 
-**⚔ Competitivo** — duelo um contra um usando as habilidades da sua nave. Quem zerar a vida do adversário primeiro vence. Há **7 ranks** (Bronze → Prata → Ouro → Platina → Diamante → Mestre → Lendário): vitória dá +25 pontos (mais um bônus se o adversário for de rank alto) e derrota tira 12. Se o adversário abandonar, você vence por desistência.
+**⚔ Competitivo** — duelo um contra um usando as habilidades da sua nave. Quem zerar a vida do adversário primeiro vence. Vitória dá +25 pontos (mais bônus se o adversário for de rank alto) e derrota tira 12; quem abandona perde.
+
+**Os 10 ranks:**
+
+| | Rank | Pontos |
+|---|---|---|
+| ▲ | Bronze | 0 |
+| ◆ | Prata | 250 |
+| ★ | Ouro | 600 |
+| ✦ | Platina | 1.000 |
+| ❖ | Diamante | 1.500 |
+| ✹ | Mestre | 2.100 |
+| ✵ | Grão-Mestre | 2.800 |
+| ✈ | Ás | 3.600 |
+| ☄ | Lendário | 4.600 |
+| ☀ | **Pilot Spirit** | 6.000 |
+
+> **Jogo limpo:** no cooperativo e no competitivo, **todas as melhorias são ignoradas** — valem apenas a nave escolhida e a habilidade de quem joga. Ninguém ganha por ter gastado mais cristais.
+
+**Cooperativo tem 200 fases próprias**, com chefe a cada 4 fases e até 12 ondas por fase, com progresso separado do modo campanha.
 
 **👥 Amigos** — o botão **👤+** adiciona amigos pelo nome ou pela lista de quem está online, mostrando quem está jogando agora.
 
