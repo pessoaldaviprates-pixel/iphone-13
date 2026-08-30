@@ -67,10 +67,24 @@ No Firebase, aba **Regras** do Realtime Database, cole isto e publique:
         ".read": true,
         ".write": true
       }
+    },
+    "contas": {
+      "$id": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "salas": {
+      "$id": {
+        ".read": true,
+        ".write": true
+      }
     }
   }
 }
 ```
+
+> A leitura de `contas` e `salas` fica **dentro de cada item** (`$id`), e não na lista inteira: assim ninguém consegue baixar a lista de todas as contas — é preciso saber o nome exato.
 
 Isso limita o que pode ser gravado e evita que o banco vire depósito de
 lixo. **Não deixe no "modo de teste" para sempre** — ele expira em 30 dias e,
@@ -85,6 +99,8 @@ Só o resumo do jogo, nada pessoal:
 | Campo | Exemplo |
 |---|---|
 | apelido do piloto | `Joao` |
+| senha desenho (embaralhada) | `a1b2c3` |
+| progresso completo da conta | fases, cristais, naves… |
 | fase alcançada | `37` |
 | cristais | `18450` |
 | naves, amuletos, habilidades | `12`, `5`, `37` |

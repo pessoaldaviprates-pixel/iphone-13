@@ -207,6 +207,24 @@
   .credit{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:.66rem;letter-spacing:.12em;color:rgba(234,242,255,.35)}
 
   /* ---------- Login ---------- */
+  #screen-login{justify-content:flex-start;padding:0}
+  .login-rolagem{
+    width:100%;max-height:100%;overflow-y:auto;
+    padding:calc(26px + env(safe-area-inset-top)) 20px calc(26px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  .login-cartao{
+    width:min(88vw,340px);
+    background:var(--panel2);border:1px solid var(--line);border-radius:16px;
+    padding:14px;display:flex;flex-direction:column;gap:10px;
+  }
+  .login-h{
+    font-family:"Russo One",sans-serif;font-size:.68rem;letter-spacing:.16em;
+    color:var(--cyan);text-align:left;
+  }
+  .login-aviso{font-size:.7rem;color:var(--dim);line-height:1.45;text-align:left}
+  .login-aviso.erro{color:var(--danger);font-weight:700}
+  .login-aviso.ok{color:#7CF7C0;font-weight:700}
   .profile-list{display:flex;flex-direction:column;gap:10px;width:min(80vw,310px)}
   .profile-btn{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -399,6 +417,22 @@
   .nov-item ul{margin:0;padding-left:13px}
   .nov-item li{font-size:.63rem;line-height:1.45;color:rgba(234,242,255,.8)}
   @media (max-width:360px){ #novidades{width:44vw;font-size:.9em} }
+  #atualiza-box{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(10px + env(safe-area-inset-top));z-index:41;
+    display:none;align-items:center;gap:10px;
+    background:var(--cyan);color:#04121c;border-radius:13px;
+    padding:9px 10px 9px 14px;box-shadow:0 8px 26px rgba(0,0,0,.45);
+    max-width:min(94vw,420px);
+  }
+  #atualiza-box.on{display:flex}
+  #atualiza-txt{font-size:.76rem;font-weight:700;line-height:1.3}
+  #atualiza-btn{
+    flex:none;border:none;border-radius:9px;cursor:pointer;
+    background:#04121c;color:var(--cyan);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;
+    padding:8px 12px;letter-spacing:.06em;
+  }
   #erro-box{
     position:fixed;inset:auto 12px calc(12px + env(safe-area-inset-bottom)) 12px;
     z-index:40;display:none;flex-direction:column;gap:10px;
@@ -684,6 +718,10 @@
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
 <div id="presente-jogo"></div>
+<div id="atualiza-box">
+  <span id="atualiza-txt">Nova versão disponível</span>
+  <button id="atualiza-btn">ATUALIZAR</button>
+</div>
 <div id="erro-box">
   <b>⚠ OCORREU UM ERRO</b>
   <p id="erro-msg"></p>
@@ -708,16 +746,35 @@
 
 <!-- LOGIN -->
 <div class="screen show" id="screen-login">
-  <div class="tagline">Defesa do setor 7</div>
-  <h1 class="brand">NEON<br><em>NEBULA</em></h1>
-  <p class="rules" style="margin-top:-4px">Quem está pilotando hoje?</p>
-  <div class="profile-list" id="profile-list"></div>
-  <div class="login-new">
-    <input id="new-name" maxlength="14" placeholder="Nome do novo piloto" autocomplete="off">
-    <button class="ghost-btn" id="btn-new">CRIAR</button>
+  <div class="login-rolagem">
+    <div class="tagline">Defesa do setor 7</div>
+    <h1 class="brand">NEON<br><em>NEBULA</em></h1>
+
+    <div class="login-cartao">
+      <div class="login-h">ENTRAR NA SUA CONTA</div>
+      <input id="login-nome" maxlength="14" placeholder="Nome da conta" autocomplete="off" autocapitalize="off">
+      <button class="big-btn" id="btn-entrar" style="width:100%">ENTRAR</button>
+      <p class="login-aviso" id="login-aviso">Digite o nome e depois desenhe a sua senha.</p>
+    </div>
+
+    <div class="login-cartao" id="login-locais">
+      <div class="login-h">NESTE APARELHO</div>
+      <div class="profile-list" id="profile-list"></div>
+    </div>
+
+    <div class="login-cartao">
+      <div class="login-h">CRIAR UMA CONTA NOVA</div>
+      <div class="login-new">
+        <input id="new-name" maxlength="14" placeholder="Escolha um nome" autocomplete="off" autocapitalize="off">
+        <button class="ghost-btn" id="btn-new">CRIAR</button>
+      </div>
+    </div>
+
+    <button class="adm-link" id="btn-goto-adm">⚙ PAINEL ADM</button>
+    <div class="credit" style="position:static;margin-top:6px">
+      O PROGRESSO É SALVO POR CONTA · <span id="versao"></span>
+    </div>
   </div>
-  <button class="adm-link" id="btn-goto-adm">⚙ PAINEL ADM</button>
-  <div class="credit">O PROGRESSO É SALVO POR PILOTO · <span id="versao"></span></div>
 </div>
 
 <!-- SENHA DESENHO -->
@@ -1540,6 +1597,7 @@ async function nuvemEnviar(forcar) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(resumo)
   });
+  contaEnviar(forcar);
 }
 
 /* menor tempo entre todas as fases concluídas, para a tabela de velocidade */
@@ -1550,6 +1608,29 @@ function melhorTempoDoJogador() {
     if (melhor === null || t[f] < melhor) { melhor = t[f]; fase = parseInt(f, 10); }
   }
   return melhor === null ? null : { s: melhor, fase };
+}
+
+/* ---------- Contas na nuvem ----------
+   Guarda o progresso completo ligado ao nome e à senha desenho, para dar
+   para entrar na mesma conta em outro celular.                            */
+function contaId(nome) { return nuvemHash(String(nome).trim().toLowerCase()); }
+
+let ultimoEnvioConta = 0;
+async function contaEnviar(forcar) {
+  if (!nuvemAtiva() || !save.__name || !save.senha) return;
+  const agora = Date.now();
+  if (!forcar && agora - ultimoEnvioConta < 25000) return;
+  ultimoEnvioConta = agora;
+  const copia = JSON.parse(JSON.stringify(save));
+  delete copia.__name;
+  await nuvemReq("contas/" + contaId(save.__name), {
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome: save.__name, senha: save.senha, save: copia, atualizado: agora })
+  });
+}
+async function contaBuscar(nome) {
+  if (!nuvemAtiva()) return null;
+  return nuvemReq("contas/" + contaId(nome));
 }
 
 async function nuvemListar() {
@@ -2419,6 +2500,49 @@ function entrarComPiloto(name) {
   abrirSenha("verificar", name, () => entrarNoMenu(name));
 }
 
+function avisoLogin(txt, tipo) {
+  const el = $("login-aviso");
+  el.textContent = txt;
+  el.className = "login-aviso" + (tipo ? " " + tipo : "");
+}
+
+/* Entrar pelo nome: procura primeiro neste aparelho, depois na nuvem.
+   Assim dá para usar a mesma conta em qualquer celular.                   */
+$("btn-entrar").addEventListener("click", async () => {
+  AudioSys.resume();
+  const nome = ($("login-nome").value || "").trim();
+  if (!nome) { avisoLogin("Digite o nome da sua conta.", "erro"); return; }
+
+  const local = ROOT.profiles[nome];
+  if (local) { $("login-nome").value = ""; entrarComPiloto(nome); return; }
+
+  if (!nuvemAtiva()) {
+    avisoLogin("Não existe conta com esse nome neste aparelho.", "erro");
+    AudioSys.deny();
+    return;
+  }
+  avisoLogin("Procurando a conta…");
+  const conta = await contaBuscar(nome);
+  if (!conta || !conta.senha) {
+    avisoLogin("Conta não encontrada. Confira o nome ou crie uma nova.", "erro");
+    AudioSys.deny();
+    return;
+  }
+  avisoLogin("Conta encontrada! Desenhe a senha para entrar.", "ok");
+  abrirSenha("verificar", conta.nome || nome, () => {});
+  // a verificação é contra a senha guardada na nuvem
+  senhaEstado.senhaEsperada = conta.senha;
+  senhaEstado.aoTerminar = () => {
+    ROOT.profiles[conta.nome || nome] = mergeSave(conta.save || {});
+    ROOT.profiles[conta.nome || nome].senha = conta.senha;
+    persist();
+    $("login-nome").value = "";
+    avisoLogin("Bem-vindo de volta!", "ok");
+    entrarNoMenu(conta.nome || nome);
+  };
+});
+$("login-nome").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-entrar").click(); });
+
 $("btn-new").addEventListener("click", () => {
   AudioSys.resume();
   const name = $("new-name").value.trim();
@@ -2593,7 +2717,8 @@ function senhaSoltar() {
   const h = senhaHash(e.seq);
   if (e.modo === "verificar") {
     const perfil = ROOT.profiles[e.nome];
-    if (perfil && perfil.senha === h) {
+    const esperada = e.senhaEsperada || (perfil ? perfil.senha : null);
+    if (esperada && esperada === h) {
       AudioSys.buy();
       senhaEstado = null;
       e.aoTerminar(true);
@@ -6903,6 +7028,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.4", itens: [
+      "Tela de login: entre com o nome da conta e a senha desenho",
+      "A conta agora vai junto na nuvem — dá para entrar em outro celular",
+      "O jogo se atualiza sozinho quando sai uma versão nova"
+    ] },
   { v: "2.3", itens: [
       "Corrigido o travamento ao levar dano (naves de saves antigos)",
       "Saves com naves que não existem mais são consertados sozinhos",
@@ -6943,12 +7073,67 @@ function renderNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.3";
+const VERSAO = "2.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
   renderNovidades();
 })();
+
+/* ---------- Atualização automática ----------
+   Além do service worker, o jogo consulta um arquivo pequeno (versao.json)
+   sem usar cache. Se a versão publicada for diferente da que está rodando,
+   ele limpa o cache e recarrega — mesmo que o service worker esteja preso. */
+let versaoNova = null;
+let jaAtualizando = false;
+
+async function limparTudoERecarregar() {
+  if (jaAtualizando) return;
+  jaAtualizando = true;
+  $("atualiza-txt").textContent = "Atualizando…";
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const r of regs) { try { await r.unregister(); } catch (e) {} }
+    }
+    if (window.caches) {
+      const nomes = await caches.keys();
+      for (const n of nomes) { try { await caches.delete(n); } catch (e) {} }
+    }
+  } catch (e) {}
+  // recarrega furando o cache do navegador
+  const u = new URL(location.href);
+  u.searchParams.set("v", Date.now().toString(36));
+  location.replace(u.toString());
+}
+
+async function checarVersao(automatico) {
+  if (location.protocol === "file:") return;
+  try {
+    const r = await fetch("versao.json?t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && d.versao && d.versao !== VERSAO) {
+      versaoNova = d;
+      $("atualiza-txt").textContent = "Versão " + d.versao + " disponível" +
+        (d.nota ? " — " + d.nota : "");
+      $("atualiza-box").classList.add("on");
+      // fora de partida, atualiza sozinho depois de avisar
+      if (automatico && S.mode !== "playing") {
+        setTimeout(() => { if (versaoNova && !jaAtualizando) limparTudoERecarregar(); }, 4000);
+      }
+    }
+  } catch (e) {}
+}
+$("atualiza-btn").addEventListener("click", limparTudoERecarregar);
+
+window.addEventListener("load", () => {
+  setTimeout(() => checarVersao(true), 1500);
+  setInterval(() => checarVersao(true), 10 * 60 * 1000);
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checarVersao(true);
+});
 
 /* ---------- Service worker (offline + atualização automática) ---------- */
 const podeUsarSW = "serviceWorker" in navigator &&
