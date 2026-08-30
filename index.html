@@ -1378,6 +1378,7 @@
           <div class="adm-grid">
             <button class="adm-btn" id="adm-nuvem-god-on">⚡ DEIXAR INVENCÍVEL</button>
             <button class="adm-btn" id="adm-nuvem-god-off">⚡ TIRAR INVENCÍVEL</button>
+            <button class="adm-btn" id="adm-nuvem-ocultar">🙈 ESCONDER DO RANKING</button>
             <button class="adm-btn" id="adm-nuvem-cancelar">CANCELAR PENDENTE</button>
             <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
           </div>
@@ -2490,6 +2491,21 @@ async function contaBuscar(nome) {
   return nuvemReq("contas/" + contaId(nome));
 }
 
+/* ---------------------------------------------------------------------
+   Contas que não entram no ranking nem nas tabelas.
+   São as contas do administrador: elas têm tudo liberado, então
+   apareceriam sempre em primeiro e estragariam a disputa. Continuam
+   aparecendo normalmente no painel e na lista de jogadores online.
+   O administrador pode esconder ou trazer de volta qualquer piloto pelo
+   painel — o que fica guardado no campo "oculto" do registro.
+   --------------------------------------------------------------------- */
+const OCULTOS_FIXOS = ["cr1cket", "administrador", "adm", "admin"];
+function ficaDeForaDoRanking(p) {
+  if (!p || !p.nome) return true;
+  if (p.oculto) return true;
+  return OCULTOS_FIXOS.indexOf(String(p.nome).trim().toLowerCase()) >= 0;
+}
+
 async function nuvemListar() {
   const dados = await nuvemReq("pilotos");
   if (!dados) return [];
@@ -3136,10 +3152,38 @@ function navePecas(c) {
   }
   return saida;
 }
+/* ---------------------------------------------------------------------
+   Equilíbrio das naves montadas
+   ---------------------------------------------------------------------
+   Empilhar as 12 peças mais caras deixava a nave com muito mais vida e
+   dano do que qualquer nave de fábrica. Duas regras resolvem isso sem
+   tirar a graça de montar:
+     1) acima de um certo ponto, cada peça a mais rende bem menos;
+     2) peça pesada custa manobra: quanto mais blindagem, mais devagar e
+        mais lenta fica a nave.
+   Quem quiser uma fortaleza tem a fortaleza — só que ela não vai ser
+   rápida também.
+   --------------------------------------------------------------------- */
+function amaciar(v, teto, sobra) {
+  return v <= teto ? v : teto + (v - teto) * sobra;
+}
 function naveCriadaDef(c) {
   const F = FORMATOS[c.formato] || FORMATOS[0];
-  let dmg = F.dmg, agi = F.agi, hp = F.hp, cad = 0, gem = 0;
-  for (const p of navePecas(c)) { dmg += p.dmg; agi += p.agi; hp += p.hp; cad += p.cad; gem += p.gem; }
+  let dmg = F.dmg, agi = F.agi, hp = F.hp, cad = 0, gem = 0, peso = 0;
+  for (const p of navePecas(c)) {
+    dmg += p.dmg; agi += p.agi; hp += p.hp; cad += p.cad; gem += p.gem;
+    peso += p.n + 1 + p.hp / 22;          // peça grande e blindada pesa mais
+  }
+  // 1) retorno decrescente
+  hp  = Math.round(amaciar(hp,  520,  0.30));
+  dmg = amaciar(dmg, 2.20, 0.30);
+  agi = amaciar(agi, 1.35, 0.30);
+  cad = amaciar(cad, 0.25, 0.35);
+  gem = amaciar(gem, 0.20, 0.35);
+  // 2) peso: blindagem cobra manobra
+  peso = Math.round(peso);
+  agi = agi / (1 + peso * 0.0013);
+  cad = Math.max(0, cad - peso * 0.0006);
   // a ultimate sai do que a nave tem de mais forte
   const escolhas = [["dmg", dmg - 1], ["lives", hp / 400], ["rate", cad * 2.2],
                     ["gold", gem * 2.2], ["ghost", agi - 1]];
@@ -3158,7 +3202,8 @@ function naveCriadaDef(c) {
     baseAgi: Math.round(Math.max(0.5, agi) * 100) / 100,
     baseHp: Math.round(hp),
     bonusCad: Math.round(cad * 100) / 100,
-    bonusGem: Math.round(gem * 100) / 100
+    bonusGem: Math.round(gem * 100) / 100,
+    peso: peso
   };
 }
 function custoDaNave(c) {
@@ -4384,8 +4429,10 @@ async function admNuvemSelecionar(p) {
                    : "⚫ Fechado · visto " + tempoRelativo(p.atualizado)) +
     "<br>Última vez: " + visto +
     ((p.versao && p.versao !== VERSAO) ? " · ⚠ está na v" + escaparTexto(p.versao) +
-      " (a atual é a v" + VERSAO + ")" : "");
+      " (a atual é a v" + VERSAO + ")" : "") +
+    (ficaDeForaDoRanking(p) ? '<br><span style="color:var(--amber)">🙈 fora das tabelas</span>' : "");
   renderCaixaAdm();
+  admNuvemAtualizarBotaoOcultar();
   admNuvemRender();
   admNuvemVerPendente();
 }
@@ -4832,6 +4879,37 @@ $("adm-nuvem-god-on").addEventListener("click", () =>
   porNaCaixa({ god: true }, "Invencibilidade"));
 $("adm-nuvem-god-off").addEventListener("click", () =>
   porNaCaixa({ god: false }, "Tirar invencibilidade"));
+/* esconder (ou trazer de volta) um piloto das tabelas, sem apagar nada */
+$("adm-nuvem-ocultar").addEventListener("click", async () => {
+  if (!admNuvemAlvo) { admMsg("Escolha um jogador."); return; }
+  const agora = !ficaDeForaDoRanking(admNuvemAlvo);
+  const fixo = OCULTOS_FIXOS.indexOf(String(admNuvemAlvo.nome).trim().toLowerCase()) >= 0;
+  if (fixo && !agora) {
+    admMsg(admNuvemAlvo.nome + " é conta do administrador: fica sempre fora das tabelas.");
+    AudioSys.deny();
+    return;
+  }
+  await nuvemJuntar("pilotos/" + admNuvemAlvo.id, { oculto: agora });
+  admNuvemAlvo.oculto = agora;
+  admMsg(admNuvemAlvo.nome + (agora ? " não aparece mais nas tabelas" : " voltou para as tabelas"));
+  AudioSys.buy();
+  cacheRanking = null;
+  admNuvemAtualizarBotaoOcultar();
+  admNuvemCarregar();
+});
+function admNuvemAtualizarBotaoOcultar() {
+  const b = $("adm-nuvem-ocultar");
+  if (!b) return;
+  const fixo = admNuvemAlvo &&
+    OCULTOS_FIXOS.indexOf(String(admNuvemAlvo.nome).trim().toLowerCase()) >= 0;
+  const fora = admNuvemAlvo ? ficaDeForaDoRanking(admNuvemAlvo) : false;
+  b.disabled = !!fixo;
+  b.textContent = fixo ? "🔒 SEMPRE FORA DAS TABELAS"
+                       : (fora ? "👁 MOSTRAR NO RANKING" : "🙈 ESCONDER DO RANKING");
+  b.classList.toggle("gold", fora && !fixo);
+  b.title = fixo ? "Conta do administrador: nunca entra nas tabelas."
+                 : "Tira ou devolve este piloto às tabelas do ranking.";
+}
 $("adm-nuvem-cancelar").addEventListener("click", async () => {
   if (!admNuvemAlvo) return;
   await nuvemCancelarComando(admNuvemAlvo.id);
@@ -5450,9 +5528,12 @@ function cnRender() {
   $("cn-pecas").style.display    = CN.passo === 1 ? "flex" : "none";
   $("cn-final").style.display    = CN.passo === 2 ? "flex" : "none";
   $("cn-anterior").textContent = CN.passo === 0 ? "‹ SAIR" : "‹ VOLTAR";
-  const custo = custoDaNave(CN.def);
+  const custo = cnCustoAPagar();
   $("cn-proximo").textContent = CN.passo < 2 ? "CONTINUAR ›"
-    : (CN.editando >= 0 ? "SALVAR MUDANÇAS" : "CONSTRUIR · ◆ " + fmt(custo));
+    : (CN.editando >= 0
+        ? (custo > 0 ? "SALVAR · ◆ " + fmt(custo)
+                     : (custo < 0 ? "SALVAR · devolve ◆ " + fmt(-custo) : "SALVAR MUDANÇAS"))
+        : "CONSTRUIR · ◆ " + fmt(custo));
   if (CN.passo === 0) cnFormatos();
   if (CN.passo === 1) cnPecas();
   if (CN.passo === 2) cnFinal();
@@ -5532,6 +5613,7 @@ function cnStats(id) {
     '<div class="cn-stat"><b>' + d.baseAgi.toFixed(2) + "</b><span>AGILIDADE</span></div>" +
     '<div class="cn-stat"><b>+' + Math.round((d.bonusCad || 0) * 100) + "%</b><span>CADÊNCIA</span></div>" +
     '<div class="cn-stat"><b>+' + Math.round((d.bonusGem || 0) * 100) + "%</b><span>CRISTAIS</span></div>" +
+    '<div class="cn-stat"><b>' + (d.peso || 0) + "</b><span>PESO</span></div>" +
     '<div class="cn-stat"><b>◆ ' + fmt(custoDaNave(CN.def)) + "</b><span>CUSTO</span></div>";
 }
 function cnPecas() {
@@ -5581,13 +5663,22 @@ function cnFinal() {
   const pecas = navePecas(CN.def);
   $("cn-nome").value = CN.def.nome || "";
   $("cn-cor").value = CN.def.hue === undefined ? 190 : CN.def.hue;
-  const custo = custoDaNave(CN.def);
+  const custo = cnCustoAPagar();
   $("cn-resumo").innerHTML =
     "Casco <b>" + escaparTexto(F.nome) + "</b> (" + F.familia + ") com <b>" +
     pecas.length + "</b> de 12 encaixes usados.<br>" +
     (pecas.length ? pecas.map(p => "• " + escaparTexto(p.nome)).join("<br>") : "• nenhuma peça instalada") +
-    "<br><br>Custo total: <b>◆ " + fmt(custo) + "</b> — você tem ◆ " + fmt(save.crystals) +
-    (save.crystals < custo && CN.editando < 0
+    "<br><br>Peso <b>" + (naveCriadaDef(CN.def).peso || 0) + "</b> — peça blindada dá vida " +
+    "mas tira manobra e cadência. Empilhar tudo rende cada vez menos: a partir " +
+    "de certo ponto cada peça a mais quase não soma." +
+    "<br><br>" +
+    (CN.editando >= 0
+      ? (custo > 0 ? "Diferença a pagar: <b>◆ " + fmt(custo) + "</b>"
+                   : (custo < 0 ? "Você recebe de volta: <b>◆ " + fmt(-custo) + "</b>"
+                                : "Sem custo: a nave ficou do mesmo valor."))
+      : "Custo total: <b>◆ " + fmt(custo) + "</b>") +
+    " — você tem ◆ " + fmt(save.crystals) +
+    (save.crystals < custo
       ? '<br><span style="color:var(--danger)">Faltam ◆ ' + fmt(custo - save.crystals) + "</span>" : "");
 }
 $("cn-nome").addEventListener("input", e => { CN.def.nome = e.target.value.slice(0, 18); });
@@ -5605,9 +5696,18 @@ $("cn-proximo").addEventListener("click", () => {
   if (CN.passo < 2) { CN.passo++; cnRender(); return; }
   cnConstruir();
 });
+/* o que falta pagar: numa nave nova é o preço cheio; numa mudança é só a
+   diferença (e se ficar mais simples, devolve 60% do que sobrou)          */
+function cnCustoAPagar() {
+  const novo = custoDaNave(CN.def);
+  if (CN.editando < 0 || !save.criadas || !save.criadas[CN.editando]) return novo;
+  const antigo = custoDaNave(save.criadas[CN.editando]);
+  const dif = novo - antigo;
+  return dif >= 0 ? dif : Math.round(dif * 0.6);
+}
 function cnConstruir() {
-  const custo = custoDaNave(CN.def);
-  if (CN.editando < 0 && save.crystals < custo) {
+  const custo = cnCustoAPagar();
+  if (save.crystals < custo) {
     AudioSys.deny();
     $("cn-resumo").insertAdjacentHTML("afterbegin",
       '<div style="color:var(--danger);margin-bottom:8px">Cristais insuficientes.</div>');
@@ -5615,12 +5715,9 @@ function cnConstruir() {
   }
   if (!CN.def.nome) CN.def.nome = FORMATOS[CN.def.formato].nome + " " + ((save.criadas || []).length + 1);
   save.criadas = save.criadas || [];
-  if (CN.editando >= 0) {
-    save.criadas[CN.editando] = CN.def;
-  } else {
-    save.crystals -= custo;
-    save.criadas.push(CN.def);
-  }
+  save.crystals -= custo;
+  if (CN.editando >= 0) save.criadas[CN.editando] = CN.def;
+  else save.criadas.push(CN.def);
   reconstruirNavesCriadas();
   const idx = NAVES_BASE + (CN.editando >= 0 ? CN.editando : save.criadas.length - 1);
   save.ship = idx;
@@ -7349,7 +7446,7 @@ async function renderRanking(recarregar) {
     cacheRanking = await nuvemListar();
   }
   const tab = TABELAS.find(t => t.id === abaRanking) || TABELAS[0];
-  let pilotos = cacheRanking.slice();
+  let pilotos = cacheRanking.filter(p => !ficaDeForaDoRanking(p));
   if (tab.filtra) pilotos = pilotos.filter(tab.filtra);
   pilotos.sort(tab.ordena);
   lista.innerHTML = "";
@@ -9998,6 +10095,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.8", itens: [
+      "As contas do administrador saíram do ranking e das tabelas — a disputa agora é só entre os jogadores",
+      "Naves montadas equilibradas: empilhar as peças mais caras rende cada vez menos, e peça blindada agora pesa e tira manobra. Quem quer uma fortaleza tem a fortaleza, só que ela não vai ser rápida também",
+      "Mudar uma nave já montada cobra só a diferença — e devolve se ela ficar mais simples"
+    ] },
   { v: "2.7", itens: [
       "CRIAR NAVE no hangar: escolha 1 de 100 formatos de casco e monte com 360 peças — nariz, cauda, portas, teto, casco de baixo, motor, armas, bombas, armamento pesado, defletor e sensor (30 de cada)",
       "Cooperativo consertado de vez: quando um derruba um inimigo, ele cai na tela dos DOIS, e agora dá para ver os tiros do parceiro",
@@ -10077,7 +10179,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.7";
+const VERSAO = "2.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
