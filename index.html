@@ -1392,6 +1392,7 @@
             <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
             <button class="adm-btn gold" id="adm-nuvem-maverick">★ MAVERICK</button>
             <button class="adm-btn gold" id="adm-nuvem-b2">★ B-2 SPIRIT</button>
+            <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
             <button class="adm-btn gold" id="adm-nuvem-tudo">DAR TUDO</button>
           </div>
 
@@ -2874,9 +2875,11 @@ const ULTS = {
   drone:  { name: "Colmeia",            desc: "4 drones extras lutam com você por 8s" },
   magnet: { name: "Singularidade",      desc: "Puxa os inimigos para um ponto e o colapsa" },
   maverick: { name: "Ataque Supersônico", desc: "Voo rasante que atravessa a tela destruindo tudo na passagem" },
-  b2:       { name: "Apocalipse",         desc: "Chuva de fogo sobre toda a tela por 6 segundos" }
+  b2:       { name: "Apocalipse",         desc: "Chuva de fogo sobre toda a tela por 6 segundos" },
+  omega:    { name: "Operação Ômega",     desc: "Nuclear, bombardeio, tanques e tropas ao mesmo tempo" }
 };
 const CUT_QUOTES = {
+  omega:  "“Eu não vim lutar sozinho. Eu vim com o exército inteiro.”",
   dmg:    "“Aperto o gatilho e o universo abre caminho.”",
   rate:   "“Mil tiros por minuto. Nenhum desperdiçado.”",
   lives:  "“Podem vir. Eu aguento tudo.”",
@@ -2975,7 +2978,26 @@ SHIPS.push({
   powerDesc: "tiros explodem num raio de 90, com 10 habilidades de bombardeio",
   baseDmg: 3.0, baseAgi: 1.2, baseHp: 620
 });
+/* =====================================================================
+   ÔMEGA-9 ARSENAL — a aeronave suprema, só o administrador entrega
+   ---------------------------------------------------------------------
+   Não é um caça: é um posto de comando voador. Quem pilota não luta
+   sozinho — chama exércitos. Ogivas nucleares sem limite de uso, coluna
+   de tanques que fica até o fim da fase, esquadrão de bombardeio,
+   pelotão de fuzileiros, artilharia e um canhão orbital.
+   ===================================================================== */
+const OMEGA = SHIPS.length;
+SHIPS.push({
+  name: "Ômega-9 Arsenal", price: 0, exclusiva: true, suprema: true,
+  hue: 45, shape: 7,
+  power: "dmg", ultId: "omega",
+  powerName: "Comando Supremo", powerMag: 150,
+  powerDesc: "+150% de dano e um arsenal inteiro às ordens: nuclear sem limite, tanques, bombardeio e tropas",
+  baseDmg: 4.4, baseAgi: 1.6, baseHp: 980, baseRate: 1.35, baseGem: 1.5
+});
+
 function naveExclusiva(i) { return !!(SHIPS[i] && SHIPS[i].exclusiva); }
+function naveSuprema(i) { return !!(SHIPS[i] && SHIPS[i].suprema); }
 
 /* =====================================================================
    OFICINA DE CONSTRUÇÃO — monte a sua própria aeronave
@@ -3277,7 +3299,7 @@ function naveCriada(i) { return i >= NAVES_BASE; }
    a pessoa montar de novo com as regras certas.
    O número da limpeza sobe se um dia precisar acontecer outra vez.
    --------------------------------------------------------------------- */
-const LIMPEZA_NAVES = 1;
+const LIMPEZA_NAVES = 2;
 function limparNavesCriadas(p) {
   const lista = (p && p.criadas) || [];
   if (!lista.length) return 0;
@@ -3338,6 +3360,29 @@ HABILIDADES[B2] = [
   { id: "supernova",  nome: "Super Nova",      icone: "☀", cd: 0, combo: true,
     desc: "Acontece sozinha quando dois buracos negros se encontram: clarão que varre inimigos e castiga o chefe" }
 ];
+HABILIDADES[OMEGA] = [
+  { id: "nuclear",   nome: "Ogiva Nuclear",       icone: "☢", cd: 0.8,
+    desc: "Acaba com a onda inteira na hora. Sem limite: pode jogar quantas quiser" },
+  { id: "tanques",   nome: "Coluna de Tanques",   icone: "▄", cd: 6,
+    desc: "Chama 5 tanques que ficam lutando com você até o fim da fase" },
+  { id: "esquadrao", nome: "Esquadrão de Bombardeio", icone: "✈", cd: 5,
+    desc: "Três bombardeiros cruzam a tela largando bombas" },
+  { id: "fuzileiros", nome: "Pelotão de Fuzileiros", icone: "웃", cd: 6,
+    desc: "Desembarca 8 soldados que atiram sem parar até o fim da fase" },
+  { id: "artilharia", nome: "Artilharia Pesada",  icone: "◎", cd: 7,
+    desc: "Chuva de obuses marcados no chão, um atrás do outro" },
+  { id: "orbital",   nome: "Canhão Orbital",      icone: "⌖", cd: 9,
+    desc: "Raio do céu que varre a tela de um lado ao outro" },
+  { id: "helicoptero", nome: "Helicópteros",      icone: "✥", cd: 8,
+    desc: "Dois helicópteros de escolta metralham tudo até o fim da fase" },
+  { id: "reparo",    nome: "Reparo de Campanha",  icone: "✚", cd: 12,
+    desc: "Recupera toda a vida, o escudo e limpa os tiros da tela" },
+  { id: "blindagem", nome: "Blindagem Ômega",     icone: "◘", cd: 14,
+    desc: "8 segundos sem tomar dano nenhum" },
+  { id: "operacao",  nome: "Operação Ômega",      icone: "★", cd: 18,
+    desc: "Tudo de uma vez: nuclear, bombardeio, tanques, tropas e artilharia" }
+];
+
 function habilidadesDaNave() { return HABILIDADES[save.ship] || []; }
 
 function naveValida(i) {
@@ -3367,7 +3412,11 @@ const SHAPE_PTS = [
   [[0,-21],[3,-12],[5,-7],[16,3],[16,7],[6,5],[5,10],[9,15],[4,15],[2,11],
    [0,15],[-2,11],[-4,15],[-9,15],[-5,10],[-6,5],[-16,7],[-16,3],[-5,-7],[-3,-12]],
   /* 6 — B-2 Spirit: asa voadora com bordo de fuga em W */
-  [[0,-15],[6,-8],[19,5],[11,5],[8,11],[4,5],[0,10],[-4,5],[-8,11],[-11,5],[-19,5],[-6,-8]]
+  [[0,-15],[6,-8],[19,5],[11,5],[8,11],[4,5],[0,10],[-4,5],[-8,11],[-11,5],[-19,5],[-6,-8]],
+  /* 7 — Ômega-9: fortaleza voadora, casco largo com quatro pilones */
+  [[0,-22],[4,-16],[7,-11],[10,-12],[11,-4],[21,-1],[22,5],[13,4],[12,10],[7,9],
+   [6,15],[2,13],[0,17],[-2,13],[-6,15],[-7,9],[-12,10],[-13,4],[-22,5],[-21,-1],
+   [-11,-4],[-10,-12],[-7,-11],[-4,-16]]
 ];
 
 /* peças de melhoria por nave */
@@ -3820,6 +3869,8 @@ const player = {
 };
 
 let bullets = [], enemyBullets = [], enemies = [], missilesArr = [], powerups = [], particles = [], texts = [];
+/* tropas chamadas pelo Ômega-9: tanques, soldados, aviões e helicópteros */
+let aliados = [], obuses = [], laserOrbital = null;
 let bombas = [], buracos = [], fogo = [], rasante = null;
 let boss = null;
 let stars = [];
@@ -5185,6 +5236,8 @@ $("adm-nuvem-maverick").addEventListener("click", () =>
   porNaCaixa({ exclusiva: MAVERICK }, "Maverick"));
 $("adm-nuvem-b2").addEventListener("click", () =>
   porNaCaixa({ exclusiva: B2 }, "B-2 Spirit"));
+$("adm-nuvem-omega").addEventListener("click", () =>
+  porNaCaixa({ exclusiva: OMEGA }, "Ômega-9 Arsenal"));
 
 /* tirar e zerar (dois toques) */
 $("adm-nuvem-gem-zero").addEventListener("click", () =>
@@ -7620,13 +7673,13 @@ function drawCutscene(dt) {
     ctx.globalAlpha = clamp((c.t - 2.5) * 2, 0, 1);
     ctx.fillStyle = "#4DE8FF";
     ctx.font = "700 13px 'Chakra Petch',sans-serif";
-    ctx.fillText("ULTIMATE: " + (ULTS[sh.power] || ULTS.dmg).name.toUpperCase(), W / 2, H * 0.68 + 26);
+    ctx.fillText("ULTIMATE: " + (ULTS[sh.ultId] || ULTS[sh.power] || ULTS.dmg).name.toUpperCase(), W / 2, H * 0.68 + 26);
   }
   if (c.t > 3.1) {
     ctx.globalAlpha = clamp((c.t - 3.1) * 2, 0, 1);
     ctx.fillStyle = "rgba(234,242,255,.85)";
     ctx.font = "italic 600 13px 'Chakra Petch',sans-serif";
-    ctx.fillText(CUT_QUOTES[sh.power] || CUT_QUOTES.dmg, W / 2, H * 0.68 + 52);
+    ctx.fillText(CUT_QUOTES[sh.ultId] || CUT_QUOTES[sh.power] || CUT_QUOTES.dmg, W / 2, H * 0.68 + 52);
   }
   ctx.globalAlpha = 1;
   if (c.t > 5) endCutscene();
@@ -7983,6 +8036,9 @@ function activateUlt() {
     S.chuvaFogo = 6;
     S.chuvaT = 0;
     player.invuln = Math.max(player.invuln, 1.5);
+  } else if (type === "omega") {
+    // a ultimate do Ômega-9 é a operação inteira
+    try { EFEITOS.operacao(); } catch (e) {}
   }
 }
 
@@ -8060,6 +8116,37 @@ const EFEITOS = {
     rasante = { x: player.x, y: player.y, dir: player.x < W / 2 ? 1 : -1, t: 1.1 };
     player.invuln = Math.max(player.invuln, 1.3);
     addText(player.x, player.y - 34, "VOO RASANTE", "#FF7B4D");
+  },
+
+  /* ----- Ômega-9 Arsenal ----- */
+  nuclear()    { ogivaNuclear(); },
+  tanques()    { chamarTropa("tanque", 5); },
+  esquadrao()  { bombardeioAereo(3); },
+  fuzileiros() { chamarTropa("soldado", 8); },
+  artilharia() { pedirArtilharia(9); },
+  orbital()    { canhaoOrbital(); },
+  helicoptero(){ chamarTropa("heli", 2); },
+  reparo() {
+    player.lives = ST.maxLives;
+    player.hp = ST.maxHp;
+    player.shield = Math.max(player.shield, ST.shieldDur);
+    limparTiros("REPARO DE CAMPANHA");
+    updateHud();
+  },
+  blindagem() {
+    player.invuln = Math.max(player.invuln, 8);
+    addText(player.x, player.y - 40, "BLINDAGEM ÔMEGA", "#FFC145");
+  },
+  operacao() {
+    S.banner = { text: "OPERAÇÃO ÔMEGA", sub: "arsenal completo", t: 2.4 };
+    ogivaNuclear();
+    bombardeioAereo(3);
+    chamarTropa("tanque", 5);
+    chamarTropa("soldado", 8);
+    chamarTropa("heli", 2);
+    pedirArtilharia(12);
+    canhaoOrbital();
+    player.invuln = Math.max(player.invuln, 5);
   },
 
   /* ----- B-2 Spirit ----- */
@@ -8160,6 +8247,250 @@ function renderHabBar(forcar) {
   }
 }
 
+/* =====================================================================
+   ARSENAL DO ÔMEGA-9 — tropas, bombardeios e ogivas
+   ---------------------------------------------------------------------
+   As tropas chamadas atiram sozinhas: os tiros delas entram na mesma
+   lista de tiros do jogador (com força própria), então acertam inimigos
+   e chefes igual. Tanques, soldados e helicópteros ficam até o fim da
+   fase; os bombardeiros passam e vão embora.
+   ===================================================================== */
+function alvoMaisProximo(x, y) {
+  let melhor = null, d = Infinity;
+  for (const e of enemies) {
+    if (!e) continue;
+    const dd = dist2(x, y, e.x, e.y);
+    if (dd < d) { d = dd; melhor = e; }
+  }
+  if (!melhor && boss && !boss.entering) return { x: boss.x, y: boss.y };
+  return melhor;
+}
+function tiroAliado(x, y, alvo, forca, cor, vel) {
+  const ang = alvo ? Math.atan2(alvo.y - y, alvo.x - x) : -Math.PI / 2;
+  const v = vel || 560;
+  bullets.push({
+    x, y, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v,
+    r: 4, fix: forca, pierce: 0, aliado: cor || "#7CF7C0"
+  });
+}
+function chamarTropa(tipo, quantos) {
+  const nomes = { tanque: "TANQUES A POSTOS", soldado: "PELOTÃO DESEMBARCADO",
+                  heli: "HELICÓPTEROS EM APOIO" };
+  for (let i = 0; i < quantos; i++) {
+    const chao = H - Math.max(215, H * 0.26);   // acima da barra de habilidades
+    if (tipo === "tanque") {
+      aliados.push({ tipo, x: (W / (quantos + 1)) * (i + 1) + rand(-14, 14),
+                     y: chao - rand(0, 22), vx: rand(-18, 18),
+                     t: 0, cd: rand(0.2, 0.7), vida: 999 });
+    } else if (tipo === "soldado") {
+      aliados.push({ tipo, x: (W / (quantos + 1)) * (i + 1) + rand(-18, 18),
+                     y: chao + 20 + rand(0, 16), vx: rand(-26, 26),
+                     t: 0, cd: rand(0.1, 0.5), vida: 999 });
+    } else if (tipo === "heli") {
+      aliados.push({ tipo, x: i === 0 ? 46 : W - 46, y: H * 0.42 + rand(-30, 30),
+                     ang: i === 0 ? 0 : Math.PI, raio: 54, t: rand(0, 3),
+                     cd: rand(0.1, 0.4), vida: 999 });
+    }
+  }
+  if (aliados.length > 60) aliados.splice(0, aliados.length - 60);
+  addText(player.x, player.y - 40, nomes[tipo] || "REFORÇO", "#7CF7C0");
+  AudioSys.power();
+}
+function bombardeioAereo(quantos) {
+  for (let i = 0; i < quantos; i++) {
+    aliados.push({ tipo: "aviao", x: -60 - i * 130, y: 70 + i * 46,
+                   vx: 320, t: 0, cd: 0.22, vida: 1, fim: 14 });
+  }
+  addText(player.x, player.y - 40, "ESQUADRÃO A CAMINHO", "#4DE8FF");
+  AudioSys.bossAlert();
+}
+function ogivaNuclear() {
+  S.superNova = 1.2;
+  S.shake = 30;
+  AudioSys.bigBoom();
+  setTimeout(() => AudioSys.bigBoom(), 260);
+  vibrate([120, 70, 180]);
+  explosion(W / 2, H * 0.45, "#FFFFFF", 90, 620);
+  explosion(W / 2, H * 0.45, "#FFC145", 70, 500);
+  explosion(W / 2, H * 0.45, "#FF7B4D", 60, 420);
+  enemyBullets.length = 0;
+  // varre a onda inteira
+  for (let j = enemies.length - 1; j >= 0; j--) damageEnemy(enemies[j], j, 999999, false);
+  S.toSpawn = 0;
+  if (boss && !boss.entering) {
+    for (const z of bossZones()) damageBossZone(z, 60 * ST.dmg);
+  }
+  addText(player.x, player.y - 46, "☢ OGIVA NUCLEAR", "#FFC145");
+}
+function pedirArtilharia(quantos) {
+  for (let i = 0; i < quantos; i++) {
+    obuses.push({ x: rand(40, W - 40), y: rand(70, H * 0.62),
+                  t: 0.75 + i * 0.16, r: 62 });
+  }
+  addText(player.x, player.y - 40, "ARTILHARIA CHAMADA", "#FFC145");
+  AudioSys.beamWarn();
+}
+function canhaoOrbital() {
+  laserOrbital = { x: 20, dir: 1, t: 2.6, largura: 34 };
+  AudioSys.beamWarn();
+  addText(player.x, player.y - 40, "CANHÃO ORBITAL", "#C34DFF");
+}
+
+function atualizarAliados(dt) {
+  /* --- tropas --- */
+  for (let i = aliados.length - 1; i >= 0; i--) {
+    if (i >= aliados.length) { i = aliados.length; continue; }
+    const a = aliados[i];
+    if (!a) continue;
+    a.t += dt;
+    a.cd -= dt;
+    if (a.tipo === "aviao") {
+      a.x += a.vx * dt;
+      if (a.cd <= 0 && a.x > 0 && a.x < W) {
+        a.cd = 0.22;
+        // solta bombas que explodem em área
+        blastArea(a.x, a.y + 40, 58, 3.2 * ST.dmg);
+        explosion(a.x, a.y + 40, "#FFC145", 12, 180);
+      }
+      if (a.x > W + 80) { aliados.splice(i, 1); continue; }
+    } else if (a.tipo === "heli") {
+      a.ang += dt * 0.8;
+      a.x = clamp(W / 2 + Math.cos(a.ang) * (W * 0.34), 30, W - 30);
+      a.y = H * 0.42 + Math.sin(a.ang * 1.6) * 40;
+      if (a.cd <= 0) {
+        a.cd = 0.16;
+        const alvo = alvoMaisProximo(a.x, a.y);
+        if (alvo) tiroAliado(a.x, a.y + 8, alvo, 1.1, "#4DE8FF", 620);
+      }
+    } else {
+      // tanques e soldados patrulham a base da tela
+      a.x += a.vx * dt;
+      if (a.x < 24 || a.x > W - 24) a.vx *= -1;
+      if (a.cd <= 0) {
+        const alvo = alvoMaisProximo(a.x, a.y);
+        if (alvo) {
+          if (a.tipo === "tanque") {
+            a.cd = 0.55;
+            tiroAliado(a.x, a.y - 12, alvo, 2.4, "#FFC145", 520);
+            explosion(a.x, a.y - 14, "#FFC145", 3, 90);
+          } else {
+            a.cd = 0.3;
+            tiroAliado(a.x, a.y - 8, alvo, 0.7, "#7CF7C0", 600);
+          }
+        } else a.cd = 0.3;
+      }
+    }
+  }
+  /* --- obuses da artilharia --- */
+  for (let i = obuses.length - 1; i >= 0; i--) {
+    const o = obuses[i];
+    if (!o) continue;
+    o.t -= dt;
+    if (o.t <= 0) {
+      explosion(o.x, o.y, "#FFC145", 26, 300);
+      explosion(o.x, o.y, "#FF7B4D", 18, 220);
+      blastArea(o.x, o.y, o.r, 7 * ST.dmg);
+      S.shake = Math.max(S.shake, 9);
+      AudioSys.explode();
+      obuses.splice(i, 1);
+    }
+  }
+  /* --- canhão orbital --- */
+  if (laserOrbital) {
+    const L = laserOrbital;
+    L.t -= dt;
+    L.x += L.dir * (W / 2.2) * dt;
+    if (L.x > W - 10) { L.x = W - 10; L.dir = -1; }
+    if (L.x < 10) { L.x = 10; L.dir = 1; }
+    for (let j = enemies.length - 1; j >= 0; j--) {
+      const e = enemies[j];
+      if (!e) continue;
+      if (Math.abs(e.x - L.x) < L.largura / 2 + e.r) damageEnemy(e, j, 26 * ST.dmg * dt, false);
+    }
+    if (boss && !boss.entering && Math.abs(boss.x - L.x) < L.largura / 2 + boss.r) {
+      const zs = bossZones();
+      if (zs.length) damageBossZone(zs[zs.length - 1], 18 * ST.dmg * dt);
+    }
+    for (let k = enemyBullets.length - 1; k >= 0; k--) {
+      const b = enemyBullets[k];
+      if (b && Math.abs(b.x - L.x) < L.largura / 2) enemyBullets.splice(k, 1);
+    }
+    if (L.t <= 0) laserOrbital = null;
+  }
+}
+
+function desenharAliados() {
+  /* obuses marcados no chão antes de cair */
+  for (const o of obuses) {
+    if (!o) continue;
+    const p = clamp(1 - o.t / 0.9, 0, 1);
+    ctx.strokeStyle = "rgba(255,193,69," + (0.35 + p * 0.5) + ")";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(o.x, o.y, o.r * (0.35 + p * 0.65), 0, TAU); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(o.x - 9, o.y); ctx.lineTo(o.x + 9, o.y);
+    ctx.moveTo(o.x, o.y - 9); ctx.lineTo(o.x, o.y + 9); ctx.stroke();
+  }
+  /* canhão orbital */
+  if (laserOrbital) {
+    const L = laserOrbital;
+    const g = ctx.createLinearGradient(L.x - L.largura, 0, L.x + L.largura, 0);
+    g.addColorStop(0, "rgba(195,77,255,0)");
+    g.addColorStop(0.5, "rgba(230,180,255,.85)");
+    g.addColorStop(1, "rgba(195,77,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(L.x - L.largura, 0, L.largura * 2, H);
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.fillRect(L.x - 2, 0, 4, H);
+  }
+  /* tropas */
+  for (const a of aliados) {
+    if (!a) continue;
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    if (a.tipo === "tanque") {
+      ctx.fillStyle = "#5C7A4A";
+      ctx.fillRect(-13, -6, 26, 12);
+      ctx.fillStyle = "#3E5633";
+      ctx.fillRect(-15, 3, 30, 5);
+      ctx.fillStyle = "#7A9A63";
+      ctx.fillRect(-6, -12, 12, 8);
+      ctx.fillRect(-1.6, -22, 3.2, 12);
+      ctx.fillStyle = "rgba(124,247,192,.85)";
+      ctx.fillRect(-13, -9, 4, 2);
+    } else if (a.tipo === "soldado") {
+      ctx.fillStyle = "#6E8A55";
+      ctx.beginPath(); ctx.arc(0, -7, 3.2, 0, TAU); ctx.fill();
+      ctx.fillRect(-2.4, -4, 4.8, 8);
+      ctx.fillStyle = "#3E5633";
+      ctx.fillRect(-3.6, 4, 2.4, 4);
+      ctx.fillRect(1.2, 4, 2.4, 4);
+      ctx.fillStyle = "#EAF2FF";
+      ctx.fillRect(2, -3, 7, 1.6);
+    } else if (a.tipo === "aviao") {
+      ctx.fillStyle = "#8FA9C4";
+      ctx.beginPath();
+      ctx.moveTo(16, 0); ctx.lineTo(-6, -5); ctx.lineTo(-14, -2);
+      ctx.lineTo(-14, 2); ctx.lineTo(-6, 5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#C7D8E8";
+      ctx.fillRect(-4, -13, 5, 26);
+      ctx.fillStyle = "rgba(77,232,255,.6)";
+      ctx.fillRect(-18, -1.5, 6, 3);
+    } else if (a.tipo === "heli") {
+      ctx.fillStyle = "#4A6B7A";
+      ctx.beginPath(); ctx.ellipse(0, 0, 12, 6, 0, 0, TAU); ctx.fill();
+      ctx.fillRect(-18, -1.5, 10, 3);
+      const r = a.t * 22;
+      ctx.strokeStyle = "rgba(234,242,255,.55)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(r) * 20, Math.sin(r) * 5 - 8);
+      ctx.lineTo(-Math.cos(r) * 20, -Math.sin(r) * 5 - 8);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
 /* ---------- Início de fase ---------- */
 function startGame(fase) {
   calcStats();
@@ -8187,6 +8518,7 @@ function startGame(fase) {
   player.y = player.ty = H - Math.max(110, H * 0.16);
   player.droneX = player.x; player.droneY = player.y;
   bullets = []; enemyBullets = []; enemies = []; missilesArr = []; powerups = []; particles = []; texts = [];
+  aliados = []; obuses = []; laserOrbital = null;
   bombas = []; buracos = []; fogo = []; rasante = null;
   habCd = {};
   boss = null;
@@ -9401,6 +9733,9 @@ function update(dt) {
     }
   }
 
+  /* --- tropas chamadas pelo Ômega-9 --- */
+  if (aliados.length || obuses.length || laserOrbital) atualizarAliados(dt);
+
   /* --- power-ups --- */
   for (let i = powerups.length - 1; i >= 0; i--) {
     if (i >= powerups.length) { i = powerups.length; continue; }
@@ -9935,6 +10270,13 @@ function drawPowerup(p) {
 }
 
 function drawBullet(b) {
+  if (b.aliado) {                    // tiro de tanque, soldado ou helicóptero
+    const antes = ctx.fillStyle, brilho = ctx.shadowColor;
+    ctx.fillStyle = b.aliado; ctx.shadowColor = b.aliado;
+    ctx.fillRect(b.x - 1.8, b.y - 7, 3.6, 11);
+    ctx.fillStyle = antes; ctx.shadowColor = brilho;
+    return;
+  }
   if (b.style === "plasma") {
     ctx.fillStyle = ST.bColor;
     ctx.beginPath(); ctx.arc(b.x, b.y, 6, 0, TAU); ctx.fill();
@@ -10023,9 +10365,12 @@ function draw() {
     ctx.restore();
   }
 
+  /* tropas chamadas pelo Ômega-9 */
+  if (aliados.length || obuses.length || laserOrbital) desenharAliados();
+
   ctx.fillStyle = ST.bColor;
   ctx.shadowColor = ST.bGlow; ctx.shadowBlur = 8;
-  for (const b of bullets) drawBullet(b);
+  for (const b of bullets) { if (b) drawBullet(b); }
   ctx.shadowBlur = 0;
 
   /* bombas */
@@ -10538,6 +10883,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.1", itens: [
+      "ÔMEGA-9 ARSENAL: a aeronave suprema, que só o administrador entrega. Não é um caça, é um posto de comando voador",
+      "Ogiva nuclear que acaba com a onda inteira — sem limite, pode jogar quantas quiser",
+      "Coluna de tanques, pelotão de fuzileiros e helicópteros que ficam lutando com você até o fim da fase",
+      "Esquadrão de bombardeio, artilharia pesada e canhão orbital",
+      "Operação Ômega: tudo isso ao mesmo tempo, numa tecla só"
+    ] },
   { v: "3.0", itens: [
       "CORRIGIDO o travamento ao levar dano com a Nova de Choque: a habilidade limpava as balas no meio do laço do jogo e quebrava tudo",
       "A tela não arrasta mais: a página ficou presa e só rola onde tem de rolar",
@@ -10637,7 +10989,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.0";
+const VERSAO = "3.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
