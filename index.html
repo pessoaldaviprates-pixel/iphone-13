@@ -563,17 +563,51 @@
         <div class="profile-list" id="adm-nuvem-lista" style="margin-top:10px"></div>
         <div id="adm-nuvem-sel" style="display:none;margin-top:12px">
           <div class="adm-h gold" id="adm-nuvem-alvo"></div>
+          <div class="adm-stats" id="adm-nuvem-stats"></div>
+          <div class="adm-note" id="adm-nuvem-pendente" style="margin-bottom:10px"></div>
+
+          <div class="adm-h">CRISTAIS</div>
           <div class="adm-row">
-            <input id="adm-nuvem-gem" type="number" inputmode="numeric" placeholder="Cristais" value="10000">
-            <button class="adm-btn gold" id="adm-nuvem-dar">ENVIAR</button>
+            <input id="adm-nuvem-gem" type="number" inputmode="numeric" placeholder="Quantidade" value="10000">
+            <button class="adm-btn gold" id="adm-nuvem-dar">DAR</button>
+            <button class="adm-btn" id="adm-nuvem-set">DEFINIR</button>
           </div>
-          <div class="adm-grid" style="margin-top:8px">
+
+          <div class="adm-h" style="margin-top:14px">FASE</div>
+          <div class="adm-row">
+            <input id="adm-nuvem-fase" type="number" inputmode="numeric" min="0" max="120" placeholder="Fase" value="120">
+            <button class="adm-btn" id="adm-nuvem-fase-set">DEFINIR FASE</button>
+          </div>
+
+          <div class="adm-h" style="margin-top:14px">DAR</div>
+          <div class="adm-grid">
             <button class="adm-btn" id="adm-nuvem-naves">TODAS AS NAVES</button>
             <button class="adm-btn" id="adm-nuvem-fases">TODAS AS FASES</button>
+            <button class="adm-btn" id="adm-nuvem-hab">HABILIDADES</button>
+            <button class="adm-btn" id="adm-nuvem-melhorias">MELHORIAS MÁX.</button>
             <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
-            <button class="adm-btn gold" id="adm-nuvem-tudo">ENVIAR TUDO</button>
+            <button class="adm-btn gold" id="adm-nuvem-tudo">DAR TUDO</button>
           </div>
-          <p class="adm-note" style="margin-top:10px">O presente é entregue quando a pessoa abrir o jogo.</p>
+
+          <div class="adm-h red" style="margin-top:14px">TIRAR E ZERAR</div>
+          <div class="adm-grid">
+            <button class="adm-btn danger" id="adm-nuvem-gem-zero">ZERAR CRISTAIS</button>
+            <button class="adm-btn danger" id="adm-nuvem-naves-zero">TIRAR AS NAVES</button>
+            <button class="adm-btn danger" id="adm-nuvem-fases-zero">ZERAR FASES</button>
+            <button class="adm-btn danger" id="adm-nuvem-hab-zero">ZERAR HABILIDADES</button>
+            <button class="adm-btn danger" id="adm-nuvem-amu-zero">TIRAR AMULETOS</button>
+            <button class="adm-btn danger" id="adm-nuvem-zerar">ZERAR O JOGADOR</button>
+          </div>
+
+          <div class="adm-h" style="margin-top:14px">OUTROS</div>
+          <div class="adm-grid">
+            <button class="adm-btn" id="adm-nuvem-god-on">⚡ DEIXAR INVENCÍVEL</button>
+            <button class="adm-btn" id="adm-nuvem-god-off">⚡ TIRAR INVENCÍVEL</button>
+            <button class="adm-btn" id="adm-nuvem-cancelar">CANCELAR PENDENTE</button>
+            <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
+          </div>
+
+          <p class="adm-note" style="margin-top:12px">As mudanças são aplicadas quando a pessoa abrir o jogo. Enquanto isso, elas ficam como "pendente" e podem ser canceladas.</p>
         </div>
       </div>
 
@@ -1190,11 +1224,35 @@ async function nuvemEnviarPresente(id, presente) {
   // junta com um presente que ainda não foi retirado, para não sobrescrever
   const pendente = (await nuvemReq("presentes/" + id)) || {};
   const novo = Object.assign({}, pendente);
-  if (presente.cristais) novo.cristais = (novo.cristais || 0) + presente.cristais;
-  if (presente.naves) novo.naves = true;
-  if (presente.fases) novo.fases = true;
-  if (presente.lendarios) novo.lendarios = true;
-  if (presente.tudo) novo.tudo = true;
+  // cristais: somam, a menos que venha um valor absoluto
+  if (presente.cristais) {
+    novo.cristais = (novo.cristais || 0) + presente.cristais;
+    delete novo.setCristais;
+  }
+  if (typeof presente.setCristais === "number") {
+    novo.setCristais = presente.setCristais;
+    delete novo.cristais;
+  }
+  if (typeof presente.setFase === "number") {
+    novo.setFase = presente.setFase;
+    delete novo.fases;
+    delete novo.zerarFases;
+  }
+  // pares que se anulam: o último enviado vence
+  const opostos = [["naves", "tirarNaves"], ["fases", "zerarFases"],
+                   ["habilidades", "zerarHabilidades"], ["lendarios", "zerarAmuletos"]];
+  for (const [dar, tirar] of opostos) {
+    if (presente[dar]) { novo[dar] = true; delete novo[tirar]; }
+    if (presente[tirar]) { novo[tirar] = true; delete novo[dar]; }
+  }
+  if (presente.tudo) { novo.tudo = true; delete novo.zerarTudo; }
+  if (presente.melhorias) novo.melhorias = true;
+  if (typeof presente.god === "boolean") novo.god = presente.god;
+  if (presente.zerarTudo) {
+    // zerar apaga qualquer coisa pendente
+    for (const k in novo) delete novo[k];
+    novo.zerarTudo = true;
+  }
   novo.quando = Date.now();
   return nuvemReq("presentes/" + id, {
     method: "PUT",
@@ -1203,16 +1261,52 @@ async function nuvemEnviarPresente(id, presente) {
   });
 }
 
+/* aplica um comando enviado pelo administrador; devolve
+   { texto, tirou } para o jogador saber o que aconteceu */
+async function nuvemApagarDoRanking(id) {
+  return nuvemReq("pilotos/" + id, { method: "DELETE" });
+}
+async function nuvemCancelarComando(id) {
+  return nuvemReq("presentes/" + id, { method: "DELETE" });
+}
+async function nuvemComandoPendente(id) {
+  return nuvemReq("presentes/" + id);
+}
+
 function aplicarPresente(p, g) {
   const partes = [];
-  if (g.tudo) {
-    admDesbloquearTudo(p);
-    partes.push("tudo desbloqueado");
+  let tirou = false;
+
+  // 1) o que zera vem primeiro
+  if (g.zerarTudo) {
+    const nome = p.__name;
+    Object.assign(p, defaultSave());
+    if (nome) p.__name = nome;
+    partes.push("progresso zerado");
+    tirou = true;
+  }
+
+  // 2) o que dá tudo
+  if (g.tudo) { admDesbloquearTudo(p); partes.push("tudo desbloqueado"); }
+
+  // 3) valores
+  if (typeof g.setCristais === "number") {
+    p.crystals = Math.max(0, g.setCristais);
+    partes.push("cristais definidos em " + fmt(p.crystals));
+    if (g.setCristais === 0) tirou = true;
   }
   if (g.cristais) {
-    p.crystals = (p.crystals || 0) + g.cristais;
-    partes.push("+" + fmt(g.cristais) + " cristais");
+    p.crystals = Math.max(0, (p.crystals || 0) + g.cristais);
+    partes.push((g.cristais > 0 ? "+" : "") + fmt(g.cristais) + " cristais");
+    if (g.cristais < 0) tirou = true;
   }
+  if (typeof g.setFase === "number") {
+    p.best = clamp(g.setFase, 0, TOTAL_FASES);
+    p.pts = Math.max(p.pts || 0, p.best);
+    partes.push("fase definida em " + p.best);
+  }
+
+  // 4) o que dá
   if (g.naves) {
     p.ships = [];
     for (let i = 0; i < 50; i++) p.ships.push(i);
@@ -1223,11 +1317,48 @@ function aplicarPresente(p, g) {
     p.pts = Math.max(p.pts || 0, TOTAL_FASES);
     partes.push("todas as fases");
   }
+  if (g.habilidades) {
+    p.skills = {};
+    for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
+    p.pts = Math.max(p.pts || 0, 120);
+    partes.push("todas as habilidades");
+  }
   if (g.lendarios) {
     for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
     partes.push("amuletos lendários");
   }
-  return partes.join(", ");
+  if (g.melhorias) {
+    for (const u of UPGRADES) p.upgrades[u.id] = u.max;
+    for (const i of p.ships) {
+      p.parts[i] = p.parts[i] || {};
+      for (const part of PARTS) p.parts[i][part.id] = PART_MAX;
+    }
+    partes.push("melhorias e peças no máximo");
+  }
+
+  // 5) o que tira
+  if (g.tirarNaves) {
+    p.ships = [0];
+    p.ship = 0;
+    partes.push("naves removidas");
+    tirou = true;
+  }
+  if (g.zerarFases) { p.best = 0; partes.push("fases zeradas"); tirou = true; }
+  if (g.zerarHabilidades) { p.skills = {}; partes.push("habilidades zeradas"); tirou = true; }
+  if (g.zerarAmuletos) {
+    p.amulets = [];
+    p.equipped = [];
+    partes.push("amuletos removidos");
+    tirou = true;
+  }
+  if (typeof g.god === "boolean") {
+    p.god = undefined;
+    p.godMode = g.god;
+    partes.push(g.god ? "modo invencível ligado" : "modo invencível desligado");
+  }
+
+  if (p.ships.indexOf(p.ship) < 0) p.ship = p.ships[0];
+  return { texto: partes.join(", "), tirou };
 }
 
 /* verifica se chegou presente do administrador */
@@ -1236,19 +1367,20 @@ async function nuvemVerificarPresentes() {
   const id = nuvemId(save.__name);
   const g = await nuvemReq("presentes/" + id);
   if (!g) return;
-  const texto = aplicarPresente(save, g);
+  const r = aplicarPresente(save, g);
   await nuvemReq("presentes/" + id, { method: "DELETE" });
   persist();
   calcStats();
   if (S.mode === "menu") refreshMenu();
-  if (texto) {
+  if (r.texto) {
     AudioSys.power();
     vibrate([40, 60, 40]);
     const el = $("presente-aviso");
     if (el) {
-      el.textContent = "🎁 Presente recebido: " + texto + "!";
+      el.textContent = (r.tirou ? "⚠ O administrador alterou seu progresso: " : "🎁 Presente recebido: ") +
+        r.texto + (r.tirou ? "." : "!");
       el.style.display = "block";
-      setTimeout(() => { el.style.display = "none"; }, 9000);
+      setTimeout(() => { el.style.display = "none"; }, 10000);
     }
   }
   nuvemEnviar(true);
@@ -1960,14 +2092,35 @@ function admNuvemRender() {
     b.innerHTML = '<span class="profile-name">' + escaparTexto(p.nome) + "</span>" +
       '<span class="profile-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
       " · " + (p.naves || 1) + " naves</span>";
-    b.addEventListener("click", () => {
-      admNuvemAlvo = p;
-      $("adm-nuvem-sel").style.display = "block";
-      $("adm-nuvem-alvo").textContent = "PRESENTE PARA " + String(p.nome).toUpperCase();
-      admNuvemRender();
-    });
+    b.addEventListener("click", () => { admNuvemSelecionar(p); });
     el.appendChild(b);
   }
+}
+async function admNuvemSelecionar(p) {
+  admNuvemAlvo = p;
+  $("adm-nuvem-sel").style.display = "block";
+  $("adm-nuvem-alvo").textContent = "JOGADOR: " + String(p.nome).toUpperCase();
+  const visto = p.atualizado ? new Date(p.atualizado).toLocaleString("pt-BR") : "—";
+  $("adm-nuvem-stats").innerHTML = [
+    ["CRISTAIS", fmt(p.cristais || 0)],
+    ["FASE", (p.fase || 0) + "/120"],
+    ["NAVES", (p.naves || 1) + "/50"],
+    ["AMULETOS", p.amuletos || 0]
+  ].map(d => '<div class="adm-stat"><b>' + d[1] + "</b><span>" + d[0] + "</span></div>").join("");
+  $("adm-nuvem-pendente").textContent = "Visto pela última vez: " + visto;
+  admNuvemRender();
+  admNuvemVerPendente();
+}
+async function admNuvemVerPendente() {
+  if (!admNuvemAlvo) return;
+  const g = await nuvemComandoPendente(admNuvemAlvo.id);
+  const el = $("adm-nuvem-pendente");
+  const visto = admNuvemAlvo.atualizado
+    ? new Date(admNuvemAlvo.atualizado).toLocaleString("pt-BR") : "—";
+  if (!g) { el.textContent = "Visto pela última vez: " + visto; return; }
+  const itens = Object.keys(g).filter(k => k !== "quando");
+  el.textContent = "Visto pela última vez: " + visto +
+    " · ⏳ pendente: " + itens.join(", ");
 }
 async function admNuvemPresente(presente, msg) {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
@@ -1977,19 +2130,85 @@ async function admNuvemPresente(presente, msg) {
   admMsg(msg + " → " + admNuvemAlvo.nome);
   AudioSys.buy();
   vibrate(20);
+  admNuvemVerPendente();
+}
+/* ações destrutivas pedem dois toques */
+let admNuvemConfirmar = null;
+function admNuvemPerigo(chave, presente, msg, aviso) {
+  if (admNuvemConfirmar !== chave) {
+    admNuvemConfirmar = chave;
+    admMsg("Toque de novo para confirmar: " + aviso);
+    setTimeout(() => { if (admNuvemConfirmar === chave) admNuvemConfirmar = null; }, 4000);
+    return;
+  }
+  admNuvemConfirmar = null;
+  admNuvemPresente(presente, msg);
 }
 $("adm-nuvem-load").addEventListener("click", admNuvemCarregar);
 $("adm-nuvem-busca").addEventListener("input", admNuvemRender);
+/* dar */
 $("adm-nuvem-dar").addEventListener("click", () =>
-  admNuvemPresente({ cristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Cristais enviados"));
+  admNuvemPresente({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais enviados"));
+$("adm-nuvem-set").addEventListener("click", () =>
+  admNuvemPresente({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Cristais definidos"));
+$("adm-nuvem-fase-set").addEventListener("click", () =>
+  admNuvemPresente({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Fase definida"));
 $("adm-nuvem-naves").addEventListener("click", () =>
   admNuvemPresente({ naves: true }, "Naves enviadas"));
 $("adm-nuvem-fases").addEventListener("click", () =>
   admNuvemPresente({ fases: true }, "Fases liberadas"));
+$("adm-nuvem-hab").addEventListener("click", () =>
+  admNuvemPresente({ habilidades: true }, "Habilidades liberadas"));
+$("adm-nuvem-melhorias").addEventListener("click", () =>
+  admNuvemPresente({ melhorias: true }, "Melhorias no máximo"));
 $("adm-nuvem-lend").addEventListener("click", () =>
   admNuvemPresente({ lendarios: true }, "Lendários enviados"));
 $("adm-nuvem-tudo").addEventListener("click", () =>
   admNuvemPresente({ tudo: true }, "Tudo enviado"));
+
+/* tirar e zerar (dois toques) */
+$("adm-nuvem-gem-zero").addEventListener("click", () =>
+  admNuvemPerigo("gem", { setCristais: 0 }, "Cristais zerados", "zerar os cristais"));
+$("adm-nuvem-naves-zero").addEventListener("click", () =>
+  admNuvemPerigo("naves", { tirarNaves: true }, "Naves removidas", "tirar todas as naves"));
+$("adm-nuvem-fases-zero").addEventListener("click", () =>
+  admNuvemPerigo("fases", { zerarFases: true }, "Fases zeradas", "zerar as fases"));
+$("adm-nuvem-hab-zero").addEventListener("click", () =>
+  admNuvemPerigo("hab", { zerarHabilidades: true }, "Habilidades zeradas", "zerar as habilidades"));
+$("adm-nuvem-amu-zero").addEventListener("click", () =>
+  admNuvemPerigo("amu", { zerarAmuletos: true }, "Amuletos removidos", "tirar os amuletos"));
+$("adm-nuvem-zerar").addEventListener("click", () =>
+  admNuvemPerigo("tudo", { zerarTudo: true }, "Jogador zerado", "ZERAR TODO o progresso"));
+
+/* outros */
+$("adm-nuvem-god-on").addEventListener("click", () =>
+  admNuvemPresente({ god: true }, "Invencibilidade ligada"));
+$("adm-nuvem-god-off").addEventListener("click", () =>
+  admNuvemPresente({ god: false }, "Invencibilidade desligada"));
+$("adm-nuvem-cancelar").addEventListener("click", async () => {
+  if (!admNuvemAlvo) return;
+  await nuvemCancelarComando(admNuvemAlvo.id);
+  admMsg("Pendências canceladas → " + admNuvemAlvo.nome);
+  AudioSys.buy();
+  admNuvemVerPendente();
+});
+$("adm-nuvem-remover").addEventListener("click", async () => {
+  if (!admNuvemAlvo) return;
+  if (admNuvemConfirmar !== "remover") {
+    admNuvemConfirmar = "remover";
+    admMsg("Toque de novo para apagar " + admNuvemAlvo.nome + " do ranking.");
+    setTimeout(() => { if (admNuvemConfirmar === "remover") admNuvemConfirmar = null; }, 4000);
+    return;
+  }
+  admNuvemConfirmar = null;
+  const nome = admNuvemAlvo.nome;
+  await nuvemApagarDoRanking(admNuvemAlvo.id);
+  admNuvemAlvo = null;
+  $("adm-nuvem-sel").style.display = "none";
+  admMsg(nome + " apagado do ranking");
+  AudioSys.buy();
+  admNuvemCarregar();
+});
 
 /* ---- ações rápidas ---- */
 $("adm-tudo").addEventListener("click", () => admAct(admDesbloquearTudo, "Tudo desbloqueado"));
