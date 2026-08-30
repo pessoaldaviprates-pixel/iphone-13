@@ -100,7 +100,7 @@ O painel tem busca por nome e, para o piloto selecionado:
 
 ## Modo online (opcional, grátis)
 
-Preenchendo `NUVEM_URL` com um Realtime Database gratuito do Firebase, o jogo ganha:
+Preenchendo o `NUVEM_URL` no arquivo **`config.js`** (raiz do repositório, 15 linhas — é o único arquivo que você edita) com um Realtime Database gratuito do Firebase, o jogo ganha:
 
 - 🏆 **Ranking online** no menu, com todos os jogadores
 - 👥 **Lista de jogadores no painel ADM**, com busca pelo nome
@@ -156,6 +156,7 @@ Os materiais obrigatórios já estão prontos na pasta [`loja/`](loja/): ícones
 | Arquivo | Função |
 |---|---|
 | `index.html` | O jogo inteiro (HTML + CSS + JavaScript) |
+| `config.js` | Configuração do modo online (o único arquivo a editar) |
 | `manifest.json` | Manifesto PWA (nome, ícones, tela cheia) |
 | `sw.js` | Service worker — modo offline |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Ícones do app |

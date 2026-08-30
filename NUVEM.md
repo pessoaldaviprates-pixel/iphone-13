@@ -32,15 +32,21 @@ Google, no plano gratuito (não pede cartão). Com ela você passa a ter:
 
 ## Passo 2 — Colar o endereço no jogo
 
-Abra o `index.html`, procure por `NUVEM_URL` (fica logo depois da função
-`loginAs`) e cole o endereço entre as aspas:
+Abra o arquivo **`config.js`** (fica na raiz do repositório, tem só 15 linhas)
+e cole o endereço entre as aspas:
 
 ```js
-const NUVEM_URL = "https://neon-nebula-default-rtdb.firebaseio.com";
+window.NN_CONFIG = {
+  NUVEM_URL: "https://neon-nebula-default-rtdb.firebaseio.com"
+};
 ```
 
-Salve, faça `git push` e pronto — o botão **🏆 RANKING ONLINE** aparece no
-menu e a seção **JOGADORES ONLINE** aparece no painel ADM.
+Este é o **único** arquivo que você precisa editar. Dá para fazer direto pelo
+site do GitHub: abra o `config.js`, toque no lápis ✏️, cole o endereço e
+clique em **Commit changes**.
+
+Em um ou dois minutos o GitHub Pages atualiza sozinho, e aí aparecem o botão
+**🏆 RANKING ONLINE** no menu e a seção **JOGADORES ONLINE** no painel ADM.
 
 ## Passo 3 — Ajustar as regras de segurança
 

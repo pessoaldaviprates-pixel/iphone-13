@@ -493,6 +493,7 @@
 <body>
 <canvas id="game"></canvas>
 
+<script src="config.js"></script>
 <script type="application/json" id="cloud-save">null</script>
 <script type="text/plain" id="page-src"></script>
 
@@ -1082,12 +1083,12 @@ function loginAs(name) {
 /* =====================================================================
    NUVEM (opcional) — deixa os pilotos de todo mundo aparecerem para você
    ---------------------------------------------------------------------
-   Sem preencher nada aqui, o jogo funciona exatamente como antes, só no
+   Sem preencher nada, o jogo funciona exatamente como antes, só no
    aparelho. Para ligar o modo online, crie um Realtime Database gratuito
-   no Firebase e cole o endereço dele em NUVEM_URL. O passo a passo está
-   no arquivo NUVEM.md do repositório.
+   no Firebase e cole o endereço dele em NUVEM_URL, no arquivo config.js
+   (é o único arquivo que você precisa editar). Passo a passo: NUVEM.md.
    ===================================================================== */
-const NUVEM_URL = "";   // ex.: "https://meu-jogo-default-rtdb.firebaseio.com"
+const NUVEM_URL = (window.NN_CONFIG && window.NN_CONFIG.NUVEM_URL) || "";
 
 function nuvemAtiva() { return typeof NUVEM_URL === "string" && NUVEM_URL.indexOf("http") === 0; }
 
