@@ -99,6 +99,26 @@
     align-items:center;justify-content:center;
   }
   #cloak-btn.ready{border-color:var(--violet);box-shadow:0 0 16px rgba(195,77,255,.6)}
+  #hab-bar{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(96px + env(safe-area-inset-bottom));
+    display:none;flex-wrap:wrap;justify-content:center;gap:7px;
+    width:min(96vw,420px);pointer-events:auto;z-index:6;
+  }
+  .hab-btn{
+    width:44px;height:44px;border-radius:50%;flex:none;cursor:pointer;
+    border:2px solid rgba(234,242,255,.25);background:rgba(10,18,40,.78);
+    color:var(--dim);font-size:1.05rem;line-height:1;
+    display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .hab-btn.pronta{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(77,232,255,.45)}
+  .hab-btn.combo{border-style:dashed;border-color:rgba(255,193,69,.6);color:var(--amber);cursor:default}
+  .hab-cd{
+    position:absolute;inset:-2px;border-radius:50%;
+    font-family:"Chakra Petch",sans-serif;font-size:.62rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,24,.72);color:var(--ink);
+  }
   #cloak-btn:disabled{opacity:.5}
   @media (prefers-reduced-motion:reduce){#ult-btn.ready{animation:none}}
 
@@ -517,6 +537,7 @@
   </div>
   <button id="ult-btn">ULT</button>
   <button id="cloak-btn">CAPA</button>
+  <div id="hab-bar"></div>
 </div>
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
@@ -586,6 +607,8 @@
             <button class="adm-btn" id="adm-nuvem-hab">HABILIDADES</button>
             <button class="adm-btn" id="adm-nuvem-melhorias">MELHORIAS MÁX.</button>
             <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
+            <button class="adm-btn gold" id="adm-nuvem-maverick">★ MAVERICK</button>
+            <button class="adm-btn gold" id="adm-nuvem-b2">★ B-2 SPIRIT</button>
             <button class="adm-btn gold" id="adm-nuvem-tudo">DAR TUDO</button>
           </div>
 
@@ -677,6 +700,8 @@
             <button class="adm-btn" id="adm-parts-max">PEÇAS NO MÁXIMO</button>
             <button class="adm-btn" id="adm-shop-max">MELHORIAS NO MÁXIMO</button>
             <button class="adm-btn" id="adm-paint-all">PINTURAS E ARMAS</button>
+            <button class="adm-btn gold" id="adm-maverick">★ DAR MAVERICK</button>
+            <button class="adm-btn gold" id="adm-b2">★ DAR B-2 SPIRIT</button>
             <button class="adm-btn danger wide" id="adm-ships-zero">DEIXAR SÓ A NAVE INICIAL</button>
           </div>
         </div>
@@ -1247,6 +1272,7 @@ async function nuvemEnviarPresente(id, presente) {
   }
   if (presente.tudo) { novo.tudo = true; delete novo.zerarTudo; }
   if (presente.melhorias) novo.melhorias = true;
+  if (typeof presente.exclusiva === "number") novo.exclusiva = presente.exclusiva;
   if (typeof presente.god === "boolean") novo.god = presente.god;
   if (presente.zerarTudo) {
     // zerar apaga qualquer coisa pendente
@@ -1326,6 +1352,11 @@ function aplicarPresente(p, g) {
   if (g.lendarios) {
     for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
     partes.push("amuletos lendários");
+  }
+  if (typeof g.exclusiva === "number" && SHIPS[g.exclusiva]) {
+    if (p.ships.indexOf(g.exclusiva) < 0) p.ships.push(g.exclusiva);
+    p.ship = g.exclusiva;
+    partes.push("aeronave " + SHIPS[g.exclusiva].name);
   }
   if (g.melhorias) {
     for (const u of UPGRADES) p.upgrades[u.id] = u.max;
@@ -1429,7 +1460,9 @@ const ULTS = {
   frost:  { name: "Zero Absoluto",      desc: "Congela todos os inimigos e o chefe por 4s" },
   blast:  { name: "Nova Estelar",       desc: "Explosão gigante que limpa balas e devasta a área" },
   drone:  { name: "Colmeia",            desc: "4 drones extras lutam com você por 8s" },
-  magnet: { name: "Singularidade",      desc: "Puxa os inimigos para um ponto e o colapsa" }
+  magnet: { name: "Singularidade",      desc: "Puxa os inimigos para um ponto e o colapsa" },
+  maverick: { name: "Ataque Supersônico", desc: "Voo rasante que atravessa a tela destruindo tudo na passagem" },
+  b2:       { name: "Apocalipse",         desc: "Chuva de fogo sobre toda a tela por 6 segundos" }
 };
 const CUT_QUOTES = {
   dmg:    "“Aperto o gatilho e o universo abre caminho.”",
@@ -1441,7 +1474,9 @@ const CUT_QUOTES = {
   frost:  "“No vácuo, até o fogo congela.”",
   blast:  "“Eu não abro portas. Eu abro crateras.”",
   drone:  "“Nunca voo sozinha. Nunca.”",
-  magnet: "“Tudo o que brilha vem até mim.”"
+  magnet: "“Tudo o que brilha vem até mim.”",
+  maverick: "“Não existe segundo lugar. Existe o primeiro e existe o resto.”",
+  b2:       "“Eles nunca me veem chegar. Só veem a cratera.”"
 };
 const SHIPS = [];
 for (let i = 0; i < 50; i++) {
@@ -1460,6 +1495,67 @@ for (let i = 0; i < 50; i++) {
     baseAgi: 1 + i * 0.008
   });
 }
+/* ---------- Aeronaves exclusivas (só o administrador entrega) ---------- */
+const MAVERICK = 50, B2 = 51;
+SHIPS.push({
+  name: "Maverick", price: 0, exclusiva: true,
+  hue: 15, shape: 5,
+  power: "dmg", ultId: "maverick",
+  powerName: "Caça de Elite", powerMag: 85,
+  powerDesc: "+85% de dano, com 5 habilidades de combate próprias",
+  baseDmg: 2.2, baseAgi: 1.45
+});
+SHIPS.push({
+  name: "B-2 Spirit", price: 0, exclusiva: true,
+  hue: 265, shape: 6,
+  power: "blast", ultId: "b2",
+  powerName: "Bombardeiro Furtivo", powerMag: 90,
+  powerDesc: "tiros explodem num raio de 90, com 10 habilidades de bombardeio",
+  baseDmg: 3.0, baseAgi: 1.2
+});
+function naveExclusiva(i) { return !!(SHIPS[i] && SHIPS[i].exclusiva); }
+
+/* ---------- Habilidades das aeronaves exclusivas ----------
+   Cada uma tem botão próprio no jogo, com recarga independente.
+   Todos os efeitos são apenas dentro do jogo: atingem inimigos, chefes e
+   projéteis na tela, e nada fora dela.                                      */
+const HABILIDADES = {};
+HABILIDADES[MAVERICK] = [
+  { id: "sidewinder", nome: "Sidewinder",     icone: "➤",  cd: 7,
+    desc: "Dispara 6 mísseis teleguiados de uma vez" },
+  { id: "vulcan",     nome: "Canhão Vulcan",  icone: "≣",  cd: 11,
+    desc: "4s de cadência tripla" },
+  { id: "posComb",    nome: "Pós-combustor",  icone: "»",  cd: 13,
+    desc: "3s de velocidade dobrada e invencibilidade" },
+  { id: "flares",     nome: "Sinalizadores",  icone: "✦",  cd: 9,
+    desc: "Destrói todos os tiros inimigos da tela" },
+  { id: "rasante",    nome: "Voo Rasante",    icone: "✈",  cd: 18,
+    desc: "Investida que atravessa a tela ferindo tudo no caminho" }
+];
+HABILIDADES[B2] = [
+  { id: "bombardeio", nome: "Bombardeio",      icone: "▼", cd: 9,
+    desc: "Solta 8 bombas em linha, cada uma explodindo em área" },
+  { id: "buraco",     nome: "Buraco Negro",    icone: "◉", cd: 14,
+    desc: "Cria um buraco negro que puxa e fere; dois deles se tocando causam a Super Nova" },
+  { id: "furtivo",    nome: "Modo Furtivo",    icone: "◍", cd: 20,
+    desc: "5s invisível: os inimigos não te veem nem atiram" },
+  { id: "cruzador",   nome: "Míssil Cruzador", icone: "➤", cd: 12,
+    desc: "Míssil pesado que persegue e explode com força" },
+  { id: "emp",        nome: "Pulso EMP",       icone: "⚡", cd: 16,
+    desc: "Paralisa os inimigos por 4s e apaga os tiros da tela" },
+  { id: "napalm",     nome: "Napalm",          icone: "≋", cd: 12,
+    desc: "Faixa de fogo que queima os inimigos por 5s" },
+  { id: "titanio",    nome: "Escudo de Titânio", icone: "◎", cd: 17,
+    desc: "Escudo reforçado e 3s de invencibilidade" },
+  { id: "escolta",    nome: "Drones de Escolta", icone: "◈", cd: 22,
+    desc: "4 drones de combate lutam com você por 10s" },
+  { id: "contra",     nome: "Contramedidas",   icone: "✧", cd: 10,
+    desc: "Destrói os tiros inimigos e devolve o dano em volta" },
+  { id: "supernova",  nome: "Super Nova",      icone: "☀", cd: 0, combo: true,
+    desc: "Acontece sozinha quando dois buracos negros se encontram: clarão que varre inimigos e castiga o chefe" }
+];
+function habilidadesDaNave() { return HABILIDADES[save.ship] || []; }
+
 function shipHue(i) {
   const c = save.custom[i];
   return (c && typeof c.hue === "number") ? c.hue : SHIPS[i].hue;
@@ -1477,7 +1573,12 @@ const SHAPE_PTS = [
   [[0,-16],[6,-2],[16,8],[5,7],[0,13],[-5,7],[-16,8],[-6,-2]],
   [[0,-20],[4,0],[9,12],[0,8],[-9,12],[-4,0]],
   [[0,-14],[10,-8],[13,10],[4,12],[0,9],[-4,12],[-13,10],[-10,-8]],
-  [[0,-17],[8,-11],[13,-2],[12,11],[6,7],[0,12],[-6,7],[-12,11],[-13,-2],[-8,-11]]
+  [[0,-17],[8,-11],[13,-2],[12,11],[6,7],[0,12],[-6,7],[-12,11],[-13,-2],[-8,-11]],
+  /* 5 — Maverick: caça de asa enflechada e cauda dupla */
+  [[0,-21],[3,-12],[5,-7],[16,3],[16,7],[6,5],[5,10],[9,15],[4,15],[2,11],
+   [0,15],[-2,11],[-4,15],[-9,15],[-5,10],[-6,5],[-16,7],[-16,3],[-5,-7],[-3,-12]],
+  /* 6 — B-2 Spirit: asa voadora com bordo de fuga em W */
+  [[0,-15],[6,-8],[19,5],[11,5],[8,11],[4,5],[0,10],[-4,5],[-8,11],[-11,5],[-19,5],[-6,-8]]
 ];
 
 /* peças de melhoria por nave */
@@ -1642,7 +1743,7 @@ function calcStats() {
     frost: pw("frost") / 100,
     blast: pw("blast"),
     droneDmg: pw("drone"),
-    ultType: sh.power,
+    ultType: sh.ultId || sh.power,
     ultRate: A.tempo ? 1.35 : 1,
     cloak: A.capa,
     wStyle: wp.id,
@@ -1760,6 +1861,7 @@ const player = {
 };
 
 let bullets = [], enemyBullets = [], enemies = [], missilesArr = [], powerups = [], particles = [], texts = [];
+let bombas = [], buracos = [], fogo = [], rasante = null;
 let boss = null;
 let stars = [];
 
@@ -1792,6 +1894,7 @@ function showScreen(name) {
   for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "flex" : "none";
   $("god-badge").style.display = (name === null && save.godMode) ? "block" : "none";
+  if (name !== null) $("hab-bar").style.display = "none";
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
 }
@@ -2014,7 +2117,7 @@ function admDesbloquearTudo(p) {
   p.pts = TOTAL_FASES;
   p.hi = Math.max(p.hi || 0, 100000);
   p.ships = [];
-  for (let i = 0; i < 50; i++) p.ships.push(i);
+  for (let i = 0; i < 50; i++) p.ships.push(i);   // exclusivas ficam de fora
   p.skills = {};
   for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
   for (const u of UPGRADES) p.upgrades[u.id] = u.max;
@@ -2165,6 +2268,10 @@ $("adm-nuvem-lend").addEventListener("click", () =>
   admNuvemPresente({ lendarios: true }, "Lendários enviados"));
 $("adm-nuvem-tudo").addEventListener("click", () =>
   admNuvemPresente({ tudo: true }, "Tudo enviado"));
+$("adm-nuvem-maverick").addEventListener("click", () =>
+  admNuvemPresente({ exclusiva: MAVERICK }, "Maverick enviado"));
+$("adm-nuvem-b2").addEventListener("click", () =>
+  admNuvemPresente({ exclusiva: B2 }, "B-2 Spirit enviado"));
 
 /* tirar e zerar (dois toques) */
 $("adm-nuvem-gem-zero").addEventListener("click", () =>
@@ -2259,6 +2366,16 @@ $("adm-ship-give").addEventListener("click", () => {
     p.ship = i;
   }, "Nave " + SHIPS[i].name + " entregue");
 });
+$("adm-maverick").addEventListener("click", () =>
+  admAct(p => {
+    if (p.ships.indexOf(MAVERICK) < 0) p.ships.push(MAVERICK);
+    p.ship = MAVERICK;
+  }, "Maverick entregue"));
+$("adm-b2").addEventListener("click", () =>
+  admAct(p => {
+    if (p.ships.indexOf(B2) < 0) p.ships.push(B2);
+    p.ship = B2;
+  }, "B-2 Spirit entregue"));
 $("adm-ships-all").addEventListener("click", () =>
   admAct(p => { p.ships = []; for (let i = 0; i < 50; i++) p.ships.push(i); }, "Todas as 50 naves"));
 $("adm-ships-zero").addEventListener("click", () =>
@@ -2553,16 +2670,20 @@ function renderHangar(scrollToSel) {
     tctx.setTransform(2, 0, 0, 2, 56, 60);
     drawShipSprite(tctx, i, 16);
 
-    const ult = ULTS[sh.power];
+    const ult = ULTS[sh.ultId || sh.power];
+    const exc = naveExclusiva(i);
+    const habs = HABILIDADES[i] ? HABILIDADES[i].length : 0;
     const info = document.createElement("div");
     info.className = "ship-info";
     info.innerHTML =
-      '<div class="ship-name">' + (i + 1) + '. ' + sh.name + '</div>' +
+      '<div class="ship-name">' + (i + 1) + '. ' + sh.name +
+        (exc ? ' <span style="color:var(--amber);font-size:.62rem">★ EXCLUSIVA</span>' : '') + '</div>' +
       '<div class="ship-power"><b>' + sh.powerName + '</b> — ' + sh.powerDesc + '</div>' +
-      '<div class="ship-ult">ULT: ' + ult.name + '</div>' +
+      '<div class="ship-ult">ULT: ' + ult.name +
+        (habs ? ' · ' + habs + ' habilidades' : '') + '</div>' +
       '<div class="ship-tag" style="color:' +
         (selected ? "var(--cyan)" : owned ? "var(--amber)" : "var(--dim)") + '">' +
-        (selected ? "EM USO" : owned ? "NO HANGAR" : "◆ " + fmt(sh.price)) + '</div>';
+        (selected ? "EM USO" : owned ? "NO HANGAR" : exc ? "SÓ O ADMINISTRADOR ENTREGA" : "◆ " + fmt(sh.price)) + '</div>';
 
     const btn = document.createElement("button");
     btn.className = "buy-btn";
@@ -2579,6 +2700,9 @@ function renderHangar(scrollToSel) {
         AudioSys.buy();
         renderHangar(false);
       });
+    } else if (exc) {
+      btn.textContent = "★";
+      btn.disabled = true;
     } else {
       btn.textContent = "◆ " + fmt(sh.price);
       btn.disabled = save.crystals < sh.price;
@@ -2609,6 +2733,17 @@ function renderHangar(scrollToSel) {
       bCut.addEventListener("click", () => { AudioSys.resume(); playCutscene(save.ship, "hangar"); });
       tools.appendChild(bOf); tools.appendChild(bCut);
       card.appendChild(tools);
+      const listaHab = HABILIDADES[i];
+      if (listaHab) {
+        const box = document.createElement("div");
+        box.className = "parts";
+        box.innerHTML = '<div class="part-name" style="color:var(--amber)">HABILIDADES (' +
+          listaHab.length + ')</div>' +
+          listaHab.map(h => '<div class="part-desc" style="line-height:1.5">' +
+            h.icone + " <b style=\"color:var(--ink)\">" + h.nome + "</b> — " + h.desc +
+            (h.combo ? "" : " (recarga " + h.cd + "s)") + "</div>").join("");
+        card.appendChild(box);
+      }
       card.appendChild(buildPartsPanel(i));
     }
     list.appendChild(card);
@@ -3317,6 +3452,184 @@ function activateUlt() {
     S.hiveT = 8;
   } else if (type === "magnet") {
     S.singu = { x: player.x, y: Math.max(150, player.y - 260), t: 2.5 };
+  } else if (type === "maverick") {
+    // três passagens rasantes seguidas
+    rasante = { x: -40, y: Math.max(120, player.y - 200), dir: 1, t: 1.4 };
+    setTimeout(() => { if (S.mode === "playing") rasante = { x: W + 40, y: H * 0.45, dir: -1, t: 1.4 }; }, 500);
+    setTimeout(() => { if (S.mode === "playing") rasante = { x: -40, y: player.y - 60, dir: 1, t: 1.4 }; }, 1000);
+    player.invuln = Math.max(player.invuln, 2.5);
+  } else if (type === "b2") {
+    S.chuvaFogo = 6;
+    S.chuvaT = 0;
+    player.invuln = Math.max(player.invuln, 1.5);
+  }
+}
+
+/* ---------- Habilidades das aeronaves exclusivas ---------- */
+let habCd = {};   // id -> segundos restantes de recarga
+
+function danoEmArea(x, y, raio, dano, cor) {
+  explosion(x, y, cor || "#FF9E4D", 14, 240);
+  for (let j = enemies.length - 1; j >= 0; j--) {
+    const e = enemies[j];
+    if (dist2(x, y, e.x, e.y) < raio * raio) damageEnemy(e, j, dano, false);
+  }
+  if (boss && !boss.entering) {
+    for (const z of bossZones()) {
+      if (dist2(x, y, z.x, z.y) < (raio + z.r) * (raio + z.r)) { damageBossZone(z, dano); break; }
+    }
+  }
+}
+function limparTiros(msg) {
+  const n = enemyBullets.length;
+  for (const b of enemyBullets) {
+    particles.push({ x: b.x, y: b.y, vx: rand(-60, 60), vy: rand(-60, 60),
+                     t: 0.3, max: 0.3, color: "#9FF3FF", r: 2.5 });
+  }
+  enemyBullets = [];
+  if (msg) addText(player.x, player.y - 34, msg, "#4DE8FF");
+  return n;
+}
+function superNova(x, y) {
+  S.superNova = 1.1;
+  S.shake = 26;
+  AudioSys.bigBoom();
+  setTimeout(() => AudioSys.bigBoom(), 220);
+  vibrate([90, 60, 140]);
+  explosion(x, y, "#FFFFFF", 70, 520);
+  explosion(x, y, "#FFC145", 60, 420);
+  explosion(x, y, "#FF4D8F", 50, 360);
+  enemyBullets = [];
+  buracos = [];
+  // varre os inimigos da tela e castiga o chefe (efeito só de jogo)
+  for (let j = enemies.length - 1; j >= 0; j--) damageEnemy(enemies[j], j, 99999, false);
+  if (boss && !boss.entering) {
+    const zs = bossZones();
+    for (const z of zs) damageBossZone(z, 40 * ST.dmg);
+  }
+  addText(W / 2, H * 0.42, "SUPER NOVA!", "#FFC145");
+}
+
+const EFEITOS = {
+  /* ----- Maverick ----- */
+  sidewinder() {
+    for (let k = 0; k < 6; k++) {
+      missilesArr.push({ x: player.x + rand(-16, 16), y: player.y - 8,
+                         vx: rand(-180, 180), vy: -260, t: 3.2, r: 5 });
+    }
+    addText(player.x, player.y - 34, "SIDEWINDER", "#FFC145");
+  },
+  vulcan() { S.vulcanT = 4; addText(player.x, player.y - 34, "VULCAN", "#4DE8FF"); },
+  posComb() {
+    S.turboT = 3;
+    player.invuln = Math.max(player.invuln, 3);
+    addText(player.x, player.y - 34, "PÓS-COMBUSTOR", "#FF7B4D");
+  },
+  flares() {
+    const n = limparTiros("SINALIZADORES");
+    for (let k = 0; k < 14; k++) {
+      const a = (k / 14) * TAU;
+      particles.push({ x: player.x, y: player.y, vx: Math.cos(a) * 260, vy: Math.sin(a) * 260,
+                       t: 0.6, max: 0.6, color: "#FFC145", r: 3 });
+    }
+    if (n) S.score += n * 5;
+  },
+  rasante() {
+    rasante = { x: player.x, y: player.y, dir: player.x < W / 2 ? 1 : -1, t: 1.1 };
+    player.invuln = Math.max(player.invuln, 1.3);
+    addText(player.x, player.y - 34, "VOO RASANTE", "#FF7B4D");
+  },
+
+  /* ----- B-2 Spirit ----- */
+  bombardeio() {
+    for (let k = 0; k < 8; k++) {
+      bombas.push({ x: player.x + (k - 3.5) * 26, y: player.y - 12,
+                    vy: -30 - k * 6, t: 0.35 + k * 0.06, raio: 78 });
+    }
+    addText(player.x, player.y - 34, "BOMBARDEIO", "#FF9E4D");
+  },
+  buraco() {
+    buracos.push({ x: player.x + rand(-40, 40), y: Math.max(120, player.y - 240),
+                   r: 30, t: 7, pulso: 0 });
+    addText(player.x, player.y - 34, "BURACO NEGRO", "#C34DFF");
+  },
+  furtivo() { player.invis = 5; AudioSys.cloak(); addText(player.x, player.y - 34, "FURTIVO", "#C34DFF"); },
+  cruzador() {
+    missilesArr.push({ x: player.x, y: player.y - 10, vx: 0, vy: -300, t: 4, r: 10, pesado: true });
+    addText(player.x, player.y - 34, "MÍSSIL CRUZADOR", "#FFC145");
+  },
+  emp() {
+    limparTiros("EMP");
+    for (const e of enemies) e.frozenT = Math.max(e.frozenT || 0, 4);
+    if (boss) boss.frozenT = Math.max(boss.frozenT || 0, 4);
+    for (let k = 0; k < 3; k++) {
+      setTimeout(() => AudioSys.tone(180 + k * 120, 0.18, "square", 0.12, 60), k * 90);
+    }
+  },
+  napalm() {
+    for (let k = 0; k < 7; k++) {
+      fogo.push({ x: rand(30, W - 30), y: rand(H * 0.12, H * 0.62), r: 46, t: 5 });
+    }
+    addText(player.x, player.y - 34, "NAPALM", "#FF7B4D");
+  },
+  titanio() {
+    player.shield = ST.shieldDur * 1.5;
+    player.invuln = Math.max(player.invuln, 3);
+    addText(player.x, player.y - 34, "ESCUDO DE TITÂNIO", "#FFC145");
+  },
+  escolta() { S.hiveT = Math.max(S.hiveT, 10); addText(player.x, player.y - 34, "ESCOLTA", "#4DE8FF"); },
+  contra() {
+    const n = limparTiros("CONTRAMEDIDAS");
+    danoEmArea(player.x, player.y, 200, (2 + n * 0.4) * ST.dmg, "#4DE8FF");
+  }
+};
+
+function usarHabilidade(h) {
+  if (S.mode !== "playing" || !player.alive || h.combo) return;
+  if ((habCd[h.id] || 0) > 0) return;
+  const fn = EFEITOS[h.id];
+  if (!fn) return;
+  fn();
+  habCd[h.id] = h.cd;
+  AudioSys.ultFire();
+  vibrate(25);
+  renderHabBar();
+}
+
+function renderHabBar() {
+  const bar = $("hab-bar");
+  const lista = habilidadesDaNave();
+  if (!lista.length || S.mode !== "playing") { bar.style.display = "none"; return; }
+  bar.style.display = "flex";
+  if (bar.dataset.nave !== String(save.ship)) {
+    bar.dataset.nave = String(save.ship);
+    bar.innerHTML = "";
+    for (const h of lista) {
+      const b = document.createElement("button");
+      b.className = "hab-btn" + (h.combo ? " combo" : "");
+      b.dataset.id = h.id;
+      b.title = h.nome + " — " + h.desc;
+      b.innerHTML = '<span class="ic">' + h.icone + '</span>';
+      if (!h.combo) b.addEventListener("click", () => usarHabilidade(h));
+      bar.appendChild(b);
+    }
+  }
+  for (const h of lista) {
+    const b = bar.querySelector('[data-id="' + h.id + '"]');
+    if (!b) continue;
+    const cd = habCd[h.id] || 0;
+    b.classList.toggle("pronta", !h.combo && cd <= 0);
+    let capa = b.querySelector(".hab-cd");
+    if (cd > 0) {
+      if (!capa) {
+        capa = document.createElement("span");
+        capa.className = "hab-cd";
+        b.appendChild(capa);
+      }
+      capa.textContent = Math.ceil(cd);
+    } else if (capa) {
+      capa.remove();
+    }
   }
 }
 
@@ -3343,12 +3656,16 @@ function startGame(fase) {
   player.y = player.ty = H - Math.max(110, H * 0.16);
   player.droneX = player.x; player.droneY = player.y;
   bullets = []; enemyBullets = []; enemies = []; missilesArr = []; powerups = []; particles = []; texts = [];
+  bombas = []; buracos = []; fogo = []; rasante = null;
+  habCd = {};
   boss = null;
   dragging = false; dragId = null;
   setupWave();
   updateHud();
   ultBtn.style.display = "flex";
   ultBtnSync();
+  $("hab-bar").dataset.nave = "";
+  renderHabBar();
   cloakBtn.style.display = ST.cloak ? "flex" : "none";
   cloakBtn.disabled = false;
   cloakBtn.classList.add("ready");
@@ -3910,6 +4227,135 @@ function update(dt) {
   if (S.shake > 0) S.shake = Math.max(0, S.shake - dt * 30);
   if (S.furyT > 0) S.furyT -= dt;
   if (S.hiveT > 0) S.hiveT -= dt;
+  if (S.vulcanT > 0) S.vulcanT -= dt;
+  if (S.turboT > 0) S.turboT -= dt;
+  if (S.superNova > 0) S.superNova -= dt;
+  if (S.chuvaFogo > 0) {
+    S.chuvaFogo -= dt;
+    S.chuvaT = (S.chuvaT || 0) - dt;
+    if (S.chuvaT <= 0) {
+      S.chuvaT = 0.12;
+      bombas.push({ x: rand(20, W - 20), y: -10, vy: 260, t: 0, queda: true, raio: 70 });
+    }
+  }
+
+  /* recargas das habilidades */
+  let mudouCd = false;
+  for (const k in habCd) {
+    if (habCd[k] > 0) {
+      habCd[k] = Math.max(0, habCd[k] - dt);
+      mudouCd = true;
+    }
+  }
+  if (mudouCd && Math.floor(S.time * 4) !== S.ultimoCdTick) {
+    S.ultimoCdTick = Math.floor(S.time * 4);
+    renderHabBar();
+  }
+
+  /* bombas */
+  for (let i = bombas.length - 1; i >= 0; i--) {
+    const b = bombas[i];
+    if (b.queda) {
+      b.y += b.vy * dt;
+      if (b.y > H - 40 || enemies.some(e => dist2(b.x, b.y, e.x, e.y) < 900)) {
+        danoEmArea(b.x, b.y, b.raio, 4 * ST.dmg, "#FF9E4D");
+        AudioSys.explode();
+        bombas.splice(i, 1);
+      } else if (b.y > H + 20) { bombas.splice(i, 1); }
+    } else {
+      b.t -= dt;
+      b.y += b.vy * dt;
+      b.vy += 40 * dt;
+      particles.push({ x: b.x, y: b.y, vx: 0, vy: 30, t: 0.2, max: 0.2, color: "#FF9E4D", r: 2 });
+      if (b.t <= 0) {
+        danoEmArea(b.x, b.y, b.raio, 5 * ST.dmg, "#FF9E4D");
+        AudioSys.explode();
+        S.shake = Math.max(S.shake, 7);
+        bombas.splice(i, 1);
+      }
+    }
+  }
+
+  /* buracos negros: puxam, ferem e, ao se tocarem, viram Super Nova */
+  for (let i = buracos.length - 1; i >= 0; i--) {
+    const bn = buracos[i];
+    bn.t -= dt;
+    bn.pulso += dt;
+    if (bn.t <= 0) { buracos.splice(i, 1); continue; }
+    for (let j = enemies.length - 1; j >= 0; j--) {
+      const e = enemies[j];
+      const d2 = dist2(bn.x, bn.y, e.x, e.y);
+      if (d2 < 240 * 240) {
+        const ang = Math.atan2(bn.y - e.y, bn.x - e.x);
+        const forca = 300 * (1 - Math.sqrt(d2) / 240);
+        e.x += Math.cos(ang) * forca * dt;
+        e.y += Math.sin(ang) * forca * dt;
+        if (d2 < bn.r * bn.r) damageEnemy(e, j, 6 * ST.dmg * dt, false);
+      }
+    }
+    for (let k = enemyBullets.length - 1; k >= 0; k--) {
+      const eb = enemyBullets[k];
+      if (dist2(bn.x, bn.y, eb.x, eb.y) < bn.r * bn.r) enemyBullets.splice(k, 1);
+    }
+    if (boss && !boss.entering && dist2(bn.x, bn.y, boss.x, boss.y) < (bn.r + boss.r) * (bn.r + boss.r)) {
+      const zs = bossZones();
+      if (zs.length) damageBossZone(zs[zs.length - 1], 5 * ST.dmg * dt);
+    }
+    if (Math.random() < 0.7) {
+      const a = Math.random() * TAU;
+      particles.push({ x: bn.x + Math.cos(a) * 70, y: bn.y + Math.sin(a) * 70,
+                       vx: -Math.cos(a) * 190, vy: -Math.sin(a) * 190,
+                       t: 0.4, max: 0.4, color: "#C34DFF", r: 2.5 });
+    }
+  }
+  // colisão entre dois buracos negros
+  if (buracos.length >= 2) {
+    let colidiu = null;
+    for (let a = 0; a < buracos.length && !colidiu; a++) {
+      for (let b2 = a + 1; b2 < buracos.length; b2++) {
+        const A = buracos[a], B = buracos[b2];
+        const lim = A.r + B.r + 26;
+        if (dist2(A.x, A.y, B.x, B.y) < lim * lim) {
+          colidiu = { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 };
+          break;
+        }
+        // eles se atraem, então acabam se encontrando
+        const ang = Math.atan2(B.y - A.y, B.x - A.x);
+        A.x += Math.cos(ang) * 55 * dt; A.y += Math.sin(ang) * 55 * dt;
+        B.x -= Math.cos(ang) * 55 * dt; B.y -= Math.sin(ang) * 55 * dt;
+      }
+    }
+    if (colidiu) superNova(colidiu.x, colidiu.y);
+  }
+
+  /* poças de napalm */
+  for (let i = fogo.length - 1; i >= 0; i--) {
+    const f = fogo[i];
+    f.t -= dt;
+    if (f.t <= 0) { fogo.splice(i, 1); continue; }
+    for (let j = enemies.length - 1; j >= 0; j--) {
+      const e = enemies[j];
+      if (dist2(f.x, f.y, e.x, e.y) < f.r * f.r) damageEnemy(e, j, 5 * ST.dmg * dt, false);
+    }
+    if (Math.random() < 0.5) {
+      particles.push({ x: f.x + rand(-f.r, f.r), y: f.y + rand(-f.r * 0.5, f.r * 0.5),
+                       vx: rand(-10, 10), vy: rand(-70, -30),
+                       t: 0.5, max: 0.5, color: Math.random() < 0.5 ? "#FF7B4D" : "#FFC145", r: 3 });
+    }
+  }
+
+  /* voo rasante */
+  if (rasante) {
+    rasante.t -= dt;
+    rasante.x += rasante.dir * 900 * dt;
+    danoEmArea(rasante.x, rasante.y, 70, 9 * ST.dmg * dt * 10, "#FF7B4D");
+    for (let k = 0; k < 2; k++) {
+      particles.push({ x: rasante.x, y: rasante.y + rand(-14, 14),
+                       vx: -rasante.dir * 200, vy: rand(-30, 30),
+                       t: 0.35, max: 0.35, color: "#FFC145", r: 3 });
+    }
+    if (rasante.t <= 0 || rasante.x < -60 || rasante.x > W + 60) rasante = null;
+  }
 
   /* rajada circular (ultimate Tempestade de Aço) */
   if (S.barrage) {
@@ -3956,7 +4402,7 @@ function update(dt) {
     player.tx = clamp(player.tx, player.r, W - player.r);
     player.ty = clamp(player.ty, player.r, H - player.r);
 
-    const ease = 1 - Math.pow(0.0001, dt);
+    const ease = 1 - Math.pow(0.0001, dt) * (S.turboT > 0 ? 0.2 : 1);
     const oldX = player.x;
     player.x += (player.tx - player.x) * ease;
     player.y += (player.ty - player.y) * ease;
@@ -3980,7 +4426,8 @@ function update(dt) {
     player.fireTimer -= dt;
     if (player.fireTimer <= 0) {
       playerShoot();
-      player.fireTimer = ST.fireInterval * (player.weapon === 3 ? 0.9 : 1) * (S.furyT > 0 ? 0.5 : 1);
+      player.fireTimer = ST.fireInterval * (player.weapon === 3 ? 0.9 : 1) *
+        (S.furyT > 0 ? 0.5 : 1) * (S.vulcanT > 0 ? 0.34 : 1);
     }
     if (ST.missiles) {
       player.missileTimer -= dt;
@@ -4152,8 +4599,14 @@ function update(dt) {
       }
     }
     if (hitSomething) {
-      explosion(m.x, m.y, "#FFC145", 10, 160);
-      AudioSys.hit();
+      if (m.pesado) {
+        danoEmArea(m.x, m.y, 130, 16 * ST.dmg, "#FFC145");
+        AudioSys.bigBoom();
+        S.shake = Math.max(S.shake, 12);
+      } else {
+        explosion(m.x, m.y, "#FFC145", 10, 160);
+        AudioSys.hit();
+      }
       missilesArr.splice(i, 1);
     }
   }
@@ -4676,9 +5129,57 @@ function draw() {
     ctx.restore();
   }
 
+  /* poças de napalm (embaixo de tudo) */
+  for (const f of fogo) {
+    const a = clamp(f.t / 5, 0, 1);
+    const g3 = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
+    g3.addColorStop(0, "rgba(255,193,69," + (0.42 * a) + ")");
+    g3.addColorStop(1, "rgba(255,77,60,0)");
+    ctx.fillStyle = g3;
+    ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
+  }
+
+  /* buracos negros */
+  for (const bn of buracos) {
+    const halo = ctx.createRadialGradient(bn.x, bn.y, bn.r * 0.5, bn.x, bn.y, bn.r * 3.4);
+    halo.addColorStop(0, "rgba(195,77,255,.55)");
+    halo.addColorStop(1, "rgba(195,77,255,0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(bn.x, bn.y, bn.r * 3.4, 0, TAU); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.75)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(bn.x, bn.y, bn.r + Math.sin(bn.pulso * 6) * 3, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = "#06000E";
+    ctx.beginPath(); ctx.arc(bn.x, bn.y, bn.r * 0.8, 0, TAU); ctx.fill();
+  }
+
+  /* voo rasante */
+  if (rasante) {
+    ctx.save();
+    ctx.translate(rasante.x, rasante.y);
+    ctx.rotate(rasante.dir > 0 ? Math.PI / 2 : -Math.PI / 2);
+    drawShipSprite(ctx, save.ship, 20);
+    ctx.restore();
+  }
+
   ctx.fillStyle = ST.bColor;
   ctx.shadowColor = ST.bGlow; ctx.shadowBlur = 8;
   for (const b of bullets) drawBullet(b);
+  ctx.shadowBlur = 0;
+
+  /* bombas */
+  ctx.fillStyle = "#FFC145";
+  ctx.shadowColor = "#FF9E4D"; ctx.shadowBlur = 10;
+  for (const b of bombas) {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 4, 9, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+  }
   ctx.shadowBlur = 0;
 
   ctx.shadowColor = "#FFC145"; ctx.shadowBlur = 10;
@@ -4723,6 +5224,13 @@ function draw() {
 
   if (S.furyT > 0) {
     ctx.fillStyle = "rgba(255,77,80," + (0.06 + Math.sin(S.time * 14) * 0.03) + ")";
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (S.superNova > 0) {
+    const a = clamp(S.superNova / 1.1, 0, 1);
+    ctx.fillStyle = "rgba(255,255,255," + (a * 0.85) + ")";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,193,69," + (a * 0.5) + ")";
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -4825,7 +5333,7 @@ $("cloud-btn").addEventListener("click", async () => {
 });
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "1.6";
+const VERSAO = "1.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

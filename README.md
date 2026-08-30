@@ -27,6 +27,43 @@ Cada nave ainda pode ser **tunada com 5 peças** (estilo jogo de carro), cada um
 
 Toda nave tem uma **cutscene de apresentação** (nave girando em 3D, nome, poder, ultimate e uma frase), que toca ao comprá-la e pode ser revista no hangar.
 
+## Aeronaves exclusivas (só o administrador entrega)
+
+Duas aeronaves não aparecem à venda no hangar e nem entram no "desbloquear tudo" — elas só chegam pela mão do administrador, no painel local ou à distância:
+
+### ★ Maverick — o segundo mais forte do jogo
+Caça de elite, +85% de dano e a maior agilidade do jogo. **5 habilidades**, cada uma com botão próprio e recarga:
+
+| Habilidade | O que faz |
+|---|---|
+| **Sidewinder** | Dispara 6 mísseis teleguiados de uma vez |
+| **Canhão Vulcan** | 4 s de cadência tripla |
+| **Pós-combustor** | 3 s de velocidade dobrada e invencibilidade |
+| **Sinalizadores** | Destrói todos os tiros inimigos da tela |
+| **Voo Rasante** | Investida que atravessa a tela ferindo tudo no caminho |
+
+Ultimate: **Ataque Supersônico** — três passagens rasantes seguidas.
+
+### ★ B-2 Spirit — o mais forte de todos
+O bombardeiro furtivo, com a silhueta de asa voadora do avião real. Tiros que explodem em área e **10 habilidades**:
+
+| Habilidade | O que faz |
+|---|---|
+| **Bombardeio** | Solta 8 bombas em linha, cada uma explodindo em área |
+| **Buraco Negro** | Cria um buraco negro que puxa e fere os inimigos |
+| **Super Nova** | Acontece sozinha quando **dois buracos negros se encontram**: um clarão varre todos os inimigos da tela e castiga o chefe |
+| **Modo Furtivo** | 5 s invisível — ninguém te vê nem atira |
+| **Míssil Cruzador** | Míssil pesado que persegue e explode com força |
+| **Pulso EMP** | Paralisa os inimigos por 4 s e apaga os tiros da tela |
+| **Napalm** | Faixas de fogo que queimam por 5 s |
+| **Escudo de Titânio** | Escudo reforçado e 3 s de invencibilidade |
+| **Drones de Escolta** | 4 drones lutam com você por 10 s |
+| **Contramedidas** | Destrói os tiros inimigos e devolve o dano em volta |
+
+Ultimate: **Apocalipse** — chuva de fogo sobre toda a tela por 6 segundos.
+
+> A Super Nova é um efeito **apenas de jogo**: ela limpa inimigos e chefes da tela e nada mais — o jogo continua rodando normalmente logo em seguida.
+
 ## Ultimates — uma para cada nave
 
 O botão **ULT** carrega ao destruir inimigos e cada família de nave tem a sua:
