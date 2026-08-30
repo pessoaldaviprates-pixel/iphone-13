@@ -717,6 +717,12 @@
             <button class="adm-btn" id="adm-nuvem-fase-set">DEFINIR FASE</button>
           </div>
 
+          <div class="adm-h" style="margin-top:14px">RANK</div>
+          <div class="adm-row">
+            <select id="adm-nuvem-rank-sel"></select>
+            <button class="adm-btn gold" id="adm-nuvem-rank">DAR RANK</button>
+          </div>
+
           <div class="adm-h" style="margin-top:14px">DAR</div>
           <div class="adm-grid">
             <button class="adm-btn" id="adm-nuvem-naves">TODAS AS NAVES</button>
@@ -800,9 +806,23 @@
             <input id="adm-hi-val" type="number" inputmode="numeric" placeholder="Recorde" value="100000">
             <button class="adm-btn" id="adm-hi-set">DEFINIR RECORDE</button>
           </div>
+          <div class="adm-row">
+            <input id="adm-rank-val" type="number" inputmode="numeric" placeholder="Pontos de rank" value="1000">
+            <button class="adm-btn" id="adm-rank-set">DEFINIR RANK</button>
+          </div>
+          <div class="adm-row">
+            <select id="adm-rank-sel"></select>
+            <button class="adm-btn gold" id="adm-rank-dar">DAR ESTE RANK</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-coop-val" type="number" inputmode="numeric" min="0" max="200" placeholder="Fase do cooperativo" value="200">
+            <button class="adm-btn" id="adm-coop-set">DEFINIR COOP</button>
+          </div>
           <div class="adm-grid" style="margin-top:8px">
             <button class="adm-btn" id="adm-fases-all">TODAS AS FASES</button>
             <button class="adm-btn danger" id="adm-fases-zero">ZERAR FASES</button>
+            <button class="adm-btn" id="adm-vitorias">+10 VITÓRIAS</button>
+            <button class="adm-btn danger" id="adm-rank-zero">ZERAR RANK</button>
           </div>
         </div>
 
@@ -1250,6 +1270,7 @@ function defaultSave() {
     tempoJogado: 0,          // segundos dentro de partidas
     tempos: {},              // fase -> melhor tempo em segundos
     rank: 0, vitorias: 0, derrotas: 0,   // modo competitivo
+    coopBest: 0,                         // progresso do cooperativo (200 fases)
     amigos: []               // apelidos dos amigos
   };
 }
@@ -1507,6 +1528,7 @@ async function nuvemEnviarPresente(id, presente) {
   if (presente.tudo) { novo.tudo = true; delete novo.zerarTudo; }
   if (presente.melhorias) novo.melhorias = true;
   if (typeof presente.exclusiva === "number") novo.exclusiva = presente.exclusiva;
+  if (typeof presente.setRank === "number") novo.setRank = presente.setRank;
   if (typeof presente.god === "boolean") novo.god = presente.god;
   if (presente.zerarTudo) {
     // zerar apaga qualquer coisa pendente
@@ -1569,7 +1591,7 @@ function aplicarPresente(p, g) {
   // 4) o que dá
   if (g.naves) {
     p.ships = [];
-    for (let i = 0; i < 50; i++) p.ships.push(i);
+    for (let i = 0; i < MAVERICK; i++) p.ships.push(i);
     partes.push("todas as naves");
   }
   if (g.fases) {
@@ -1586,6 +1608,10 @@ function aplicarPresente(p, g) {
   if (g.lendarios) {
     for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
     partes.push("amuletos lendários");
+  }
+  if (typeof g.setRank === "number") {
+    p.rank = Math.max(0, g.setRank);
+    partes.push("rank " + nomeDoRank(p.rank));
   }
   if (typeof g.exclusiva === "number" && SHIPS[g.exclusiva]) {
     if (p.ships.indexOf(g.exclusiva) < 0) p.ships.push(g.exclusiva);
@@ -1741,8 +1767,57 @@ for (let i = 0; i < 50; i++) {
     baseHp: 100 + i * 4
   });
 }
+/* ---------- Frota de troca: 60 naves com virtude e defeito ----------
+   Cada uma é forte em alguma coisa e fraca em outra, para nenhuma ser a
+   melhor em tudo.                                                          */
+const NOMES_TROCA = [
+  "Adaga","Alabarda","Alfanje","Aríete","Azagaia","Balista","Bastarda","Bordão",
+  "Catapulta","Cimitarra","Clava","Escaramuça","Espadim","Estilete","Falange","Florete",
+  "Funda","Gládio","Guilhotina","Katana","Lança","Maça","Malho","Marreta",
+  "Montante","Punhal","Rapieira","Sabre","Tridente","Zarabatana",
+  "Alcatraz","Albatroz","Bem-te-vi","Carcará","Codorna","Cormorão","Curió","Gaivota",
+  "Garça","Grifo","Íbis","Jaçanã","Maritaca","Pelicano","Pica-pau","Quero-quero",
+  "Rolinha","Sabiá","Tucano","Urubu",
+  "Ártemis","Astréia","Bóreas","Cronos","Éolo","Hélios","Íris","Nêmesis","Perseu","Selene"
+];
+const TROCAS = [
+  { id: "canhao",      nome: "Canhoneira",   bom: "+55% de dano",      ruim: "−30% de cadência",
+    dmg: 1.55, agi: 1.0,  hp: 1.0,  rate: 0.70, gem: 1.0 },
+  { id: "leve",        nome: "Leve",         bom: "+45% de agilidade", ruim: "−35% de vida",
+    dmg: 1.0,  agi: 1.45, hp: 0.65, rate: 1.0,  gem: 1.0 },
+  { id: "fortaleza",   nome: "Fortaleza",    bom: "+80% de vida",      ruim: "−30% de agilidade",
+    dmg: 1.0,  agi: 0.70, hp: 1.80, rate: 1.0,  gem: 1.0 },
+  { id: "metralha",    nome: "Metralhadora", bom: "+70% de cadência",  ruim: "−35% de dano",
+    dmg: 0.65, agi: 1.0,  hp: 1.0,  rate: 1.70, gem: 1.0 },
+  { id: "saqueadora",  nome: "Saqueadora",   bom: "+60% de cristais",  ruim: "−25% de vida",
+    dmg: 1.0,  agi: 1.0,  hp: 0.75, rate: 1.0,  gem: 1.60 },
+  { id: "equilibrada", nome: "Equilibrada",  bom: "+20% em tudo",      ruim: "−20% de cristais",
+    dmg: 1.20, agi: 1.20, hp: 1.20, rate: 1.20, gem: 0.80 }
+];
+for (let k = 0; k < 60; k++) {
+  const t = TROCAS[k % TROCAS.length];
+  const p0 = POWERS[k % 10];
+  const grau = 1 + k / 90;
+  SHIPS.push({
+    name: NOMES_TROCA[k % NOMES_TROCA.length],
+    price: Math.round(1200 * Math.pow(1.14, k) / 10) * 10,
+    hue: (k * 47) % 360,
+    shape: k % 5,
+    power: p0.id,
+    powerName: t.nome,
+    powerMag: p0.mag(20 + k),
+    powerDesc: t.bom + ", mas " + t.ruim,
+    troca: t.id, virtude: t.bom, defeito: t.ruim,
+    baseDmg: 1.15 * t.dmg * grau,
+    baseAgi: 1.05 * t.agi,
+    baseHp: Math.round((150 + k * 6) * t.hp),
+    baseRate: t.rate,
+    baseGem: t.gem
+  });
+}
+
 /* ---------- Aeronaves exclusivas (só o administrador entrega) ---------- */
-const MAVERICK = 50, B2 = 51;
+const MAVERICK = SHIPS.length, B2 = SHIPS.length + 1;
 SHIPS.push({
   name: "Maverick", price: 0, exclusiva: true,
   hue: 15, shape: 5,
@@ -1947,15 +2022,24 @@ function ptsAvailable() { return Math.max(0, save.pts - ptsSpent()); }
 
 /* ---------- Atributos efetivos ---------- */
 let ST = null;
+/* No cooperativo e no competitivo ninguém leva vantagem de loja: valem só
+   a nave escolhida e a habilidade de quem joga. */
+function modoJusto() {
+  // MP é criado num bloco posterior; a checagem tolera isso
+  return typeof MP !== "undefined" && !!MP && !!MP.sala;
+}
 function calcStats() {
-  const u = save.upgrades;
-  const atk = branchCount("atk"), def = branchCount("def"), res = branchCount("res");
+  const justo = modoJusto();
+  const u = justo ? { dmg: 0, rate: 0, hull: 0, shield: 0, speed: 0, luck: 0 } : save.upgrades;
+  const atk = justo ? 0 : branchCount("atk");
+  const def = justo ? 0 : branchCount("def");
+  const res = justo ? 0 : branchCount("res");
   const sh = SHIPS[save.ship] || SHIPS[0];
-  const P = shipPartsOf(save.ship);
+  const P = justo ? {} : shipPartsOf(save.ship);
   const wp = WEAPONS.find(w => w.id === curWeaponId()) || WEAPONS[0];
   const pw = id => (sh.power === id ? sh.powerMag : 0);
   const A = { vida: 0, escudo: 0, dano: 0, cadencia: 0, cristal: 0, sorte: 0, ima: 0, motor: 0, capa: false, fenix: false, tempo: false };
-  for (const am of equippedAmulets()) {
+  for (const am of (justo ? [] : equippedAmulets())) {
     if (am.rar === 3 && (am.type === "capa" || am.type === "fenix" || am.type === "tempo")) { A[am.type] = true; continue; }
     const t = AMULET_TYPES.find(t2 => t2.id === am.type);
     if (t) {
@@ -1968,7 +2052,7 @@ function calcStats() {
     dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk) * sh.baseDmg *
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg * (1 + A.dano / 100),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
-                  (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100)),
+                  (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100) * (sh.baseRate || 1)),
     maxHp: Math.round(
       (80 + (SHIPS[save.ship].baseHp || (100 + save.ship * 3))) *
       (1 + 0.12 * u.hull) * (1 + 0.08 * (P.armor || 0)) *
@@ -1978,7 +2062,8 @@ function calcStats() {
     invulnDur: 2.2 * (1 + 0.02 * def) * (1 + pw("ghost") / 100),
     speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) * (1 + A.motor / 100),
     crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
-                 (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100),
+                 (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
+                 (sh.baseGem || 1),
     dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100),
     sideShot: hasSkill("atk", 10),
     missiles: hasSkill("atk", 20),
@@ -2122,8 +2207,18 @@ function makeStars() {
 makeStars();
 
 /* ---------- Parâmetros de fase ---------- */
-function faseWaves(f)  { return 3 + Math.floor((f - 1) / 25); }
-function isBossFase(f) { return f % 5 === 0; }
+const FASES_COOP = 200;
+function totalFasesDoModo() {
+  return (typeof MP !== "undefined" && MP && MP.modo === "coop") ? FASES_COOP : TOTAL_FASES;
+}
+function faseWaves(f)  {
+  if (typeof MP !== "undefined" && MP && MP.modo === "coop") return 3 + Math.floor((f - 1) / 22);
+  return 3 + Math.floor((f - 1) / 25);
+}
+function isBossFase(f) {
+  if (typeof MP !== "undefined" && MP && MP.modo === "coop") return f % 4 === 0;   // chefe a cada 4 fases
+  return f % 5 === 0;
+}
 function faseReward(f) { return 20 + f * 4 + Math.round(f * f * 0.05); }
 function dLevel()      { return S.fase + S.waveIdx; }
 
@@ -2142,6 +2237,7 @@ const SCREENS = {
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
 function showScreen(name) {
+  if (name !== "senha" && senhaEstado) senhaEstado = null;
   for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "flex" : "none";
   $("god-badge").style.display = (name === null && save.godMode) ? "block" : "none";
@@ -2432,6 +2528,7 @@ function senhaSoltar() {
     const perfil = ROOT.profiles[e.nome];
     if (perfil && perfil.senha === h) {
       AudioSys.buy();
+      senhaEstado = null;
       e.aoTerminar(true);
     } else {
       e.seq = [];
@@ -2448,7 +2545,9 @@ function senhaSoltar() {
   } else {
     if (h === e.primeira) {
       AudioSys.buy();
-      e.aoTerminar(true, h);
+      const cb = e.aoTerminar;
+      senhaEstado = null;
+      cb(true, h);
     } else {
       e.modo = "criar";
       e.primeira = null;
@@ -2605,7 +2704,7 @@ function admDesbloquearTudo(p) {
   p.pts = TOTAL_FASES;
   p.hi = Math.max(p.hi || 0, 100000);
   p.ships = [];
-  for (let i = 0; i < 50; i++) p.ships.push(i);   // exclusivas ficam de fora
+  for (let i = 0; i < MAVERICK; i++) p.ships.push(i);   // exclusivas ficam de fora
   p.skills = {};
   for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
   for (const u of UPGRADES) p.upgrades[u.id] = u.max;
@@ -2644,6 +2743,7 @@ $("btn-adm-enter").addEventListener("click", () => {
   }
   $("adm-pass-row").style.display = "none";
   $("adm-panel").style.display = "block";
+  preencherRanks();
   admRenderPlayers();
   if (nuvemAtiva()) {
     $("adm-nuvem").style.display = "block";
@@ -2713,15 +2813,56 @@ async function admNuvemVerPendente() {
   el.textContent = "Visto pela última vez: " + visto +
     " · ⏳ pendente: " + itens.join(", ");
 }
+/* aplica o efeito também no registro público do jogador, para o ranking e a
+   lista do painel mudarem na hora — sem esperar a pessoa abrir o jogo */
+function admEfeitoImediato(p, g) {
+  if (g.zerarTudo) {
+    p.cristais = 0; p.fase = 0; p.naves = 1; p.amuletos = 0;
+    p.habilidades = 0; p.recorde = 0; p.horas = 0;
+    p.melhorTempo = null; p.rank = 0; p.vitorias = 0; p.derrotas = 0;
+    return p;
+  }
+  if (g.tudo) {
+    p.cristais = Math.max(p.cristais || 0, 999999);
+    p.fase = TOTAL_FASES; p.naves = 50; p.habilidades = 120;
+  }
+  if (typeof g.setCristais === "number") p.cristais = Math.max(0, g.setCristais);
+  if (g.cristais) p.cristais = Math.max(0, (p.cristais || 0) + g.cristais);
+  if (typeof g.setFase === "number") p.fase = g.setFase;
+  if (typeof g.setRank === "number") p.rank = Math.max(0, g.setRank);
+  if (g.rank) p.rank = Math.max(0, (p.rank || 0) + g.rank);
+  if (g.naves) p.naves = 50;
+  if (g.fases) p.fase = TOTAL_FASES;
+  if (g.habilidades) p.habilidades = 120;
+  if (typeof g.exclusiva === "number") p.naves = (p.naves || 1) + 1;
+  if (g.lendarios) p.amuletos = (p.amuletos || 0) + 3;
+  if (g.tirarNaves) p.naves = 1;
+  if (g.zerarFases) p.fase = 0;
+  if (g.zerarHabilidades) p.habilidades = 0;
+  if (g.zerarAmuletos) p.amuletos = 0;
+  return p;
+}
+
 async function admNuvemPresente(presente, msg) {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
   admMsg("Enviando…");
   const ok = await nuvemEnviarPresente(admNuvemAlvo.id, presente);
   if (ok === null) { admMsg("Não deu para enviar. Confira a conexão."); AudioSys.deny(); return; }
+  // reflete na hora no registro público
+  const atual = Object.assign({}, admNuvemAlvo);
+  admEfeitoImediato(atual, presente);
+  atual.atualizado = Date.now();
+  delete atual.id;
+  await nuvemReq("pilotos/" + admNuvemAlvo.id, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(atual)
+  });
+  Object.assign(admNuvemAlvo, atual);
+  const i = admNuvemLista.findIndex(x => x.id === admNuvemAlvo.id);
+  if (i >= 0) Object.assign(admNuvemLista[i], atual);
   admMsg(msg + " → " + admNuvemAlvo.nome);
   AudioSys.buy();
   vibrate(20);
-  admNuvemVerPendente();
+  admNuvemSelecionar(admNuvemAlvo);
 }
 /* ações destrutivas pedem dois toques */
 let admNuvemConfirmar = null;
@@ -2756,6 +2897,10 @@ $("adm-nuvem-lend").addEventListener("click", () =>
   admNuvemPresente({ lendarios: true }, "Lendários enviados"));
 $("adm-nuvem-tudo").addEventListener("click", () =>
   admNuvemPresente({ tudo: true }, "Tudo enviado"));
+$("adm-nuvem-rank").addEventListener("click", () => {
+  const v = parseInt($("adm-nuvem-rank-sel").value, 10) || 0;
+  admNuvemPresente({ setRank: v }, "Rank " + nomeDoRank(v) + " enviado");
+});
 $("adm-nuvem-maverick").addEventListener("click", () =>
   admNuvemPresente({ exclusiva: MAVERICK }, "Maverick enviado"));
 $("adm-nuvem-b2").addEventListener("click", () =>
@@ -2841,6 +2986,26 @@ $("adm-pts-set").addEventListener("click", () =>
   admAct(p => { p.pts = Math.max(0, admNum("adm-pts-val", 0)); }, "Pontos definidos"));
 $("adm-hi-set").addEventListener("click", () =>
   admAct(p => { p.hi = Math.max(0, admNum("adm-hi-val", 0)); }, "Recorde definido"));
+function preencherRanks() {
+  const sel = $("adm-rank-sel");
+  if (sel && !sel.options.length) sel.innerHTML = RANKS.map(r =>
+    '<option value="' + r.min + '">' + r.sim + " " + r.nome + " (" + r.min + " pts)</option>").join("");
+  const sel2 = $("adm-nuvem-rank-sel");
+  if (sel2 && !sel2.options.length) sel2.innerHTML = RANKS.map(r =>
+    '<option value="' + r.min + '">' + r.sim + " " + r.nome + "</option>").join("");
+}
+$("adm-rank-set").addEventListener("click", () =>
+  admAct(p => { p.rank = Math.max(0, admNum("adm-rank-val", 0)); }, "Rank definido"));
+$("adm-rank-dar").addEventListener("click", () => {
+  const v = parseInt($("adm-rank-sel").value, 10) || 0;
+  admAct(p => { p.rank = v; }, "Rank " + nomeDoRank(v) + " entregue");
+});
+$("adm-rank-zero").addEventListener("click", () =>
+  admAct(p => { p.rank = 0; p.vitorias = 0; p.derrotas = 0; }, "Rank zerado"));
+$("adm-vitorias").addEventListener("click", () =>
+  admAct(p => { p.vitorias = (p.vitorias || 0) + 10; }, "+10 vitórias"));
+$("adm-coop-set").addEventListener("click", () =>
+  admAct(p => { p.coopBest = clamp(admNum("adm-coop-val", 0), 0, FASES_COOP); }, "Cooperativo definido"));
 $("adm-fases-all").addEventListener("click", () =>
   admAct(p => { p.best = TOTAL_FASES; p.pts = Math.max(p.pts || 0, TOTAL_FASES); }, "Todas as fases liberadas"));
 $("adm-fases-zero").addEventListener("click", () =>
@@ -2865,7 +3030,7 @@ $("adm-b2").addEventListener("click", () =>
     p.ship = B2;
   }, "B-2 Spirit entregue"));
 $("adm-ships-all").addEventListener("click", () =>
-  admAct(p => { p.ships = []; for (let i = 0; i < 50; i++) p.ships.push(i); }, "Todas as 50 naves"));
+  admAct(p => { p.ships = []; for (let i = 0; i < MAVERICK; i++) p.ships.push(i); }, "Todas as naves"));
 $("adm-ships-zero").addEventListener("click", () =>
   admAct(p => { p.ships = [0]; p.ship = 0; }, "Só a nave inicial"));
 $("adm-parts-max").addEventListener("click", () =>
@@ -3166,7 +3331,10 @@ function renderHangar(scrollToSel) {
     info.innerHTML =
       '<div class="ship-name">' + (i + 1) + '. ' + sh.name +
         (exc ? ' <span style="color:var(--amber);font-size:.62rem">★ EXCLUSIVA</span>' : '') + '</div>' +
-      '<div class="ship-power"><b>' + sh.powerName + '</b> — ' + sh.powerDesc + '</div>' +
+      '<div class="ship-power"><b>' + sh.powerName + '</b> — ' +
+        (sh.troca
+          ? '<span style="color:#7CF7C0">' + sh.virtude + '</span>, mas <span style="color:#FF8A8A">' + sh.defeito + '</span>'
+          : sh.powerDesc) + '</div>' +
       '<div class="ship-ult">ULT: ' + ult.name +
         (habs ? ' · ' + habs + ' habilidades' : '') + '</div>' +
       '<div class="ship-tag" style="color:' +
@@ -3636,6 +3804,7 @@ async function mpCriarSala(modo) {
   const codigo = codigoNovo();
   MP.sala = codigo; MP.modo = modo; MP.host = true; MP.eu = mpMeuId(); MP.outros = {}; MP.fim = null;
   MP.semOutroDesde = 0;
+  calcStats();
   const sala = {
     modo, host: MP.eu, estado: "lobby", criada: Date.now(), fase: Math.max(1, save.best || 1),
     jogadores: {}
@@ -3659,6 +3828,7 @@ async function mpEntrarSala(codigo, modo) {
   }
   MP.sala = codigo; MP.modo = sala.modo; MP.host = false; MP.eu = mpMeuId(); MP.outros = {}; MP.fim = null;
   MP.semOutroDesde = 0;
+  calcStats();
   MP.fase = sala.fase || 1;
   await nuvemReq(mpCaminho() + "/jogadores/" + MP.eu, {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mpMeuResumo(true))
@@ -3802,7 +3972,7 @@ function mpAtualizarPlacar() {
 
 async function mpComecar() {
   if (!MP.host || !MP.sala) return;
-  const fase = MP.modo === "pvp" ? 1 : Math.max(1, save.best || 1);
+  const fase = MP.modo === "pvp" ? 1 : Math.max(1, (save.coopBest || 0) + 1);
   await nuvemReq(mpCaminho() + "/estado", {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify("jogando")
   });
@@ -3888,6 +4058,7 @@ async function mpSair(voltarMenu, atraso) {
   }
   mpPararLoop();
   MP.sala = null; MP.outros = {}; MP.modo = null; MP.host = false;
+  calcStats();
   $("mp-placar").style.display = "none";
   if (voltarMenu !== false) { S.duelo = false; goMenu(); }
 }
@@ -3910,10 +4081,14 @@ function trocarAbaMulti(aba) {
 }
 function atualizarPvpCartao() {
   const pts = save.rank || 0;
-  $("pvp-meu-rank").textContent = nomeDoRank(pts);
+  $("pvp-meu-rank").textContent = simboloDoRank(pts) + " " + nomeDoRank(pts);
+  const prox = proximoRank(pts);
+  $("pvp-meus-pontos").title = prox ? "Faltam " + (prox.min - pts) + " para " + prox.nome : "Rank máximo!";
   $("pvp-meu-rank").style.color = corDoRank(pts);
   $("pvp-meus-pontos").textContent = pts;
-  $("pvp-meu-placar").textContent = (save.vitorias || 0) + " vitórias · " + (save.derrotas || 0) + " derrotas";
+  const prox2 = proximoRank(pts);
+  $("pvp-meu-placar").textContent = (save.vitorias || 0) + " vitórias · " + (save.derrotas || 0) +
+    " derrotas" + (prox2 ? " · faltam " + (prox2.min - pts) + " para " + prox2.sim + " " + prox2.nome : " · rank máximo");
 }
 async function renderAmigos() {
   const lista = $("amigos-lista");
@@ -4222,30 +4397,35 @@ const TABELAS = [
   { id: "pvp",   nome: "COMPETITIVO",
     filtra: p => (p.vitorias || 0) + (p.derrotas || 0) > 0,
     ordena: (a, b) => (b.rank || 0) - (a.rank || 0) || (b.vitorias || 0) - (a.vitorias || 0),
-    valor: p => (p.rank || 0), rotulo: "PONTOS",
+    valor: p => simboloDoRank(p.rank || 0) + " " + (p.rank || 0), rotulo: "PONTOS",
     meta: p => nomeDoRank(p.rank || 0) + " · " + (p.vitorias || 0) + "V / " + (p.derrotas || 0) + "D" }
 ];
 let abaRanking = "fase";
 let cacheRanking = null;
 
 const RANKS = [
-  { min: 0,    nome: "BRONZE",   cor: "#C77B3F" },
-  { min: 300,  nome: "PRATA",    cor: "#C8D4E8" },
-  { min: 700,  nome: "OURO",     cor: "#FFC145" },
-  { min: 1200, nome: "PLATINA",  cor: "#7CF7C0" },
-  { min: 1800, nome: "DIAMANTE", cor: "#4DE8FF" },
-  { min: 2600, nome: "MESTRE",   cor: "#C34DFF" },
-  { min: 3600, nome: "LENDÁRIO", cor: "#FF4D8F" }
+  { min: 0,    nome: "BRONZE",       cor: "#C77B3F", sim: "▲" },
+  { min: 250,  nome: "PRATA",        cor: "#C8D4E8", sim: "◆" },
+  { min: 600,  nome: "OURO",         cor: "#FFC145", sim: "★" },
+  { min: 1000, nome: "PLATINA",      cor: "#7CF7C0", sim: "✦" },
+  { min: 1500, nome: "DIAMANTE",     cor: "#4DE8FF", sim: "❖" },
+  { min: 2100, nome: "MESTRE",       cor: "#C34DFF", sim: "✹" },
+  { min: 2800, nome: "GRÃO-MESTRE",  cor: "#FF7B4D", sim: "✵" },
+  { min: 3600, nome: "ÁS",           cor: "#FF4D8F", sim: "✈" },
+  { min: 4600, nome: "LENDÁRIO",     cor: "#FFE066", sim: "☄" },
+  { min: 6000, nome: "PILOT SPIRIT", cor: "#FFFFFF", sim: "☀" }
 ];
-function nomeDoRank(pts) {
+function rankDe(pts) {
   let r = RANKS[0];
   for (const x of RANKS) if (pts >= x.min) r = x;
-  return r.nome;
+  return r;
 }
-function corDoRank(pts) {
-  let r = RANKS[0];
-  for (const x of RANKS) if (pts >= x.min) r = x;
-  return r.cor;
+function nomeDoRank(pts) { return rankDe(pts).nome; }
+function corDoRank(pts) { return rankDe(pts).cor; }
+function simboloDoRank(pts) { return rankDe(pts).sim; }
+function proximoRank(pts) {
+  for (const x of RANKS) if (pts < x.min) return x;
+  return null;
 }
 
 async function renderRanking(recarregar) {
@@ -4574,7 +4754,7 @@ function renderHabBar() {
 function startGame(fase) {
   calcStats();
   S.mode = "playing";
-  S.fase = clamp(fase, 1, TOTAL_FASES);
+  S.fase = clamp(fase, 1, totalFasesDoModo());
   S.nWaves = faseWaves(S.fase);
   S.waveIdx = 1;
   S.score = 0; S.runGems = 0; S.shake = 0; S.time = 0;
@@ -4614,6 +4794,7 @@ function startGame(fase) {
 function waveIsBoss() { return isBossFase(S.fase) && S.waveIdx === S.nWaves; }
 
 function setupWave() {
+  atualizarLeitura();
   S.waveState = "spawning";
   if (waveIsBoss()) {
     S.toSpawn = 0;
@@ -4622,13 +4803,75 @@ function setupWave() {
     AudioSys.bossAlert();
   } else {
     const dl = dLevel();
-    S.toSpawn = 5 + Math.min(Math.floor(dl * 0.7), 18);
+    const A = adapt();
+    const base = 5 + Math.min(Math.floor(dl * 0.7), 18);
+    S.toSpawn = Math.round(base * A.quantidade);
     S.spawnTimer = 0.5;
-    S.spawnInterval = Math.max(0.3, 1.05 - dl * 0.018);
+    S.spawnInterval = Math.max(0.22, (1.05 - dl * 0.018) / A.velocidade);
     S.banner = { text: "ONDA " + S.waveIdx + "/" + S.nWaves, sub: S.waveIdx === 1 ? "FASE " + S.fase : "", t: 1.6 };
     if (S.waveIdx !== 1) AudioSys.wave();
   }
   updateHud();
+}
+
+/* ---------- Inteligência adaptativa dos inimigos ----------
+   Os inimigos "olham" como o jogador está montado e reagem:
+   - defesa alta  -> vêm em maior quantidade e atiram mais
+   - dano alto    -> ficam mais resistentes
+   - cadência alta-> se espalham e desviam mais
+   - agilidade alta-> miram prevendo o movimento
+   O ataque deles cresce, mas sempre abaixo do que o jogador consegue: cada
+   fator tem teto, e a soma é limitada para nunca virar impossível.          */
+function leituraDoJogador() {
+  const u = save.upgrades || {};
+  const P = shipPartsOf(save.ship);
+  const sh = SHIPS[save.ship] || SHIPS[0];
+  const amu = equippedAmulets();
+  const somaAmu = k => amu.reduce((t, a) => {
+    const tp = AMULET_TYPES.find(x => x.id === a.type);
+    return t + (tp && a.type === k ? tp.vals[a.rar] : 0);
+  }, 0);
+
+  // 0..1 em cada eixo
+  const defesa = clamp(
+    (u.hull || 0) / 5 * 0.35 + (u.shield || 0) / 5 * 0.2 +
+    (P.armor || 0) / PART_MAX * 0.15 + branchCount("def") / 40 * 0.2 +
+    Math.min(somaAmu("vida") / 3, 1) * 0.1, 0, 1);
+  const ataque = clamp(
+    (u.dmg || 0) / 15 * 0.4 + (P.cannon || 0) / PART_MAX * 0.15 +
+    branchCount("atk") / 40 * 0.25 + (sh.baseDmg - 1) / 2 * 0.2, 0, 1);
+  const cadencia = clamp(
+    (u.rate || 0) / 10 * 0.5 + (P.turbine || 0) / PART_MAX * 0.25 +
+    Math.min(somaAmu("cadencia") / 20, 1) * 0.25, 0, 1);
+  const agilidade = clamp(
+    (u.speed || 0) / 8 * 0.5 + (P.engine || 0) / PART_MAX * 0.3 +
+    (sh.baseAgi - 1) / 0.5 * 0.2, 0, 1);
+  const geral = clamp((defesa + ataque + cadencia + agilidade) / 4, 0, 1);
+  return { defesa, ataque, cadencia, agilidade, geral };
+}
+
+let LEITURA = { defesa: 0, ataque: 0, cadencia: 0, agilidade: 0, geral: 0 };
+function atualizarLeitura() {
+  LEITURA = modoJusto() ? { defesa: 0, ataque: 0, cadencia: 0, agilidade: 0, geral: 0 }
+                        : leituraDoJogador();
+}
+
+/* multiplicadores usados ao criar e mover inimigos */
+function adapt() {
+  const L = LEITURA;
+  return {
+    // defesa alta do jogador -> mais inimigos na tela
+    quantidade: 1 + L.defesa * 0.9 + L.geral * 0.3,
+    // dano alto -> inimigos mais resistentes (teto de +85%)
+    vida: 1 + L.ataque * 0.85,
+    // cadência alta -> eles se espalham e chegam mais rápido
+    velocidade: 1 + L.cadencia * 0.35 + L.geral * 0.1,
+    // eles atiram mais, mas o dano por tiro sobe pouco (teto de +30%)
+    tiro: 1 + L.geral * 0.45,
+    dano: 1 + L.geral * 0.3,
+    // agilidade alta -> eles miram prevendo para onde você vai
+    previsao: L.agilidade
+  };
 }
 
 /* ---------- Inimigos comuns ---------- */
@@ -4650,6 +4893,7 @@ function spawnEnemy(forceType) {
     fireTimer: rand(1, 2.5),
     hitFlash: 0, slowT: 0, frozenT: 0
   };
+  const A = adapt();
   if (type === "drone") {
     e.r = 15; e.hp = 1 + Math.floor(f / 8); e.speed = rand(55, 80) + spd * 0.5;
     e.amp = rand(30, 70); e.score = 10;
@@ -4660,6 +4904,9 @@ function spawnEnemy(forceType) {
     e.r = 24; e.hp = 5 + Math.floor(f / 5) * 2; e.speed = rand(30, 42);
     e.amp = rand(5, 15); e.score = 40;
   }
+  e.hp = Math.max(1, Math.round(e.hp * A.vida));
+  e.speed *= A.velocidade;
+  e.score = Math.round(e.score * (1 + (A.vida - 1) * 0.6));   // mais duro, mais pontos
   enemies.push(e);
   return e;
 }
@@ -4964,9 +5211,19 @@ function launchMissile() {
 }
 function enemyShootAt(sx, sy, speed, spread) {
   if (!player.alive || player.invis > 0) return;
-  let ang = Math.atan2(player.y - sy, player.x - sx);
-  if (spread) ang += rand(-spread, spread);
-  enemyBullets.push({ x: sx, y: sy, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, r: 5 });
+  const A = adapt();
+  // prevê para onde o jogador está indo (quanto mais ágil ele for, melhor a mira)
+  const dt2 = Math.min(0.85, Math.hypot(player.x - sx, player.y - sy) / Math.max(60, speed));
+  const alvoX = player.x + (player.tx - player.x) * A.previsao * dt2 * 3.2;
+  const alvoY = player.y + (player.ty - player.y) * A.previsao * dt2 * 3.2;
+  let ang = Math.atan2(alvoY - sy, alvoX - sx);
+  if (spread) ang += rand(-spread, spread) * (1 - A.previsao * 0.4);
+  enemyBullets.push({
+    x: sx, y: sy,
+    vx: Math.cos(ang) * speed * (1 + (A.tiro - 1) * 0.5),
+    vy: Math.sin(ang) * speed * (1 + (A.tiro - 1) * 0.5),
+    r: 5, dano: A.dano
+  });
 }
 
 /* ---------- Drops ---------- */
@@ -5072,7 +5329,7 @@ function hitPlayer() {
     return;
   }
   // o dano tira vida da nave; ao zerar, perde um coração
-  const dano = 55 + S.fase * 1.5;
+  const dano = (55 + S.fase * 1.5) * clamp(1 + (LEITURA.geral || 0) * 0.3, 1, 1.3);
   player.hp -= dano;
   addText(player.x, player.y - 26, "-" + Math.round(dano), "#FF5252");
   if (player.hp > 0) {
@@ -5131,8 +5388,12 @@ function bankRunGems(mult) {
 }
 function faseVictory() {
   S.mode = "victory";
-  const first = S.fase > save.best;
-  if (first) { save.best = S.fase; save.pts++; }
+  const coop = typeof MP !== "undefined" && MP && MP.modo === "coop";
+  const first = coop ? (S.fase > (save.coopBest || 0)) : (S.fase > save.best);
+  if (first) {
+    if (coop) { save.coopBest = S.fase; }
+    else { save.best = S.fase; save.pts++; }
+  }
   // melhor tempo da fase
   const dur = S.inicioFase ? (Date.now() - S.inicioFase) / 1000 : 0;
   if (dur > 3) {
@@ -5154,14 +5415,14 @@ function faseVictory() {
   AudioSys.victory();
   vibrate([40, 60, 40, 60, 120]);
   $("vic-title").textContent = "FASE " + S.fase + " CONCLUÍDA";
-  $("vic-fase").textContent = S.fase + "/" + TOTAL_FASES;
+  $("vic-fase").textContent = S.fase + "/" + totalFasesDoModo();
   $("vic-score").textContent = S.score;
   $("vic-gems").textContent = "+" + fmt(base + gems + scoreBonus) + " cristais";
   $("vic-skill").style.display = first ? "block" : "none";
   const va = $("vic-amulet");
   if (amuletMsg) { va.textContent = amuletMsg; va.style.display = "block"; }
   else va.style.display = "none";
-  $("btn-next").style.display = S.fase >= TOTAL_FASES ? "none" : "inline-block";
+  $("btn-next").style.display = S.fase >= totalFasesDoModo() ? "none" : "inline-block";
   showScreen("victory");
   nuvemEnviar(true);
 }
@@ -5603,18 +5864,19 @@ function update(dt) {
 
     e.fireTimer -= dt;
     if (e.fireTimer <= 0 && e.y > 0 && e.y < H * 0.75 && e.frozenT <= 0 && player.invis <= 0) {
+      const Ax = adapt();
       if (e.type === "striker") {
         enemyShootAt(e.x, e.y + e.r, 240 + dl * 3, 0.08);
-        e.fireTimer = rand(1.4, 2.6);
+        e.fireTimer = rand(1.4, 2.6) / Ax.tiro;
       } else if (e.type === "tank") {
         for (let k = -1; k <= 1; k++) {
           const ang = Math.PI / 2 + k * 0.3;
           enemyBullets.push({ x: e.x, y: e.y + e.r, vx: Math.cos(ang) * 170, vy: Math.sin(ang) * 170, r: 5.5 });
         }
-        e.fireTimer = rand(2.2, 3.4);
+        e.fireTimer = rand(2.2, 3.4) / Ax.tiro;
       } else {
         enemyShootAt(e.x, e.y + e.r, 190 + dl * 2.5, 0.35);
-        e.fireTimer = rand(2, 4);
+        e.fireTimer = rand(2, 4) / Ax.tiro;
       }
     }
 
@@ -6369,7 +6631,7 @@ $("cloud-btn").addEventListener("click", async () => {
 });
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.0";
+const VERSAO = "2.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
