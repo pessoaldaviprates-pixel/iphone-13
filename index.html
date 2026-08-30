@@ -644,6 +644,144 @@
     text-shadow:0 0 12px rgba(255,82,82,.8);display:none;
   }
 
+  /* construtor de naves */
+  .hangar-topo{flex:none;padding:0 12px 10px;max-width:520px;width:100%;margin:0 auto}
+  .hangar-topo .adm-btn{width:100%}
+  #screen-construtor{display:none}
+  #screen-construtor.show{display:flex}
+  .cn-passos{
+    display:flex;gap:6px;flex:none;padding:0 12px 10px;
+    max-width:520px;width:100%;margin:0 auto;
+  }
+  .cn-passo{
+    flex:1;text-align:center;padding:7px 4px;border-radius:10px;
+    background:var(--panel2);border:1px solid var(--line);
+    font-size:.56rem;letter-spacing:.1em;font-weight:700;color:var(--dim);
+  }
+  .cn-passo.on{background:rgba(77,232,255,.16);border-color:var(--cyan);color:var(--cyan)}
+  .cn-passo.feito{border-color:rgba(124,247,192,.5);color:#7CF7C0}
+  .cn-etapa{flex:1;min-height:0;display:flex;flex-direction:column;width:100%}
+  .cn-filtros{
+    display:flex;gap:6px;flex:none;overflow-x:auto;padding:0 12px 10px;
+    max-width:520px;width:100%;margin:0 auto;-webkit-overflow-scrolling:touch;
+  }
+  .cn-filtro{
+    flex:none;cursor:pointer;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.58rem;letter-spacing:.08em;padding:7px 11px;border-radius:10px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);white-space:nowrap;
+  }
+  .cn-filtro.on{background:rgba(77,232,255,.16);color:var(--cyan);border-color:var(--cyan)}
+  .cn-filtro .pip{color:var(--amber);margin-left:4px}
+  .cn-grade{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:8px;
+    padding:0 12px 16px;max-width:520px;margin:0 auto;width:100%;
+  }
+  .cn-grade.peca{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .cn-op{
+    cursor:pointer;text-align:center;padding:8px 5px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+  }
+  .cn-op.on{border-color:var(--cyan);background:rgba(77,232,255,.12);box-shadow:0 0 14px rgba(77,232,255,.2)}
+  .cn-op canvas{width:56px;height:56px;display:block;margin:0 auto}
+  .cn-op b{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.64rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .cn-op span{display:block;font-size:.54rem;color:var(--dim);line-height:1.35;margin-top:2px}
+  .cn-op i{display:block;font-style:normal;font-size:.58rem;color:var(--amber);font-weight:700;margin-top:3px}
+  .cn-op.nada{display:flex;align-items:center;justify-content:center;min-height:64px}
+  .cn-previa{
+    flex:none;display:flex;align-items:center;gap:12px;
+    padding:0 14px 10px;max-width:520px;width:100%;margin:0 auto;
+  }
+  .cn-previa.grande{flex-direction:column;padding-top:10px}
+  #cn-tela,#cn-tela2{
+    width:120px;height:120px;flex:none;border-radius:14px;
+    background:radial-gradient(circle at 50% 40%,rgba(30,50,110,.5),rgba(6,10,24,.9));
+    border:1px solid var(--line);
+  }
+  #cn-tela2{width:170px;height:170px}
+  .cn-stats{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .cn-previa.grande .cn-stats{width:100%;grid-template-columns:repeat(3,1fr);margin-top:10px}
+  .cn-stat{
+    background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+    padding:5px 7px;text-align:center;
+  }
+  .cn-stat b{display:block;font-family:"Russo One",sans-serif;font-size:.8rem;color:var(--cyan)}
+  .cn-stat span{display:block;font-size:.48rem;letter-spacing:.1em;color:var(--dim);margin-top:1px}
+  .cn-slider{width:100%;margin-top:8px}
+  .cn-resumo{margin-top:14px;font-size:.72rem;line-height:1.6;color:rgba(234,242,255,.85)}
+  .cn-resumo b{color:var(--amber)}
+  .cn-rodape{
+    flex:none;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    max-width:520px;width:100%;margin:0 auto;border-top:1px solid var(--line);
+  }
+  .cn-rodape .adm-btn{flex:1}
+
+  /* inventário do jogador no painel */
+  .inv-box{margin-top:10px}
+  .inv-abas{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .inv-aba{
+    cursor:pointer;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.08em;padding:7px 11px;border-radius:10px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .inv-aba.on{background:rgba(77,232,255,.16);color:var(--cyan);border-color:var(--cyan)}
+  .inv-lista{display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow-y:auto}
+  .inv-item{
+    display:flex;align-items:center;gap:9px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px 10px;
+  }
+  .inv-item.marcado{border-color:var(--danger);background:rgba(255,82,82,.1)}
+  .inv-item canvas{width:30px;height:30px;flex:none}
+  .inv-item .t{flex:1;min-width:0}
+  .inv-item .t b{display:block;font-size:.76rem;font-weight:700;
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inv-item .t span{display:block;font-size:.6rem;color:var(--dim);margin-top:1px}
+  .inv-x{
+    flex:none;width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:.8rem;
+    background:transparent;border:1px solid var(--line);color:var(--danger);
+  }
+  .inv-x.on{background:var(--danger);color:#fff;border-color:var(--danger)}
+  .inv-nivel{display:flex;align-items:center;gap:5px;flex:none}
+  .inv-nivel button{
+    width:26px;height:26px;border-radius:8px;cursor:pointer;font-size:.8rem;
+    background:transparent;border:1px solid var(--line);color:var(--ink);
+  }
+  .inv-nivel b{min-width:38px;text-align:center;font-size:.72rem}
+  .inv-resumo{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;
+  }
+  .inv-resumo div{
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:8px 4px;text-align:center;
+  }
+  .inv-resumo b{display:block;font-family:"Russo One",sans-serif;font-size:.85rem;color:var(--amber)}
+  .inv-resumo span{display:block;font-size:.5rem;letter-spacing:.1em;color:var(--dim);margin-top:2px}
+  .inv-acoes{display:flex;gap:7px;margin-top:10px}
+  .inv-acoes .adm-btn{flex:1}
+
+  /* escolha da dificuldade */
+  .dif-linha{
+    display:flex;gap:7px;padding:0 12px 10px;flex:none;
+    max-width:520px;width:100%;margin:0 auto;
+  }
+  .dif-btn{
+    flex:1;min-width:0;cursor:pointer;text-align:center;padding:9px 4px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+  }
+  .dif-btn b{display:block;font-size:1rem;line-height:1.1}
+  .dif-btn span{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.12em;color:var(--dim);margin-top:3px;
+  }
+  .dif-btn.on{background:rgba(77,232,255,.13)}
+  .dif-btn.on span{color:var(--ink)}
+  .dif-nota{
+    grid-column:1/-1;font-size:.66rem;color:var(--dim);line-height:1.5;
+    text-align:center;padding:2px 4px 8px;
+  }
+
   /* ranqueada */
   .rank-cartao{
     display:flex;align-items:center;gap:14px;
@@ -1244,6 +1382,14 @@
             <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
           </div>
 
+          <div class="adm-h" style="margin-top:16px">
+            🎒 INVENTÁRIO
+            <button class="adm-btn" id="inv-abrir" style="float:right;padding:5px 10px;font-size:.62rem">VER TUDO</button>
+          </div>
+          <div class="inv-box" id="inv-box">
+            <div class="adm-note">Toque em VER TUDO para puxar o inventário completo desta conta.</div>
+          </div>
+
           <div class="adm-h gold" style="margin-top:16px">🎁 CAIXA DE PRESENTE</div>
           <div class="caixa-adm" id="caixa-adm">
             <div class="caixa-vazia" id="caixa-vazia">Toque nos botões acima para colocar itens na caixa.</div>
@@ -1474,6 +1620,7 @@
     <div class="page-title">FASES</div>
     <div class="page-gems gem" id="levels-gems">0</div>
   </div>
+  <div class="dif-linha" id="dif-linha"></div>
   <div class="scroll"><div class="fase-grid" id="fase-grid"></div></div>
 </div>
 
@@ -1494,7 +1641,59 @@
     <div class="page-title">HANGAR</div>
     <div class="page-gems gem" id="hangar-gems">0</div>
   </div>
+  <div class="hangar-topo">
+    <button class="adm-btn gold wide" id="btn-criar-nave">🛠 CRIAR MINHA NAVE</button>
+  </div>
   <div class="scroll"><div class="ship-list" id="ship-list"></div></div>
+</div>
+
+<!-- CONSTRUTOR DE NAVES -->
+<div class="page" id="screen-construtor">
+  <div class="page-head">
+    <button class="back-btn" id="cn-voltar" aria-label="Voltar">‹</button>
+    <div class="page-title" id="cn-titulo">CRIAR NAVE</div>
+    <div class="page-gems gem" id="cn-gems">0</div>
+  </div>
+
+  <div class="cn-passos" id="cn-passos"></div>
+
+  <!-- passo 1: formato -->
+  <div class="cn-etapa" id="cn-formatos">
+    <div class="cn-filtros" id="cn-familias"></div>
+    <div class="scroll"><div class="cn-grade" id="cn-lista-formatos"></div></div>
+  </div>
+
+  <!-- passo 2: peças -->
+  <div class="cn-etapa" id="cn-pecas" style="display:none">
+    <div class="cn-previa">
+      <canvas id="cn-tela" width="260" height="260"></canvas>
+      <div class="cn-stats" id="cn-stats"></div>
+    </div>
+    <div class="cn-filtros" id="cn-encaixes"></div>
+    <div class="scroll"><div class="cn-grade peca" id="cn-lista-pecas"></div></div>
+  </div>
+
+  <!-- passo 3: acabamento -->
+  <div class="cn-etapa" id="cn-final" style="display:none">
+    <div class="scroll">
+      <div class="cn-previa grande">
+        <canvas id="cn-tela2" width="300" height="300"></canvas>
+        <div class="cn-stats" id="cn-stats2"></div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-h">NOME DA NAVE</div>
+        <input id="cn-nome" maxlength="18" placeholder="Como ela vai se chamar?" autocomplete="off">
+        <div class="adm-h" style="margin-top:14px">COR</div>
+        <input id="cn-cor" type="range" min="0" max="359" value="190" class="cn-slider">
+        <div class="cn-resumo" id="cn-resumo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cn-rodape">
+    <button class="adm-btn" id="cn-anterior">‹ VOLTAR</button>
+    <button class="adm-btn gold" id="cn-proximo">CONTINUAR ›</button>
+  </div>
 </div>
 
 <!-- OFICINA (3D) -->
@@ -1873,6 +2072,8 @@ function defaultSave() {
     tempos: {},              // fase -> melhor tempo em segundos
     rank: 0, vitorias: 0, derrotas: 0,   // modo competitivo
     coopBest: 0,                         // progresso do cooperativo (200 fases)
+    dificuldade: "medio",    // facil | medio | dificil (o online é sempre médio)
+    criadas: [],             // naves montadas por você na oficina de construção
     arenaOnda: 0,            // maior onda que você alcançou na arena
     transmitir: true,        // deixa os amigos verem a sua tela
     controle: "auto",        // auto | pc | toque
@@ -1991,6 +2192,8 @@ function loginAs(name) {
   ROOT.current = name;
   save = ROOT.profiles[name];
   save.__name = name;
+  // as naves que este piloto montou entram no fim da lista
+  try { reconstruirNavesCriadas(); } catch (e) {}
   persist();
   calcStats();
 }
@@ -2322,6 +2525,14 @@ async function nuvemEnviarPresente(id, presente) {
   }
   if (presente.tudo) { novo.tudo = true; delete novo.zerarTudo; }
   if (presente.melhorias) novo.melhorias = true;
+  for (const k of ["remNaves", "remAmuletos", "remHab", "remPecas"]) {
+    if (presente[k] !== undefined) {
+      const juntas = (novo[k] || []).concat(presente[k] || []);
+      novo[k] = juntas.filter((v, i) => juntas.indexOf(v) === i);
+    }
+  }
+  if (presente.remUp !== undefined) novo.remUp = Object.assign(novo.remUp || {}, presente.remUp);
+  if (presente.tirarCristais) novo.tirarCristais = (novo.tirarCristais || 0) + presente.tirarCristais;
   if (presente.exclusiva !== undefined) {
     const juntas = listaExclusivas(novo.exclusiva).concat(listaExclusivas(presente.exclusiva));
     novo.exclusiva = juntas.filter((v, i) => juntas.indexOf(v) === i);
@@ -2428,6 +2639,53 @@ function aplicarPresente(p, g) {
     partes.push("aeronave " + SHIPS[ex].name);
     anota("★", "Aeronave exclusiva " + SHIPS[ex].name);
   }
+  // remoções escolhidas uma a uma pelo administrador
+  if (g.remNaves && g.remNaves.length) {
+    const fora = {};
+    for (const i of g.remNaves) fora[+i] = 1;
+    p.ships = (p.ships || [0]).filter(i => !fora[i]);
+    if (!p.ships.length) p.ships = [0];
+    if (fora[p.ship]) p.ship = p.ships[0];
+    partes.push("naves retiradas");
+    anota("⚠", g.remNaves.length + " nave(s) retirada(s)", true);
+    tirou = true;
+  }
+  if (g.remAmuletos && g.remAmuletos.length) {
+    const fora = {};
+    for (const u of g.remAmuletos) fora[+u] = 1;
+    p.amulets = (p.amulets || []).filter(a => !fora[a.uid]);
+    p.equipped = (p.equipped || []).filter(u => !fora[u]);
+    partes.push("amuletos retirados");
+    anota("⚠", g.remAmuletos.length + " amuleto(s) retirado(s)", true);
+    tirou = true;
+  }
+  if (g.remHab && g.remHab.length) {
+    for (const id of g.remHab) delete p.skills[id];
+    partes.push("habilidades retiradas");
+    anota("⚠", g.remHab.length + " habilidade(s) retirada(s)", true);
+    tirou = true;
+  }
+  if (g.remUp) {
+    for (const k in g.remUp) {
+      if (p.upgrades[k] !== undefined) p.upgrades[k] = Math.max(0, g.remUp[k] | 0);
+    }
+    partes.push("melhorias ajustadas");
+    anota("⚠", "Melhorias ajustadas pelo administrador", true);
+    tirou = true;
+  }
+  if (g.tirarCristais) {
+    p.crystals = Math.max(0, (p.crystals || 0) - g.tirarCristais);
+    partes.push(fmt(g.tirarCristais) + " cristais retirados");
+    anota("⚠", "− " + fmt(g.tirarCristais) + " cristais", true);
+    tirou = true;
+  }
+  if (g.remPecas && g.remPecas.length) {
+    for (const i of g.remPecas) delete p.parts[i];
+    partes.push("peças retiradas");
+    anota("⚠", "Peças retiradas de " + g.remPecas.length + " nave(s)", true);
+    tirou = true;
+  }
+
   if (g.melhorias) {
     for (const u of UPGRADES) p.upgrades[u.id] = u.max;
     for (const i of p.ships) {
@@ -2659,6 +2917,265 @@ SHIPS.push({
 });
 function naveExclusiva(i) { return !!(SHIPS[i] && SHIPS[i].exclusiva); }
 
+/* =====================================================================
+   OFICINA DE CONSTRUÇÃO — monte a sua própria aeronave
+   ---------------------------------------------------------------------
+   Primeiro escolhe-se o FORMATO do casco (são 100, gerados por família:
+   caça, interceptador, asa voadora, bombardeiro e exóticos). Depois
+   entram as peças, 30 opções em cada um dos 12 encaixes: nariz, cauda,
+   asa direita, asa esquerda, teto, casco de baixo, motor, armas, bombas,
+   armamento pesado, defletor e sensor.
+   Cada peça muda o desenho E os atributos da nave.
+   ===================================================================== */
+const NAVES_BASE = SHIPS.length;   // daqui para a frente é tudo criado pelo jogador
+
+/* ---------- 100 formatos de casco ---------- */
+const FORMA_FAMILIAS = [
+  { nome: "Caça",          base: "cacas" },
+  { nome: "Interceptador", base: "inter" },
+  { nome: "Asa Voadora",   base: "asa" },
+  { nome: "Bombardeiro",   base: "bomba" },
+  { nome: "Exótico",       base: "exo" }
+];
+const FORMA_NOMES = [
+  "Lâmina","Adaga","Falcão","Vespa","Flecha","Presa","Garra","Raio","Lança","Punhal",
+  "Corvo","Águia","Víbora","Escorpião","Cometa","Meteoro","Trovão","Tempestade","Miragem","Fantasma",
+  "Sombra","Espectro","Titã","Colosso","Bastião","Muralha","Aríete","Martelo","Bigorna","Fornalha",
+  "Cristal","Prisma","Estrela","Nova","Quasar","Pulsar","Órbita","Eclipse","Aurora","Zênite",
+  "Serpente","Dragão","Grifo","Fênix","Quimera","Hidra","Basilisco","Manticora","Wyvern","Leviatã",
+  "Ártico","Deserto","Tundra","Vulcão","Abismo","Recife","Cânion","Duna","Geleira","Savana",
+  "Cobalto","Titânio","Grafite","Obsidiana","Ônix","Âmbar","Safira","Rubi","Esmeralda","Opala",
+  "Alfa","Beta","Gama","Delta","Ômega","Sigma","Zeta","Kappa","Lambda","Teta",
+  "Rondador","Vigia","Sentinela","Guardião","Caçador","Batedor","Errante","Nômade","Peregrino","Andarilho",
+  "Ferrão","Espinho","Farpa","Estilhaço","Fragmento","Lasca","Agulha","Alfinete","Gancho","Anzol"
+];
+/* gera os pontos do casco: cada família tem 5 desenhos bem diferentes e
+   cada desenho tem 4 proporções — 20 cascos distintos por família         */
+function gerarForma(i) {
+  const fam = Math.floor(i / 20);
+  const tipo = Math.floor((i % 20) / 4);        // 0..4  — o desenho
+  const v = i % 4;                              // 0..3  — a proporção
+  const L = 1 + v * 0.16;                       // comprimento
+  const G = 1 + (3 - v) * 0.13;                 // gordura
+  const p = [];
+  const P = (x, y) => p.push([x * G, y * L]);
+
+  if (fam === 0) {                              /* ---- CAÇAS ---- */
+    if (tipo === 0) {                           // delta puro
+      P(0,-19); P(13,9); P(5,6); P(0,11); P(-5,6); P(-13,9);
+    } else if (tipo === 1) {                     // asa em flecha com cauda dupla
+      P(0,-18); P(4,-6); P(14,4); P(7,5); P(9,12); P(3,10);
+      P(0,13); P(-3,10); P(-9,12); P(-7,5); P(-14,4); P(-4,-6);
+    } else if (tipo === 2) {                     // canards na frente
+      P(0,-20); P(3,-14); P(9,-11); P(4,-8); P(12,7); P(4,7);
+      P(0,12); P(-4,7); P(-12,7); P(-4,-8); P(-9,-11); P(-3,-14);
+    } else if (tipo === 3) {                     // asa dupla empilhada
+      P(0,-17); P(6,-9); P(15,-1); P(8,1); P(13,9); P(4,8);
+      P(0,12); P(-4,8); P(-13,9); P(-8,1); P(-15,-1); P(-6,-9);
+    } else {                                     // corpo largo com bico curto
+      P(0,-14); P(9,-9); P(12,2); P(8,10); P(3,7); P(0,12);
+      P(-3,7); P(-8,10); P(-12,2); P(-9,-9);
+    }
+  } else if (fam === 1) {                       /* ---- INTERCEPTADORES ---- */
+    if (tipo === 0) {                            // agulha
+      P(0,-24); P(3,-8); P(6,8); P(2,7); P(0,13); P(-2,7); P(-6,8); P(-3,-8);
+    } else if (tipo === 1) {                     // dardo com barbatanas baixas
+      P(0,-22); P(3,-10); P(4,4); P(11,11); P(4,9); P(0,14);
+      P(-4,9); P(-11,11); P(-4,4); P(-3,-10);
+    } else if (tipo === 2) {                     // asa em X
+      P(0,-21); P(9,-9); P(4,-2); P(11,10); P(3,6); P(0,12);
+      P(-3,6); P(-11,10); P(-4,-2); P(-9,-9);
+    } else if (tipo === 3) {                     // fuselagem em gota
+      P(0,-23); P(5,-13); P(6,2); P(9,10); P(3,8); P(0,12);
+      P(-3,8); P(-9,10); P(-6,2); P(-5,-13);
+    } else {                                     // trirreator
+      P(0,-22); P(4,-9); P(8,3); P(6,11); P(2,8); P(0,13);
+      P(-2,8); P(-6,11); P(-8,3); P(-4,-9);
+    }
+  } else if (fam === 2) {                       /* ---- ASAS VOADORAS ---- */
+    if (tipo === 0) {                            // W clássico (tipo B-2)
+      P(0,-13); P(6,-7); P(20,4); P(11,4); P(8,10); P(4,4);
+      P(0,9); P(-4,4); P(-8,10); P(-11,4); P(-20,4); P(-6,-7);
+    } else if (tipo === 1) {                     // bumerangue
+      P(0,-11); P(9,-6); P(21,7); P(12,5); P(0,2);
+      P(-12,5); P(-21,7); P(-9,-6);
+    } else if (tipo === 2) {                     // losango largo
+      P(0,-15); P(17,1); P(9,4); P(0,11); P(-9,4); P(-17,1);
+    } else if (tipo === 3) {                     // asa com ponta caída
+      P(0,-12); P(7,-6); P(19,0); P(22,7); P(12,5); P(5,10);
+      P(0,7); P(-5,10); P(-12,5); P(-22,7); P(-19,0); P(-7,-6);
+    } else {                                     // meia-lua
+      P(0,-14); P(11,-4); P(18,8); P(8,3); P(0,6); P(-8,3); P(-18,8); P(-11,-4);
+    }
+  } else if (fam === 3) {                       /* ---- BOMBARDEIROS ---- */
+    if (tipo === 0) {                            // casco de tijolo
+      P(0,-15); P(8,-11); P(11,-2); P(16,8); P(7,7); P(3,12);
+      P(-3,12); P(-7,7); P(-16,8); P(-11,-2); P(-8,-11);
+    } else if (tipo === 1) {                     // barriga larga
+      P(0,-13); P(10,-6); P(13,4); P(9,12); P(0,15);
+      P(-9,12); P(-13,4); P(-10,-6);
+    } else if (tipo === 2) {                     // quatro motores
+      P(0,-16); P(6,-10); P(18,-2); P(14,4); P(18,10); P(6,8);
+      P(0,13); P(-6,8); P(-18,10); P(-14,4); P(-18,-2); P(-6,-10);
+    } else if (tipo === 3) {                     // fortaleza
+      P(0,-14); P(7,-12); P(12,-5); P(12,6); P(6,13); P(0,10);
+      P(-6,13); P(-12,6); P(-12,-5); P(-7,-12);
+    } else {                                     // cargueiro achatado
+      P(0,-12); P(9,-9); P(15,0); P(15,7); P(5,11); P(0,8);
+      P(-5,11); P(-15,7); P(-15,0); P(-9,-9);
+    }
+  } else {                                      /* ---- EXÓTICOS ---- */
+    if (tipo === 0) {                            // garra
+      P(0,-20); P(7,-6); P(16,-12); P(13,6); P(5,4); P(0,14);
+      P(-5,4); P(-13,6); P(-16,-12); P(-7,-6);
+    } else if (tipo === 1) {                     // cristal facetado
+      P(0,-21); P(8,-10); P(6,2); P(10,11); P(0,16);
+      P(-10,11); P(-6,2); P(-8,-10);
+    } else if (tipo === 2) {                     // estrela de seis pontas
+      P(0,-21); P(5,-8); P(17,-6); P(8,2); P(13,14); P(4,9);
+      P(0,17); P(-4,9); P(-13,14); P(-8,2); P(-17,-6); P(-5,-8);
+    } else if (tipo === 3) {                     // anel partido
+      P(0,-17); P(12,-10); P(15,4); P(6,3); P(9,13); P(0,9);
+      P(-9,13); P(-6,3); P(-15,4); P(-12,-10);
+    } else {                                     // serpente
+      P(0,-22); P(6,-14); P(3,-4); P(9,3); P(4,7); P(8,14);
+      P(0,11); P(-8,14); P(-4,7); P(-9,3); P(-3,-4); P(-6,-14);
+    }
+  }
+  return p.map(q => [Math.round(q[0] * 10) / 10, Math.round(q[1] * 10) / 10]);
+}
+const FORMATOS = [];
+for (let i = 0; i < 100; i++) {
+  const fam = FORMA_FAMILIAS[Math.floor(i / 20)];
+  FORMATOS.push({
+    id: i,
+    nome: FORMA_NOMES[i] || ("Casco " + (i + 1)),
+    familia: fam.nome,
+    pts: gerarForma(i),
+    // o formato já dá uma base: caças batem, bombardeiros aguentam
+    dmg: 1 + (Math.floor(i / 20) === 0 ? 0.35 : Math.floor(i / 20) === 3 ? 0.5 : 0.2) + (i % 20) * 0.02,
+    agi: 1 + (Math.floor(i / 20) === 1 ? 0.45 : Math.floor(i / 20) === 2 ? 0.25 : 0.05) + (i % 20) * 0.012,
+    hp:  180 + (Math.floor(i / 20) === 3 ? 190 : Math.floor(i / 20) === 4 ? 90 : 40) + (i % 20) * 9,
+    preco: 300 + i * 34
+  });
+}
+
+/* ---------- 12 encaixes, 30 peças em cada ---------- */
+const ENCAIXES = [
+  { id: "frente",    nome: "NARIZ / FRENTE",   icone: "▲", raiz: "Nariz" },
+  { id: "tras",      nome: "CAUDA / ATRÁS",    icone: "▼", raiz: "Cauda" },
+  { id: "dir",       nome: "PORTA DIREITA",    icone: "▶", raiz: "Porta" },
+  { id: "esq",       nome: "PORTA ESQUERDA",   icone: "◀", raiz: "Porta" },
+  { id: "teto",      nome: "TETO / CABINE",    icone: "◓", raiz: "Cúpula" },
+  { id: "baixo",     nome: "CASCO DE BAIXO",   icone: "◒", raiz: "Casco" },
+  { id: "motor",     nome: "MOTOR",            icone: "»", raiz: "Motor" },
+  { id: "armas",     nome: "ARMAS",            icone: "≣", raiz: "Canhão" },
+  { id: "bombas",    nome: "BOMBAS",           icone: "◉", raiz: "Bomba" },
+  { id: "armamento", nome: "ARMAMENTO PESADO", icone: "✦", raiz: "Lançador" },
+  { id: "escudo",    nome: "DEFLETOR",         icone: "◎", raiz: "Defletor" },
+  { id: "sensor",    nome: "SENSOR",           icone: "◈", raiz: "Sensor" }
+];
+const PECA_ADJ = [
+  "Simples","Leve","Curto","Duplo","Reforçado","Rápido","Blindado","Afiado","Longo","Pesado",
+  "Triplo","Térmico","Iônico","Plasma","Fóton","Quântico","Turbo","Cinético","Sônico","Magnético",
+  "Prismático","Nêutron","Antimatéria","Gravitacional","Estelar","Solar","Lunar","Cometa","Nebular","Singular"
+];
+/* cada peça soma um pouco em cada coisa; quanto mais para o fim da lista,
+   mais forte e mais cara                                                    */
+function fazerPecas(enc, i2) {
+  const lista = [];
+  for (let n = 0; n < 30; n++) {
+    const f = n / 29;                       // 0 a 1
+    const peso = 1 + n * 0.06;
+    const p = { id: enc.id + n, n, nome: enc.raiz + " " + PECA_ADJ[n],
+                encaixe: enc.id, preco: Math.round(60 + Math.pow(n, 1.7) * 13 + i2 * 8) };
+    const zerar = { dmg: 0, hp: 0, cad: 0, agi: 0, gem: 0 };
+    Object.assign(p, zerar);
+    if (enc.id === "frente")         { p.dmg = 0.05 + f * 0.55; p.agi = 0.02 + f * 0.10; }
+    else if (enc.id === "tras")      { p.agi = 0.05 + f * 0.40; p.hp = Math.round(f * 60); }
+    else if (enc.id === "dir" || enc.id === "esq") { p.agi = 0.03 + f * 0.22; p.hp = Math.round(15 + f * 90); }
+    else if (enc.id === "teto")      { p.hp = Math.round(20 + f * 150); }
+    else if (enc.id === "baixo")     { p.hp = Math.round(25 + f * 170); p.agi = -f * 0.05; }
+    else if (enc.id === "motor")     { p.agi = 0.08 + f * 0.65; p.cad = f * 0.10; }
+    else if (enc.id === "armas")     { p.dmg = 0.12 + f * 0.95; p.cad = 0.04 + f * 0.35; }
+    else if (enc.id === "bombas")    { p.dmg = 0.20 + f * 1.25; p.agi = -f * 0.08; }
+    else if (enc.id === "armamento") { p.dmg = 0.15 + f * 1.05; p.hp = Math.round(f * 50); }
+    else if (enc.id === "escudo")    { p.hp = Math.round(30 + f * 210); p.agi = -f * 0.04; }
+    else if (enc.id === "sensor")    { p.cad = 0.05 + f * 0.42; p.gem = 0.03 + f * 0.45; }
+    p.dmg = Math.round(p.dmg * 100) / 100;
+    p.agi = Math.round(p.agi * 100) / 100;
+    p.cad = Math.round(p.cad * 100) / 100;
+    p.gem = Math.round(p.gem * 100) / 100;
+    p.peso = peso;
+    lista.push(p);
+  }
+  return lista;
+}
+const PECAS = {};
+ENCAIXES.forEach((e, i2) => { PECAS[e.id] = fazerPecas(e, i2); });
+
+/* resumo em texto do que a peça faz */
+function pecaResumo(p) {
+  const t = [];
+  if (p.dmg) t.push((p.dmg > 0 ? "+" : "") + Math.round(p.dmg * 100) + "% dano");
+  if (p.hp)  t.push((p.hp > 0 ? "+" : "") + p.hp + " vida");
+  if (p.cad) t.push((p.cad > 0 ? "+" : "") + Math.round(p.cad * 100) + "% cadência");
+  if (p.agi) t.push((p.agi > 0 ? "+" : "") + Math.round(p.agi * 100) + "% agilidade");
+  if (p.gem) t.push("+" + Math.round(p.gem * 100) + "% cristais");
+  return t.join(" · ") || "só enfeite";
+}
+
+/* ---------- monta a definição de nave a partir do que foi escolhido ---------- */
+function navePecas(c) {
+  const saida = [];
+  for (const e of ENCAIXES) {
+    const n = c.pecas ? c.pecas[e.id] : undefined;
+    if (n === undefined || n === null) continue;
+    const p = PECAS[e.id][n];
+    if (p) saida.push(p);
+  }
+  return saida;
+}
+function naveCriadaDef(c) {
+  const F = FORMATOS[c.formato] || FORMATOS[0];
+  let dmg = F.dmg, agi = F.agi, hp = F.hp, cad = 0, gem = 0;
+  for (const p of navePecas(c)) { dmg += p.dmg; agi += p.agi; hp += p.hp; cad += p.cad; gem += p.gem; }
+  // a ultimate sai do que a nave tem de mais forte
+  const escolhas = [["dmg", dmg - 1], ["lives", hp / 400], ["rate", cad * 2.2],
+                    ["gold", gem * 2.2], ["ghost", agi - 1]];
+  escolhas.sort((a, b) => b[1] - a[1]);
+  const ultId = escolhas[0][1] > 0 ? escolhas[0][0] : "dmg";
+  return {
+    name: c.nome || F.nome,
+    price: 0, criada: true, def: c,
+    hue: c.hue === undefined ? 190 : c.hue,
+    shape: -1, ptsCustom: F.pts,
+    power: ultId, powerName: "Feita por você",
+    powerMag: Math.round((dmg - 1) * 100),
+    powerDesc: "Casco " + F.nome + " (" + F.familia + ") com " +
+               navePecas(c).length + " peças instaladas",
+    baseDmg: Math.round(dmg * 100) / 100,
+    baseAgi: Math.round(Math.max(0.5, agi) * 100) / 100,
+    baseHp: Math.round(hp),
+    bonusCad: Math.round(cad * 100) / 100,
+    bonusGem: Math.round(gem * 100) / 100
+  };
+}
+function custoDaNave(c) {
+  let total = (FORMATOS[c.formato] || FORMATOS[0]).preco;
+  for (const p of navePecas(c)) total += p.preco;
+  return total;
+}
+/* recoloca as naves criadas no fim da lista, sem mexer nas de fábrica */
+function reconstruirNavesCriadas() {
+  SHIPS.length = NAVES_BASE;
+  const criadas = (save && save.criadas) || [];
+  for (const c of criadas) SHIPS.push(naveCriadaDef(c));
+  if (save && save.ship >= SHIPS.length) save.ship = 0;
+}
+function naveCriada(i) { return i >= NAVES_BASE; }
+
+
 /* ---------- Habilidades das aeronaves exclusivas ----------
    Cada uma tem botão próprio no jogo, com recarga independente.
    Todos os efeitos são apenas dentro do jogo: atingem inimigos, chefes e
@@ -2744,7 +3261,7 @@ function partLevel(i, id) { return shipPartsOf(i)[id] || 0; }
 function partCost(shipIdx, lvl) {
   return Math.max(15, Math.round((18 + SHIPS[shipIdx].price * 0.05) * Math.pow(1.6, lvl)));
 }
-function shipOwned(i) { return save.ships.indexOf(i) >= 0; }
+function shipOwned(i) { return i >= NAVES_BASE || save.ships.indexOf(i) >= 0; }
 
 /* armamentos compráveis por nave */
 const WEAPONS = [
@@ -2862,7 +3379,7 @@ function calcStats() {
   const atk = justo ? 0 : branchCount("atk");
   const def = justo ? 0 : branchCount("def");
   const res = justo ? 0 : branchCount("res");
-  const sh = SHIPS[save.ship] || SHIPS[0];
+  const sh = SHIPS[naveValida(save.ship)] || SHIPS[0];
   const P = justo ? {} : shipPartsOf(save.ship);
   const wp = WEAPONS.find(w => w.id === curWeaponId()) || WEAPONS[0];
   const pw = id => (sh.power === id ? sh.powerMag : 0);
@@ -2880,7 +3397,8 @@ function calcStats() {
     dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk) * sh.baseDmg *
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg * (1 + A.dano / 100),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
-                  (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100) * (sh.baseRate || 1)),
+                  (1 + pw("rate") / 100) * wp.rate * (1 + A.cadencia / 100) * (sh.baseRate || 1) *
+                  (1 + (sh.bonusCad || 0))),
     maxHp: Math.max(40, Math.round(
       (80 + (sh.baseHp || 120)) *
       (1 + 0.12 * u.hull) * (1 + 0.08 * (P.armor || 0)) *
@@ -2891,7 +3409,7 @@ function calcStats() {
     speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) * (1 + A.motor / 100),
     crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
-                 (sh.baseGem || 1),
+                 (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)),
     dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100),
     sideShot: hasSkill("atk", 10),
     missiles: hasSkill("atk", 20),
@@ -3036,14 +3554,41 @@ makeStars();
 
 /* ---------- Parâmetros de fase ---------- */
 const FASES_COOP = 200;
+/* ---------------------------------------------------------------------
+   Dificuldade
+   Nos modos com outra gente (cooperativo, arena, ranqueada) todo mundo
+   joga no MÉDIO, para ninguém levar vantagem.
+   --------------------------------------------------------------------- */
+const DIFICULDADES = [
+  { id: "facil",   nome: "FÁCIL",   icone: "○",
+    desc: "Menos inimigos e mais fracos. Bom para aprender as fases.",
+    qtd: 0.7,  vida: 0.75, vel: 0.85, tiro: 0.75, ondas: 0.75, premio: 0.8, cor: "#7CF7C0" },
+  { id: "medio",   nome: "MÉDIO",   icone: "◐",
+    desc: "O jogo do jeito que foi feito. É o usado no online.",
+    qtd: 1,    vida: 1,    vel: 1,    tiro: 1,    ondas: 1,    premio: 1,   cor: "#4DE8FF" },
+  { id: "dificil", nome: "DIFÍCIL", icone: "●",
+    desc: "Muito mais inimigos, mais duros e mais rápidos — e prêmio bem maior.",
+    qtd: 1.45, vida: 1.35, vel: 1.15, tiro: 1.3,  ondas: 1.3,  premio: 1.6, cor: "#FF5252" }
+];
+function dificuldadeAtual() {
+  if (typeof MP !== "undefined" && MP && MP.sala) return DIFICULDADES[1];   // online: todos iguais
+  const id = (typeof save !== "undefined" && save && save.dificuldade) || "medio";
+  return DIFICULDADES.find(d => d.id === id) || DIFICULDADES[1];
+}
+
 function totalFasesDoModo() {
   if (typeof MP !== "undefined" && MP && MP.modo === "arena") return 999999;   // sem fim
   return (typeof MP !== "undefined" && MP && MP.modo === "coop") ? FASES_COOP : TOTAL_FASES;
 }
 function faseWaves(f)  {
   if (typeof MP !== "undefined" && MP && MP.modo === "arena") return 1;
-  if (typeof MP !== "undefined" && MP && MP.modo === "coop") return 3 + Math.floor((f - 1) / 22);
-  return Math.min(14, 3 + Math.floor((f - 1) / 25));
+  const D = dificuldadeAtual();
+  if (typeof MP !== "undefined" && MP && MP.modo === "coop") {
+    return Math.min(24, 3 + Math.floor((f - 1) / 14));
+  }
+  // quanto mais fundo no jogo, mais ondas por fase (até 20)
+  const base = 3 + Math.floor((f - 1) / 16);
+  return Math.max(2, Math.min(20, Math.round(base * D.ondas)));
 }
 function isBossFase(f) {
   if (typeof MP !== "undefined" && MP && MP.modo === "coop") return f % 4 === 0;   // chefe a cada 4 fases
@@ -3064,7 +3609,7 @@ const SCREENS = {
   hangar: $("screen-hangar"), oficina: $("screen-oficina"), reliquias: $("screen-reliquias"),
   tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
   multi: $("screen-multi"), sala: $("screen-sala"), novidades: $("screen-novidades"),
-  arena: $("screen-arena"), ranked: $("screen-ranked"),
+  arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
 function showScreen(name) {
@@ -3813,7 +4358,14 @@ function admNuvemRender() {
   }
 }
 async function admNuvemSelecionar(p) {
-  if (admNuvemAlvo && admNuvemAlvo.id !== p.id) { caixaAdm = {}; }
+  if (admNuvemAlvo && admNuvemAlvo.id !== p.id) {
+    caixaAdm = {};
+    invConta = null;
+    invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
+    invNiveis = {};
+    const ib = $("inv-box");
+    if (ib) ib.innerHTML = '<div class="adm-note">Toque em VER TUDO para puxar o inventário desta conta.</div>';
+  }
   admNuvemAlvo = p;
   $("adm-nuvem-sel").style.display = "block";
   $("adm-nuvem-alvo").textContent = "JOGADOR: " + String(p.nome).toUpperCase();
@@ -3878,8 +4430,241 @@ function admEfeitoImediato(p, g) {
   if (g.zerarFases) p.fase = 0;
   if (g.zerarHabilidades) p.habilidades = 0;
   if (g.zerarAmuletos) p.amuletos = 0;
+  if (g.remNaves) p.naves = Math.max(1, (p.naves || 1) - g.remNaves.length);
+  if (g.remAmuletos) p.amuletos = Math.max(0, (p.amuletos || 0) - g.remAmuletos.length);
+  if (g.remHab) p.habilidades = Math.max(0, (p.habilidades || 0) - g.remHab.length);
+  if (g.tirarCristais) p.cristais = Math.max(0, (p.cristais || 0) - g.tirarCristais);
   return p;
 }
+
+/* =====================================================================
+   INVENTÁRIO DO JOGADOR
+   ---------------------------------------------------------------------
+   Puxa a conta inteira da nuvem e mostra tudo o que a pessoa tem: naves,
+   amuletos, habilidades, melhorias e peças. Cada item tem um ✕ que joga
+   a RETIRADA na caixa — aí é só enviar, como qualquer outro presente.
+   ===================================================================== */
+let invConta = null, invAba = "naves", invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
+let invNiveis = {};
+
+async function invCarregar() {
+  if (!admNuvemAlvo) { admMsg("Escolha um jogador."); return; }
+  const box = $("inv-box");
+  box.innerHTML = '<div class="adm-note">Puxando o inventário…</div>';
+  invConta = await contaBuscar(admNuvemAlvo.nome);
+  invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
+  invNiveis = {};
+  if (!invConta || !invConta.save) {
+    box.innerHTML = '<div class="adm-note">Esta conta ainda não subiu o inventário para a nuvem. ' +
+      "Peça para a pessoa abrir o jogo uma vez com internet.</div>";
+    return;
+  }
+  invRender();
+}
+function invSave() { return (invConta && invConta.save) || {}; }
+
+function invRender() {
+  const box = $("inv-box");
+  const sv = invSave();
+  box.innerHTML = "";
+
+  const resumo = document.createElement("div");
+  resumo.className = "inv-resumo";
+  resumo.innerHTML =
+    "<div><b>" + fmt(sv.crystals || 0) + "</b><span>CRISTAIS</span></div>" +
+    "<div><b>" + ((sv.ships || []).length) + "</b><span>NAVES</span></div>" +
+    "<div><b>" + ((sv.amulets || []).length) + "</b><span>AMULETOS</span></div>" +
+    "<div><b>" + (Object.keys(sv.skills || {}).length) + "</b><span>HABILIDADES</span></div>";
+  box.appendChild(resumo);
+
+  const abas = document.createElement("div");
+  abas.className = "inv-abas";
+  const defs = [["naves", "✈ NAVES"], ["amuletos", "◈ AMULETOS"], ["hab", "✦ HABILIDADES"],
+                ["melhorias", "⬡ MELHORIAS"], ["pecas", "⚙ PEÇAS"], ["cristais", "◆ CRISTAIS"]];
+  for (const [id, txt] of defs) {
+    const b = document.createElement("button");
+    b.className = "inv-aba" + (invAba === id ? " on" : "");
+    b.textContent = txt;
+    b.addEventListener("click", () => { invAba = id; invRender(); });
+    abas.appendChild(b);
+  }
+  box.appendChild(abas);
+
+  const lista = document.createElement("div");
+  lista.className = "inv-lista";
+  box.appendChild(lista);
+
+  const item = (conteudo, marcado, aoTocar, canvasNave) => {
+    const row = document.createElement("div");
+    row.className = "inv-item" + (marcado ? " marcado" : "");
+    if (canvasNave !== undefined) {
+      const cv = document.createElement("canvas");
+      cv.width = 60; cv.height = 60;
+      const c2 = cv.getContext("2d");
+      c2.setTransform(1.7, 0, 0, 1.7, 30, 32);
+      try { drawShipSprite(c2, naveValida(canvasNave), 12); } catch (e) {}
+      row.appendChild(cv);
+    }
+    const t = document.createElement("div");
+    t.className = "t";
+    t.innerHTML = conteudo;
+    row.appendChild(t);
+    if (aoTocar) {
+      const x = document.createElement("button");
+      x.className = "inv-x" + (marcado ? " on" : "");
+      x.textContent = marcado ? "✓" : "✕";
+      x.title = "Tirar este item";
+      x.addEventListener("click", aoTocar);
+      row.appendChild(x);
+    }
+    lista.appendChild(row);
+    return row;
+  };
+
+  if (invAba === "naves") {
+    const ships = (sv.ships || []).slice().sort((a, b) => a - b);
+    if (!ships.length) lista.innerHTML = '<div class="adm-note">Sem naves.</div>';
+    for (const i of ships) {
+      const nave = SHIPS[i];
+      item("<b>" + escaparTexto(nave ? nave.name : "Nave " + i) + "</b><span>nº " + i +
+           (i === sv.ship ? " · em uso" : "") + (naveExclusiva(i) ? " · exclusiva" : "") + "</span>",
+        !!invMarcado.naves[i],
+        () => { if (invMarcado.naves[i]) delete invMarcado.naves[i]; else invMarcado.naves[i] = 1; invRender(); },
+        i);
+    }
+  } else if (invAba === "amuletos") {
+    const am = sv.amulets || [];
+    if (!am.length) lista.innerHTML = '<div class="adm-note">Sem amuletos.</div>';
+    for (const a of am) {
+      const d = amuletDef(a);
+      const r = RARS[a.rar] || RARS[0];
+      const eq = (sv.equipped || []).indexOf(a.uid) >= 0;
+      item('<b style="color:' + r.color + '">' + escaparTexto(d.name) + "</b><span>" +
+           escaparTexto(r.name) + (eq ? " · equipado" : "") + "</span>",
+        !!invMarcado.amuletos[a.uid],
+        () => { if (invMarcado.amuletos[a.uid]) delete invMarcado.amuletos[a.uid];
+                else invMarcado.amuletos[a.uid] = 1; invRender(); });
+    }
+  } else if (invAba === "hab") {
+    const ids = Object.keys(sv.skills || {});
+    if (!ids.length) lista.innerHTML = '<div class="adm-note">Nenhuma habilidade liberada.</div>';
+    for (const id of ids) {
+      const ramo = BRANCHES.find(b => id.indexOf(b.id) === 0);
+      const tier = parseInt(id.replace(/^[a-z]+/, ""), 10);
+      const marco = ramo && MILESTONES[ramo.id] && MILESTONES[ramo.id][tier];
+      item('<b style="color:' + (ramo ? ramo.color : "#fff") + '">' +
+           (marco ? escaparTexto(marco.name) : "Nível " + tier) + "</b><span>" +
+           (ramo ? ramo.name : id) + " · nó " + tier + "</span>",
+        !!invMarcado.hab[id],
+        () => { if (invMarcado.hab[id]) delete invMarcado.hab[id]; else invMarcado.hab[id] = 1; invRender(); });
+    }
+  } else if (invAba === "melhorias") {
+    for (const u of UPGRADES) {
+      const atual = (sv.upgrades || {})[u.id] || 0;
+      const alvo = invNiveis[u.id] !== undefined ? invNiveis[u.id] : atual;
+      const row = document.createElement("div");
+      row.className = "inv-item" + (alvo !== atual ? " marcado" : "");
+      row.innerHTML = '<div class="t"><b>' + u.icon + " " + escaparTexto(u.name) +
+        "</b><span>tem " + atual + " de " + u.max + "</span></div>";
+      const nv = document.createElement("div");
+      nv.className = "inv-nivel";
+      const menos = document.createElement("button"); menos.textContent = "−";
+      const val = document.createElement("b"); val.textContent = alvo + "/" + u.max;
+      const mais = document.createElement("button"); mais.textContent = "+";
+      menos.addEventListener("click", () => {
+        invNiveis[u.id] = Math.max(0, (invNiveis[u.id] !== undefined ? invNiveis[u.id] : atual) - 1);
+        invRender();
+      });
+      mais.addEventListener("click", () => {
+        invNiveis[u.id] = Math.min(u.max, (invNiveis[u.id] !== undefined ? invNiveis[u.id] : atual) + 1);
+        invRender();
+      });
+      nv.appendChild(menos); nv.appendChild(val); nv.appendChild(mais);
+      row.appendChild(nv);
+      lista.appendChild(row);
+    }
+  } else if (invAba === "pecas") {
+    const ids = Object.keys(sv.parts || {});
+    if (!ids.length) lista.innerHTML = '<div class="adm-note">Nenhuma peça instalada.</div>';
+    for (const i of ids) {
+      const p = sv.parts[i] || {};
+      const txt = PARTS.map(pt => pt.icon + (p[pt.id] || 0)).join("  ");
+      item("<b>" + escaparTexto((SHIPS[i] || {}).name || "Nave " + i) + "</b><span>" + txt + "</span>",
+        !!invMarcado.pecas[i],
+        () => { if (invMarcado.pecas[i]) delete invMarcado.pecas[i]; else invMarcado.pecas[i] = 1; invRender(); },
+        +i);
+    }
+  } else if (invAba === "cristais") {
+    const row = document.createElement("div");
+    row.className = "inv-item";
+    row.innerHTML = '<div class="t"><b>◆ ' + fmt(sv.crystals || 0) +
+      "</b><span>cristais na conta</span></div>";
+    lista.appendChild(row);
+    const linha = document.createElement("div");
+    linha.className = "adm-row";
+    linha.style.marginTop = "8px";
+    linha.innerHTML = '<input id="inv-tirar-qtd" type="number" inputmode="numeric" placeholder="Quantos tirar" value="1000">';
+    const bt = document.createElement("button");
+    bt.className = "adm-btn danger";
+    bt.textContent = "TIRAR";
+    bt.addEventListener("click", () => {
+      const n = Math.max(0, parseInt($("inv-tirar-qtd").value, 10) || 0);
+      if (!n) return;
+      porNaCaixa({ tirarCristais: n }, "Tirar " + fmt(n) + " cristais");
+    });
+    linha.appendChild(bt);
+    lista.appendChild(linha);
+    const tudo = document.createElement("button");
+    tudo.className = "adm-btn danger";
+    tudo.style.marginTop = "8px";
+    tudo.textContent = "TIRAR TODOS OS CRISTAIS";
+    tudo.addEventListener("click", () => porNaCaixa({ setCristais: 0 }, "Zerar cristais"));
+    lista.appendChild(tudo);
+  }
+
+  if (invAba !== "cristais") {
+    const acoes = document.createElement("div");
+    acoes.className = "inv-acoes";
+    const por = document.createElement("button");
+    por.className = "adm-btn danger";
+    por.textContent = "PÔR NA CAIXA O QUE MARQUEI";
+    por.addEventListener("click", invMandarParaCaixa);
+    const limpar = document.createElement("button");
+    limpar.className = "adm-btn";
+    limpar.textContent = "DESMARCAR";
+    limpar.addEventListener("click", () => {
+      invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
+      invNiveis = {};
+      invRender();
+    });
+    acoes.appendChild(por); acoes.appendChild(limpar);
+    box.appendChild(acoes);
+  }
+}
+function invMandarParaCaixa() {
+  const sv = invSave();
+  const naves = Object.keys(invMarcado.naves).map(Number);
+  const amuletos = Object.keys(invMarcado.amuletos).map(Number);
+  const hab = Object.keys(invMarcado.hab);
+  const pecas = Object.keys(invMarcado.pecas).map(Number);
+  const ups = {};
+  for (const u of UPGRADES) {
+    const atual = (sv.upgrades || {})[u.id] || 0;
+    if (invNiveis[u.id] !== undefined && invNiveis[u.id] !== atual) ups[u.id] = invNiveis[u.id];
+  }
+  let n = 0;
+  if (naves.length)    { porNaCaixa({ remNaves: naves },       "Tirar naves"); n++; }
+  if (amuletos.length) { porNaCaixa({ remAmuletos: amuletos }, "Tirar amuletos"); n++; }
+  if (hab.length)      { porNaCaixa({ remHab: hab },           "Tirar habilidades"); n++; }
+  if (pecas.length)    { porNaCaixa({ remPecas: pecas },       "Tirar peças"); n++; }
+  if (Object.keys(ups).length) { porNaCaixa({ remUp: ups },    "Ajustar melhorias"); n++; }
+  if (!n) { admMsg("Marque alguma coisa primeiro."); AudioSys.deny(); return; }
+  invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
+  invNiveis = {};
+  invRender();
+  $("caixa-adm").scrollIntoView({ block: "center", behavior: "smooth" });
+}
+$("inv-abrir").addEventListener("click", invCarregar);
 
 /* ----- caixa montada pelo administrador ----- */
 let caixaAdm = {};
@@ -3901,7 +4686,15 @@ const CAIXA_ROTULOS = {
   zerarFases:  () => ["⚠", "Zerar as fases", true],
   zerarHabilidades: () => ["⚠", "Zerar as habilidades", true],
   zerarAmuletos:    () => ["⚠", "Tirar os amuletos", true],
-  zerarTudo:   () => ["⚠", "ZERAR TODO o progresso", true]
+  zerarTudo:   () => ["⚠", "ZERAR TODO o progresso", true],
+  remNaves:    v => ["⚠", "Tirar " + v.length + " nave(s): " +
+                          v.slice(0, 3).map(i => (SHIPS[i] || {}).name || i).join(", ") +
+                          (v.length > 3 ? "…" : ""), true],
+  remAmuletos: v => ["⚠", "Tirar " + v.length + " amuleto(s)", true],
+  remHab:      v => ["⚠", "Tirar " + v.length + " habilidade(s)", true],
+  remPecas:    v => ["⚠", "Tirar as peças de " + v.length + " nave(s)", true],
+  remUp:       v => ["⚠", "Mexer em " + Object.keys(v).length + " melhoria(s)", true],
+  tirarCristais: v => ["⚠", "Tirar " + fmt(v) + " cristais", true]
 };
 function renderCaixaAdm() {
   const box = $("caixa-itens");
@@ -4343,10 +5136,39 @@ const SECTOR_NAMES = [
   "SETOR 10 — OLHO DA TEMPESTADE", "SETOR 11 — FORJA ESTELAR", "SETOR 12 — MAR DE DESTROÇOS",
   "SETOR 13 — LIMIAR DO VAZIO", "SETOR 14 — CORAÇÃO DA NEBULOSA"
 ];
+function renderDificuldade() {
+  const cx = $("dif-linha");
+  if (!cx) return;
+  const atual = (save.dificuldade || "medio");
+  cx.innerHTML = "";
+  for (const d of DIFICULDADES) {
+    const b = document.createElement("button");
+    b.className = "dif-btn" + (d.id === atual ? " on" : "");
+    b.style.borderColor = d.id === atual ? d.cor : "";
+    b.innerHTML = '<b style="color:' + d.cor + '">' + d.icone + "</b><span>" + d.nome + "</span>";
+    b.title = d.desc;
+    b.addEventListener("click", () => {
+      save.dificuldade = d.id;
+      persist();
+      AudioSys.buy();
+      renderDificuldade();
+      renderLevels();
+    });
+    cx.appendChild(b);
+  }
+}
 function renderLevels() {
   $("levels-gems").textContent = fmt(save.crystals);
+  renderDificuldade();
   const grid = $("fase-grid");
   grid.innerHTML = "";
+  const D = dificuldadeAtual();
+  const nota = document.createElement("div");
+  nota.className = "dif-nota";
+  nota.textContent = D.desc + "  ·  " + faseWaves(Math.max(1, save.best || 1)) +
+    " ondas na sua fase · prêmio " + (D.premio >= 1 ? "+" : "") +
+    Math.round((D.premio - 1) * 100) + "%";
+  grid.appendChild(nota);
   for (let f = 1; f <= TOTAL_FASES; f++) {
     if ((f - 1) % 20 === 0) {
       const lab = document.createElement("div");
@@ -4440,14 +5262,16 @@ function renderHangar(scrollToSel) {
     tctx.setTransform(2, 0, 0, 2, 56, 60);
     drawShipSprite(tctx, i, 16);
 
-    const ult = ULTS[sh.ultId || sh.power];
+    const ult = ULTS[sh.ultId || sh.power] || { name: "Sobrecarga" };
     const exc = naveExclusiva(i);
+    const feita = naveCriada(i);
     const habs = HABILIDADES[i] ? HABILIDADES[i].length : 0;
     const info = document.createElement("div");
     info.className = "ship-info";
     info.innerHTML =
-      '<div class="ship-name">' + (i + 1) + '. ' + sh.name +
-        (exc ? ' <span style="color:var(--amber);font-size:.62rem">★ EXCLUSIVA</span>' : '') + '</div>' +
+      '<div class="ship-name">' + (i + 1) + '. ' + escaparTexto(sh.name) +
+        (exc ? ' <span style="color:var(--amber);font-size:.62rem">★ EXCLUSIVA</span>' : '') +
+        (feita ? ' <span style="color:var(--violet);font-size:.62rem">🛠 SUA</span>' : '') + '</div>' +
       '<div class="ship-power"><b>' + sh.powerName + '</b> — ' +
         (sh.troca
           ? '<span style="color:#7CF7C0">' + sh.virtude + '</span>, mas <span style="color:#FF8A8A">' + sh.defeito + '</span>'
@@ -4456,7 +5280,8 @@ function renderHangar(scrollToSel) {
         (habs ? ' · ' + habs + ' habilidades' : '') + '</div>' +
       '<div class="ship-tag" style="color:' +
         (selected ? "var(--cyan)" : owned ? "var(--amber)" : "var(--dim)") + '">' +
-        (selected ? "EM USO" : owned ? "NO HANGAR" : exc ? "SÓ O ADMINISTRADOR ENTREGA" : "◆ " + fmt(sh.price)) + '</div>';
+        (selected ? "EM USO" : owned ? (feita ? "MONTADA POR VOCÊ" : "NO HANGAR")
+         : exc ? "SÓ O ADMINISTRADOR ENTREGA" : "◆ " + fmt(sh.price)) + '</div>';
 
     const btn = document.createElement("button");
     btn.className = "buy-btn";
@@ -4500,6 +5325,29 @@ function renderHangar(scrollToSel) {
       bOf.className = "ghost-btn";
       bOf.textContent = "🔧 OFICINA 3D";
       bOf.addEventListener("click", () => { AudioSys.resume(); openOficina(); });
+      if (feita) {
+        const pos = i - NAVES_BASE;
+        const bEd = document.createElement("button");
+        bEd.className = "ghost-btn";
+        bEd.textContent = "🛠 MUDAR";
+        bEd.addEventListener("click", () => { AudioSys.resume(); abrirConstrutor(pos); });
+        const bDel = document.createElement("button");
+        bDel.className = "ghost-btn";
+        bDel.style.color = "var(--danger)";
+        bDel.textContent = "✕ DESMONTAR";
+        let confirma = false;
+        bDel.addEventListener("click", () => {
+          if (!confirma) {
+            confirma = true;
+            bDel.textContent = "TOQUE DE NOVO";
+            setTimeout(() => { confirma = false; bDel.textContent = "✕ DESMONTAR"; }, 3000);
+            return;
+          }
+          apagarNaveCriada(pos);
+        });
+        tools.appendChild(bEd);
+        tools.appendChild(bDel);
+      }
       const bCut = document.createElement("button");
       bCut.className = "ghost-btn";
       bCut.textContent = "▶ APRESENTAÇÃO";
@@ -4570,6 +5418,234 @@ function buildPartsPanel(i) {
   return wrap;
 }
 
+/* =====================================================================
+   CONSTRUTOR DE NAVES — três passos: formato, peças e acabamento
+   ===================================================================== */
+const CN = { passo: 0, familia: 0, encaixe: "frente", def: null, editando: -1 };
+
+function abrirConstrutor(editar) {
+  CN.passo = 0;
+  CN.familia = 0;
+  CN.encaixe = "frente";
+  CN.editando = (editar === undefined || editar === null) ? -1 : editar;
+  if (CN.editando >= 0 && save.criadas[CN.editando]) {
+    CN.def = JSON.parse(JSON.stringify(save.criadas[CN.editando]));
+    CN.familia = Math.floor((CN.def.formato || 0) / 20);
+  } else {
+    CN.def = { formato: 0, pecas: {}, nome: "", hue: 190 };
+  }
+  S.mode = "construtor";
+  $("cn-titulo").textContent = CN.editando >= 0 ? "MUDAR A NAVE" : "CRIAR NAVE";
+  showScreen("construtor");
+  cnRender();
+}
+function cnRender() {
+  $("cn-gems").textContent = fmt(save.crystals);
+  // trilha dos passos
+  const nomes = ["1 · FORMATO", "2 · PEÇAS", "3 · ACABAMENTO"];
+  $("cn-passos").innerHTML = nomes.map((n, i) =>
+    '<div class="cn-passo' + (i === CN.passo ? " on" : (i < CN.passo ? " feito" : "")) + '">' +
+    n + "</div>").join("");
+  $("cn-formatos").style.display = CN.passo === 0 ? "flex" : "none";
+  $("cn-pecas").style.display    = CN.passo === 1 ? "flex" : "none";
+  $("cn-final").style.display    = CN.passo === 2 ? "flex" : "none";
+  $("cn-anterior").textContent = CN.passo === 0 ? "‹ SAIR" : "‹ VOLTAR";
+  const custo = custoDaNave(CN.def);
+  $("cn-proximo").textContent = CN.passo < 2 ? "CONTINUAR ›"
+    : (CN.editando >= 0 ? "SALVAR MUDANÇAS" : "CONSTRUIR · ◆ " + fmt(custo));
+  if (CN.passo === 0) cnFormatos();
+  if (CN.passo === 1) cnPecas();
+  if (CN.passo === 2) cnFinal();
+}
+
+/* --- passo 1 --- */
+function cnFormatos() {
+  const fx = $("cn-familias");
+  fx.innerHTML = "";
+  FORMA_FAMILIAS.forEach((f, i) => {
+    const b = document.createElement("button");
+    b.className = "cn-filtro" + (CN.familia === i ? " on" : "");
+    b.textContent = f.nome.toUpperCase();
+    b.addEventListener("click", () => { CN.familia = i; cnFormatos(); });
+    fx.appendChild(b);
+  });
+  const grade = $("cn-lista-formatos");
+  grade.innerHTML = "";
+  for (let i = CN.familia * 20; i < CN.familia * 20 + 20; i++) {
+    const F = FORMATOS[i];
+    const op = document.createElement("div");
+    op.className = "cn-op" + (CN.def.formato === i ? " on" : "");
+    const cv = document.createElement("canvas");
+    cv.width = 112; cv.height = 112;
+    const g = cv.getContext("2d");
+    g.setTransform(2, 0, 0, 2, 56, 58);
+    g.fillStyle = "hsl(" + (CN.def.hue || 190) + ",90%,62%)";
+    g.shadowColor = g.fillStyle; g.shadowBlur = 12;
+    g.beginPath();
+    const k = 1.5;
+    g.moveTo(F.pts[0][0] * k, F.pts[0][1] * k);
+    for (let j = 1; j < F.pts.length; j++) g.lineTo(F.pts[j][0] * k, F.pts[j][1] * k);
+    g.closePath(); g.fill();
+    op.appendChild(cv);
+    const nome = document.createElement("b");
+    nome.textContent = F.nome;
+    const meta = document.createElement("span");
+    meta.textContent = "▲" + F.dmg.toFixed(1) + " ♥" + F.hp + " »" + F.agi.toFixed(2);
+    const pr = document.createElement("i");
+    pr.textContent = "◆ " + fmt(F.preco);
+    op.appendChild(nome); op.appendChild(meta); op.appendChild(pr);
+    op.addEventListener("click", () => {
+      CN.def.formato = i;
+      AudioSys.tone(680, 0.06, "sine", 0.1);
+      cnFormatos();
+    });
+    grade.appendChild(op);
+  }
+}
+
+/* --- passo 2 --- */
+function cnDesenhar(idCanvas, escala) {
+  const cv = $(idCanvas);
+  if (!cv) return;
+  const g = cv.getContext("2d");
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.clearRect(0, 0, cv.width, cv.height);
+  const k = escala || 3.2;
+  g.setTransform(k, 0, 0, k, cv.width / 2, cv.height / 2);
+  const def = naveCriadaDef(CN.def);
+  const cor = "hsl(" + (CN.def.hue || 190) + ",90%,62%)";
+  g.shadowColor = cor; g.shadowBlur = 14;
+  g.fillStyle = cor;
+  g.beginPath();
+  const pts = def.ptsCustom;
+  g.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+  g.closePath(); g.fill();
+  g.shadowBlur = 0;
+  desenharPecas(g, def, 1, cor);
+}
+function cnStats(id) {
+  const d = naveCriadaDef(CN.def);
+  $(id).innerHTML =
+    '<div class="cn-stat"><b>' + d.baseDmg.toFixed(2) + "</b><span>DANO</span></div>" +
+    '<div class="cn-stat"><b>' + d.baseHp + "</b><span>VIDA</span></div>" +
+    '<div class="cn-stat"><b>' + d.baseAgi.toFixed(2) + "</b><span>AGILIDADE</span></div>" +
+    '<div class="cn-stat"><b>+' + Math.round((d.bonusCad || 0) * 100) + "%</b><span>CADÊNCIA</span></div>" +
+    '<div class="cn-stat"><b>+' + Math.round((d.bonusGem || 0) * 100) + "%</b><span>CRISTAIS</span></div>" +
+    '<div class="cn-stat"><b>◆ ' + fmt(custoDaNave(CN.def)) + "</b><span>CUSTO</span></div>";
+}
+function cnPecas() {
+  cnDesenhar("cn-tela", 3.4);
+  cnStats("cn-stats");
+  const fx = $("cn-encaixes");
+  fx.innerHTML = "";
+  for (const e of ENCAIXES) {
+    const b = document.createElement("button");
+    b.className = "cn-filtro" + (CN.encaixe === e.id ? " on" : "");
+    const posta = CN.def.pecas[e.id] !== undefined && CN.def.pecas[e.id] !== null;
+    b.innerHTML = e.icone + " " + e.nome + (posta ? '<span class="pip">●</span>' : "");
+    b.addEventListener("click", () => { CN.encaixe = e.id; cnPecas(); });
+    fx.appendChild(b);
+  }
+  const grade = $("cn-lista-pecas");
+  grade.innerHTML = "";
+  const vazio = document.createElement("div");
+  vazio.className = "cn-op nada" + (CN.def.pecas[CN.encaixe] === undefined ? " on" : "");
+  vazio.innerHTML = "<b>SEM PEÇA</b>";
+  vazio.addEventListener("click", () => {
+    delete CN.def.pecas[CN.encaixe];
+    AudioSys.tone(320, 0.06, "sine", 0.1);
+    cnPecas();
+  });
+  grade.appendChild(vazio);
+  PECAS[CN.encaixe].forEach((p, i) => {
+    const op = document.createElement("div");
+    op.className = "cn-op" + (CN.def.pecas[CN.encaixe] === i ? " on" : "");
+    op.innerHTML = "<b>" + escaparTexto(p.nome) + "</b>" +
+      "<span>" + pecaResumo(p) + "</span>" +
+      "<i>◆ " + fmt(p.preco) + "</i>";
+    op.addEventListener("click", () => {
+      CN.def.pecas[CN.encaixe] = i;
+      AudioSys.tone(700 + i * 6, 0.06, "sine", 0.1);
+      cnPecas();
+    });
+    grade.appendChild(op);
+  });
+}
+
+/* --- passo 3 --- */
+function cnFinal() {
+  cnDesenhar("cn-tela2", 4.4);
+  cnStats("cn-stats2");
+  const F = FORMATOS[CN.def.formato];
+  const pecas = navePecas(CN.def);
+  $("cn-nome").value = CN.def.nome || "";
+  $("cn-cor").value = CN.def.hue === undefined ? 190 : CN.def.hue;
+  const custo = custoDaNave(CN.def);
+  $("cn-resumo").innerHTML =
+    "Casco <b>" + escaparTexto(F.nome) + "</b> (" + F.familia + ") com <b>" +
+    pecas.length + "</b> de 12 encaixes usados.<br>" +
+    (pecas.length ? pecas.map(p => "• " + escaparTexto(p.nome)).join("<br>") : "• nenhuma peça instalada") +
+    "<br><br>Custo total: <b>◆ " + fmt(custo) + "</b> — você tem ◆ " + fmt(save.crystals) +
+    (save.crystals < custo && CN.editando < 0
+      ? '<br><span style="color:var(--danger)">Faltam ◆ ' + fmt(custo - save.crystals) + "</span>" : "");
+}
+$("cn-nome").addEventListener("input", e => { CN.def.nome = e.target.value.slice(0, 18); });
+$("cn-cor").addEventListener("input", e => {
+  CN.def.hue = parseInt(e.target.value, 10) || 0;
+  cnDesenhar("cn-tela2", 4.4);
+});
+$("cn-anterior").addEventListener("click", () => {
+  if (CN.passo === 0) { S.mode = "hangar"; renderHangar(); showScreen("hangar"); return; }
+  CN.passo--;
+  cnRender();
+});
+$("cn-proximo").addEventListener("click", () => {
+  AudioSys.resume();
+  if (CN.passo < 2) { CN.passo++; cnRender(); return; }
+  cnConstruir();
+});
+function cnConstruir() {
+  const custo = custoDaNave(CN.def);
+  if (CN.editando < 0 && save.crystals < custo) {
+    AudioSys.deny();
+    $("cn-resumo").insertAdjacentHTML("afterbegin",
+      '<div style="color:var(--danger);margin-bottom:8px">Cristais insuficientes.</div>');
+    return;
+  }
+  if (!CN.def.nome) CN.def.nome = FORMATOS[CN.def.formato].nome + " " + ((save.criadas || []).length + 1);
+  save.criadas = save.criadas || [];
+  if (CN.editando >= 0) {
+    save.criadas[CN.editando] = CN.def;
+  } else {
+    save.crystals -= custo;
+    save.criadas.push(CN.def);
+  }
+  reconstruirNavesCriadas();
+  const idx = NAVES_BASE + (CN.editando >= 0 ? CN.editando : save.criadas.length - 1);
+  save.ship = idx;
+  persist();
+  calcStats();
+  AudioSys.victory();
+  vibrate([40, 60, 40]);
+  S.mode = "hangar";
+  renderHangar(true);
+  showScreen("hangar");
+}
+function apagarNaveCriada(pos) {
+  if (!save.criadas || !save.criadas[pos]) return;
+  const devolve = Math.round(custoDaNave(save.criadas[pos]) * 0.6);
+  save.criadas.splice(pos, 1);
+  save.crystals += devolve;
+  if (save.ship >= NAVES_BASE) save.ship = 0;
+  reconstruirNavesCriadas();
+  persist();
+  calcStats();
+  AudioSys.buy();
+  renderHangar();
+}
+$("btn-criar-nave").addEventListener("click", () => { AudioSys.resume(); abrirConstrutor(); });
+
 /* ---------- Oficina 3D ---------- */
 const of3d = $("of3d");
 const ofCtx = of3d.getContext("2d");
@@ -4609,7 +5685,7 @@ function render3D(g, shipIdx, cx, cy, scale, theta, cw, ch) {
   g.fillStyle = grad;
   g.fillRect(0, 0, cw, ch);
 
-  const pts = SHAPE_PTS[SHIPS[shipIdx].shape];
+  const pts = pontosDaNave(SHIPS[naveValida(shipIdx)] || SHIPS[0]);
   const hue = shipHue(shipIdx);
   const n = pts.length;
   const thick = 4.5;
@@ -4673,7 +5749,7 @@ function renderOficina() {
   $("of-gems").textContent = fmt(save.crystals);
   $("of-title").textContent = "OFICINA — " + sh.name.toUpperCase();
   $("of-power").textContent = "PODER: " + sh.powerName + " — " + sh.powerDesc;
-  const ult = ULTS[sh.power];
+  const ult = ULTS[sh.power] || ULTS.dmg;
   $("of-ult").textContent = "ULTIMATE: " + ult.name + " — " + ult.desc;
 
   const paintRow = $("paint-row");
@@ -5125,7 +6201,18 @@ function mpAplicarSala(sala) {
   for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
   if (sala.t) {
     for (const id in sala.t) {
-      if (id !== MP.eu && MP.outros[id]) MP.outros[id].tiros = sala.t[id];
+      if (id === MP.eu || !MP.outros[id]) continue;
+      const cru = sala.t[id];
+      MP.outros[id].tiros = typeof cru === "string"
+        ? (cru ? cru.split("|").map(p => p.split(",").map(Number)) : [])
+        : cru;
+    }
+  }
+  if (sala.m && MP.modo !== "pvp") {
+    for (const id in sala.m) {
+      if (id === MP.eu) continue;
+      const cru = String(sala.m[id] || "");
+      if (cru) mpAplicarAbates(cru.split(","));
     }
   }
   MP.ticks = (MP.ticks || 0) + 1;
@@ -5133,6 +6220,65 @@ function mpAplicarSala(sala) {
     MP.fase = sala.fase || 1;
     iniciarPartidaMultijogador();
   }
+}
+
+/* =====================================================================
+   Cooperativo de verdade: o abate de um vale para os dois
+   ---------------------------------------------------------------------
+   Os inimigos já nasciam iguais nos dois aparelhos, mas cada um matava os
+   seus. Por isso um terminava a onda antes do outro e ninguém via o
+   ataque do parceiro. Agora:
+     - cada inimigo tem um número de série igual nos dois (sid);
+     - quando eu derrubo um, mando o número; o outro derruba o mesmo na
+       hora, com explosão, sem esperar;
+     - os tiros também são enviados, então dá para ver o parceiro atirando.
+   ===================================================================== */
+let mpAbatidos = {};     // sid -> já removido aqui
+let mpMeusAbates = [];   // sid que EU derrubei nesta onda
+let mpAbatesEnviados = 0;
+let mpAbatesRecebidos = 0;   // total que veio do parceiro (para conferência)
+
+function mpAvisarAbate(e) {
+  if (!MP.sala || MP.modo === "pvp" || e.sid === undefined) return;
+  if (mpAbatidos[e.sid]) return;
+  mpAbatidos[e.sid] = 1;
+  mpMeusAbates.push(e.sid);
+  if (mpMeusAbates.length > 300) mpMeusAbates.splice(0, 150);
+}
+/* aplica os abates que o parceiro mandou */
+function mpAplicarAbates(lista) {
+  if (!lista || MP.modo === "pvp") return;
+  for (const sidCru of lista) {
+    const sid = +sidCru;
+    if (mpAbatidos[sid]) continue;
+    mpAbatidos[sid] = 1;
+    mpAbatesRecebidos++;
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      if (enemies[i].sid !== sid) continue;
+      const e = enemies[i];
+      explosion(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF4D8F", e.type === "tank" ? 20 : 11);
+      AudioSys.explode();
+      maybeDrop(e.x, e.y);
+      enemies.splice(i, 1);
+      break;
+    }
+  }
+}
+/* mostra os tiros do parceiro voando na minha tela */
+function mpDesenharTirosDoOutro(o) {
+  if (!o || !o.tiros || !o.tiros.length) return;
+  ctx.save();
+  ctx.globalAlpha = 0.75;
+  ctx.fillStyle = MP.modo === "pvp" ? "#FF6B8A" : "#7CF7C0";
+  ctx.shadowColor = ctx.fillStyle;
+  ctx.shadowBlur = 8;
+  for (const t of o.tiros) {
+    const x = t[0], y = t[1];
+    if (x === undefined) continue;
+    ctx.fillRect(x - 2, y - 7, 4, 13);
+  }
+  ctx.restore();
+  ctx.shadowBlur = 0;
 }
 
 /* ---------------------------------------------------------------------
@@ -5175,12 +6321,16 @@ async function mpEnviarPosicao() {
     if (S.mode === "sala") {
       await nuvemSoltar(mpCaminho() + "/jogadores/" + MP.eu, mpMeuResumo(true));
     } else {
-      await nuvemSoltar((MP.modo === "arena" ? "arena" : mpCaminho()) + "/p/" + MP.eu,
-                        mpEmpacotar());
-      if (MP.modo === "pvp") {
-        const tiros = bullets.slice(-6).map(b => [Math.round(b.x), Math.round(b.y),
-                                                  Math.round(b.vx), Math.round(b.vy)]);
-        nuvemSoltar(mpCaminho() + "/t/" + MP.eu, tiros);
+      const raiz = MP.modo === "arena" ? "arena" : mpCaminho();
+      await nuvemSoltar(raiz + "/p/" + MP.eu, mpEmpacotar());
+      // os tiros vão em texto curto, para o parceiro ver o ataque chegando
+      const tiros = bullets.slice(-10)
+        .map(b => Math.round(b.x) + "," + Math.round(b.y)).join("|");
+      nuvemSoltar(raiz + "/t/" + MP.eu, tiros);
+      // e a lista de quem eu derrubei, para o abate valer nos dois
+      if (MP.modo !== "pvp" && mpMeusAbates.length !== mpAbatesEnviados) {
+        mpAbatesEnviados = mpMeusAbates.length;
+        nuvemSoltar(raiz + "/m/" + MP.eu, mpMeusAbates.slice(-120).join(","));
       }
     }
   } catch (e) {}
@@ -5350,10 +6500,12 @@ async function mpSair(voltarMenu, atraso) {
     const caminho = mpCaminho() + "/jogadores/" + MP.eu;
     const movel = mpCaminho() + "/p/" + MP.eu;
     const tiros = mpCaminho() + "/t/" + MP.eu;
+    const abates = mpCaminho() + "/m/" + MP.eu;
     const limpar = () => {
       nuvemReq(caminho, { method: "DELETE" });
       nuvemReq(movel, { method: "DELETE" });
       nuvemReq(tiros, { method: "DELETE" });
+      nuvemReq(abates, { method: "DELETE" });
     };
     if (atraso) setTimeout(limpar, 7000); else limpar();
     if (MP.host) nuvemReq(mpCaminho() + "/estado", {
@@ -5536,6 +6688,22 @@ function arenaAplicar(d) {
   // durante a partida, os outros pilotos aparecem voando junto
   if (arenaModo()) {
     const vistos = {};
+    if (d.t) {
+      for (const id in d.t) {
+        if (id === MP.eu) continue;
+        const cru = d.t[id];
+        if (!MP.outros[id]) MP.outros[id] = {};
+        MP.outros[id].tiros = typeof cru === "string"
+          ? (cru ? cru.split("|").map(p => p.split(",").map(Number)) : []) : cru;
+      }
+    }
+    if (d.m) {
+      for (const id in d.m) {
+        if (id === MP.eu) continue;
+        const cru = String(d.m[id] || "");
+        if (cru) mpAplicarAbates(cru.split(","));
+      }
+    }
     for (const id in mov) {
       if (id === MP.eu) continue;
       const o = mpDesempacotar(mov[id]);
@@ -5704,6 +6872,8 @@ function arenaSair() {
   if (MP.eu) {
     nuvemReq(arenaCaminho() + "/jogadores/" + MP.eu, { method: "DELETE" });
     nuvemReq(arenaCaminho() + "/p/" + MP.eu, { method: "DELETE" });
+    nuvemReq(arenaCaminho() + "/t/" + MP.eu, { method: "DELETE" });
+    nuvemReq(arenaCaminho() + "/m/" + MP.eu, { method: "DELETE" });
   }
   ARENA.ligada = false;
   MP.sala = null; MP.modo = null; MP.outros = {};
@@ -5988,13 +7158,13 @@ function drawCutscene(dt) {
     ctx.globalAlpha = clamp((c.t - 2.5) * 2, 0, 1);
     ctx.fillStyle = "#4DE8FF";
     ctx.font = "700 13px 'Chakra Petch',sans-serif";
-    ctx.fillText("ULTIMATE: " + ULTS[sh.power].name.toUpperCase(), W / 2, H * 0.68 + 26);
+    ctx.fillText("ULTIMATE: " + (ULTS[sh.power] || ULTS.dmg).name.toUpperCase(), W / 2, H * 0.68 + 26);
   }
   if (c.t > 3.1) {
     ctx.globalAlpha = clamp((c.t - 3.1) * 2, 0, 1);
     ctx.fillStyle = "rgba(234,242,255,.85)";
     ctx.font = "italic 600 13px 'Chakra Petch',sans-serif";
-    ctx.fillText(CUT_QUOTES[sh.power], W / 2, H * 0.68 + 52);
+    ctx.fillText(CUT_QUOTES[sh.power] || CUT_QUOTES.dmg, W / 2, H * 0.68 + 52);
   }
   ctx.globalAlpha = 1;
   if (c.t > 5) endCutscene();
@@ -6552,6 +7722,9 @@ function setupWave() {
     ? rngDe((S.fase * 2654435761) >>> 0)
     : (mpCoop() ? rngDe(sementeDaOnda(S.fase, S.waveIdx)) : Math.random);
   S.waveState = "spawning";
+  serieDaOnda = 0;
+  mpAbatidos = {};
+  mpMeusAbates = [];
   if (waveIsBoss()) {
     S.toSpawn = 0;
     spawnBoss();
@@ -6560,10 +7733,14 @@ function setupWave() {
   } else {
     const dl = dLevel();
     const A = adapt();
-    const base = 5 + Math.min(Math.floor(dl * 0.7), 18);
-    S.toSpawn = Math.round(base * A.quantidade);
+    const D = dificuldadeAtual();
+    // a onda engorda até o fim do jogo: 6 inimigos na primeira fase,
+    // 60 lá na 270 — e no difícil passa disso
+    const base = 6 + Math.min(Math.round(Math.pow(dl, 0.92) * 0.85), 54);
+    S.toSpawn = Math.max(3, Math.round(base * A.quantidade * D.qtd));
     S.spawnTimer = 0.5;
-    S.spawnInterval = Math.max(0.22, (1.05 - dl * 0.018) / A.velocidade);
+    // a onda também dura mais: eles entram em fila, não todos de uma vez
+    S.spawnInterval = clamp(1.05 - dl * 0.004, 0.34, 1.05) / (A.velocidade * D.vel);
     S.banner = { text: "ONDA " + S.waveIdx + "/" + S.nWaves, sub: S.waveIdx === 1 ? "FASE " + S.fase : "", t: 1.6 };
     if (S.waveIdx !== 1) AudioSys.wave();
   }
@@ -6638,6 +7815,7 @@ function pickEnemyType(R) {
   if (dl >= 4 && roll < 0.5) return "striker";
   return "drone";
 }
+let serieDaOnda = 0;
 function spawnEnemy(forceType) {
   const R = S.rng || Math.random;
   const rr = (a, b) => a + R() * (b - a);
@@ -6646,6 +7824,7 @@ function spawnEnemy(forceType) {
   const spd = Math.min(f * 2, 130);
   const e = {
     type,
+    sid: serieDaOnda++,     // mesmo número nos dois aparelhos, para o abate valer nos dois
     x: rr(30, W - 30), y: -40,
     t: rr(0, TAU),
     fireTimer: rr(1, 2.5),
@@ -6662,9 +7841,10 @@ function spawnEnemy(forceType) {
     e.r = 24; e.hp = 5 + Math.floor(f / 5) * 2; e.speed = rr(30, 42);
     e.amp = rr(5, 15); e.score = 40;
   }
-  e.hp = Math.max(1, Math.round(e.hp * A.vida));
-  e.speed *= A.velocidade;
-  e.score = Math.round(e.score * (1 + (A.vida - 1) * 0.6));   // mais duro, mais pontos
+  const D = dificuldadeAtual();
+  e.hp = Math.max(1, Math.round(e.hp * A.vida * D.vida));
+  e.speed *= A.velocidade * D.vel;
+  e.score = Math.round(e.score * (1 + (A.vida - 1) * 0.6) * D.premio);   // mais duro, mais pontos
   enemies.push(e);
   return e;
 }
@@ -6982,11 +8162,12 @@ function enemyShootAt(sx, sy, speed, spread) {
   const alvoY = player.y + (player.ty - player.y) * A.previsao * dt2 * 3.2;
   let ang = Math.atan2(alvoY - sy, alvoX - sx);
   if (spread) ang += rand(-spread, spread) * (1 - A.previsao * 0.4);
+  const D = dificuldadeAtual();
   enemyBullets.push({
     x: sx, y: sy,
-    vx: Math.cos(ang) * speed * (1 + (A.tiro - 1) * 0.5),
-    vy: Math.sin(ang) * speed * (1 + (A.tiro - 1) * 0.5),
-    r: 5, dano: A.dano
+    vx: Math.cos(ang) * speed * (1 + (A.tiro - 1) * 0.5) * D.vel,
+    vy: Math.sin(ang) * speed * (1 + (A.tiro - 1) * 0.5) * D.vel,
+    r: 5, dano: A.dano * D.tiro
   });
 }
 
@@ -7050,6 +8231,7 @@ function damageEnemy(e, idx, dmg, crit) {
 function killEnemy(e) {
   S.score += e.score;
   arenaContar(false);
+  mpAvisarAbate(e);
   explosion(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF4D8F", e.type === "tank" ? 26 : 14);
   AudioSys.explode();
   S.shake = Math.max(S.shake, e.type === "tank" ? 6 : 3);
@@ -7167,7 +8349,7 @@ function faseVictory() {
     const antes = save.tempos[S.fase];
     if (!antes || dur < antes) save.tempos[S.fase] = Math.round(dur * 10) / 10;
   }
-  const base = Math.round(faseReward(S.fase) * (first ? 1 : 0.3) * ST.crystalMult);
+  const base = Math.round(faseReward(S.fase) * (first ? 1 : 0.3) * ST.crystalMult * dificuldadeAtual().premio);
   const gems = bankRunGems(1);
   const scoreBonus = Math.floor(S.score / 100);
   save.crystals += base + scoreBonus;
@@ -7752,6 +8934,133 @@ function update(dt) {
 <script>
 "use strict";
 /* ---------- Desenho ---------- */
+function pontosDaNave(sh) {
+  return sh.ptsCustom || SHAPE_PTS[sh.shape] || SHAPE_PTS[0];
+}
+/* desenha as peças instaladas por cima do casco */
+function desenharPecas(g, sh, k, cor) {
+  const c = sh.def;
+  if (!c || !c.pecas) return;
+  const clara = "rgba(255,255,255,.55)";
+  const escura = "#062033";
+  const q = (id) => {
+    const n = c.pecas[id];
+    return (n === undefined || n === null) ? -1 : n;
+  };
+  const nivel = n => n / 29;
+
+  // motor: chamas atrás, quanto melhor mais grossas
+  let n = q("motor");
+  if (n >= 0) {
+    const w = (2.2 + nivel(n) * 3.4) * k, h = (5 + nivel(n) * 11) * k;
+    g.fillStyle = "rgba(255,193,69,.85)";
+    for (const dx of [-3.6 * k, 3.6 * k]) {
+      g.beginPath();
+      g.moveTo(dx - w / 2, 7 * k); g.lineTo(dx + w / 2, 7 * k);
+      g.lineTo(dx, 7 * k + h); g.closePath(); g.fill();
+    }
+  }
+  // asas / portas laterais
+  n = q("dir");
+  if (n >= 0) {
+    const L = (5 + nivel(n) * 10) * k;
+    g.fillStyle = cor; g.globalAlpha = 0.85;
+    g.beginPath();
+    g.moveTo(4 * k, -2 * k); g.lineTo(4 * k + L, 3 * k);
+    g.lineTo(4 * k + L * 0.6, 7 * k); g.lineTo(4 * k, 5 * k);
+    g.closePath(); g.fill(); g.globalAlpha = 1;
+  }
+  n = q("esq");
+  if (n >= 0) {
+    const L = (5 + nivel(n) * 10) * k;
+    g.fillStyle = cor; g.globalAlpha = 0.85;
+    g.beginPath();
+    g.moveTo(-4 * k, -2 * k); g.lineTo(-4 * k - L, 3 * k);
+    g.lineTo(-4 * k - L * 0.6, 7 * k); g.lineTo(-4 * k, 5 * k);
+    g.closePath(); g.fill(); g.globalAlpha = 1;
+  }
+  // nariz
+  n = q("frente");
+  if (n >= 0) {
+    const L = (3 + nivel(n) * 8) * k;
+    g.fillStyle = clara;
+    g.beginPath();
+    g.moveTo(0, -12 * k - L); g.lineTo(1.8 * k, -11 * k);
+    g.lineTo(-1.8 * k, -11 * k); g.closePath(); g.fill();
+  }
+  // cauda
+  n = q("tras");
+  if (n >= 0) {
+    const L = (2.5 + nivel(n) * 6) * k;
+    g.fillStyle = cor;
+    for (const dx of [-2.6 * k, 2.6 * k]) {
+      g.beginPath();
+      g.moveTo(dx, 5 * k); g.lineTo(dx + (dx > 0 ? L : -L), 9 * k);
+      g.lineTo(dx, 9 * k); g.closePath(); g.fill();
+    }
+  }
+  // casco de baixo
+  n = q("baixo");
+  if (n >= 0) {
+    g.fillStyle = "rgba(0,0,0,.35)";
+    g.beginPath();
+    g.ellipse(0, 5 * k, (3 + nivel(n) * 4) * k, (2 + nivel(n) * 3) * k, 0, 0, TAU);
+    g.fill();
+  }
+  // armas: canos na frente
+  n = q("armas");
+  if (n >= 0) {
+    const qtd = 1 + Math.floor(nivel(n) * 3);
+    g.fillStyle = clara;
+    for (let i = 0; i < qtd; i++) {
+      const dx = (i - (qtd - 1) / 2) * 4.2 * k;
+      g.fillRect(dx - 0.9 * k, -12 * k, 1.8 * k, (4 + nivel(n) * 5) * k);
+    }
+  }
+  // armamento pesado: pilones sob as asas
+  n = q("armamento");
+  if (n >= 0) {
+    g.fillStyle = "rgba(255,77,143,.9)";
+    for (const dx of [-6.5 * k, 6.5 * k]) {
+      g.fillRect(dx - 1.2 * k, -2 * k, 2.4 * k, (5 + nivel(n) * 5) * k);
+    }
+  }
+  // bombas: bolinhas embaixo
+  n = q("bombas");
+  if (n >= 0) {
+    const qtd = 2 + Math.floor(nivel(n) * 4);
+    g.fillStyle = "#FFC145";
+    for (let i = 0; i < qtd; i++) {
+      const dx = (i - (qtd - 1) / 2) * 3.4 * k;
+      g.beginPath(); g.arc(dx, 6.5 * k, (1 + nivel(n) * 1.1) * k, 0, TAU); g.fill();
+    }
+  }
+  // defletor: anel em volta
+  n = q("escudo");
+  if (n >= 0) {
+    g.strokeStyle = "rgba(77,232,255," + (0.3 + nivel(n) * 0.5) + ")";
+    g.lineWidth = (0.8 + nivel(n) * 1.4) * k;
+    g.beginPath(); g.arc(0, 0, (13 + nivel(n) * 4) * k, 0, TAU); g.stroke();
+  }
+  // sensor: antena em cima
+  n = q("sensor");
+  if (n >= 0) {
+    g.strokeStyle = "rgba(195,77,255,.9)";
+    g.lineWidth = 1 * k;
+    g.beginPath(); g.moveTo(0, -6 * k); g.lineTo(0, (-10 - nivel(n) * 5) * k); g.stroke();
+    g.fillStyle = "#C34DFF";
+    g.beginPath(); g.arc(0, (-10 - nivel(n) * 5) * k, (0.9 + nivel(n) * 1.2) * k, 0, TAU); g.fill();
+  }
+  // cabine / teto
+  n = q("teto");
+  if (n >= 0) {
+    g.fillStyle = "rgba(122,220,255," + (0.5 + nivel(n) * 0.4) + ")";
+    g.beginPath();
+    g.ellipse(0, -4 * k, (2.6 + nivel(n) * 1.6) * k, (5 + nivel(n) * 2.4) * k, 0, 0, TAU);
+    g.fill();
+  }
+}
+
 function drawShipSprite(g, idx, s2) {
   const sh = SHIPS[naveValida(idx)] || SHIPS[0];
   const k = s2 / 18;
@@ -7760,12 +9069,16 @@ function drawShipSprite(g, idx, s2) {
   g.shadowBlur = 16;
   g.fillStyle = color;
   g.beginPath();
-  const pts = SHAPE_PTS[sh.shape];
+  const pts = pontosDaNave(sh);
   g.moveTo(pts[0][0] * k, pts[0][1] * k);
   for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0] * k, pts[i][1] * k);
   g.closePath();
   g.fill();
   g.shadowBlur = 0;
+  if (sh.criada) {
+    desenharPecas(g, sh, k, color);
+    if (sh.def && sh.def.pecas && sh.def.pecas.teto !== undefined) return;
+  }
   g.fillStyle = "#062033";
   g.beginPath();
   g.ellipse(0, -4 * k, 3.4 * k, 6.5 * k, 0, 0, TAU);
@@ -8257,6 +9570,7 @@ function draw() {
       const k = 1 - Math.pow(0.0006, dtDesenho);
       o.dx = o.dx === undefined ? alvoX : lerp(o.dx, alvoX, k);
       o.dy = o.dy === undefined ? alvoY : lerp(o.dy, alvoY, k);
+      mpDesenharTirosDoOutro(o);
       ctx.save();
       ctx.globalAlpha = 0.92;
       ctx.translate(o.dx, o.dy);
@@ -8684,6 +9998,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "2.7", itens: [
+      "CRIAR NAVE no hangar: escolha 1 de 100 formatos de casco e monte com 360 peças — nariz, cauda, portas, teto, casco de baixo, motor, armas, bombas, armamento pesado, defletor e sensor (30 de cada)",
+      "Cooperativo consertado de vez: quando um derruba um inimigo, ele cai na tela dos DOIS, e agora dá para ver os tiros do parceiro",
+      "Escolha FÁCIL, MÉDIO ou DIFÍCIL na tela de fases — no difícil vêm muito mais inimigos e o prêmio é bem maior",
+      "As ondas ficaram mais longas e cheias conforme você avança: de 6 inimigos na fase 1 para mais de 60 lá no fim",
+      "No painel: ver o inventário inteiro do jogador e tirar nave por nave, amuleto por amuleto, habilidade por habilidade, ou mexer nas melhorias"
+    ] },
   { v: "2.6", itens: [
       "ARENA INFINITA: uma arena só para todo mundo, ondas sem fim, todos aliados. A onda continua de onde o último parou e o placar de inimigos e chefes derrubados soma o de todos",
       "RANQUEADA com busca de partida: o jogo acha alguém do seu nível sozinho, sem código",
@@ -8756,7 +10077,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "2.6";
+const VERSAO = "2.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
