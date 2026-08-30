@@ -120,8 +120,10 @@ Abra o arquivo `index.html` em qualquer navegador — ou publique (abaixo) e abr
 - **Netlify / Vercel**: arraste a pasta do projeto no painel — pronto
 - **itch.io**: crie um projeto do tipo *HTML*, envie um `.zip` com todos os arquivos e marque `index.html` como principal
 
-### Instalar como app no celular
+### Instalar como app no celular (sem loja e sem servidor)
 Com o jogo publicado em um endereço `https`, abra-o no Chrome (Android) ou Safari (iPhone) e use **"Adicionar à tela inicial"**. Ele abre em tela cheia e funciona offline.
+
+O repositório ainda gera um **APK do Android sozinho**: crie uma tag (`git tag v1.0.0 && git push origin v1.0.0`) e o GitHub Actions compila e publica o instalador em *Releases*. O passo a passo completo está em **[INSTALAR.md](INSTALAR.md)**, e a página `baixar.html` já serve de página de instalação para compartilhar.
 
 ### Google Play e App Store
 Há um guia completo, passo a passo, em **[PUBLICAR.md](PUBLICAR.md)** — com os dois caminhos de empacotamento (PWABuilder e Capacitor), custos, exigências de cada loja e as armadilhas comuns.
@@ -136,6 +138,9 @@ Os materiais obrigatórios já estão prontos na pasta [`loja/`](loja/): ícones
 | `manifest.json` | Manifesto PWA (nome, ícones, tela cheia) |
 | `sw.js` | Service worker — modo offline |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Ícones do app |
+| `INSTALAR.md` | Como distribuir de graça, sem loja e sem servidor |
+| `baixar.html` | Página de instalação para compartilhar com os jogadores |
+| `.github/workflows/apk.yml` | Robô que compila o APK do Android automaticamente |
 | `PUBLICAR.md` | Guia de publicação na Google Play e na App Store |
 | `loja/` | Ícones, banner, capturas e textos prontos para as lojas |
 | `empacotar/` | Projeto Capacitor para gerar os apps Android e iOS |
