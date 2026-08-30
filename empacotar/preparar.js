@@ -7,7 +7,7 @@ const raiz = path.join(__dirname, "..");
 const www = path.join(__dirname, "www");
 const assets = path.join(__dirname, "assets");
 
-const ARQUIVOS = ["index.html", "manifest.json", "icon.svg", "icon-192.png", "icon-512.png"];
+const ARQUIVOS = ["index.html", "config.js", "manifest.json", "icon.svg", "icon-192.png", "icon-512.png"];
 
 fs.mkdirSync(www, { recursive: true });
 fs.mkdirSync(assets, { recursive: true });
