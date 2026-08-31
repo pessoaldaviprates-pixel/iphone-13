@@ -829,6 +829,76 @@
     text-align:center;padding:2px 4px 8px;
   }
 
+  /* quem está usando o painel */
+  .quem-linha{display:flex;align-items:center;gap:11px}
+  .quem-ic{
+    width:42px;height:42px;flex:none;border-radius:13px;
+    display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+    background:rgba(255,193,69,.14);border:1px solid rgba(255,193,69,.45);
+  }
+  .quem-txt{flex:1;min-width:0;text-align:left}
+  .quem-nome{font-family:"Russo One",sans-serif;font-size:.9rem;letter-spacing:.06em}
+  .quem-cargo{font-size:.62rem;letter-spacing:.14em;font-weight:700;margin-top:2px}
+  .quem-perms{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+  .quem-perms span{
+    font-size:.53rem;letter-spacing:.06em;font-weight:700;padding:4px 8px;border-radius:7px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  }
+
+  /* equipe */
+  .eq-cargos{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .eq-cargo{
+    cursor:pointer;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.58rem;letter-spacing:.06em;padding:7px 11px;border-radius:10px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .eq-cargo.on{background:rgba(255,193,69,.16);color:var(--amber);border-color:var(--amber)}
+  .eq-lista{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .eq-membro{
+    background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;
+  }
+  .eq-cab{display:flex;align-items:center;gap:9px}
+  .eq-cab b{font-size:1.1rem;flex:none}
+  .eq-cab .n{flex:1;min-width:0}
+  .eq-cab .n strong{display:block;font-size:.86rem;font-weight:700}
+  .eq-cab .n span{display:block;font-size:.6rem;letter-spacing:.1em;font-weight:700;margin-top:1px}
+  .eq-chave{
+    display:flex;align-items:center;gap:8px;margin-top:9px;
+    background:rgba(6,10,24,.7);border:1px solid var(--line);border-radius:10px;padding:8px 11px;
+  }
+  .eq-chave code{
+    flex:1;font-family:ui-monospace,Menlo,monospace;font-size:.95rem;letter-spacing:.22em;
+    color:var(--amber);font-weight:700;
+  }
+  .eq-chave button{
+    flex:none;cursor:pointer;font-size:.55rem;font-weight:700;letter-spacing:.06em;
+    padding:6px 9px;border-radius:8px;background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .eq-perms{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px}
+  .eq-grupo{
+    grid-column:1/-1;font-size:.52rem;letter-spacing:.2em;color:var(--dim);
+    font-weight:700;margin-top:6px;
+  }
+  .eq-p{
+    display:flex;align-items:center;gap:7px;cursor:pointer;text-align:left;
+    background:rgba(6,10,24,.55);border:1px solid var(--line);border-radius:10px;padding:7px 9px;
+  }
+  .eq-p.on{border-color:#4CE07A;background:rgba(76,224,122,.1)}
+  .eq-p.on.perigo{border-color:var(--danger);background:rgba(255,82,82,.1)}
+  .eq-p i{
+    font-style:normal;flex:none;width:16px;height:16px;border-radius:5px;font-size:.6rem;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);color:transparent;
+  }
+  .eq-p.on i{background:#4CE07A;border-color:#4CE07A;color:#04121c}
+  .eq-p.on.perigo i{background:var(--danger);border-color:var(--danger);color:#fff}
+  .eq-p span{flex:1;min-width:0;font-size:.58rem;font-weight:700;line-height:1.3}
+  .eq-acoes{display:flex;gap:6px;margin-top:10px}
+  .eq-acoes button{
+    flex:1;cursor:pointer;font-size:.58rem;font-weight:700;letter-spacing:.06em;
+    padding:8px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+
   /* recado dentro da caixa de presente */
   .cx-recado input{margin-top:2px}
   .cx-prontos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -1559,12 +1629,42 @@
 
     <div class="adm-card lock" id="adm-pass-row">
       <div class="adm-h" style="text-align:center;width:100%">ACESSO RESTRITO</div>
-      <input id="adm-pass" type="password" maxlength="32" placeholder="Senha do administrador" autocomplete="off">
+      <input id="adm-nick" maxlength="20" placeholder="Seu nick" autocomplete="off" autocapitalize="off">
+      <input id="adm-pass" type="password" maxlength="32" placeholder="Sua chave (ou senha do dono)" autocomplete="off">
       <button class="big-btn" id="btn-adm-enter">ENTRAR</button>
-      <p class="adm-note" id="adm-pass-note"></p>
+      <p class="adm-note" id="adm-pass-note">
+        O dono entra com o nick e a senha mestra. Quem está na equipe entra
+        com o nick e a chave que o dono passou.
+      </p>
+    </div>
+
+    <div class="adm-card" id="adm-quem" style="display:none">
+      <div class="quem-linha">
+        <div class="quem-ic" id="quem-ic">⚙</div>
+        <div class="quem-txt">
+          <div class="quem-nome" id="quem-nome">—</div>
+          <div class="quem-cargo" id="quem-cargo">—</div>
+        </div>
+        <button class="adm-btn" id="quem-sair" style="flex:none;padding:8px 12px">SAIR</button>
+      </div>
+      <div class="quem-perms" id="quem-perms"></div>
     </div>
 
     <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-equipe" style="display:none">
+        <div class="adm-h gold">👥 EQUIPE DO PAINEL</div>
+        <p class="adm-note" style="max-width:none">
+          Cada pessoa entra com o nick dela e uma chave própria, e só enxerga
+          o que você liberar — o resto nem aparece na tela dela.
+        </p>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="eq-nick" maxlength="20" placeholder="Nick da pessoa" autocomplete="off" autocapitalize="off">
+          <button class="adm-btn gold" id="eq-add">ADICIONAR</button>
+        </div>
+        <div class="eq-cargos" id="eq-cargos"></div>
+        <div class="eq-lista" id="eq-lista"></div>
+      </div>
 
       <div class="adm-card" id="adm-sug" style="display:none">
         <div class="adm-h gold">
@@ -1797,7 +1897,7 @@
         </div>
       </div>
 
-      <div class="adm-card">
+      <div class="adm-card" id="adm-local">
         <div class="adm-h">PILOTOS NESTE APARELHO</div>
         <input class="adm-search" id="adm-search" placeholder="Buscar piloto pelo nome" autocomplete="off">
         <div class="profile-list" id="adm-players"></div>
@@ -1920,7 +2020,7 @@
         </div>
       </div>
 
-      <div class="adm-card">
+      <div class="adm-card" id="adm-todos">
         <div class="adm-h">TODOS OS PILOTOS</div>
         <div class="adm-row">
           <input id="adm-novo" maxlength="14" placeholder="Criar piloto novo">
@@ -1932,7 +2032,7 @@
         </div>
       </div>
 
-      <div class="adm-card">
+      <div class="adm-card" id="adm-backup">
         <div class="adm-h">CÓPIA DE SEGURANÇA</div>
         <textarea class="adm-ta" id="adm-json" placeholder="O save exportado aparece aqui. Para restaurar, cole um save válido e toque em IMPORTAR."></textarea>
         <div class="adm-grid" style="margin-top:8px">
@@ -5016,6 +5116,94 @@ $("senha-voltar").addEventListener("click", () => {
    Para trocar a senha: abra o console do navegador, rode admHash("suasenha")
    e cole o resultado em ADM_MASTER abaixo.                                   */
 const ADM_MASTER = "9db9df1e";   // senha padrão: neonadmin
+
+/* =====================================================================
+   EQUIPE E PERMISSÕES
+   ---------------------------------------------------------------------
+   O painel deixou de ser só do dono. Cada pessoa entra com o NICK dela
+   e uma chave própria, e vê exatamente o que o dono liberou — o resto
+   nem aparece na tela, igual a um servidor de Discord.
+   Os donos estão fixos aqui embaixo e não dá para tirar nem mexer nas
+   permissões deles pelo painel; eles entram com a senha mestra.
+   ===================================================================== */
+const DONOS = ["cr1cket", "cr1cket."];
+
+const PERMISSOES = [
+  { grupo: "SUGESTÕES", itens: [
+    { id: "sugVer",    nome: "Ler as sugestões",         desc: "Ver tudo o que os jogadores mandaram" },
+    { id: "sugMexer",  nome: "Marcar e apagar sugestões", desc: "Marcar como lida e apagar da lista" }
+  ]},
+  { grupo: "JOGADORES", itens: [
+    { id: "verLista",  nome: "Ver os jogadores",         desc: "Lista de quem existe e a janela AO VIVO" },
+    { id: "assistir",  nome: "Assistir a tela",          desc: "Abrir o 👁 e ver a partida de alguém" },
+    { id: "invVer",    nome: "Ver o inventário",         desc: "Abrir o inventário completo de uma conta" },
+    { id: "invTirar",  nome: "Tirar itens",              desc: "Remover naves, amuletos, habilidades e cristais" },
+    { id: "zerar",     nome: "Zerar jogador",            desc: "Apagar todo o progresso de alguém", perigo: true }
+  ]},
+  { grupo: "PRESENTES", itens: [
+    { id: "darCoisas", nome: "Dar coisas",               desc: "Cristais, naves, fases, habilidades e amuletos" },
+    { id: "darRaros",  nome: "Dar aeronaves exclusivas e ranks", desc: "Maverick, B-2, Ômega-9 e pontos de rank" },
+    { id: "presGeral", nome: "Presente para todo mundo", desc: "Mandar a caixa para todos os jogadores" }
+  ]},
+  { grupo: "MUNDO", itens: [
+    { id: "recados",   nome: "Recados no jogo",          desc: "Mandar mensagem para a tela de todos" },
+    { id: "eventos",   nome: "Ligar eventos",            desc: "Natal, festa, apocalipse e os outros" },
+    { id: "boosts",    nome: "Ligar boosts",             desc: "Multiplicar pontos, cristais, dano…" },
+    { id: "trolls",    nome: "Travessuras",              desc: "Pegadinhas que valem para todo mundo", perigo: true }
+  ]},
+  { grupo: "SISTEMA", itens: [
+    { id: "diag",      nome: "Teste da nuvem",           desc: "Ver o diagnóstico das regras" },
+    { id: "backup",    nome: "Cópia de segurança",       desc: "Exportar e importar os pilotos deste aparelho" },
+    { id: "equipe",    nome: "Mexer na equipe",          desc: "Adicionar e tirar gente do painel", perigo: true }
+  ]}
+];
+const TODAS_PERMISSOES = PERMISSOES.reduce((a, g) => a.concat(g.itens.map(i => i.id)), []);
+
+/* atalhos prontos, como os cargos de um servidor */
+const CARGOS = [
+  { id: "dev",   nome: "DESENVOLVEDOR", icone: "💻", cor: "#7CF7C0",
+    desc: "Lê as sugestões e vê o diagnóstico. Não mexe em nada dos jogadores.",
+    perms: ["sugVer", "sugMexer", "diag"] },
+  { id: "mod",   nome: "MODERADOR", icone: "🛡", cor: "#4DE8FF",
+    desc: "Vê os jogadores, assiste às partidas e dá coisas simples.",
+    perms: ["sugVer", "verLista", "assistir", "invVer", "darCoisas", "recados", "diag"] },
+  { id: "animador", nome: "ANIMADOR", icone: "🎉", cor: "#FF4D8F",
+    desc: "Cuida da festa: recados, eventos e boosts para todo mundo.",
+    perms: ["verLista", "recados", "eventos", "boosts", "presGeral", "diag"] },
+  { id: "admin", nome: "ADMINISTRADOR", icone: "⚙", cor: "#FFC145",
+    desc: "Quase tudo, menos mexer na equipe.",
+    perms: TODAS_PERMISSOES.filter(p => p !== "equipe") },
+  { id: "livre", nome: "PERSONALIZADO", icone: "✎", cor: "#C34DFF",
+    desc: "Você escolhe uma por uma.", perms: [] }
+];
+
+/* quem está usando o painel agora */
+const PERM = { nick: "", dono: false, cargo: "", permissoes: {}, entrou: false };
+function ehDono(nick) { return DONOS.indexOf(String(nick).trim().toLowerCase()) >= 0; }
+function pode(id) {
+  if (!PERM.entrou) return false;
+  if (PERM.dono) return true;
+  return !!PERM.permissoes[id];
+}
+function chaveNova() {
+  const letras = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let c = "";
+  for (let i = 0; i < 6; i++) c += letras[Math.floor(Math.random() * letras.length)];
+  return c;
+}
+function equipeId(nick) { return "e" + nuvemHash(String(nick).trim().toLowerCase()); }
+async function equipeBuscar(nick) {
+  if (!nuvemAtiva()) return null;
+  return nuvemReq("equipe/" + equipeId(nick));
+}
+async function equipeListar() {
+  if (!nuvemAtiva()) return [];
+  const d = await nuvemReq("equipe");
+  if (!d) return [];
+  return Object.keys(d).map(id => Object.assign({ id: id }, d[id]))
+                .filter(x => x && x.nome)
+                .sort((a, b) => (a.nome || "").localeCompare(b.nome || ""));
+}
 function admHash(t) {
   let h = 5381;
   for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
@@ -5166,47 +5354,343 @@ $("btn-adm-back").addEventListener("click", () => {
   renderLogin();
   showScreen("login");
 });
-$("btn-adm-enter").addEventListener("click", () => {
+$("btn-adm-enter").addEventListener("click", async () => {
   AudioSys.resume();
-  const pass = $("adm-pass").value;
-  if (!pass) return;
-  if (admHash(pass) !== ADM_MASTER) {
-    $("adm-pass-note").textContent = "Senha errada. Tente de novo.";
-    $("adm-pass").value = "";
-    AudioSys.deny();
-    vibrate(60);
+  const nick = ($("adm-nick").value || "").trim();
+  const chave = $("adm-pass").value;
+  const nota = $("adm-pass-note");
+  if (!nick) { nota.textContent = "Escreva o seu nick."; AudioSys.deny(); return; }
+  if (!chave) { nota.textContent = "Falta a chave."; AudioSys.deny(); return; }
+
+  // 1) dono: nick da lista + senha mestra
+  if (ehDono(nick)) {
+    if (admHash(chave) !== ADM_MASTER) {
+      nota.textContent = "Senha errada. Tente de novo.";
+      $("adm-pass").value = "";
+      AudioSys.deny(); vibrate(60);
+      return;
+    }
+    PERM.nick = nick; PERM.dono = true; PERM.cargo = "DONO";
+    PERM.permissoes = {}; PERM.entrou = true;
+    abrirPainelComo();
     return;
   }
+
+  // 2) equipe: nick + chave própria, guardadas na nuvem
+  if (!nuvemAtiva()) {
+    nota.textContent = "A equipe só funciona com o modo online ligado.";
+    AudioSys.deny();
+    return;
+  }
+  nota.textContent = "Conferindo…";
+  const m = await equipeBuscar(nick);
+  if (!m || !m.chave || m.chave !== admHash("eq|" + chave.trim().toUpperCase())) {
+    nota.textContent = "Nick ou chave não confere. Peça a chave para o dono.";
+    $("adm-pass").value = "";
+    AudioSys.deny(); vibrate(60);
+    return;
+  }
+  if (m.bloqueado) {
+    nota.textContent = "O seu acesso está pausado no momento.";
+    AudioSys.deny();
+    return;
+  }
+  PERM.nick = m.nome || nick;
+  PERM.dono = false;
+  PERM.cargo = (CARGOS.find(c => c.id === m.cargo) || {}).nome || "EQUIPE";
+  PERM.permissoes = m.permissoes || {};
+  PERM.entrou = true;
+  nuvemJuntar("equipe/" + equipeId(nick), { visto: Date.now() });
+  abrirPainelComo();
+});
+$("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
+$("adm-nick").addEventListener("keydown", e => { if (e.key === "Enter") $("adm-pass").focus(); });
+$("quem-sair").addEventListener("click", () => {
+  PERM.entrou = false; PERM.dono = false; PERM.permissoes = {};
+  $("adm-panel").style.display = "none";
+  $("adm-quem").style.display = "none";
+  $("adm-pass-row").style.display = "";
+  $("adm-pass").value = "";
+  $("adm-pass-note").textContent = "";
+});
+
+/* ---------------------------------------------------------------------
+   Abre o painel mostrando SÓ o que a pessoa pode. O que não foi
+   liberado nem entra na tela — não fica cinza, some mesmo.
+   --------------------------------------------------------------------- */
+function abrirPainelComo() {
   $("adm-pass-row").style.display = "none";
   $("adm-panel").style.display = "block";
-  preencherRanks();
-  admRenderPlayers();
-  // os cartões do mundo aparecem sempre: se a nuvem estiver desligada,
-  // o teste lá em cima explica o porquê em vez de sumirem sem aviso
-  for (const id of ["adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls", "adm-agora"]) {
-    $(id).style.display = "block";
+  $("adm-quem").style.display = "block";
+  $("adm-nick").value = "";
+  $("adm-pass").value = "";
+  $("adm-pass-note").textContent = "";
+
+  const cargo = PERM.dono ? { icone: "👑", nome: "DONO", cor: "#FFC145" }
+                          : (CARGOS.find(c => c.nome === PERM.cargo) || { icone: "👤", cor: "#4DE8FF" });
+  $("quem-ic").textContent = cargo.icone;
+  $("quem-nome").textContent = PERM.nick;
+  $("quem-cargo").textContent = PERM.dono ? "DONO · acesso total" : PERM.cargo;
+  $("quem-cargo").style.color = cargo.cor || "var(--cyan)";
+  const pp = $("quem-perms");
+  pp.innerHTML = "";
+  if (PERM.dono) {
+    pp.innerHTML = "<span>tudo liberado</span>";
+  } else {
+    for (const g of PERMISSOES) for (const it of g.itens) {
+      if (!PERM.permissoes[it.id]) continue;
+      const e = document.createElement("span");
+      e.textContent = it.nome;
+      pp.appendChild(e);
+    }
+    if (!pp.children.length) pp.innerHTML = "<span>sem permissões ainda</span>";
   }
+
+  preencherRanks();
+  aplicarPermissoes();
+  if (pode("backup")) admRenderPlayers();
   admRenderRecadosProntos();
   admRenderMundo();
-  if (!nuvemAtiva()) admTestarNuvem();
+  if (!nuvemAtiva() && pode("diag")) admTestarNuvem();
   if (nuvemAtiva()) {
-    $("adm-nuvem").style.display = "block";
-    $("adm-vivo").style.display = "block";
-    $("adm-sug").style.display = "block";
-    admCarregarSugestoes();
+    if (pode("sugVer")) admCarregarSugestoes();
     mundoLigar();
     nuvemReq("mundo").then(d => { mundoAplicar(d); admRenderMundo(); });
-    admRenderMundo();
     if (!admRelogioMundo) admRelogioMundo = setInterval(() => {
       if (S.mode === "adm") admRenderMundoAgora();
     }, 4000);
-    admNuvemCarregar();
-    vivoLigar();
+    if (pode("verLista")) { admNuvemCarregar(); vivoLigar(); }
+    if (pode("equipe")) admRenderEquipe();
   }
   AudioSys.buy();
-});
-$("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
+}
+
+/* cada cartão e cada botão só aparece se a permissão estiver ligada */
+const CARTOES_PERM = {
+  "adm-sug":     "sugVer",
+  "adm-equipe":  "equipe",
+  "adm-diag":    "diag",
+  "adm-mundo":   "recados",
+  "adm-eventos": "eventos",
+  "adm-boosts":  "boosts",
+  "adm-trolls":  "trolls",
+  "adm-agora":   ["recados", "eventos", "boosts", "trolls"],
+  "adm-vivo":    "verLista",
+  "adm-nuvem":   "verLista",
+  "adm-local":   "backup",
+  "adm-todos":   "backup",
+  "adm-backup":  "backup"
+};
+const BOTOES_PERM = {
+  "sug-marcar": "sugMexer", "sug-apagar-lidas": "sugMexer",
+  "adm-nuvem-maverick": "darRaros", "adm-nuvem-b2": "darRaros",
+  "adm-nuvem-omega": "darRaros", "adm-nuvem-rank": "darRaros",
+  "adm-nuvem-zerar": "zerar", "adm-nuvem-remover": "zerar",
+  "adm-nuvem-naves-criadas": "zerar",
+  "adm-nuvem-gem-zero": "invTirar", "adm-nuvem-naves-zero": "invTirar",
+  "adm-nuvem-fases-zero": "invTirar", "adm-nuvem-hab-zero": "invTirar",
+  "adm-nuvem-amu-zero": "invTirar",
+  "inv-abrir": "invVer",
+  "caixa-todos": "presGeral", "caixa-geral-dias": "presGeral"
+};
+function aplicarPermissoes() {
+  for (const id in CARTOES_PERM) {
+    const el = $(id);
+    if (!el) continue;
+    const p = CARTOES_PERM[id];
+    const ok = Array.isArray(p) ? p.some(pode) : pode(p);
+    el.style.display = ok ? "block" : "none";
+  }
+  for (const id in BOTOES_PERM) {
+    const el = $(id);
+    if (el) el.style.display = pode(BOTOES_PERM[id]) ? "" : "none";
+  }
+  // dar coisas e presentes: se não pode dar nada, some a seção inteira
+  const sel = $("adm-nuvem-sel");
+  if (sel && !pode("darCoisas") && !pode("darRaros") && !pode("invVer") && !pode("zerar")) {
+    sel.dataset.bloqueado = "1";
+  } else if (sel) delete sel.dataset.bloqueado;
+  // a linha de "vale por N dias" acompanha o botão de presente geral
+  const dias = $("caixa-geral-dias");
+  if (dias && dias.parentElement) {
+    dias.parentElement.style.display = pode("presGeral") ? "" : "none";
+  }
+  const titGeral = document.querySelector("#adm-nuvem-sel .adm-h.gold + .adm-note + .mundo-linha");
+  if (titGeral) titGeral.style.display = pode("presGeral") ? "" : "none";
+}
 $("adm-search").addEventListener("input", admRenderPlayers);
+
+/* =====================================================================
+   EQUIPE — o dono monta quem entra no painel e o que cada um enxerga
+   ===================================================================== */
+let eqCargoNovo = "dev";
+let eqMembros = [];
+
+function renderCargosNovo() {
+  const cx = $("eq-cargos");
+  if (!cx) return;
+  cx.innerHTML = "";
+  for (const c of CARGOS) {
+    const b = document.createElement("button");
+    b.className = "eq-cargo" + (eqCargoNovo === c.id ? " on" : "");
+    b.textContent = c.icone + " " + c.nome;
+    b.title = c.desc;
+    b.addEventListener("click", () => { eqCargoNovo = c.id; renderCargosNovo(); });
+    cx.appendChild(b);
+  }
+  const d = CARGOS.find(c => c.id === eqCargoNovo);
+  const nota = document.createElement("div");
+  nota.style.cssText = "width:100%;font-size:.62rem;color:var(--dim);margin-top:6px;line-height:1.45";
+  nota.textContent = d ? d.desc : "";
+  cx.appendChild(nota);
+}
+renderCargosNovo();
+
+async function admRenderEquipe() {
+  const cx = $("eq-lista");
+  if (!cx) return;
+  cx.innerHTML = '<div class="adm-note">Carregando…</div>';
+  eqMembros = await equipeListar();
+  cx.innerHTML = "";
+  if (!eqMembros.length) {
+    cx.innerHTML = '<div class="adm-note">Ninguém na equipe ainda. ' +
+      "Escreva o nick lá em cima, escolha o cargo e adicione.</div>";
+    return;
+  }
+  for (const m of eqMembros) cx.appendChild(cartaoMembro(m));
+}
+
+function cartaoMembro(m) {
+  const cargo = CARGOS.find(c => c.id === m.cargo) || CARGOS[4];
+  const d = document.createElement("div");
+  d.className = "eq-membro";
+
+  const cab = document.createElement("div");
+  cab.className = "eq-cab";
+  cab.innerHTML = '<b style="color:' + cargo.cor + '">' + cargo.icone + "</b>" +
+    '<div class="n"><strong>' + escaparTexto(m.nome) + "</strong>" +
+    '<span style="color:' + cargo.cor + '">' + cargo.nome +
+      (m.bloqueado ? " · PAUSADO" : "") +
+      (m.visto ? " · entrou " + tempoRelativo(m.visto) : " · nunca entrou") +
+    "</span></div>";
+  d.appendChild(cab);
+
+  const ch = document.createElement("div");
+  ch.className = "eq-chave";
+  ch.innerHTML = "<code>" + escaparTexto(m.chaveVisivel || "······") + "</code>";
+  const copiar = document.createElement("button");
+  copiar.textContent = "COPIAR";
+  copiar.addEventListener("click", async () => {
+    const txt = "Painel do Neon Nebula\nNick: " + m.nome + "\nChave: " + (m.chaveVisivel || "?");
+    try { await navigator.clipboard.writeText(txt); copiar.textContent = "✓"; }
+    catch (e) { copiar.textContent = m.chaveVisivel || "?"; }
+    setTimeout(() => { copiar.textContent = "COPIAR"; }, 2000);
+  });
+  const nova = document.createElement("button");
+  nova.textContent = "TROCAR";
+  nova.addEventListener("click", async () => {
+    const c = chaveNova();
+    await nuvemJuntar("equipe/" + m.id, { chave: admHash("eq|" + c), chaveVisivel: c });
+    admMsg("Chave nova de " + m.nome + ": " + c);
+    admRenderEquipe();
+  });
+  ch.appendChild(copiar); ch.appendChild(nova);
+  d.appendChild(ch);
+
+  const grade = document.createElement("div");
+  grade.className = "eq-perms";
+  for (const g of PERMISSOES) {
+    const t = document.createElement("div");
+    t.className = "eq-grupo";
+    t.textContent = g.grupo;
+    grade.appendChild(t);
+    for (const it of g.itens) {
+      const ligada = !!(m.permissoes && m.permissoes[it.id]);
+      const b = document.createElement("button");
+      b.className = "eq-p" + (ligada ? " on" : "") + (it.perigo ? " perigo" : "");
+      b.title = it.desc;
+      b.innerHTML = "<i>✓</i><span>" + it.nome + "</span>";
+      b.addEventListener("click", async () => {
+        m.permissoes = m.permissoes || {};
+        if (m.permissoes[it.id]) delete m.permissoes[it.id];
+        else m.permissoes[it.id] = true;
+        m.cargo = "livre";
+        await nuvemSoltar("equipe/" + m.id + "/permissoes", m.permissoes);
+        await nuvemSoltar("equipe/" + m.id + "/cargo", "livre");
+        admRenderEquipe();
+      });
+      grade.appendChild(b);
+    }
+  }
+  d.appendChild(grade);
+
+  const acoes = document.createElement("div");
+  acoes.className = "eq-acoes";
+  for (const c of CARGOS.filter(x => x.id !== "livre")) {
+    const b = document.createElement("button");
+    b.textContent = c.icone;
+    b.title = "Deixar como " + c.nome + ": " + c.desc;
+    b.style.flex = "0 0 auto";
+    b.style.minWidth = "40px";
+    b.addEventListener("click", async () => {
+      const p = {};
+      for (const id of c.perms) p[id] = true;
+      await nuvemSoltar("equipe/" + m.id + "/permissoes", p);
+      await nuvemSoltar("equipe/" + m.id + "/cargo", c.id);
+      admMsg(m.nome + " agora é " + c.nome);
+      admRenderEquipe();
+    });
+    acoes.appendChild(b);
+  }
+  const pausar = document.createElement("button");
+  pausar.textContent = m.bloqueado ? "LIBERAR" : "PAUSAR";
+  pausar.addEventListener("click", async () => {
+    await nuvemSoltar("equipe/" + m.id + "/bloqueado", !m.bloqueado);
+    admMsg(m.nome + (m.bloqueado ? " liberado" : " pausado"));
+    admRenderEquipe();
+  });
+  const tirar = document.createElement("button");
+  tirar.textContent = "TIRAR";
+  tirar.style.color = "var(--danger)";
+  let confirma = false;
+  tirar.addEventListener("click", async () => {
+    if (!confirma) {
+      confirma = true;
+      tirar.textContent = "CONFIRMAR?";
+      setTimeout(() => { confirma = false; tirar.textContent = "TIRAR"; }, 3000);
+      return;
+    }
+    await nuvemReq("equipe/" + m.id, { method: "DELETE" });
+    admMsg(m.nome + " saiu da equipe");
+    admRenderEquipe();
+  });
+  acoes.appendChild(pausar); acoes.appendChild(tirar);
+  d.appendChild(acoes);
+  return d;
+}
+
+$("eq-add").addEventListener("click", async () => {
+  const nick = ($("eq-nick").value || "").trim();
+  if (!nick) { admMsg("Escreva o nick da pessoa."); AudioSys.deny(); return; }
+  if (ehDono(nick)) { admMsg("Esse nick é de dono, já tem acesso total."); AudioSys.deny(); return; }
+  if (!nuvemAtiva()) { admMsg("Precisa do modo online ligado."); AudioSys.deny(); return; }
+  const ja = await equipeBuscar(nick);
+  if (ja) { admMsg(nick + " já está na equipe."); AudioSys.deny(); return; }
+  const cargo = CARGOS.find(c => c.id === eqCargoNovo) || CARGOS[0];
+  const chave = chaveNova();
+  const perms = {};
+  for (const id of cargo.perms) perms[id] = true;
+  const ok = await nuvemSoltar("equipe/" + equipeId(nick), {
+    nome: nick, cargo: cargo.id, permissoes: perms,
+    chave: admHash("eq|" + chave), chaveVisivel: chave,
+    desde: Date.now(), porQuem: PERM.nick
+  });
+  if (ok === null) { admMsg("Não deu para gravar. Aperte TESTAR AGORA."); AudioSys.deny(); return; }
+  $("eq-nick").value = "";
+  admMsg(nick + " entrou como " + cargo.nome + " · chave " + chave);
+  AudioSys.victory();
+  admRenderEquipe();
+});
 
 /* =====================================================================
    SUGESTÕES — o que os jogadores escreveram no fim das fases
@@ -5334,7 +5818,7 @@ $("sug-apagar-lidas").addEventListener("click", async () => {
    Este teste escreve e apaga uma marca em cada galho e mostra qual falhou.
    ===================================================================== */
 const REGRAS_NOS = ["pilotos", "presentes", "contas", "salas", "arena", "fila",
-                    "cenas", "pedidos", "mundo", "sugestoes"];
+                    "cenas", "pedidos", "mundo", "sugestoes", "equipe"];
 
 async function nuvemTestarNo(no) {
   const alvo = no + "/__teste";
@@ -5441,7 +5925,8 @@ function admRegrasJSON() {
     '    "arena": ' + no(false) + ',\n' +
     '    "fila": ' + no(false) + ',\n' +
     '    "mundo": ' + no(false) + ',\n' +
-    '    "sugestoes": ' + no(false) + '\n' +
+    '    "sugestoes": ' + no(false) + ',\n' +
+    '    "equipe": ' + no(false) + '\n' +
     '  }\n}';
 }
 $("diag-testar").addEventListener("click", admTestarNuvem);
@@ -12479,6 +12964,12 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.7", itens: [
+      "EQUIPE DO PAINEL: o dono pode dar acesso ao painel para outras pessoas, cada uma com o nick dela e uma chave própria",
+      "As permissões são escolhidas uma a uma, como num servidor: o que não for liberado nem aparece na tela da pessoa",
+      "Cargos prontos de um toque: Desenvolvedor, Moderador, Animador e Administrador — ou monte o seu",
+      "Dá para pausar o acesso de alguém sem tirar da equipe, e trocar a chave quando quiser"
+    ] },
   { v: "3.6", itens: [
       "O administrador agora escreve um RECADO dentro da caixa de presente — aparece junto com o que veio, tanto para um jogador quanto para todos",
       "PRESENTE PARA TODO MUNDO: a mesma caixa vai para todos os jogadores de uma vez, e quem criar conta depois também recebe enquanto estiver no prazo"
@@ -12611,7 +13102,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.6";
+const VERSAO = "3.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
