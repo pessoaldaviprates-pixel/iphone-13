@@ -18,17 +18,44 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap">
 <style>
   :root{
-    --bg:#060A18;
-    --ink:#EAF2FF;
+    /* ---------- fundo em camadas ---------- */
+    --bg:#050813;            /* o mais fundo de todos */
+    --bg2:#080D22;           /* fundo das telas cheias */
+    --sup1:rgba(13,22,50,.92);   /* superfície nível 1 (cartão) */
+    --sup2:rgba(20,32,70,.92);   /* superfície nível 2 (cartão em cima de cartão) */
+    --sup3:rgba(28,44,92,.92);   /* superfície nível 3 (item destacado) */
+    --vidro:rgba(10,17,40,.72);  /* barras que ficam por cima do jogo */
+
+    /* ---------- tinta ---------- */
+    --ink:#EDF3FF;
+    --ink2:rgba(237,243,255,.72);
+    --dim:rgba(237,243,255,.5);
+    --fraco:rgba(237,243,255,.3);
+
+    /* ---------- cores de acento ---------- */
     --cyan:#4DE8FF;
     --magenta:#FF4D8F;
     --amber:#FFC145;
     --violet:#C34DFF;
-    --danger:#FF5252;
-    --panel:rgba(10,18,40,.9);
-    --panel2:rgba(16,28,62,.92);
-    --line:rgba(77,232,255,.28);
-    --dim:rgba(234,242,255,.55);
+    --verde:#5BF0B0;
+    --danger:#FF5C5C;
+
+    /* ---------- traços ---------- */
+    --line:rgba(120,200,255,.2);
+    --line2:rgba(120,200,255,.36);
+    --brilho-cyan:rgba(77,232,255,.5);
+
+    /* ---------- cantos, sombras e ritmo ---------- */
+    --r-sm:10px; --r-md:14px; --r-lg:18px; --r-xl:24px; --r-full:999px;
+    --som-1:0 2px 10px rgba(0,0,0,.3);
+    --som-2:0 8px 26px rgba(0,0,0,.42);
+    --som-3:0 18px 48px rgba(0,0,0,.55);
+    --topo:calc(env(safe-area-inset-top));
+    --base:calc(env(safe-area-inset-bottom));
+
+    /* compatibilidade com o que já existia (painel ADM inclusive) */
+    --panel:var(--sup1);
+    --panel2:var(--sup2);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   /* a página inteira fica presa: nada de arrastar, esticar ou balançar.
@@ -78,16 +105,19 @@
   #hud .hud-col:nth-child(2){justify-self:center;align-items:center}
   #hud .hud-btns{justify-self:end}
   .hud-col{
-    display:flex;flex-direction:column;gap:1px;min-width:0;max-width:100%;
-    background:rgba(6,10,24,.42);border-radius:11px;padding:4px 9px;
+    display:flex;flex-direction:column;gap:2px;min-width:0;max-width:100%;
+    background:var(--vidro);border:1px solid rgba(120,200,255,.14);
+    border-radius:var(--r-md);padding:6px 11px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:var(--som-1);
   }
   .hud-label{
-    font-size:.55rem;letter-spacing:.16em;color:var(--dim);
-    font-family:"Chakra Petch",sans-serif;font-weight:600;white-space:nowrap;
+    font-size:.52rem;letter-spacing:.18em;color:var(--fraco);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;white-space:nowrap;
   }
   .hud-value{
     font-size:1rem;font-variant-numeric:tabular-nums;white-space:nowrap;
-    text-shadow:0 0 12px rgba(77,232,255,.6);
+    text-shadow:0 0 14px rgba(77,232,255,.5);
   }
   @media (max-width:400px){
     .hud-value{font-size:.9rem}
@@ -95,19 +125,41 @@
     .hud-col{padding:3px 7px}
   }
   @media (max-width:340px){ .hud-value{font-size:.8rem} }
-  #hud-fase{color:var(--amber);text-shadow:0 0 12px rgba(255,193,69,.55)}
+  .hud-centro{align-items:center;min-width:132px}
+  #hud-fase{
+    color:var(--amber);text-shadow:0 0 14px rgba(255,193,69,.5);
+    font-size:.94rem;letter-spacing:.06em;
+  }
+  /* tracinhos que mostram em que onda da fase você está */
+  .hud-ondas{display:flex;gap:3px;margin:4px 0 2px;max-width:126px;flex-wrap:wrap;justify-content:center}
+  .hud-ondas i{
+    width:11px;height:3px;border-radius:999px;display:block;
+    background:rgba(237,243,255,.16);
+  }
+  .hud-ondas i.feita{background:var(--cyan);box-shadow:0 0 6px rgba(77,232,255,.7)}
+  .hud-ondas i.agora{background:var(--amber);box-shadow:0 0 7px rgba(255,193,69,.85)}
+  .hud-ondas i.chefe{width:14px;background:rgba(255,77,143,.35)}
+  .hud-ondas i.chefe.feita{background:var(--magenta);box-shadow:0 0 7px rgba(255,77,143,.8)}
   #hud-lives{font-size:.85rem;color:var(--magenta);letter-spacing:.04em;text-shadow:0 0 10px rgba(255,77,143,.6)}
   #hud-gems{font-size:.78rem;color:var(--amber)}
   #hud-hp{
-    width:96px;max-width:26vw;height:12px;border-radius:7px;margin-top:3px;position:relative;
-    background:rgba(6,10,24,.75);border:1px solid rgba(77,232,255,.35);overflow:hidden;
+    width:108px;max-width:30vw;height:13px;border-radius:var(--r-full);
+    margin-top:4px;position:relative;
+    background:rgba(3,6,16,.8);border:1px solid rgba(77,232,255,.3);overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.5);
   }
   #hud-hp i{
-    display:block;height:100%;width:100%;
-    background:linear-gradient(90deg,#4DE8FF,#7CF7C0);
+    display:block;height:100%;width:100%;border-radius:var(--r-full);
+    background:linear-gradient(90deg,#3FD9F5,#5BF0B0);
+    box-shadow:0 0 12px rgba(91,240,176,.5);
     transition:width .12s linear;
   }
-  #hud-hp i.baixo{background:linear-gradient(90deg,#FF5252,#FF9E4D)}
+  #hud-hp i.baixo{
+    background:linear-gradient(90deg,#FF4747,#FF9E4D);
+    box-shadow:0 0 12px rgba(255,71,71,.6);
+    animation:hpPisca .7s ease-in-out infinite;
+  }
+  @keyframes hpPisca{0%,100%{opacity:1}50%{opacity:.62}}
   #hud-hp b{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-family:"Chakra Petch",sans-serif;font-size:.58rem;font-weight:700;
@@ -115,55 +167,62 @@
   }
   .hud-btns{display:flex;gap:7px;pointer-events:auto;align-self:start}
   .hud-btn{
-    width:38px;height:38px;border-radius:11px;flex:none;
-    border:1px solid var(--line);
-    background:rgba(10,18,40,.6);
-    font-size:1.05rem;line-height:1;
+    width:38px;height:38px;border-radius:var(--r-md);flex:none;
+    border:1px solid rgba(120,200,255,.18);
+    background:var(--vidro);color:var(--ink2);
+    font-size:1rem;line-height:1;
     display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
+    cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:var(--som-1);transition:transform .1s ease,background .16s ease;
   }
-  .hud-btn:active{background:rgba(77,232,255,.2)}
+  .hud-btn:active{background:rgba(77,232,255,.22);transform:scale(.9)}
   #ult-btn{
-    position:fixed;right:16px;bottom:calc(22px + env(safe-area-inset-bottom));
-    width:66px;height:66px;border-radius:50%;
-    border:2px solid var(--line);
-    background:rgba(10,18,40,.7);
+    position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:68px;height:68px;border-radius:50%;
+    border:2px solid rgba(120,200,255,.26);
+    background:radial-gradient(circle at 50% 34%,rgba(30,52,104,.9),rgba(8,14,34,.9));
     color:var(--dim);
     font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.06em;
     pointer-events:auto;cursor:pointer;display:none;
     align-items:center;justify-content:center;
+    box-shadow:var(--som-2);transition:transform .1s ease;
   }
+  #ult-btn:active{transform:scale(.93)}
   #ult-btn.ready{
     color:#04121c;border-color:var(--cyan);
+    background:radial-gradient(circle at 50% 34%,#8AF2FF,#2FD4F0);
     animation:ultPulse 1.1s ease-in-out infinite;
   }
   @keyframes ultPulse{0%,100%{box-shadow:0 0 10px rgba(77,232,255,.5)}50%{box-shadow:0 0 26px rgba(77,232,255,.95)}}
   #cloak-btn{
-    position:fixed;left:16px;bottom:calc(22px + env(safe-area-inset-bottom));
-    width:58px;height:58px;border-radius:50%;
-    border:2px solid rgba(195,77,255,.5);
-    background:rgba(10,18,40,.7);
-    color:var(--violet);
+    position:fixed;left:14px;bottom:calc(20px + env(safe-area-inset-bottom));
+    width:60px;height:60px;border-radius:50%;
+    border:2px solid rgba(195,77,255,.45);
+    background:radial-gradient(circle at 50% 34%,rgba(46,20,74,.9),rgba(10,6,24,.9));
+    color:var(--violet);box-shadow:var(--som-2);
     font-family:"Russo One",sans-serif;font-size:.62rem;
     pointer-events:auto;cursor:pointer;display:none;
     align-items:center;justify-content:center;
   }
   #cloak-btn.ready{border-color:var(--violet);box-shadow:0 0 16px rgba(195,77,255,.6)}
-  /* as habilidades sobem numa fila em cima do botão de ultimate;
-     se forem muitas, abre uma segunda fila ao lado                        */
+  /* As habilidades ficam numa fila deitada, centralizada, logo acima dos
+     botões de baixo. O tamanho de cada botão é calculado no JS conforme
+     quantas a nave tem e o tamanho da tela — nunca sai da tela.          */
   #hab-bar{
-    position:fixed;right:16px;
-    bottom:calc(96px + env(safe-area-inset-bottom));
-    display:none;flex-direction:column-reverse;flex-wrap:wrap-reverse;
-    align-content:flex-end;justify-content:flex-start;
-    gap:8px;max-height:calc(100vh - 250px);max-height:calc(100dvh - 250px);
-    pointer-events:auto;z-index:6;
+    position:fixed;left:8px;right:8px;
+    bottom:calc(var(--console-base,94px) + env(safe-area-inset-bottom));
+    display:none;flex-direction:row;flex-wrap:wrap;
+    align-items:center;justify-content:center;align-content:flex-end;
+    gap:var(--hab-gap,6px);
+    pointer-events:none;z-index:6;
   }
+  #hab-bar .hab-btn{pointer-events:auto}
   .hab-btn{
-    width:46px;height:46px;border-radius:15px;flex:none;cursor:pointer;
+    width:var(--hab-tam,44px);height:var(--hab-tam,44px);
+    border-radius:calc(var(--hab-tam,44px) * .32);flex:none;cursor:pointer;
     border:2px solid rgba(234,242,255,.2);
     background:linear-gradient(160deg,rgba(20,34,68,.86),rgba(8,14,34,.86));
-    color:var(--dim);font-size:1.12rem;line-height:1;
+    color:var(--dim);font-size:calc(var(--hab-tam,44px) * .26 + .28rem);line-height:1;
     display:flex;align-items:center;justify-content:center;position:relative;
     transition:transform .12s ease,border-color .18s ease,box-shadow .18s ease;
     backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
@@ -182,9 +241,11 @@
   }
   @keyframes habPulso{0%,100%{opacity:.25;transform:scale(.96)}50%{opacity:.8;transform:scale(1)}}
   .hab-btn.combo{border-style:dashed;border-color:rgba(255,193,69,.6);color:var(--amber);cursor:default}
-  /* o supremo do Ômega-9: maior, dourado e com anel proprio */
+  /* o supremo do Ômega-9: um tico maior, dourado e com anel proprio */
   .hab-btn.supremo{
-    width:54px;height:54px;border-radius:17px;font-size:1.3rem;
+    width:calc(var(--hab-tam,44px) + 6px);height:calc(var(--hab-tam,44px) + 6px);
+    border-radius:calc((var(--hab-tam,44px) + 6px) * .32);
+    font-size:calc(var(--hab-tam,44px) * .3 + .4rem);
     border-color:rgba(255,77,143,.7);color:var(--magenta);
     background:linear-gradient(160deg,rgba(60,14,40,.9),rgba(20,6,24,.9));
     box-shadow:0 0 18px rgba(255,77,143,.45);
@@ -222,37 +283,70 @@
   #cloak-btn:disabled{opacity:.5}
   @media (prefers-reduced-motion:reduce){#ult-btn.ready{animation:none}}
 
-  /* ---------- Telas ---------- */
+  /* ---------- Telas ----------
+     Toda tela cheia usa o mesmo céu: uma nebulosa que respira, uma grade
+     fina de fundo e um escurecido nas bordas para o conteúdo saltar.     */
   .screen{
-    position:fixed;inset:0;z-index:10;
+    position:fixed;inset:0;z-index:10;overflow:hidden;
     display:none;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:24px;gap:14px;
-    background:radial-gradient(120% 90% at 50% 0%,rgba(20,34,80,.78),rgba(6,10,24,.96) 70%);
+    background:var(--bg2);
   }
+  .screen::before{
+    content:"";position:absolute;inset:-25%;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 24% 16%,rgba(77,232,255,.17),transparent 44%),
+      radial-gradient(circle at 80% 26%,rgba(195,77,255,.15),transparent 46%),
+      radial-gradient(circle at 52% 94%,rgba(255,77,143,.13),transparent 48%);
+    animation:ceuRespira 22s ease-in-out infinite alternate;
+  }
+  .screen::after{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:
+      linear-gradient(rgba(120,200,255,.045) 1px,transparent 1px) 0 0/100% 34px,
+      linear-gradient(90deg,rgba(120,200,255,.045) 1px,transparent 1px) 0 0/34px 100%,
+      radial-gradient(120% 82% at 50% 40%,transparent 42%,rgba(3,6,16,.86) 100%);
+  }
+  @keyframes ceuRespira{
+    0%{transform:scale(1) translate(0,0)}
+    100%{transform:scale(1.14) translate(-2%,-3%)}
+  }
+  @media (prefers-reduced-motion:reduce){.screen::before{animation:none}}
   .screen.show{display:flex}
+  .screen > *{position:relative;z-index:1}
   .brand{
     font-family:"Russo One",sans-serif;
     font-size:clamp(2.1rem,10vw,3.8rem);
-    line-height:.95;text-wrap:balance;
-    text-shadow:0 0 8px rgba(77,232,255,.9),0 0 34px rgba(77,232,255,.45),0 0 80px rgba(255,77,143,.35);
+    line-height:.94;text-wrap:balance;letter-spacing:.01em;
+    text-shadow:0 0 10px rgba(77,232,255,.85),0 0 38px rgba(77,232,255,.4),
+                0 0 90px rgba(255,77,143,.3);
   }
   .brand em{font-style:normal;color:var(--cyan)}
+  /* etiqueta pequena em cima do título, agora dentro de uma pílula */
   .tagline{
-    font-size:.7rem;letter-spacing:.32em;font-weight:600;
+    display:inline-block;
+    font-size:.6rem;letter-spacing:.3em;font-weight:700;
     color:var(--magenta);text-transform:uppercase;
-    text-shadow:0 0 14px rgba(255,77,143,.6);
+    padding:5px 14px;border-radius:var(--r-full);
+    background:rgba(255,77,143,.1);border:1px solid rgba(255,77,143,.32);
+    text-shadow:0 0 14px rgba(255,77,143,.5);
   }
-  .rules{max-width:32ch;font-size:.9rem;line-height:1.55;color:rgba(234,242,255,.78)}
+  .rules{max-width:32ch;font-size:.9rem;line-height:1.55;color:var(--ink2)}
   .rules b{color:var(--amber)}
+  /* ---------- Botões ---------- */
   .big-btn{
+    position:relative;
     font-family:"Russo One",sans-serif;
     font-size:1.05rem;letter-spacing:.1em;
     padding:15px 38px;
-    color:#04121c;background:var(--cyan);
-    border:none;border-radius:14px;cursor:pointer;
-    box-shadow:0 0 24px rgba(77,232,255,.55),0 5px 0 rgba(17,104,128,.9);
+    color:#04121c;
+    background:linear-gradient(180deg,#7BF0FF,#2FD4F0);
+    border:none;border-radius:var(--r-md);cursor:pointer;
+    box-shadow:0 0 26px rgba(77,232,255,.42),0 5px 0 rgba(15,96,120,.95),var(--som-2);
+    transition:transform .1s ease,box-shadow .18s ease;
   }
-  .big-btn:active{transform:translateY(3px);box-shadow:0 0 24px rgba(77,232,255,.55),0 2px 0 rgba(17,104,128,.9)}
+  .big-btn:active{transform:translateY(3px);box-shadow:0 0 26px rgba(77,232,255,.42),0 2px 0 rgba(15,96,120,.95)}
+  .big-btn:disabled{opacity:.45;box-shadow:none;transform:none}
   /* o JOGAR do menu ganha um pulso lento para puxar o olho */
   #btn-play{position:relative;overflow:hidden}
   #btn-play::after{
@@ -262,23 +356,36 @@
   }
   @keyframes playBrilho{0%{left:-40%}55%,100%{left:110%}}
   @media (prefers-reduced-motion:reduce){#btn-play::after{display:none}}
-  .big-btn.amber{background:var(--amber);box-shadow:0 0 24px rgba(255,193,69,.5),0 5px 0 rgba(140,98,15,.9)}
-  .big-btn.amber:active{box-shadow:0 0 24px rgba(255,193,69,.5),0 2px 0 rgba(140,98,15,.9)}
+  .big-btn.amber{background:linear-gradient(180deg,#FFD173,#F5AE22);box-shadow:0 0 26px rgba(255,193,69,.42),0 5px 0 rgba(130,90,12,.95),var(--som-2)}
+  .big-btn.amber:active{box-shadow:0 0 26px rgba(255,193,69,.42),0 2px 0 rgba(130,90,12,.95)}
+  .big-btn.rosa{background:linear-gradient(180deg,#FF7FAE,#F0357A);color:#1c0410;box-shadow:0 0 26px rgba(255,77,143,.42),0 5px 0 rgba(126,16,58,.95),var(--som-2)}
+  .big-btn.rosa:active{box-shadow:0 0 26px rgba(255,77,143,.42),0 2px 0 rgba(126,16,58,.95)}
   .ghost-btn{
     font-family:"Chakra Petch",sans-serif;font-weight:600;
-    font-size:.88rem;letter-spacing:.06em;
-    padding:12px 24px;
-    background:transparent;border:1px solid var(--line);border-radius:12px;cursor:pointer;
+    font-size:.86rem;letter-spacing:.07em;
+    padding:12px 24px;color:var(--ink2);
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--line);border-radius:var(--r-md);cursor:pointer;
+    transition:transform .1s ease,border-color .18s ease,background .18s ease,color .18s ease;
   }
-  .ghost-btn:active{background:rgba(77,232,255,.15)}
+  .ghost-btn:active{background:rgba(77,232,255,.14);border-color:var(--line2);color:var(--ink);transform:scale(.97)}
   .menu-btns{display:flex;flex-direction:column;gap:12px;width:min(92vw,360px)}
 
   /* cartão do piloto */
   .piloto-cartao{
+    position:relative;overflow:hidden;
     display:flex;align-items:center;gap:12px;width:min(92vw,360px);
-    background:var(--panel);border:1px solid var(--line);border-radius:16px;
-    padding:10px 12px;text-align:left;
+    background:linear-gradient(135deg,rgba(22,36,78,.94),rgba(10,17,40,.94));
+    border:1px solid var(--line2);border-radius:var(--r-lg);
+    padding:11px 13px;text-align:left;box-shadow:var(--som-2);
   }
+  /* brilho suave atrás da nave do piloto */
+  .piloto-cartao::before{
+    content:"";position:absolute;left:-20px;top:50%;transform:translateY(-50%);
+    width:130px;height:130px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,rgba(77,232,255,.18),transparent 66%);
+  }
+  .piloto-cartao > *{position:relative}
   .piloto-nave{width:56px;height:56px;flex:none}
   .piloto-info{flex:1;min-width:0}
   .piloto-nome{
@@ -304,6 +411,10 @@
 
   /* grade de atalhos */
   .menu-grade{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  /* atalho sozinho na última linha ocupa a linha toda, sem buraco */
+  .menu-grade > .tile:last-child:nth-child(odd){grid-column:span 2}
+  .menu-grade > .tile:last-child:nth-child(odd){flex-direction:row;justify-content:center;gap:10px;padding:12px 8px}
+  .menu-grade > .tile:last-child:nth-child(odd) i{position:absolute;right:14px;bottom:8px}
   .tile{
     position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
     padding:14px 8px 12px;cursor:pointer;text-align:center;overflow:hidden;
@@ -362,9 +473,12 @@
   .menu-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
   .chip{
     position:relative;font-family:"Chakra Petch",sans-serif;font-weight:600;
-    font-size:.7rem;letter-spacing:.06em;padding:9px 14px;cursor:pointer;
-    background:transparent;border:1px solid var(--line);border-radius:11px;color:var(--dim);
+    font-size:.7rem;letter-spacing:.06em;padding:9px 15px;cursor:pointer;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);
+    border-radius:var(--r-full);color:var(--dim);
+    transition:transform .1s ease,background .16s ease,color .16s ease;
   }
+  .chip:active{transform:scale(.95);background:rgba(77,232,255,.12);color:var(--cyan)}
   .chip:active{background:rgba(77,232,255,.15)}
   .chip i{
     font-style:normal;position:absolute;top:-5px;right:-5px;
@@ -381,29 +495,86 @@
   .gem{color:var(--amber);font-weight:700}
   .gem::before{content:"◆ "}
   .stat-panel{
-    display:flex;gap:18px;padding:10px 18px;justify-content:center;
-    width:min(92vw,360px);
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    display:flex;gap:8px;padding:0;justify-content:center;
+    width:min(92vw,360px);background:none;border:none;
+  }
+  .stat-panel .hud-col{
+    flex:1;background:linear-gradient(160deg,rgba(20,32,70,.9),rgba(10,17,40,.9));
+    border:1px solid var(--line);border-radius:var(--r-md);
+    padding:10px 6px;box-shadow:var(--som-1);
   }
   .stat-panel .hud-value{font-size:1.2rem;white-space:nowrap}
   .stat-panel .hud-col{flex:1;min-width:0}
   .stat-panel .gem::before{content:"◆ ";font-size:.8em}
-  #go-title{
-    font-family:"Russo One",sans-serif;
-    font-size:clamp(1.8rem,8.5vw,3rem);
-    color:var(--danger);
-    text-shadow:0 0 10px rgba(255,82,82,.8),0 0 40px rgba(255,82,82,.4);
+  /* ---------- Telas de fim de fase (vitória, derrota e pausa) ----------
+     As três usam o mesmo cartão: selo grande em cima, título, os prêmios
+     em pílulas, o placar em duas caixas e os botões embaixo.             */
+  .fim-cartao{
+    position:relative;width:min(92vw,362px);
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    background:linear-gradient(180deg,rgba(19,31,68,.95),rgba(9,15,36,.96));
+    border:1px solid var(--line);border-radius:var(--r-xl);
+    padding:22px 18px 18px;box-shadow:var(--som-3);
+    animation:fimEntra .34s cubic-bezier(.2,1.1,.4,1) both;
   }
-  #vic-title{
-    font-family:"Russo One",sans-serif;
-    font-size:clamp(1.8rem,8.5vw,3rem);
-    color:var(--cyan);
-    text-shadow:0 0 10px rgba(77,232,255,.8),0 0 40px rgba(77,232,255,.4);
+  @keyframes fimEntra{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+  .fim-cartao.ganhou{border-color:rgba(77,232,255,.45);box-shadow:var(--som-3),0 0 44px rgba(77,232,255,.14)}
+  .fim-cartao.perdeu{border-color:rgba(255,92,92,.4);box-shadow:var(--som-3),0 0 44px rgba(255,92,92,.12)}
+  /* raios de luz atrás do selo da vitória */
+  .fim-raios{
+    position:absolute;top:-40px;left:50%;transform:translateX(-50%);
+    width:280px;height:280px;pointer-events:none;border-radius:50%;
+    background:conic-gradient(from 0deg,
+      rgba(77,232,255,.13) 0 3deg,transparent 3deg 30deg,
+      rgba(255,193,69,.11) 30deg 33deg,transparent 33deg 60deg);
+    -webkit-mask-image:radial-gradient(circle,#000 22%,transparent 72%);
+    mask-image:radial-gradient(circle,#000 22%,transparent 72%);
+    animation:raiosGiram 34s linear infinite;opacity:.85;
   }
+  @keyframes raiosGiram{to{transform:translateX(-50%) rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.fim-raios{animation:none}}
+  .fim-ic{
+    width:66px;height:66px;border-radius:50%;flex:none;position:relative;
+    display:flex;align-items:center;justify-content:center;font-size:1.9rem;line-height:1;
+  }
+  .fim-ic.vitoria{
+    color:var(--amber);background:rgba(255,193,69,.12);border:2px solid rgba(255,193,69,.55);
+    box-shadow:0 0 30px rgba(255,193,69,.4);animation:selopulsa 2s ease-in-out infinite;
+  }
+  .fim-ic.derrota{color:var(--danger);background:rgba(255,92,92,.12);border:2px solid rgba(255,92,92,.5)}
+  .fim-ic.pausa{color:var(--cyan);background:rgba(77,232,255,.1);border:2px solid rgba(77,232,255,.45);font-size:1.5rem}
+  @keyframes selopulsa{0%,100%{box-shadow:0 0 22px rgba(255,193,69,.34)}50%{box-shadow:0 0 40px rgba(255,193,69,.7)}}
+  .fim-titulo{
+    font-family:"Russo One",sans-serif;
+    font-size:clamp(1.35rem,6.6vw,1.95rem);line-height:1.1;letter-spacing:.03em;
+  }
+  .fim-titulo.cyan{color:var(--cyan);text-shadow:0 0 12px rgba(77,232,255,.7),0 0 44px rgba(77,232,255,.32)}
+  .fim-titulo.vermelho{color:var(--danger);text-shadow:0 0 12px rgba(255,92,92,.7),0 0 44px rgba(255,92,92,.3)}
+  .fim-sub{font-size:.78rem;color:var(--dim);line-height:1.5}
+  .fim-premios{display:flex;flex-direction:column;gap:6px;width:100%;align-items:center}
+  .fim-premio{
+    font-size:.82rem;font-weight:700;letter-spacing:.04em;
+    padding:7px 15px;border-radius:var(--r-full);
+    background:rgba(255,193,69,.11);border:1px solid rgba(255,193,69,.32);color:var(--amber);
+  }
+  .fim-premio.extra{display:none;font-size:.72rem;letter-spacing:.1em}
+  .fim-premio.extra.roxo{background:rgba(195,77,255,.11);border-color:rgba(195,77,255,.34);color:var(--violet)}
+  .fim-premio.extra.ouro{background:rgba(255,193,69,.14);border-color:rgba(255,193,69,.45)}
+  .fim-placar{display:flex;gap:9px;width:100%}
+  .fim-cx{
+    flex:1;text-align:center;padding:11px 6px;border-radius:var(--r-md);
+    background:rgba(6,10,24,.5);border:1px solid var(--line);
+  }
+  .fim-cx b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.35rem;
+    color:var(--ink);line-height:1.05;font-variant-numeric:tabular-nums;
+  }
+  .fim-cx span{display:block;font-size:.53rem;letter-spacing:.16em;color:var(--dim);margin-top:4px}
+  .fim-cx:first-child b{color:var(--amber)}
+  .fim-linha{display:flex;gap:9px;width:100%}
+  .fim-linha .ghost-btn{flex:1;padding:12px 6px;font-size:.8rem}
   .reward-line{font-size:1rem;font-weight:600}
-  #vic-skill,#go-record{display:none;color:var(--amber);font-weight:700;letter-spacing:.12em;font-size:.8rem;text-shadow:0 0 12px rgba(255,193,69,.7)}
-  #vic-amulet{display:none;font-size:.85rem;font-weight:700;color:var(--violet);text-shadow:0 0 12px rgba(195,77,255,.6)}
-  .credit{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:.66rem;letter-spacing:.12em;color:rgba(234,242,255,.35)}
+  .credit{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:.62rem;letter-spacing:.14em;color:var(--fraco)}
 
   /* ---------- Login ---------- */
   #screen-login{justify-content:flex-start;padding:0;overflow:hidden}
@@ -476,20 +647,53 @@
   .profile-seta{flex:none;color:var(--cyan);font-size:1.1rem;opacity:.7}
   .login-new{display:flex;gap:8px;width:100%}
   .login-new .ghost-btn{flex:none}
-  .adm-link{font-size:.72rem;color:var(--dim);letter-spacing:.14em;background:none;border:none;cursor:pointer;padding:8px}
-
-  /* ---------- Senha desenho ---------- */
-  #senha-canvas{
-    width:min(78vw,300px);height:min(78vw,300px);
-    touch-action:none;border-radius:20px;
-    background:rgba(10,18,40,.55);border:1px solid var(--line);
+  .adm-link{
+    font-size:.68rem;color:var(--dim);letter-spacing:.16em;cursor:pointer;
+    background:rgba(255,255,255,.03);border:1px solid rgba(120,200,255,.14);
+    border-radius:var(--r-full);padding:9px 18px;
   }
-  #senha-titulo{font-family:"Russo One",sans-serif;font-size:1.05rem;letter-spacing:.06em}
-  #senha-dica{font-size:.8rem;color:var(--dim);max-width:30ch;line-height:1.5;min-height:2.6em}
+  .adm-link:active{background:rgba(77,232,255,.12);color:var(--cyan)}
+
+  /* ---------- Senha desenho ----------
+     O desenho da senha ganhou um cartão próprio: o quadro fica dentro de
+     uma moldura escura com brilho, os pontinhos viram um contador e os
+     botões descem para uma linha só.                                     */
+  #screen-senha{gap:11px;justify-content:center}
+  .senha-cartao{
+    width:min(90vw,344px);
+    background:linear-gradient(180deg,rgba(18,30,66,.94),rgba(10,17,40,.94));
+    border:1px solid var(--line);border-radius:var(--r-xl);
+    padding:18px 16px 16px;box-shadow:var(--som-3);
+    display:flex;flex-direction:column;align-items:center;gap:11px;
+  }
+  #senha-canvas{
+    width:min(72vw,268px);height:min(72vw,268px);
+    touch-action:none;border-radius:var(--r-lg);
+    background:radial-gradient(circle at 50% 46%,rgba(77,232,255,.1),rgba(6,10,24,.72) 68%);
+    border:1px solid var(--line2);
+    box-shadow:inset 0 0 30px rgba(77,232,255,.08),0 0 22px rgba(77,232,255,.1);
+  }
+  #senha-titulo{
+    font-family:"Russo One",sans-serif;font-size:1.02rem;letter-spacing:.08em;
+    text-shadow:0 0 18px rgba(77,232,255,.4);
+  }
+  #senha-dica{
+    font-size:.76rem;color:var(--dim);max-width:30ch;line-height:1.5;min-height:2.4em;
+  }
   #senha-dica.erro{color:var(--danger);font-weight:700}
-  .senha-pontos{display:flex;gap:7px;height:10px;align-items:center}
-  .senha-pt{width:9px;height:9px;border-radius:50%;background:rgba(234,242,255,.2)}
-  .senha-pt.on{background:var(--cyan);box-shadow:0 0 8px rgba(77,232,255,.8)}
+  .senha-pontos{
+    display:flex;gap:7px;height:16px;align-items:center;justify-content:center;
+  }
+  .senha-pt{
+    width:9px;height:9px;border-radius:50%;background:rgba(237,243,255,.16);
+    border:1px solid rgba(237,243,255,.1);transition:all .16s ease;
+  }
+  .senha-pt.on{
+    background:var(--cyan);border-color:var(--cyan);transform:scale(1.25);
+    box-shadow:0 0 10px rgba(77,232,255,.85);
+  }
+  .senha-linha{display:flex;gap:9px;width:min(90vw,344px)}
+  .senha-linha .ghost-btn{flex:1;padding:12px 8px}
 
   /* ---------- Painel ADM ---------- */
   .adm-box{display:flex;flex-direction:column;gap:10px;width:min(86vw,340px);margin:0 auto}
@@ -612,34 +816,66 @@
     font-size:.6rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);
   }
 
-  /* abas */
+  /* ---------- Lista vazia (usado em todas as abas) ---------- */
+  .vazio{
+    display:flex;flex-direction:column;align-items:center;gap:9px;
+    text-align:center;padding:38px 20px;color:var(--dim);
+  }
+  .vazio b{
+    width:56px;height:56px;border-radius:50%;font-size:1.5rem;font-weight:400;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(120,200,255,.07);border:1px solid rgba(120,200,255,.16);
+    color:var(--fraco);
+  }
+  .vazio strong{
+    font-family:"Russo One",sans-serif;font-size:.86rem;letter-spacing:.06em;
+    color:var(--ink2);font-weight:400;
+  }
+  .vazio span{font-size:.74rem;line-height:1.55;max-width:30ch}
+  /* abas de tabela */
   .abas{
-    display:flex;gap:6px;overflow-x:auto;padding:10px 12px;
-    border-bottom:1px solid var(--line);background:rgba(10,18,40,.7);
-    scrollbar-width:none;
+    display:flex;gap:7px;padding:11px 12px;overflow-x:auto;flex:none;
+    max-width:520px;margin:0 auto;width:100%;
+    touch-action:pan-x;overscroll-behavior:contain;
   }
   .abas::-webkit-scrollbar{display:none}
   .aba{
-    flex:none;padding:9px 14px;border-radius:11px;cursor:pointer;white-space:nowrap;
-    border:1px solid var(--line);background:transparent;color:var(--dim);
-    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.06em;
+    flex:none;cursor:pointer;white-space:nowrap;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.68rem;
+    letter-spacing:.07em;padding:8px 14px;border-radius:var(--r-full);
+    background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--dim);
   }
-  .aba.on{background:rgba(77,232,255,.16);border-color:var(--cyan);color:var(--cyan)}
+  .aba.on{background:rgba(77,232,255,.15);border-color:var(--cyan);color:var(--cyan)}
+  .aba:active{transform:scale(.95)}
 
   /* ranking online */
   .rank-list{display:flex;flex-direction:column;gap:8px;max-width:520px;margin:0 auto}
   .rank-row{
     display:flex;align-items:center;gap:12px;
-    background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:11px 13px;
+    background:linear-gradient(160deg,rgba(20,32,70,.9),rgba(10,17,40,.9));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:11px 13px;
+    box-shadow:var(--som-1);
   }
-  .rank-row.eu{border-color:var(--cyan);box-shadow:0 0 14px rgba(77,232,255,.25)}
+  .rank-row.eu{border-color:var(--cyan);box-shadow:var(--som-1),0 0 18px rgba(77,232,255,.24)}
+  /* pódio: medalha redonda para os três primeiros */
   .rank-pos{
-    width:34px;flex:none;text-align:center;
-    font-family:"Russo One",sans-serif;font-size:1rem;color:var(--dim);
+    width:34px;height:34px;flex:none;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Russo One",sans-serif;font-size:.88rem;color:var(--dim);
+    background:rgba(237,243,255,.05);border:1px solid rgba(237,243,255,.1);
   }
-  .rank-row:nth-child(1) .rank-pos{color:var(--amber)}
-  .rank-row:nth-child(2) .rank-pos{color:#D6E2F5}
-  .rank-row:nth-child(3) .rank-pos{color:#E0995C}
+  .rank-row:nth-child(1) .rank-pos{
+    color:#3A2A00;background:linear-gradient(160deg,#FFDD8A,#E8A722);
+    border-color:rgba(255,193,69,.6);box-shadow:0 0 16px rgba(255,193,69,.45);
+  }
+  .rank-row:nth-child(2) .rank-pos{
+    color:#1a2030;background:linear-gradient(160deg,#EEF4FF,#AEBED6);
+    border-color:rgba(214,226,245,.5);
+  }
+  .rank-row:nth-child(3) .rank-pos{
+    color:#2b1608;background:linear-gradient(160deg,#F2B279,#C97A3C);
+    border-color:rgba(224,153,92,.5);
+  }
   .rank-info{flex:1;min-width:0}
   .rank-nome{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rank-meta{font-size:.68rem;color:var(--dim);margin-top:2px}
@@ -649,15 +885,26 @@
   .nuvem-ok{color:rgba(77,232,255,.75)}
   .nuvem-erro{color:var(--amber);font-weight:600}
   #presente-aviso{
-    display:none;font-size:.78rem;font-weight:700;color:#04121c;
-    background:var(--amber);border-radius:12px;padding:11px 14px;line-height:1.35;
+    display:none;font-size:.78rem;font-weight:700;color:#2a1c00;
+    background:linear-gradient(135deg,#FFD98F,#F2AC22);
+    border-radius:var(--r-md);padding:12px 14px;line-height:1.4;
+    box-shadow:0 0 26px rgba(255,193,69,.35),var(--som-2);
+    animation:presentePisca 2.4s ease-in-out infinite;
   }
+  @keyframes presentePisca{0%,100%{box-shadow:0 0 20px rgba(255,193,69,.28),var(--som-2)}50%{box-shadow:0 0 34px rgba(255,193,69,.55),var(--som-2)}}
   /* aba de novidades */
   .nov-lista{display:flex;flex-direction:column;gap:14px}
   .nov-item{
-    background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+    position:relative;padding:13px 14px 13px 17px;
+    background:linear-gradient(160deg,rgba(20,32,70,.9),rgba(10,17,40,.9));
+    border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--som-1);
   }
-  .nov-item.novo{border-color:var(--amber);box-shadow:0 0 18px rgba(255,193,69,.18)}
+  .nov-item::before{
+    content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:999px;
+    background:rgba(77,232,255,.4);
+  }
+  .nov-item.novo{border-color:rgba(255,193,69,.45);box-shadow:var(--som-1),0 0 22px rgba(255,193,69,.14)}
+  .nov-item.novo::before{background:var(--amber)}
   .nov-item b{
     display:block;font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.14em;
     color:var(--amber);margin-bottom:7px;
@@ -672,7 +919,7 @@
   #atualiza-box{
     position:fixed;left:50%;transform:translateX(-50%);
     top:calc(10px + env(safe-area-inset-top));z-index:41;
-    display:none;align-items:center;gap:10px;
+    display:none;align-items:center;gap:10px;justify-content:space-between;
     background:var(--cyan);color:#04121c;border-radius:13px;
     padding:9px 10px 9px 14px;box-shadow:0 8px 26px rgba(0,0,0,.45);
     max-width:min(94vw,420px);
@@ -813,11 +1060,20 @@
   .cp-itens:empty{display:none}
   #cp-ok{width:min(88vw,340px);flex:none}
   .cp-item{
-    display:flex;align-items:center;gap:10px;text-align:left;
-    background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+    display:flex;align-items:center;gap:11px;text-align:left;
+    background:linear-gradient(135deg,rgba(30,44,90,.94),rgba(12,19,44,.94));
+    border:1px solid rgba(255,193,69,.28);border-radius:var(--r-md);padding:11px 13px;
+    box-shadow:var(--som-1),0 0 20px rgba(255,193,69,.1);
     opacity:0;transform:translateY(10px);
     animation:cpEntra .35s ease-out forwards;
   }
+  .cp-item b{
+    width:34px;height:34px;flex:none;border-radius:var(--r-sm);
+    display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+    background:rgba(255,193,69,.12);border:1px solid rgba(255,193,69,.3);
+  }
+  .cp-item.ruim{border-color:rgba(255,92,92,.35);box-shadow:var(--som-1)}
+  .cp-item.ruim b{background:rgba(255,92,92,.12);border-color:rgba(255,92,92,.3)}
   .cp-item.ruim{border-color:rgba(255,82,82,.5)}
   .cp-msg{
     display:none;max-width:min(88vw,340px);margin:-4px auto 0;
@@ -981,13 +1237,17 @@
 
   /* escolha da dificuldade */
   .dif-linha{
-    display:flex;gap:7px;padding:0 12px 10px;flex:none;
+    display:flex;gap:7px;padding:11px 12px;flex:none;
     max-width:520px;width:100%;margin:0 auto;
   }
   .dif-btn{
-    flex:1;min-width:0;cursor:pointer;text-align:center;padding:9px 4px;
-    background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    flex:1;min-width:0;cursor:pointer;text-align:center;padding:10px 4px;
+    background:linear-gradient(160deg,rgba(20,32,70,.9),rgba(10,17,40,.9));
+    border:1px solid var(--line);border-radius:var(--r-md);
+    transition:transform .1s ease,border-color .18s ease,box-shadow .18s ease;
   }
+  .dif-btn:active{transform:scale(.96)}
+  .dif-btn.on{box-shadow:0 0 18px rgba(255,193,69,.2);background:linear-gradient(160deg,rgba(30,46,96,.95),rgba(14,23,52,.95))}
   .dif-btn b{display:block;font-size:1rem;line-height:1.1}
   .dif-btn span{
     display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;
@@ -1146,9 +1406,15 @@
   .sg-cartao{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:min(94vw,430px);max-height:86vh;overflow-y:auto;text-align:left;
-    background:var(--panel);border:1px solid var(--amber);border-radius:18px;
-    padding:16px;box-shadow:0 14px 50px rgba(0,0,0,.6);
+    background:linear-gradient(180deg,rgba(24,36,76,.97),rgba(10,17,40,.97));
+    border:1px solid rgba(255,193,69,.5);border-radius:var(--r-xl);
+    padding:17px;box-shadow:var(--som-3),0 0 40px rgba(255,193,69,.14);
     touch-action:pan-y;overscroll-behavior:contain;
+    animation:sgEntra .3s cubic-bezier(.2,1.1,.4,1) both;
+  }
+  @keyframes sgEntra{
+    from{opacity:0;transform:translate(-50%,-46%) scale(.96)}
+    to{opacity:1;transform:translate(-50%,-50%) scale(1)}
   }
   .sg-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
   .sg-topo b{font-family:"Russo One",sans-serif;font-size:.86rem;letter-spacing:.1em;color:var(--amber)}
@@ -1276,13 +1542,34 @@
 
   /* recado do administrador para o jogo inteiro */
   /* fica ABAIXO do placar, para não tapar a vida nem a fase */
+  /* recado do administrador: uma faixa que desce do alto com um selo de
+     megafone, some sozinha e muda de cor conforme o tipo do recado      */
   #aviso-global{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(78px + env(safe-area-inset-top));z-index:46;display:none;
-    max-width:min(94vw,460px);text-align:center;
-    background:rgba(10,18,40,.96);border:1px solid var(--cyan);border-radius:14px;
-    padding:9px 16px;box-shadow:0 6px 26px rgba(0,0,0,.55);
+    top:calc(84px + env(safe-area-inset-top));z-index:46;display:none;
+    width:min(94vw,440px);text-align:left;
+    background:linear-gradient(135deg,rgba(16,28,64,.97),rgba(9,15,36,.97));
+    border:1px solid var(--cyan);border-radius:var(--r-lg);
+    padding:11px 15px 11px 46px;box-shadow:var(--som-3),0 0 34px rgba(77,232,255,.2);
+    animation:avisoDesce .34s ease-out both;
   }
+  @keyframes avisoDesce{
+    from{opacity:0;transform:translate(-50%,0) scale(.96)}
+    to{opacity:1;transform:translate(-50%,0) scale(1)}
+  }
+  /* com recado no ar, as telas cheias descem para não ficar por baixo */
+  body.tem-aviso .screen{padding-top:150px}
+  body.tem-aviso .page-head{padding-top:calc(11px + env(safe-area-inset-top))}
+  /* selo redondo do lado esquerdo */
+  #aviso-global::before{
+    content:"📢";position:absolute;left:11px;top:50%;transform:translateY(-50%);
+    width:26px;height:26px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:.85rem;
+    background:rgba(77,232,255,.16);border:1px solid rgba(77,232,255,.45);
+  }
+  #aviso-global.alerta::before{content:"⚠";background:rgba(255,92,92,.16);border-color:rgba(255,92,92,.5)}
+  #aviso-global.festa::before{content:"🎉";background:rgba(255,77,143,.16);border-color:rgba(255,77,143,.5)}
+  #aviso-global.premio::before{content:"🎁";background:rgba(255,193,69,.16);border-color:rgba(255,193,69,.5)}
   #aviso-global.on{display:block}
   #aviso-global b{
     display:block;font-family:"Russo One",sans-serif;font-size:.56rem;
@@ -1292,11 +1579,11 @@
     display:block;font-size:.82rem;font-weight:600;line-height:1.35;
     color:var(--ink);word-break:break-word;
   }
-  #aviso-global.alerta{border-color:var(--danger);background:rgba(30,8,12,.96)}
+  #aviso-global.alerta{border-color:var(--danger);background:linear-gradient(135deg,rgba(44,10,16,.97),rgba(22,6,10,.97));box-shadow:var(--som-3),0 0 34px rgba(255,92,92,.22)}
   #aviso-global.alerta b{color:var(--danger)}
-  #aviso-global.festa{border-color:var(--magenta);background:rgba(30,8,24,.96)}
+  #aviso-global.festa{border-color:var(--magenta);background:linear-gradient(135deg,rgba(46,10,34,.97),rgba(22,6,16,.97));box-shadow:var(--som-3),0 0 34px rgba(255,77,143,.22)}
   #aviso-global.festa b{color:var(--magenta)}
-  #aviso-global.premio{border-color:var(--amber);background:rgba(30,22,6,.96)}
+  #aviso-global.premio{border-color:var(--amber);background:linear-gradient(135deg,rgba(44,32,8,.97),rgba(22,16,4,.97));box-shadow:var(--som-3),0 0 34px rgba(255,193,69,.22)}
   #aviso-global.premio b{color:var(--amber)}
   @media (prefers-reduced-motion:no-preference){
     #aviso-global.on{animation:avisoEntra .45s ease-out}
@@ -1305,10 +1592,14 @@
 
   /* selo do evento que está rolando */
   #evento-selo{
-    position:fixed;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(4px + env(safe-area-inset-bottom));
     z-index:12;display:none;align-items:center;gap:7px;
-    background:rgba(10,18,40,.9);border:1px solid var(--line);border-radius:12px;
-    padding:6px 11px;font-size:.62rem;letter-spacing:.04em;pointer-events:none;
+    background:var(--vidro);border:1px solid var(--line);border-radius:var(--r-full);
+    padding:5px 13px;font-size:.6rem;letter-spacing:.05em;pointer-events:none;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    max-width:min(70vw,300px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    box-shadow:var(--som-1);
   }
   #evento-selo.on{display:flex}
   #evento-selo b{font-size:1rem}
@@ -1487,23 +1778,44 @@
   .page{
     position:fixed;inset:0;z-index:10;
     display:none;flex-direction:column;
-    background:linear-gradient(rgba(8,13,30,.97),rgba(6,10,24,.99));
+    background:
+      radial-gradient(120% 60% at 50% 0%,rgba(30,50,110,.4),transparent 62%),
+      linear-gradient(rgba(8,13,32,.985),rgba(5,9,22,.995));
   }
   .page.show{display:flex}
   .page-head{
+    position:relative;flex:none;
     display:flex;align-items:center;gap:12px;
-    padding:calc(10px + env(safe-area-inset-top)) 14px 10px 14px;
-    border-bottom:1px solid var(--line);
-    background:var(--panel);
+    padding:calc(11px + env(safe-area-inset-top)) 14px 11px 14px;
+    background:linear-gradient(180deg,rgba(16,26,58,.96),rgba(9,15,36,.92));
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow:var(--som-1);
+  }
+  /* fio de luz no rodapé do cabeçalho, no lugar da linha seca */
+  .page-head::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--line2) 18%,var(--line2) 82%,transparent);
   }
   .back-btn{
     width:40px;height:40px;flex:none;
-    border:1px solid var(--line);border-radius:12px;
-    background:transparent;font-size:1.2rem;cursor:pointer;
+    border:1px solid var(--line);border-radius:var(--r-md);
+    background:rgba(255,255,255,.04);font-size:1.2rem;cursor:pointer;color:var(--cyan);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .1s ease,background .18s ease;
   }
-  .back-btn:active{background:rgba(77,232,255,.15)}
-  .page-title{font-family:"Russo One",sans-serif;font-size:1.05rem;letter-spacing:.08em;flex:1;text-align:left}
-  .page-gems{font-size:.9rem;white-space:nowrap}
+  .back-btn:active{background:rgba(77,232,255,.18);transform:scale(.92)}
+  .page-title{
+    font-family:"Russo One",sans-serif;font-size:1.02rem;letter-spacing:.1em;
+    flex:1;text-align:left;min-width:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .page-gems{
+    font-size:.86rem;white-space:nowrap;font-weight:700;
+    background:rgba(255,193,69,.1);border:1px solid rgba(255,193,69,.3);
+    border-radius:var(--r-full);padding:6px 13px;
+  }
+  /* sem número não aparece pílula vazia no cabeçalho */
+  .page-gems:empty{display:none}
   .scroll{
     flex:1;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
     padding:16px 14px calc(24px + env(safe-area-inset-bottom)) 14px;
@@ -1588,28 +1900,47 @@
   /* loja */
   .shop-list{display:flex;flex-direction:column;gap:12px;max-width:440px;margin:0 auto}
   .shop-card{
+    position:relative;overflow:hidden;
     display:flex;align-items:center;gap:12px;
-    background:var(--panel2);border:1px solid var(--line);border-radius:14px;
-    padding:12px 14px;text-align:left;
+    background:linear-gradient(160deg,rgba(20,32,70,.92),rgba(10,17,40,.92));
+    border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:12px 14px;text-align:left;box-shadow:var(--som-1);
+    transition:border-color .18s ease;
   }
+  .shop-card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:linear-gradient(180deg,var(--cyan),rgba(77,232,255,0));
+    opacity:.5;
+  }
+  /* quando dá para comprar, o cartão acende */
+  .shop-card.pode{border-color:rgba(255,193,69,.45)}
+  .shop-card.pode::before{background:linear-gradient(180deg,var(--amber),rgba(255,193,69,0));opacity:.85}
+  .shop-card.cheio{opacity:.66}
   .shop-icon{
-    width:46px;height:46px;flex:none;border-radius:12px;
+    width:48px;height:48px;flex:none;border-radius:var(--r-md);
     display:flex;align-items:center;justify-content:center;
-    font-size:1.3rem;background:rgba(77,232,255,.12);
+    font-size:1.35rem;color:var(--cyan);
+    background:rgba(77,232,255,.1);border:1px solid rgba(77,232,255,.24);
   }
+  .shop-card.pode .shop-icon{color:var(--amber);background:rgba(255,193,69,.1);border-color:rgba(255,193,69,.3)}
   .shop-info{flex:1;min-width:0}
   .shop-name{font-family:"Russo One",sans-serif;font-size:.9rem;letter-spacing:.04em}
   .shop-desc{font-size:.72rem;color:var(--dim);line-height:1.35;margin-top:2px}
-  .pips{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
-  .pip{width:12px;height:5px;border-radius:3px;background:rgba(234,242,255,.15)}
-  .pip.on{background:var(--cyan);box-shadow:0 0 6px rgba(77,232,255,.7)}
-  .buy-btn{
-    flex:none;min-width:74px;
-    padding:10px 10px;border-radius:12px;border:none;cursor:pointer;
-    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.78rem;
-    background:var(--amber);color:#231500;
-    box-shadow:0 3px 0 rgba(140,98,15,.9);
+  .pips{display:flex;gap:3px;margin-top:7px;flex-wrap:wrap}
+  .pip{
+    width:13px;height:5px;border-radius:999px;background:rgba(237,243,255,.13);
+    transition:background .2s ease,box-shadow .2s ease;
   }
+  .pip.on{background:var(--cyan);box-shadow:0 0 7px rgba(77,232,255,.65)}
+  .buy-btn{
+    flex:none;min-width:76px;
+    padding:10px;border-radius:var(--r-md);border:none;cursor:pointer;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.78rem;
+    background:linear-gradient(180deg,#FFD173,#F2AC22);color:#231500;
+    box-shadow:0 3px 0 rgba(130,90,12,.95),0 0 16px rgba(255,193,69,.24);
+    transition:transform .1s ease,box-shadow .16s ease;
+  }
+  .buy-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(130,90,12,.95)}
   .buy-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(140,98,15,.9)}
   .buy-btn:disabled{background:rgba(234,242,255,.14);color:var(--dim);box-shadow:none;cursor:default}
   .buy-btn.max{background:rgba(77,232,255,.2);color:var(--cyan);box-shadow:none}
@@ -1797,10 +2128,17 @@
   /* relíquias / amuletos */
   .amu-slots{display:flex;gap:10px;justify-content:center;max-width:440px;margin:0 auto 14px auto}
   .amu-slot{
-    flex:1;min-height:86px;border-radius:14px;cursor:pointer;
-    border:1.5px dashed rgba(234,242,255,.3);background:rgba(10,18,40,.5);
+    flex:1;min-height:90px;border-radius:var(--r-lg);cursor:pointer;
+    border:1.5px dashed rgba(237,243,255,.22);
+    background:radial-gradient(circle at 50% 34%,rgba(77,232,255,.06),rgba(8,14,34,.6));
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-    padding:8px 6px;text-align:center;
+    padding:9px 6px;text-align:center;
+    transition:transform .1s ease,border-color .18s ease;
+  }
+  .amu-slot:active{transform:scale(.96)}
+  .amu-slot.full{
+    border-style:solid;background:linear-gradient(160deg,rgba(22,36,78,.92),rgba(10,17,40,.92));
+    box-shadow:var(--som-1);
   }
   .amu-slot.full{border-style:solid}
   .amu-slot .amu-ic{font-size:1.3rem}
@@ -1829,14 +2167,26 @@
   .rel-col-ic.lend.tem{border-color:var(--amber);color:var(--amber);background:rgba(255,193,69,.1)}
   .amu-list{display:flex;flex-direction:column;gap:10px;max-width:440px;margin:14px auto 0 auto}
   .amu-card{
+    position:relative;overflow:hidden;
     display:flex;align-items:center;gap:12px;text-align:left;
-    background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:11px 13px;
+    background:linear-gradient(160deg,rgba(20,32,70,.92),rgba(10,17,40,.92));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:11px 13px;
+    box-shadow:var(--som-1);
+  }
+  .amu-card .amu-ic{
+    width:44px;height:44px;flex:none;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(237,243,255,.05);border:1px solid rgba(237,243,255,.12);
   }
   .amu-card .amu-ic{font-size:1.5rem;width:40px;text-align:center;flex:none}
   .amu-body{flex:1;min-width:0}
   .amu-name{font-size:.8rem;font-weight:700}
   .amu-fx{font-size:.68rem;color:var(--dim);margin-top:2px;line-height:1.35}
-  .rar{font-size:.58rem;font-weight:700;letter-spacing:.14em;padding:2px 7px;border-radius:8px;display:inline-block;margin-top:4px}
+  .rar{
+    font-size:.55rem;font-weight:700;letter-spacing:.16em;padding:3px 9px;
+    border-radius:var(--r-full);display:inline-block;margin-top:5px;
+    border:1px solid currentColor;
+  }
   .rar-0{background:rgba(159,176,204,.18);color:#9FB0CC}
   .rar-1{background:rgba(77,232,255,.16);color:var(--cyan)}
   .rar-2{background:rgba(195,77,255,.16);color:var(--violet)}
@@ -1882,9 +2232,10 @@
     <span class="hud-value" id="hud-score">0</span>
     <span class="hud-value" id="hud-gems">◆ 0</span>
   </div>
-  <div class="hud-col" style="align-items:center">
-    <span class="hud-label" id="hud-fase-label">ONDA</span>
+  <div class="hud-col hud-centro">
     <span class="hud-value" id="hud-fase">FASE 1</span>
+    <div class="hud-ondas" id="hud-ondas"></div>
+    <span class="hud-label" id="hud-fase-label">ONDA</span>
     <span class="hud-value" id="hud-lives">♥♥♥</span>
     <div id="hud-hp"><i id="hud-hp-fill"></i><b id="hud-hp-txt"></b></div>
   </div>
@@ -2015,16 +2366,20 @@
 <!-- SENHA DESENHO -->
 <div class="screen" id="screen-senha">
   <div class="tagline" id="senha-tag">Segurança</div>
-  <div id="senha-titulo">DESENHE SUA SENHA</div>
-  <div class="senha-pontos" id="senha-pontos"></div>
-  <canvas id="senha-canvas" width="600" height="600"></canvas>
-  <p id="senha-dica">Ligue pelo menos 4 pontos sem soltar o dedo.</p>
-  <label class="lembrar" id="senha-lembrar-linha" style="max-width:min(88vw,320px)">
-    <input type="checkbox" id="senha-lembrar" checked>
-    <span>Continuar conectado neste aparelho</span>
-  </label>
-  <button class="ghost-btn" id="senha-refazer">REFAZER</button>
-  <button class="ghost-btn" id="senha-voltar">VOLTAR</button>
+  <div class="senha-cartao">
+    <div id="senha-titulo">DESENHE SUA SENHA</div>
+    <div class="senha-pontos" id="senha-pontos"></div>
+    <canvas id="senha-canvas" width="600" height="600"></canvas>
+    <p id="senha-dica">Ligue pelo menos 4 pontos sem soltar o dedo.</p>
+    <label class="lembrar" id="senha-lembrar-linha" style="width:100%">
+      <input type="checkbox" id="senha-lembrar" checked>
+      <span>Continuar conectado neste aparelho</span>
+    </label>
+  </div>
+  <div class="senha-linha">
+    <button class="ghost-btn" id="senha-voltar">‹ VOLTAR</button>
+    <button class="ghost-btn" id="senha-refazer">↻ REFAZER</button>
+  </div>
 </div>
 
 <!-- PAINEL ADM -->
@@ -2888,33 +3243,39 @@
 
 <!-- PAUSA -->
 <div class="screen" id="screen-pause">
-  <div class="tagline">Pausado</div>
-  <h1 class="brand" style="font-size:clamp(1.8rem,8vw,3rem)">PAUSA</h1>
-  <button class="big-btn" id="btn-resume">CONTINUAR</button>
-  <button class="ghost-btn" id="btn-quit">SAIR PARA O MENU</button>
+  <div class="fim-cartao">
+    <div class="tagline">Pausado</div>
+    <div class="fim-ic pausa">⏸</div>
+    <h1 class="fim-titulo cyan">PAUSA</h1>
+    <p class="fim-sub">A partida está esperando por você.</p>
+    <button class="big-btn" id="btn-resume" style="width:100%">▶ CONTINUAR</button>
+    <button class="ghost-btn" id="btn-quit" style="width:100%">SAIR PARA O MENU</button>
+  </div>
 </div>
 
 <!-- VITÓRIA -->
 <div class="screen" id="screen-victory">
-  <div class="tagline">Setor limpo</div>
-  <h1 id="vic-title">FASE CONCLUÍDA</h1>
-  <div id="vic-skill">✦ +1 PONTO DE HABILIDADE ✦</div>
-  <div id="vic-amulet"></div>
-  <div class="reward-line gem" id="vic-gems">+0 cristais</div>
-  <div class="stat-panel">
-    <div class="hud-col" style="align-items:center">
-      <span class="hud-label">FASE</span>
-      <span class="hud-value" id="vic-fase" style="color:var(--amber)">1</span>
+  <div class="fim-cartao ganhou">
+    <div class="fim-raios"></div>
+    <div class="tagline">Setor limpo</div>
+    <div class="fim-ic vitoria">★</div>
+    <h1 class="fim-titulo cyan" id="vic-title">FASE CONCLUÍDA</h1>
+    <div class="fim-premios">
+      <div class="fim-premio gem" id="vic-gems">+0 cristais</div>
+      <div class="fim-premio extra" id="vic-skill">✦ +1 PONTO DE HABILIDADE</div>
+      <div class="fim-premio extra roxo" id="vic-amulet"></div>
     </div>
-    <div class="hud-col" style="align-items:center">
-      <span class="hud-label">PONTOS</span>
-      <span class="hud-value" id="vic-score">0</span>
+    <div class="fim-placar">
+      <div class="fim-cx"><b id="vic-fase">1</b><span>FASE</span></div>
+      <div class="fim-cx"><b id="vic-score">0</b><span>PONTOS</span></div>
     </div>
+    <button class="big-btn" id="btn-next" style="width:100%">PRÓXIMA FASE ›</button>
+    <div class="fim-linha">
+      <button class="ghost-btn" id="btn-vic-shop">⬡ MELHORIAS</button>
+      <button class="ghost-btn" id="btn-vic-menu">MENU</button>
+    </div>
+    <button class="ghost-btn sugestao-btn" id="btn-vic-sug" style="width:100%">💡 MANDAR UMA SUGESTÃO</button>
   </div>
-  <button class="big-btn" id="btn-next">PRÓXIMA FASE</button>
-  <button class="ghost-btn" id="btn-vic-shop">⬡ MELHORIAS</button>
-  <button class="ghost-btn" id="btn-vic-menu">MENU</button>
-  <button class="ghost-btn sugestao-btn" id="btn-vic-sug">💡 MANDAR UMA SUGESTÃO</button>
 </div>
 
 <!-- CAIXA DE SUGESTÃO -->
@@ -2942,24 +3303,25 @@
 
 <!-- DERROTA -->
 <div class="screen" id="screen-over">
-  <div class="tagline">Fim da missão</div>
-  <h1 id="go-title">NAVE DESTRUÍDA</h1>
-  <div id="go-record">★ NOVO RECORDE! ★</div>
-  <div class="reward-line gem" id="go-gems">+0 cristais recuperados</div>
-  <div class="stat-panel">
-    <div class="hud-col" style="align-items:center">
-      <span class="hud-label">FASE</span>
-      <span class="hud-value" id="go-fase" style="color:var(--amber)">1</span>
+  <div class="fim-cartao perdeu">
+    <div class="tagline" style="color:var(--danger);background:rgba(255,92,92,.1);border-color:rgba(255,92,92,.32)">Fim da missão</div>
+    <div class="fim-ic derrota">✖</div>
+    <h1 class="fim-titulo vermelho" id="go-title">NAVE DESTRUÍDA</h1>
+    <div class="fim-premios">
+      <div class="fim-premio gem" id="go-gems">+0 cristais recuperados</div>
+      <div class="fim-premio extra ouro" id="go-record">★ NOVO RECORDE!</div>
     </div>
-    <div class="hud-col" style="align-items:center">
-      <span class="hud-label">PONTOS</span>
-      <span class="hud-value" id="go-score">0</span>
+    <div class="fim-placar">
+      <div class="fim-cx"><b id="go-fase">1</b><span>FASE</span></div>
+      <div class="fim-cx"><b id="go-score">0</b><span>PONTOS</span></div>
     </div>
+    <button class="big-btn rosa" id="btn-retry" style="width:100%">↻ TENTAR DE NOVO</button>
+    <div class="fim-linha">
+      <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
+      <button class="ghost-btn" id="btn-go-menu">MENU</button>
+    </div>
+    <button class="ghost-btn sugestao-btn" id="btn-go-sug" style="width:100%">💡 MANDAR UMA SUGESTÃO</button>
   </div>
-  <button class="big-btn" id="btn-retry">TENTAR DE NOVO</button>
-  <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
-  <button class="ghost-btn sugestao-btn" id="btn-go-sug">💡 MANDAR UMA SUGESTÃO</button>
-  <button class="ghost-btn" id="btn-go-menu">MENU</button>
 </div>
 <script>
 "use strict";
@@ -3001,7 +3363,10 @@ function resize() {
   ctx.setTransform(DPR * ZOOM, 0, 0, DPR * ZOOM, 0, 0);
 }
 resize();
-window.addEventListener("resize", resize);
+window.addEventListener("resize", () => {
+  resize();
+  try { renderHabBar(true); } catch (e) {}
+});
 window.addEventListener("orientationchange", () => setTimeout(resize, 250));
 
 /* ---------- Utilidades ---------- */
@@ -3982,10 +4347,34 @@ function mundoMostrarAviso() {
   const el = $("aviso-global");
   if (!el) return;
   const a = MUNDO.aviso;
-  if (!a || !a.texto) { el.classList.remove("on"); avisoUltimo = ""; return; }
+  if (!a || !a.texto) {
+    el.classList.remove("on");
+    document.body.classList.remove("tem-aviso");
+    avisoUltimo = "";
+    return;
+  }
+  document.body.classList.add("tem-aviso");
   el.className = "on " + (a.tipo || "normal");
   el.innerHTML = '<b>' + (a.de ? escaparTexto(a.de) : "ADMINISTRADOR") + "</b>" +
-                 "<span>" + escaparTexto(a.texto) + "</span>";
+                 "<span>" + escaparLongo(a.texto) + "</span>";
+  /* desce o recado até logo abaixo do painel de cima, para nunca cobrir
+     a fase, a vida e os botões — em qualquer tamanho de tela            */
+  try {
+    const hud = $("hud");
+    let topo = 16;
+    if (hud && getComputedStyle(hud).display !== "none") {
+      let maior = 0;
+      hud.querySelectorAll(".hud-col,.hud-btns").forEach(c => {
+        const r = c.getBoundingClientRect();
+        if (r.height && r.bottom > maior) maior = r.bottom;
+      });
+      if (maior) topo = maior + 12;
+    } else {
+      topo = 16 + (parseInt(getComputedStyle(document.documentElement)
+        .getPropertyValue("--topo")) || 0);
+    }
+    el.style.top = Math.round(topo) + "px";
+  } catch (e) {}
   if (a.texto + a.quando !== avisoUltimo) {
     avisoUltimo = a.texto + a.quando;
     try { AudioSys.power(); vibrate([30, 50, 30]); } catch (e) {}
@@ -5213,11 +5602,33 @@ function showScreen(name) {
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
 }
+let hudOndasMarca = "";
 function updateHud() {
-  hudScore.textContent = S.score;
-  hudGems.textContent = "◆ " + S.runGems;
+  hudScore.textContent = fmt(S.score);
+  hudGems.textContent = "◆ " + fmt(S.runGems);
   hudFaseLabel.textContent = "ONDA " + Math.min(S.waveIdx, S.nWaves) + "/" + S.nWaves;
-  hudFase.textContent = "FASE " + S.fase;
+  hudFase.textContent = arenaModo() ? "ARENA " + S.fase : "FASE " + S.fase;
+  /* tracinhos das ondas: um por onda, o de agora aceso em dourado.
+     Se a fase tiver ondas demais, mostra só as dez em volta da atual. */
+  const cxOndas = $("hud-ondas");
+  if (cxOndas) {
+    const total = Math.max(1, S.nWaves);
+    const atual = clamp(S.waveIdx, 1, total);
+    const chefe = isBossFase(S.fase);
+    const marca = total + "|" + atual + "|" + (chefe ? 1 : 0);
+    if (marca !== hudOndasMarca) {
+      hudOndasMarca = marca;
+      let de = 1, ate = total;
+      if (total > 10) { de = clamp(atual - 4, 1, total - 9); ate = de + 9; }
+      let html = "";
+      for (let k = de; k <= ate; k++) {
+        const ehChefe = chefe && k === total;
+        html += '<i class="' + (ehChefe ? "chefe " : "") +
+                (k < atual ? "feita" : k === atual ? "agora" : "") + '"></i>';
+      }
+      cxOndas.innerHTML = html;
+    }
+  }
   hudLives.textContent = "♥".repeat(Math.max(0, player.lives));
   const hpEl = $("hud-hp-fill");
   if (hpEl && ST) {
@@ -5540,21 +5951,28 @@ function desenharSenha() {
   if (S.mode !== "senha" || !senhaEstado) return;
   const g = senhaCtx2, e = senhaEstado;
   g.clearRect(0, 0, 600, 600);
-  // linhas já feitas
-  g.strokeStyle = "rgba(77,232,255,.85)";
-  g.lineWidth = 9;
   g.lineCap = "round";
   g.lineJoin = "round";
+  // linhas já feitas: um risco grosso de luz com um brilho por baixo
   if (e.seq.length > 1) {
-    g.beginPath();
-    const p0 = senhaPos(e.seq[0]);
-    g.moveTo(p0.x, p0.y);
-    for (let k = 1; k < e.seq.length; k++) {
-      const pk = senhaPos(e.seq[k]);
-      g.lineTo(pk.x, pk.y);
-    }
-    g.stroke();
+    const traco = () => {
+      g.beginPath();
+      const p0 = senhaPos(e.seq[0]);
+      g.moveTo(p0.x, p0.y);
+      for (let k = 1; k < e.seq.length; k++) {
+        const pk = senhaPos(e.seq[k]);
+        g.lineTo(pk.x, pk.y);
+      }
+      g.stroke();
+    };
+    g.strokeStyle = "rgba(77,232,255,.22)";
+    g.lineWidth = 22;
+    traco();
+    g.strokeStyle = "rgba(140,244,255,.95)";
+    g.lineWidth = 8;
+    traco();
   }
+  g.lineWidth = 8;
   // linha até o dedo
   if (e.desenhando && e.seq.length) {
     const ul = senhaPos(e.seq[e.seq.length - 1]);
@@ -5564,22 +5982,37 @@ function desenharSenha() {
     g.lineTo(e.px, e.py);
     g.stroke();
   }
-  // pontos
+  // pontos: os apagados são discretos, o aceso ganha halo e miolo cheio
+  const pulso = 1 + Math.sin(Date.now() / 260) * 0.06;
   for (let i = 0; i < 9; i++) {
     const pt = senhaPos(i);
     const aceso = e.seq.indexOf(i) >= 0;
-    g.beginPath();
-    g.arc(pt.x, pt.y, aceso ? 30 : 22, 0, TAU);
-    g.fillStyle = aceso ? "rgba(77,232,255,.22)" : "rgba(234,242,255,.07)";
-    g.fill();
-    g.lineWidth = 3;
-    g.strokeStyle = aceso ? "#4DE8FF" : "rgba(234,242,255,.28)";
-    g.stroke();
+    const ordem = e.seq.indexOf(i);
     if (aceso) {
-      g.beginPath();
-      g.arc(pt.x, pt.y, 11, 0, TAU);
-      g.fillStyle = "#4DE8FF";
-      g.fill();
+      const gr = g.createRadialGradient(pt.x, pt.y, 4, pt.x, pt.y, 46);
+      gr.addColorStop(0, "rgba(77,232,255,.42)");
+      gr.addColorStop(1, "rgba(77,232,255,0)");
+      g.fillStyle = gr;
+      g.beginPath(); g.arc(pt.x, pt.y, 46, 0, TAU); g.fill();
+    }
+    g.beginPath();
+    g.arc(pt.x, pt.y, (aceso ? 30 : 20) * (aceso ? pulso : 1), 0, TAU);
+    g.fillStyle = aceso ? "rgba(77,232,255,.2)" : "rgba(237,243,255,.05)";
+    g.fill();
+    g.lineWidth = aceso ? 3.5 : 2.5;
+    g.strokeStyle = aceso ? "#4DE8FF" : "rgba(237,243,255,.22)";
+    g.stroke();
+    g.beginPath();
+    g.arc(pt.x, pt.y, aceso ? 12 : 5, 0, TAU);
+    g.fillStyle = aceso ? "#DFFAFF" : "rgba(237,243,255,.28)";
+    g.fill();
+    // numerinho da ordem em que o ponto foi ligado
+    if (ordem >= 0) {
+      g.fillStyle = "#04121c";
+      g.font = "bold 15px 'Chakra Petch',sans-serif";
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText(String(ordem + 1), pt.x, pt.y + 1);
     }
   }
   requestAnimationFrame(desenharSenha);
@@ -6573,7 +7006,7 @@ function admRenderSugestoes() {
         '<span class="quando">' + tempoRelativo(sg.quando) +
           " · fase " + (sg.fase || 0) + " · v" + escaparTexto(sg.versao || "?") + "</span>" +
       "</div>" +
-      '<div class="sug-txt">' + escaparTexto(sg.texto) + "</div>";
+      '<div class="sug-txt">' + escaparLongo(sg.texto) + "</div>";
     const acoes = document.createElement("div");
     acoes.className = "sug-acoes";
     const ler = document.createElement("button");
@@ -7742,7 +8175,7 @@ function renderPresenteGeral() {
     try { return f ? f(g[k])[1] : k; } catch (e) { return k; }
   });
   cx.innerHTML = '<div class="aviso">🌍 <b>Presente geral no ar</b> — ' +
-    escaparTexto(nomes.join(", ")) + (g.msg ? '<br>✉ "' + escaparTexto(g.msg) + '"' : "") +
+    escaparTexto(nomes.join(", ")) + (g.msg ? '<br>✉ "' + escaparLongo(g.msg) + '"' : "") +
     "<br>Vale por mais <b>" + tempoRestante(g.ate) + "</b>. Quem abrir o jogo até lá recebe.</div>";
   const parar = document.createElement("button");
   parar.className = "adm-btn danger";
@@ -8302,9 +8735,11 @@ function renderShop() {
   const list = $("shop-list");
   list.innerHTML = "";
   for (const u of UPGRADES) {
-    const lvl = save.upgrades[u.id];
+    const lvl = save.upgrades[u.id] || 0;
     const card = document.createElement("div");
-    card.className = "shop-card";
+    const noMax = lvl >= u.max;
+    const daPara = !noMax && save.crystals >= upgradeCost(u, lvl);
+    card.className = "shop-card" + (noMax ? " cheio" : daPara ? " pode" : "");
     const pips = [];
     for (let i = 0; i < u.max; i++) pips.push('<span class="pip' + (i < lvl ? " on" : "") + '"></span>');
     card.innerHTML =
@@ -8421,10 +8856,11 @@ function renderHangar(scrollToSel) {
   }
   if (!ordem.length) {
     const v = document.createElement("div");
-    v.className = "ship-vazio";
-    v.textContent = hangarFiltro === "venda"
-      ? "Você já tem todas as naves que estão à venda."
-      : "Nenhuma nave nesse filtro.";
+    v.className = "vazio";
+    v.innerHTML = "<b>✈</b><strong>NADA POR AQUI</strong><span>" +
+      (hangarFiltro === "venda"
+        ? "Você já tem todas as naves que estão à venda. Bom trabalho!"
+        : "Nenhuma nave nesse filtro.") + "</span>";
     list.appendChild(v);
     return;
   }
@@ -9125,10 +9561,9 @@ function renderReliquias() {
   inv.innerHTML = "";
   if (!save.amulets.length) {
     const d = document.createElement("div");
-    d.className = "adm-note";
-    d.style.textAlign = "center";
-    d.style.maxWidth = "none";
-    d.textContent = "Você ainda não tem amuletos. Abra um baú ou derrote um chefe!";
+    d.className = "vazio";
+    d.innerHTML = "<b>◈</b><strong>NENHUMA RELÍQUIA AINDA</strong>" +
+      "<span>Abra um baú estelar aqui em cima ou derrote um chefe pela primeira vez.</span>";
     inv.appendChild(d);
   }
   const sorted = save.amulets.slice().sort((a, b) => b.rar - a.rar);
@@ -10519,19 +10954,19 @@ canvas.addEventListener("pointermove", e => {
     const mx = pxX(e.clientX), my = pxY(e.clientY);
     if (mundoAtivo("invertido")) {
       player.tx = clamp(W - mx, player.r, W - player.r);
-      player.ty = clamp(H - my, player.r, H - player.r);
+      player.ty = clamp(H - my, player.r, limiteBaixo());
       return;
     }
     // segue o cursor direto: onde o mouse está, a nave vai
     player.tx = clamp(mx, player.r, W - player.r);
-    player.ty = clamp(my, player.r, H - player.r);
+    player.ty = clamp(my, player.r, limiteBaixo());
     return;
   }
   if (!dragging || e.pointerId !== dragId) return;
   e.preventDefault();
   const k = ST.speedK * mundoSinalControle();
   player.tx = clamp(shipStartX + pxX(e.clientX - dragStartX) * k, player.r, W - player.r);
-  player.ty = clamp(shipStartY + pxY(e.clientY - dragStartY) * k, player.r, H - player.r);
+  player.ty = clamp(shipStartY + pxY(e.clientY - dragStartY) * k, player.r, limiteBaixo());
 });
 function endDrag(e) { if (e.pointerId === dragId) { dragging = false; dragId = null; } }
 canvas.addEventListener("pointerup", endDrag);
@@ -10670,7 +11105,8 @@ async function renderRanking(recarregar) {
     abas.appendChild(b);
   }
   if (recarregar !== false || !cacheRanking) {
-    lista.innerHTML = '<div class="adm-note" style="text-align:center;max-width:none">Carregando…</div>';
+    lista.innerHTML = '<div class="vazio"><b>☁</b><strong>CARREGANDO…</strong>' +
+      "<span>Buscando os pilotos na nuvem.</span></div>";
     $("rank-count").textContent = "";
     cacheRanking = await nuvemListar();
   }
@@ -10680,8 +11116,9 @@ async function renderRanking(recarregar) {
   pilotos.sort(tab.ordena);
   lista.innerHTML = "";
   if (!pilotos.length) {
-    lista.innerHTML = '<div class="adm-note" style="text-align:center;max-width:none">' +
-      "Ninguém nesta tabela ainda.</div>";
+    lista.innerHTML = '<div class="vazio"><b>🏆</b><strong>TABELA VAZIA</strong>' +
+      "<span>Ninguém entrou nesta tabela ainda. Jogue uma fase e o seu nome aparece aqui.</span></div>";
+    $("rank-count").textContent = "";
     return;
   }
   $("rank-count").textContent = pilotos.length + " piloto" + (pilotos.length === 1 ? "" : "s");
@@ -10701,12 +11138,16 @@ async function renderRanking(recarregar) {
   });
 }
 
-/* nomes vêm de outros jogadores: trate sempre como texto, nunca como HTML */
-function escaparTexto(t) {
+/* nomes vêm de outros jogadores: trate sempre como texto, nunca como HTML.
+   O corte em 40 serve para apelido; recado, sugestão e mensagem de
+   presente usam escaparLongo, que segura até 500 letras.                */
+function escaparHtml(t) {
   return String(t == null ? "" : t)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").slice(0, 40);
+    .replace(/"/g, "&quot;");
 }
+function escaparTexto(t) { return escaparHtml(t).slice(0, 40); }
+function escaparLongo(t) { return escaparHtml(String(t == null ? "" : t).slice(0, 500)); }
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   try { Musica.parar(); } catch (e) {}
@@ -11015,12 +11456,61 @@ function usarHabilidade(h) {
   renderHabBar();
 }
 
+/* ---------- Espaço dos controles de baixo ----------
+   Um lugar só decide quanto da tela os botões ocupam: a barra de
+   habilidades se ajusta para caber, e o jogo usa a mesma conta para saber
+   até onde a nave e as tropas podem descer. Assim nada fica escondido
+   atrás de botão nem sai da tela, em qualquer celular.                   */
+let habAltura = 0;       // altura em px de tela da fila de habilidades
+const CONSOLE_BASE = 94; // ult/capa embaixo (66px + folga)
+
+function ajustarBarraHab(quantas) {
+  const bar = $("hab-bar");
+  if (!bar) return;
+  if (!quantas) { habAltura = 0; return; }
+  const larg = Math.max(200, window.innerWidth - 16);
+  const alt = window.innerHeight;
+  let gap = alt < 620 ? 5 : 6;
+  let tam = alt < 620 ? 38 : larg < 360 ? 40 : 44;
+  let porLinha = 1, linhas = 1;
+  // encolhe até caber em no máximo duas filas
+  for (let volta = 0; volta < 8; volta++) {
+    porLinha = Math.max(1, Math.floor((larg + gap) / (tam + gap)));
+    linhas = Math.ceil(quantas / porLinha);
+    if (linhas <= 2 || tam <= 28) break;
+    tam -= 3;
+  }
+  // se mesmo assim passar de duas filas, aperta o espaçamento
+  if (linhas > 2) { gap = 4; porLinha = Math.max(1, Math.floor((larg + gap) / (tam + gap)));
+                    linhas = Math.ceil(quantas / porLinha); }
+  bar.style.setProperty("--hab-tam", tam + "px");
+  bar.style.setProperty("--hab-gap", gap + "px");
+  bar.style.setProperty("--console-base", CONSOLE_BASE + "px");
+  habAltura = linhas * (tam + gap) + 6;
+}
+/* altura, em pixels de tela, tomada pelos controles de baixo */
+function alturaConsole() {
+  const seguro = 12;
+  return CONSOLE_BASE + habAltura + seguro;
+}
+/* mesma coisa, já convertida para a medida da arena */
+function chaoDaArena() { return H - pxY(alturaConsole()); }
+/* até onde a nave pode descer sem sumir atrás dos botões */
+function limiteBaixo() {
+  return Math.max(H * 0.45, chaoDaArena() - player.r);
+}
+
 function renderHabBar(forcar) {
   const bar = $("hab-bar");
   if (!bar) return;
   const lista = habilidadesDaNave();
-  if (!lista.length || S.mode !== "playing") { bar.style.display = "none"; return; }
+  if (!lista.length || S.mode !== "playing") {
+    bar.style.display = "none";
+    habAltura = 0;
+    return;
+  }
   bar.style.display = "flex";
+  ajustarBarraHab(lista.length);
   const marca = save.ship + "|" + (modoPC ? "pc" : "t");
   if (forcar || bar.dataset.nave !== marca) {
     bar.dataset.nave = marca;
@@ -11088,7 +11578,7 @@ function chamarTropa(tipo, quantos) {
   const nomes = { tanque: "TANQUES A POSTOS", soldado: "PELOTÃO DESEMBARCADO",
                   heli: "HELICÓPTEROS EM APOIO" };
   for (let i = 0; i < quantos; i++) {
-    const chao = H - Math.max(215, H * 0.26);   // acima da barra de habilidades
+    const chao = chaoDaArena() - 34;   // logo acima dos botões de baixo
     if (tipo === "tanque") {
       aliados.push({ tipo, x: (W / (quantos + 1)) * (i + 1) + rand(-14, 14),
                      y: chao - rand(0, 22), vx: rand(-18, 18),
@@ -11350,7 +11840,7 @@ function startGame(fase) {
   player.fireTimer = 0; player.missileTimer = 0;
   player.droneFire = 0;
   player.x = player.tx = W / 2;
-  player.y = player.ty = H - Math.max(110, H * 0.16);
+  player.y = player.ty = chaoDaArena() - pxY(18);
   player.droneX = player.x; player.droneY = player.y;
   bullets = []; enemyBullets = []; enemies = []; missilesArr = []; powerups = []; particles = []; texts = [];
   aliados = []; obuses = []; laserOrbital = null; raios = [];
@@ -12280,7 +12770,7 @@ function update(dt) {
   if (mundoAtivo("gravidade")) player.ty = Math.min(H - player.r, player.ty + 150 * dt);
   if (mundoAtivo("gelo")) {
     player.tx = clamp(player.tx + (player.tx - player.x) * 1.8 * dt * 6, player.r, W - player.r);
-    player.ty = clamp(player.ty + (player.ty - player.y) * 1.8 * dt * 6, player.r, H - player.r);
+    player.ty = clamp(player.ty + (player.ty - player.y) * 1.8 * dt * 6, player.r, limiteBaixo());
   }
   if (mundoAtivo("tremor")) S.shake = Math.max(S.shake, 5);
 
@@ -12330,7 +12820,7 @@ function update(dt) {
     if (keys.ArrowUp || keys.w) player.ty -= kSpd;
     if (keys.ArrowDown || keys.s) player.ty += kSpd;
     player.tx = clamp(player.tx, player.r, W - player.r);
-    player.ty = clamp(player.ty, player.r, H - player.r);
+    player.ty = clamp(player.ty, player.r, limiteBaixo());
 
     const ease = 1 - Math.pow(0.0001, dt) * (S.turboT > 0 ? 0.2 : 1);
     const oldX = player.x;
@@ -14269,7 +14759,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.0";
+const VERSAO = "4.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
