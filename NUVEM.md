@@ -107,6 +107,10 @@ No Firebase, aba **Regras** do Realtime Database, cole isto e publique:
     "sugestoes": {
       ".read": true,
       ".write": true
+    },
+    "equipe": {
+      ".read": true,
+      ".write": true
     }
   }
 }
@@ -125,6 +129,7 @@ No Firebase, aba **Regras** do Realtime Database, cole isto e publique:
 | `arena` | A **arena infinita**: a onda de agora, o recorde e quantos inimigos e chefes cada um já derrubou. Nunca zera. |
 | `fila` | Quem está procurando partida ranqueada agora. Cada entrada some sozinha depois do duelo. |
 | `pedidos` | Quando você abre o 👁 de alguém, fica aqui o aviso de que tem gente olhando — é o que liga a transmissão daquela pessoa. |
+| `equipe` | Quem pode entrar no painel além de você, o cargo de cada um e a chave pessoal. |
 | `sugestoes` | O que os jogadores escreveram na caixa de sugestão, no fim das fases. Você lê tudo no painel. |
 | `mundo` | O que o administrador ligou para todo mundo: o recado na tela, os boosts, as travessuras e o evento com música e decoração. Cada um com hora para acabar. |
 | `cenas` | O resumo da tela de quem está jogando (posições da nave, dos inimigos e do chefe), para os amigos poderem assistir. Quem não quiser aparecer desliga em **👁 TRANSMISSÃO** no menu. |
