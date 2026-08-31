@@ -648,6 +648,14 @@
     animation:cpEntra .35s ease-out forwards;
   }
   .cp-item.ruim{border-color:rgba(255,82,82,.5)}
+  .cp-msg{
+    display:none;max-width:min(88vw,340px);margin:-4px auto 0;
+    background:rgba(255,193,69,.1);border:1px solid rgba(255,193,69,.45);
+    border-radius:13px;padding:10px 14px;
+    font-size:.84rem;line-height:1.5;font-weight:600;color:var(--amber);
+    word-break:break-word;
+  }
+  .cp-msg.on{display:block}
   @keyframes cpEntra{to{opacity:1;transform:translateY(0)}}
   .cp-item b{font-size:1.15rem;flex:none;width:26px;text-align:center}
   .cp-item span{font-size:.8rem;font-weight:600;line-height:1.35}
@@ -820,6 +828,21 @@
     grid-column:1/-1;font-size:.66rem;color:var(--dim);line-height:1.5;
     text-align:center;padding:2px 4px 8px;
   }
+
+  /* recado dentro da caixa de presente */
+  .cx-recado input{margin-top:2px}
+  .cx-prontos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .cx-pronto{
+    cursor:pointer;font-size:.58rem;letter-spacing:.04em;padding:6px 10px;border-radius:9px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .cx-pronto:active{background:rgba(255,193,69,.18)}
+  .cx-geral{margin-top:10px}
+  .cx-geral .aviso{
+    background:var(--panel2);border:1px solid var(--amber);border-radius:12px;
+    padding:10px 12px;font-size:.7rem;line-height:1.5;color:rgba(234,242,255,.9);
+  }
+  .cx-geral .aviso b{color:var(--amber)}
 
   /* caixa de sugestões */
   .sugestao-btn{border-color:rgba(255,193,69,.5);color:var(--amber)}
@@ -1449,6 +1472,7 @@
   <div class="cp-fundo"></div>
   <div class="cp-conteudo">
     <div class="cp-de">O ADMINISTRADOR ENVIOU</div>
+    <div class="cp-msg" id="cp-msg"></div>
     <div class="cp-caixa" id="cp-caixa">
       <div class="cp-raios"></div>
       <div class="cp-tampa"></div>
@@ -1746,11 +1770,30 @@
             <div class="caixa-vazia" id="caixa-vazia">Toque nos botões acima para colocar itens na caixa.</div>
             <div id="caixa-itens"></div>
           </div>
+          <div class="cx-recado">
+            <div class="adm-h" style="margin-top:14px">✉ RECADO DENTRO DA CAIXA</div>
+            <input id="caixa-msg" maxlength="200" autocomplete="off"
+                   placeholder="Escreva um recado (aparece quando abrir a caixa)…">
+            <div class="cx-prontos" id="caixa-prontos"></div>
+          </div>
           <div class="adm-grid" style="margin-top:10px">
             <button class="adm-btn gold" id="caixa-enviar">📦 ENVIAR A CAIXA</button>
             <button class="adm-btn danger" id="caixa-limpar">ESVAZIAR</button>
           </div>
-          <p class="adm-note" style="margin-top:10px">Monte a caixa com quantos itens quiser e envie tudo de uma vez. A pessoa recebe tudo junto, com a animação de abrir.</p>
+          <div class="adm-h gold" style="margin-top:16px">🌍 MANDAR PARA TODO MUNDO</div>
+          <p class="adm-note" style="max-width:none">
+            A mesma caixa e o mesmo recado, só que para todos os jogadores —
+            inclusive quem criar conta depois, enquanto estiver no prazo.
+          </p>
+          <div class="mundo-linha" style="margin-top:8px">
+            <span class="mundo-rot">VALE POR</span>
+            <input id="caixa-geral-dias" type="number" inputmode="numeric" min="1" value="7">
+            <span class="mundo-un">dias</span>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn gold wide" id="caixa-todos">🌍 ENVIAR PARA TODO MUNDO</button>
+          </div>
+          <div class="cx-geral" id="cx-geral"></div>
         </div>
       </div>
 
@@ -2454,6 +2497,7 @@ function defaultSave() {
     limpezaNaves: 0,         // número da última limpeza de naves aplicada
     sugestoes: [],           // resumo do que você já sugeriu
     sugPendentes: [],        // sugestões esperando internet para subir
+    presenteGeralVisto: 0,   // data do último presente geral que você já pegou
     arenaOnda: 0,            // maior onda que você alcançou na arena
     transmitir: true,        // deixa os amigos verem a sua tela
     controle: "auto",        // auto | pc | toque
@@ -2930,6 +2974,7 @@ async function nuvemEnviarPresente(id, presente) {
       novo[k] = juntas.filter((v, i) => juntas.indexOf(v) === i);
     }
   }
+  if (presente.msg) novo.msg = String(presente.msg).slice(0, 200);
   if (presente.remUp !== undefined) novo.remUp = Object.assign(novo.remUp || {}, presente.remUp);
   if (presente.tirarCristais) novo.tirarCristais = (novo.tirarCristais || 0) + presente.tirarCristais;
   if (presente.exclusiva !== undefined) {
@@ -3153,6 +3198,7 @@ async function nuvemVerificarPresentes() {
   if (S.mode === "menu") refreshMenu();
 
   // guarda para abrir a caixa quando estiver no menu (nunca sobre o login)
+  if (g.msg) recadoDoPresente = String(g.msg).slice(0, 200);
   if (r.itens && r.itens.length) {
     presenteGuardado = (presenteGuardado || []).concat(r.itens);
     if (S.mode === "menu") mostrarCaixaPresente();
@@ -3184,7 +3230,7 @@ async function nuvemVerificarPresentes() {
    Cada coisa tem hora para acabar (campo "ate"), então nada fica ligado
    para sempre por esquecimento.
    ===================================================================== */
-const MUNDO = { aviso: null, efeitos: {}, evento: null, fechar: null, relogio: null };
+const MUNDO = { aviso: null, efeitos: {}, evento: null, geral: null, fechar: null, relogio: null };
 
 /* ---- catálogo: o que dá para ligar ---- */
 const BOOSTS = [
@@ -3303,7 +3349,36 @@ function mundoLimpar() {
   if (MUNDO.evento && MUNDO.evento.ate <= agora) MUNDO.evento = null;
 }
 
+/* ---------------------------------------------------------------------
+   Presente para TODO MUNDO
+   ---------------------------------------------------------------------
+   Em vez de escrever na caixa de cada jogador (o que só alcançaria quem
+   já apareceu na lista), o pacote fica num lugar só, em mundo/geral.
+   Cada jogo pega uma única vez, guardando a data do que já recebeu — e
+   quem criar a conta depois também pega, enquanto o presente estiver no
+   prazo. Uma escrita só, e ninguém fica de fora.
+   --------------------------------------------------------------------- */
+async function checarPresenteGeral(d) {
+  const g = d && d.geral;
+  if (!g || !g.quando) return;
+  if (g.ate && g.ate < Date.now()) return;             // fora do prazo
+  if ((save.presenteGeralVisto || 0) >= g.quando) return;   // já peguei este
+  save.presenteGeralVisto = g.quando;
+  const r = aplicarPresente(save, g);
+  persist();
+  calcStats();
+  if (S.mode === "menu") refreshMenu();
+  if (g.msg) recadoDoPresente = String(g.msg).slice(0, 200);
+  if (r.itens && r.itens.length) {
+    presenteGuardado = (presenteGuardado || []).concat(r.itens);
+    if (S.mode === "menu") setTimeout(mostrarCaixaPresente, 400);
+  }
+  nuvemEnviar(true);
+}
+
 function mundoAplicar(d) {
+  try { checarPresenteGeral(d); } catch (e) {}
+  MUNDO.geral = (d && d.geral) || null;
   MUNDO.aviso = (d && d.aviso) || null;
   MUNDO.efeitos = (d && d.efeitos) || {};
   MUNDO.evento = (d && d.evento) || null;
@@ -5593,6 +5668,7 @@ function admRenderMundoAgora() {
 }
 
 function admRenderMundo() {
+  try { renderPresenteGeral(); } catch (e) {}
   admRenderEventos();
   admRenderBoosts();
   admRenderTrolls();
@@ -6236,14 +6312,114 @@ function porNaCaixa(presente, msg) {
   admMsg(msg + " → na caixa");
   AudioSys.tone(700, 0.07, "sine", 0.1);
 }
-$("caixa-limpar").addEventListener("click", () => { caixaAdm = {}; renderCaixaAdm(); admMsg("Caixa esvaziada"); });
+/* ----- recado que vai dentro da caixa ----- */
+const RECADOS_CAIXA = [
+  "Obrigado por jogar! 🎁",
+  "Presente de hoje, aproveite!",
+  "Parabéns pelo progresso!",
+  "Bom jogo! 🚀",
+  "Um empurrãozinho para a próxima fase",
+  "Você mereceu 💪",
+  "Feliz aniversário! 🎂",
+  "Desculpa pelo problema de ontem"
+];
+function renderRecadosCaixa() {
+  const cx = $("caixa-prontos");
+  if (!cx) return;
+  cx.innerHTML = "";
+  for (const t of RECADOS_CAIXA) {
+    const b = document.createElement("button");
+    b.className = "cx-pronto";
+    b.textContent = t;
+    b.addEventListener("click", () => { $("caixa-msg").value = t; });
+    cx.appendChild(b);
+  }
+}
+renderRecadosCaixa();
+function recadoDaCaixa() { return ($("caixa-msg").value || "").trim().slice(0, 200); }
+
+$("caixa-limpar").addEventListener("click", () => {
+  caixaAdm = {};
+  $("caixa-msg").value = "";
+  renderCaixaAdm();
+  admMsg("Caixa esvaziada");
+});
 $("caixa-enviar").addEventListener("click", async () => {
   if (!Object.keys(caixaAdm).length) { admMsg("A caixa está vazia."); AudioSys.deny(); return; }
-  const pacote = caixaAdm;
+  const pacote = Object.assign({}, caixaAdm);
+  const msg = recadoDaCaixa();
+  if (msg) pacote.msg = msg;
   caixaAdm = {};
   renderCaixaAdm();
   await admNuvemPresente(pacote, "Caixa enviada");
 });
+
+/* ----- a mesma caixa, para todos os jogadores de uma vez ----- */
+let confirmaTodos = false;
+$("caixa-todos").addEventListener("click", async () => {
+  const chaves = Object.keys(caixaAdm);
+  if (!chaves.length) { admMsg("Monte a caixa primeiro."); AudioSys.deny(); return; }
+  if (caixaAdm.zerarTudo) {
+    admMsg("Zerar todo mundo de uma vez não dá — faça um por um.");
+    AudioSys.deny();
+    return;
+  }
+  if (!confirmaTodos) {
+    confirmaTodos = true;
+    $("caixa-todos").textContent = "TOQUE DE NOVO PARA CONFIRMAR";
+    admMsg("Isso vai para TODOS os jogadores. Toque de novo para confirmar.");
+    setTimeout(() => {
+      confirmaTodos = false;
+      $("caixa-todos").textContent = "🌍 ENVIAR PARA TODO MUNDO";
+    }, 5000);
+    return;
+  }
+  confirmaTodos = false;
+  $("caixa-todos").textContent = "🌍 ENVIAR PARA TODO MUNDO";
+
+  const dias = Math.max(1, parseInt($("caixa-geral-dias").value, 10) || 7);
+  const pacote = Object.assign({}, caixaAdm);
+  const msg = recadoDaCaixa();
+  if (msg) pacote.msg = msg;
+  pacote.quando = Date.now();
+  pacote.ate = Date.now() + dias * 86400000;
+
+  admMsg("Enviando para todo mundo…");
+  const ok = await mundoEscrever("geral", pacote);
+  if (!ok) return;
+  caixaAdm = {};
+  $("caixa-msg").value = "";
+  renderCaixaAdm();
+  renderPresenteGeral();
+  admMsg("Enviado para TODOS! Vale por " + dias + " dia(s).");
+  AudioSys.victory();
+});
+
+function renderPresenteGeral() {
+  const cx = $("cx-geral");
+  if (!cx) return;
+  const g = MUNDO.geral;
+  if (!g || !g.quando || (g.ate && g.ate < Date.now())) { cx.innerHTML = ""; return; }
+  const itens = Object.keys(g).filter(k => ["quando", "ate", "msg"].indexOf(k) < 0);
+  const nomes = itens.map(k => {
+    const f = CAIXA_ROTULOS[k];
+    try { return f ? f(g[k])[1] : k; } catch (e) { return k; }
+  });
+  cx.innerHTML = '<div class="aviso">🌍 <b>Presente geral no ar</b> — ' +
+    escaparTexto(nomes.join(", ")) + (g.msg ? '<br>✉ "' + escaparTexto(g.msg) + '"' : "") +
+    "<br>Vale por mais <b>" + tempoRestante(g.ate) + "</b>. Quem abrir o jogo até lá recebe.</div>";
+  const parar = document.createElement("button");
+  parar.className = "adm-btn danger";
+  parar.style.marginTop = "8px";
+  parar.style.width = "100%";
+  parar.textContent = "PARAR O PRESENTE GERAL";
+  parar.addEventListener("click", async () => {
+    await mundoApagar("geral");
+    renderPresenteGeral();
+    admMsg("Presente geral encerrado");
+  });
+  cx.appendChild(parar);
+}
 
 /* Aplica a mudança JÁ na conta guardada na nuvem.
    Sem isto, tirar um item só valia quando a pessoa abrisse o jogo — e no
@@ -12202,12 +12378,19 @@ document.querySelector("#sugestao-box .sg-fundo").addEventListener("click", fech
 
 /* ---------- Caixa de presente ---------- */
 let presenteGuardado = null;
+let recadoDoPresente = "";      // o que o administrador escreveu junto do presente
 
 function mostrarCaixaPresente() {
   if (!presenteGuardado || !presenteGuardado.length) return;
   if (S.mode !== "menu") return;             // só no menu, nunca sobre o login
   const cx = $("caixa-presente");
   cx.classList.remove("aberta");
+  // o recado escrito pelo administrador, quando ele mandou um
+  const msg = $("cp-msg");
+  if (msg) {
+    if (recadoDoPresente) { msg.textContent = recadoDoPresente; msg.classList.add("on"); }
+    else msg.classList.remove("on");
+  }
   $("cp-itens").innerHTML = "";
   $("cp-ok").style.display = "none";
   $("cp-toque").textContent = "toque para abrir";
@@ -12240,6 +12423,7 @@ function abrirCaixaPresente() {
 function fecharCaixaPresente() {
   $("caixa-presente").classList.remove("on");
   presenteGuardado = null;
+  recadoDoPresente = "";
   refreshMenu();
 }
 $("cp-caixa").addEventListener("click", abrirCaixaPresente);
@@ -12295,6 +12479,10 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.6", itens: [
+      "O administrador agora escreve um RECADO dentro da caixa de presente — aparece junto com o que veio, tanto para um jogador quanto para todos",
+      "PRESENTE PARA TODO MUNDO: a mesma caixa vai para todos os jogadores de uma vez, e quem criar conta depois também recebe enquanto estiver no prazo"
+    ] },
   { v: "3.5", itens: [
       "CAIXA DE SUGESTÕES no fim de cada fase, junto do PRÓXIMA FASE e do MENU: escreva o que você quer ver no jogo e vai direto para quem faz",
       "Se você estiver sem internet na hora, a sugestão fica guardada e sobe sozinha depois",
@@ -12423,7 +12611,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.5";
+const VERSAO = "3.6";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
