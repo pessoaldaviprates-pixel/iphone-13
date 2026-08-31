@@ -821,6 +821,69 @@
     text-align:center;padding:2px 4px 8px;
   }
 
+  /* caixa de sugestões */
+  .sugestao-btn{border-color:rgba(255,193,69,.5);color:var(--amber)}
+  #sugestao-box{position:fixed;inset:0;z-index:125;display:none}
+  #sugestao-box.on{display:block}
+  .sg-fundo{position:absolute;inset:0;background:rgba(4,7,15,.9)}
+  .sg-cartao{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(94vw,430px);max-height:86vh;overflow-y:auto;text-align:left;
+    background:var(--panel);border:1px solid var(--amber);border-radius:18px;
+    padding:16px;box-shadow:0 14px 50px rgba(0,0,0,.6);
+    touch-action:pan-y;overscroll-behavior:contain;
+  }
+  .sg-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .sg-topo b{font-family:"Russo One",sans-serif;font-size:.86rem;letter-spacing:.1em;color:var(--amber)}
+  .sg-x{
+    width:32px;height:32px;flex:none;border-radius:10px;cursor:pointer;font-size:.9rem;
+    background:transparent;border:1px solid var(--line);
+  }
+  .sg-nota{font-size:.72rem;line-height:1.55;color:var(--dim);margin-bottom:12px}
+  .sg-tipos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .sg-tipo{
+    cursor:pointer;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.06em;padding:7px 11px;border-radius:10px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .sg-tipo.on{background:rgba(255,193,69,.16);color:var(--amber);border-color:var(--amber)}
+  #sg-texto{
+    width:100%;font-family:inherit;font-size:.86rem;line-height:1.5;resize:vertical;
+    color:var(--ink);background:rgba(6,10,24,.8);border:1px solid var(--line);
+    border-radius:12px;padding:11px 12px;outline:none;
+  }
+  #sg-texto:focus{border-color:var(--amber)}
+  .sg-conta{text-align:right;font-size:.58rem;color:var(--dim);margin:4px 0 10px}
+  .sg-aviso{margin-top:10px;font-size:.74rem;line-height:1.5;text-align:center;min-height:1.2em}
+  .sg-aviso.ok{color:#7CF7C0}
+  .sg-aviso.erro{color:var(--danger)}
+  .sg-minhas{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+  .sg-minha{
+    font-size:.68rem;line-height:1.45;color:rgba(234,242,255,.75);
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;
+  }
+  .sg-minha b{color:var(--amber);font-size:.58rem;letter-spacing:.1em;display:block;margin-bottom:2px}
+
+  /* sugestões no painel */
+  .sug-lista{display:flex;flex-direction:column;gap:7px;margin-top:12px;max-height:56vh;overflow-y:auto}
+  .sug-item{
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  }
+  .sug-item.nova{border-color:var(--amber);box-shadow:0 0 14px rgba(255,193,69,.16)}
+  .sug-cab{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+  .sug-cab .quem{font-size:.7rem;font-weight:700;color:var(--cyan)}
+  .sug-cab .tipo{
+    font-size:.5rem;letter-spacing:.08em;font-weight:700;padding:2px 6px;border-radius:6px;
+    background:rgba(255,193,69,.16);color:var(--amber);
+  }
+  .sug-cab .quando{font-size:.56rem;color:var(--dim);margin-left:auto}
+  .sug-txt{font-size:.76rem;line-height:1.5;color:rgba(234,242,255,.9);word-break:break-word}
+  .sug-acoes{display:flex;gap:6px;margin-top:8px}
+  .sug-acoes button{
+    flex:1;cursor:pointer;font-size:.58rem;font-weight:700;letter-spacing:.06em;
+    padding:6px;border-radius:8px;background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+
   /* teste da nuvem */
   .diag-lista{display:flex;flex-direction:column;gap:6px;margin-top:12px}
   .diag-item{
@@ -1478,6 +1541,26 @@
     </div>
 
     <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-sug" style="display:none">
+        <div class="adm-h gold">
+          💡 SUGESTÕES DOS JOGADORES
+          <span class="vivo-cont" id="sug-cont"></span>
+        </div>
+        <p class="adm-note" style="max-width:none">
+          O que as pessoas escreveram no fim das fases. As novas ficam
+          destacadas em amarelo.
+        </p>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn" id="sug-atualizar">ATUALIZAR</button>
+          <button class="adm-btn gold" id="sug-copiar">📋 COPIAR TODAS</button>
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn" id="sug-marcar">MARCAR TODAS COMO LIDAS</button>
+          <button class="adm-btn danger" id="sug-apagar-lidas">APAGAR AS LIDAS</button>
+        </div>
+        <div class="sug-lista" id="sug-lista"></div>
+      </div>
 
       <div class="adm-card" id="adm-diag">
         <div class="adm-h">🩺 TESTE DA NUVEM</div>
@@ -2246,6 +2329,30 @@
   <button class="big-btn" id="btn-next">PRÓXIMA FASE</button>
   <button class="ghost-btn" id="btn-vic-shop">⬡ MELHORIAS</button>
   <button class="ghost-btn" id="btn-vic-menu">MENU</button>
+  <button class="ghost-btn sugestao-btn" id="btn-vic-sug">💡 MANDAR UMA SUGESTÃO</button>
+</div>
+
+<!-- CAIXA DE SUGESTÃO -->
+<div id="sugestao-box">
+  <div class="sg-fundo"></div>
+  <div class="sg-cartao">
+    <div class="sg-topo">
+      <b>💡 SUA SUGESTÃO</b>
+      <button class="sg-x" id="sg-fechar" aria-label="Fechar">✕</button>
+    </div>
+    <p class="sg-nota">
+      O que você gostaria de ver no jogo? Uma nave, uma fase, um chefe, uma
+      habilidade, o que estiver quebrado — escreva do seu jeito. Isso vai
+      direto para quem faz o jogo.
+    </p>
+    <div class="sg-tipos" id="sg-tipos"></div>
+    <textarea id="sg-texto" maxlength="500" rows="4"
+      placeholder="Escreva aqui a sua ideia…"></textarea>
+    <div class="sg-conta" id="sg-conta">0 / 500</div>
+    <button class="big-btn" id="sg-enviar" style="width:100%">ENVIAR SUGESTÃO</button>
+    <div class="sg-aviso" id="sg-aviso"></div>
+    <div class="sg-minhas" id="sg-minhas"></div>
+  </div>
 </div>
 
 <!-- DERROTA -->
@@ -2266,6 +2373,7 @@
   </div>
   <button class="big-btn" id="btn-retry">TENTAR DE NOVO</button>
   <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
+  <button class="ghost-btn sugestao-btn" id="btn-go-sug">💡 MANDAR UMA SUGESTÃO</button>
   <button class="ghost-btn" id="btn-go-menu">MENU</button>
 </div>
 <script>
@@ -2344,6 +2452,8 @@ function defaultSave() {
     dificuldade: "medio",    // facil | medio | dificil (o online é sempre médio)
     criadas: [],             // naves montadas por você na oficina de construção
     limpezaNaves: 0,         // número da última limpeza de naves aplicada
+    sugestoes: [],           // resumo do que você já sugeriu
+    sugPendentes: [],        // sugestões esperando internet para subir
     arenaOnda: 0,            // maior onda que você alcançou na arena
     transmitir: true,        // deixa os amigos verem a sua tela
     controle: "auto",        // auto | pc | toque
@@ -4448,6 +4558,7 @@ function refreshMenu() {
   const online = nuvemAtiva();
   $("menu-online").style.display = online ? "grid" : "none";
   $("menu-online-h").style.display = online ? "block" : "none";
+  $("btn-ranked").style.display = RANKED_LIGADO ? "" : "none";
   nuvemMostrarStatus();
   $("menu-gems").textContent = fmt(save.crystals);
   $("menu-progress").textContent = save.best + "/" + TOTAL_FASES;
@@ -4525,6 +4636,7 @@ function mostrarAvisoLimpeza() {
 function entrarNoMenu(name) {
   loginAs(name);
   ligarBatimento();
+  setTimeout(() => { try { sugEnviarPendentes(); } catch (e) {} }, 2500);
   try { mundoLigar(); } catch (e) {}
   try { cenaEscutarPedidos(); } catch (e) {}
   atualizarModoPC();
@@ -5005,6 +5117,8 @@ $("btn-adm-enter").addEventListener("click", () => {
   if (nuvemAtiva()) {
     $("adm-nuvem").style.display = "block";
     $("adm-vivo").style.display = "block";
+    $("adm-sug").style.display = "block";
+    admCarregarSugestoes();
     mundoLigar();
     nuvemReq("mundo").then(d => { mundoAplicar(d); admRenderMundo(); });
     admRenderMundo();
@@ -5020,6 +5134,121 @@ $("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-a
 $("adm-search").addEventListener("input", admRenderPlayers);
 
 /* =====================================================================
+   SUGESTÕES — o que os jogadores escreveram no fim das fases
+   ===================================================================== */
+let sugTodas = [];
+function sugNomeTipo(id) {
+  const t = SUG_TIPOS.find(x => x.id === id);
+  return t ? t.nome.replace(/^\S+\s/, "") : "OUTRO";
+}
+async function admCarregarSugestoes() {
+  const cx = $("sug-lista");
+  cx.innerHTML = '<div class="adm-note">Buscando…</div>';
+  const d = await nuvemReq("sugestoes");
+  sugTodas = d ? Object.keys(d).map(id => Object.assign({ id: id }, d[id]))
+                   .filter(x => x && x.texto)
+                   .sort((a, b) => (b.quando || 0) - (a.quando || 0))
+               : [];
+  admRenderSugestoes();
+}
+function admRenderSugestoes() {
+  const cx = $("sug-lista");
+  const novas = sugTodas.filter(s2 => !s2.lida).length;
+  $("sug-cont").textContent = sugTodas.length
+    ? (novas ? novas + " nova" + (novas > 1 ? "s" : "") + " de " + sugTodas.length
+             : sugTodas.length + " no total")
+    : "";
+  cx.innerHTML = "";
+  if (!sugTodas.length) {
+    cx.innerHTML = '<div class="adm-note">Ninguém mandou sugestão ainda. ' +
+      "O botão aparece no fim de cada fase.</div>";
+    return;
+  }
+  for (const sg of sugTodas.slice(0, 120)) {
+    const d = document.createElement("div");
+    d.className = "sug-item" + (sg.lida ? "" : " nova");
+    d.innerHTML =
+      '<div class="sug-cab">' +
+        '<span class="quem">' + escaparTexto(sg.nome || "Piloto") + "</span>" +
+        '<span class="tipo">' + escaparTexto(sugNomeTipo(sg.tipo)) + "</span>" +
+        '<span class="quando">' + tempoRelativo(sg.quando) +
+          " · fase " + (sg.fase || 0) + " · v" + escaparTexto(sg.versao || "?") + "</span>" +
+      "</div>" +
+      '<div class="sug-txt">' + escaparTexto(sg.texto) + "</div>";
+    const acoes = document.createElement("div");
+    acoes.className = "sug-acoes";
+    const ler = document.createElement("button");
+    ler.textContent = sg.lida ? "MARCAR COMO NOVA" : "MARCAR COMO LIDA";
+    ler.addEventListener("click", async () => {
+      sg.lida = !sg.lida;
+      await nuvemReq("sugestoes/" + sg.id + "/lida", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sg.lida)
+      });
+      admRenderSugestoes();
+    });
+    const apagar = document.createElement("button");
+    apagar.textContent = "APAGAR";
+    apagar.style.color = "var(--danger)";
+    apagar.addEventListener("click", async () => {
+      await nuvemReq("sugestoes/" + sg.id, { method: "DELETE" });
+      sugTodas = sugTodas.filter(x => x.id !== sg.id);
+      admRenderSugestoes();
+    });
+    acoes.appendChild(ler); acoes.appendChild(apagar);
+    d.appendChild(acoes);
+    cx.appendChild(d);
+  }
+}
+function sugTextoParaCopiar() {
+  if (!sugTodas.length) return "Nenhuma sugestão ainda.";
+  const dia = new Date().toLocaleDateString("pt-BR");
+  return "SUGESTÕES DO NEON NEBULA — " + dia + " (" + sugTodas.length + " no total)\n\n" +
+    sugTodas.map((s2, i) =>
+      (i + 1) + ") " + (s2.nome || "Piloto") + " · " + sugNomeTipo(s2.tipo) +
+      " · fase " + (s2.fase || 0) + " · v" + (s2.versao || "?") +
+      " · " + new Date(s2.quando || 0).toLocaleString("pt-BR") +
+      (s2.lida ? " · (já lida)" : " · NOVA") + "\n" + s2.texto
+    ).join("\n\n");
+}
+$("sug-atualizar").addEventListener("click", admCarregarSugestoes);
+$("sug-copiar").addEventListener("click", async () => {
+  const txt = sugTextoParaCopiar();
+  try {
+    await navigator.clipboard.writeText(txt);
+    admMsg("Copiado! Agora é só colar para o Claude.");
+    $("sug-copiar").textContent = "✓ COPIADO";
+    setTimeout(() => { $("sug-copiar").textContent = "📋 COPIAR TODAS"; }, 2500);
+    AudioSys.buy();
+  } catch (e) {
+    const pre = document.createElement("div");
+    pre.className = "diag-regras";
+    pre.textContent = txt;
+    $("sug-lista").prepend(pre);
+    admMsg("Não deu para copiar sozinho — selecione o texto que apareceu.");
+  }
+});
+$("sug-marcar").addEventListener("click", async () => {
+  for (const sg of sugTodas) {
+    if (sg.lida) continue;
+    sg.lida = true;
+    await nuvemReq("sugestoes/" + sg.id + "/lida", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: "true"
+    });
+  }
+  admRenderSugestoes();
+  admMsg("Todas marcadas como lidas");
+});
+$("sug-apagar-lidas").addEventListener("click", async () => {
+  const lidas = sugTodas.filter(x => x.lida);
+  if (!lidas.length) { admMsg("Não há sugestões lidas para apagar."); return; }
+  for (const sg of lidas) await nuvemReq("sugestoes/" + sg.id, { method: "DELETE" });
+  sugTodas = sugTodas.filter(x => !x.lida);
+  admRenderSugestoes();
+  admMsg(lidas.length + " sugestão(ões) apagada(s)");
+});
+
+/* =====================================================================
    TESTE DA NUVEM — diz o que está travando, em português
    ---------------------------------------------------------------------
    Quase sempre que "não acontece nada" é uma destas três coisas:
@@ -5030,7 +5259,7 @@ $("adm-search").addEventListener("input", admRenderPlayers);
    Este teste escreve e apaga uma marca em cada galho e mostra qual falhou.
    ===================================================================== */
 const REGRAS_NOS = ["pilotos", "presentes", "contas", "salas", "arena", "fila",
-                    "cenas", "pedidos", "mundo"];
+                    "cenas", "pedidos", "mundo", "sugestoes"];
 
 async function nuvemTestarNo(no) {
   const alvo = no + "/__teste";
@@ -5136,7 +5365,8 @@ function admRegrasJSON() {
     '    "pedidos": ' + no(true) + ',\n' +
     '    "arena": ' + no(false) + ',\n' +
     '    "fila": ' + no(false) + ',\n' +
-    '    "mundo": ' + no(false) + '\n' +
+    '    "mundo": ' + no(false) + ',\n' +
+    '    "sugestoes": ' + no(false) + '\n' +
     '  }\n}';
 }
 $("diag-testar").addEventListener("click", admTestarNuvem);
@@ -6564,6 +6794,7 @@ function renderShop() {
 /* ---------- Hangar ---------- */
 function renderHangar(scrollToSel) {
   $("hangar-gems").textContent = fmt(save.crystals);
+  document.querySelector(".hangar-topo").style.display = CRIAR_NAVE_LIGADO ? "" : "none";
   const list = $("ship-list");
   list.innerHTML = "";
   for (let i = 0; i < SHIPS.length; i++) {
@@ -6983,7 +7214,10 @@ function apagarNaveCriada(pos) {
   AudioSys.buy();
   renderHangar();
 }
-$("btn-criar-nave").addEventListener("click", () => { AudioSys.resume(); abrirConstrutor(); });
+$("btn-criar-nave").addEventListener("click", () => {
+  if (!CRIAR_NAVE_LIGADO) return;
+  AudioSys.resume(); abrirConstrutor();
+});
 
 /* ---------- Oficina 3D ---------- */
 const of3d = $("of3d");
@@ -7334,6 +7568,12 @@ const MP = {
    trocando esta chave para true (e a aba reaparece sozinha no menu).
    --------------------------------------------------------------------- */
 const COOP_LIGADO = false;
+
+/* A ranqueada e a oficina de construção também estão guardadas por
+   enquanto, a pedido. Nada foi apagado: é só trocar a chave para true e
+   os botões voltam sozinhos ao menu e ao hangar.                          */
+const RANKED_LIGADO = false;
+const CRIAR_NAVE_LIGADO = false;
 
 function mpCoop() { return !!MP.sala && MP.modo === "coop"; }
 
@@ -8021,7 +8261,10 @@ function rkPararBusca(limpar) {
   rkAtualizarFaixa();
   if (limpar) nuvemReq("fila/" + mpMeuId(), { method: "DELETE" });
 }
-$("btn-ranked").addEventListener("click", () => { AudioSys.resume(); abrirRanked(); });
+$("btn-ranked").addEventListener("click", () => {
+  if (!RANKED_LIGADO) return;
+  AudioSys.resume(); abrirRanked();
+});
 $("rk-procurar").addEventListener("click", rkProcurar);
 $("rk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
 
@@ -11825,6 +12068,138 @@ function asLaco() {
   AS.raf = requestAnimationFrame(asLaco);
 }
 
+/* =====================================================================
+   CAIXA DE SUGESTÕES
+   ---------------------------------------------------------------------
+   No fim de cada fase (ganhando ou perdendo) aparece um botão junto do
+   "próxima fase" e do "menu". O que a pessoa escrever vai para o galho
+   sugestoes/ da nuvem, com o nome, a fase em que estava e a versão do
+   jogo — e o administrador lê tudo no painel.
+   Se estiver sem internet na hora, a sugestão fica guardada no aparelho
+   e sobe sozinha na próxima vez que abrir com rede.
+   ===================================================================== */
+const SUG_TIPOS = [
+  { id: "ideia",   nome: "💡 IDEIA NOVA" },
+  { id: "nave",    nome: "✈ NAVE" },
+  { id: "fase",    nome: "▶ FASE / CHEFE" },
+  { id: "erro",    nome: "🐞 ALGO QUEBRADO" },
+  { id: "dificil", nome: "⚖ DIFICULDADE" },
+  { id: "outro",   nome: "… OUTRO" }
+];
+let sugTipo = "ideia";
+
+function abrirSugestao() {
+  AudioSys.resume();
+  sugTipo = "ideia";
+  $("sg-texto").value = "";
+  $("sg-conta").textContent = "0 / 500";
+  $("sg-aviso").textContent = "";
+  $("sg-aviso").className = "sg-aviso";
+  $("sg-enviar").disabled = false;
+  $("sg-enviar").textContent = "ENVIAR SUGESTÃO";
+  sugRenderTipos();
+  sugRenderMinhas();
+  $("sugestao-box").classList.add("on");
+  setTimeout(() => { try { $("sg-texto").focus(); } catch (e) {} }, 120);
+}
+function fecharSugestao() { $("sugestao-box").classList.remove("on"); }
+function sugRenderTipos() {
+  const cx = $("sg-tipos");
+  cx.innerHTML = "";
+  for (const t of SUG_TIPOS) {
+    const b = document.createElement("button");
+    b.className = "sg-tipo" + (sugTipo === t.id ? " on" : "");
+    b.textContent = t.nome;
+    b.addEventListener("click", () => { sugTipo = t.id; sugRenderTipos(); });
+    cx.appendChild(b);
+  }
+}
+function sugRenderMinhas() {
+  const cx = $("sg-minhas");
+  const minhas = (save.sugestoes || []).slice(-3).reverse();
+  cx.innerHTML = "";
+  if (!minhas.length) return;
+  const t = document.createElement("div");
+  t.className = "sg-minha";
+  t.innerHTML = "<b>O QUE VOCÊ JÁ MANDOU</b>" +
+    minhas.map(m => "• " + escaparTexto(String(m.texto).slice(0, 90))).join("<br>");
+  cx.appendChild(t);
+}
+async function enviarSugestao() {
+  const txt = ($("sg-texto").value || "").trim();
+  const av = $("sg-aviso");
+  if (txt.length < 4) {
+    av.className = "sg-aviso erro";
+    av.textContent = "Escreva um pouquinho mais para eu entender a ideia.";
+    AudioSys.deny();
+    return;
+  }
+  const sug = {
+    nome: save.__name || "Piloto",
+    texto: txt.slice(0, 500),
+    tipo: sugTipo,
+    fase: S.fase || 0,
+    nave: (SHIPS[naveValida(save.ship)] || {}).name || "?",
+    versao: VERSAO,
+    quando: Date.now(),
+    lida: false
+  };
+  save.sugestoes = (save.sugestoes || []).concat([{ texto: sug.texto, quando: sug.quando }]);
+  if (save.sugestoes.length > 20) save.sugestoes = save.sugestoes.slice(-20);
+  persist();
+
+  $("sg-enviar").disabled = true;
+  $("sg-enviar").textContent = "ENVIANDO…";
+  const ok = await sugSubir(sug);
+  if (ok) {
+    av.className = "sg-aviso ok";
+    av.textContent = "✓ Recebido! Obrigado — isso chega em quem faz o jogo.";
+    AudioSys.victory();
+    vibrate([30, 60, 30]);
+    setTimeout(fecharSugestao, 1600);
+  } else {
+    // guarda para subir depois, quando houver internet
+    save.sugPendentes = (save.sugPendentes || []).concat([sug]);
+    persist();
+    av.className = "sg-aviso ok";
+    av.textContent = "✓ Guardada! Vai ser enviada assim que você abrir o jogo com internet.";
+    AudioSys.buy();
+    setTimeout(fecharSugestao, 2200);
+  }
+  $("sg-enviar").disabled = false;
+  $("sg-enviar").textContent = "ENVIAR SUGESTÃO";
+  sugRenderMinhas();
+}
+async function sugSubir(sug) {
+  if (!nuvemAtiva()) return false;
+  const id = "s" + sug.quando.toString(36) + Math.random().toString(36).slice(2, 6);
+  try {
+    const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/sugestoes/" + id + ".json", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(sug)
+    });
+    return !!(r && r.ok);
+  } catch (e) { return false; }
+}
+/* manda as que ficaram guardadas por falta de internet */
+async function sugEnviarPendentes() {
+  const fila = save.sugPendentes || [];
+  if (!fila.length || !nuvemAtiva()) return;
+  const sobraram = [];
+  for (const sug of fila) {
+    if (!await sugSubir(sug)) sobraram.push(sug);
+  }
+  save.sugPendentes = sobraram;
+  persist();
+}
+$("btn-vic-sug").addEventListener("click", abrirSugestao);
+$("btn-go-sug").addEventListener("click", abrirSugestao);
+$("sg-fechar").addEventListener("click", fecharSugestao);
+$("sg-enviar").addEventListener("click", enviarSugestao);
+$("sg-texto").addEventListener("input", e => {
+  $("sg-conta").textContent = (e.target.value || "").length + " / 500";
+});
+document.querySelector("#sugestao-box .sg-fundo").addEventListener("click", fecharSugestao);
+
 /* ---------- Caixa de presente ---------- */
 let presenteGuardado = null;
 
@@ -11920,6 +12295,12 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.5", itens: [
+      "CAIXA DE SUGESTÕES no fim de cada fase, junto do PRÓXIMA FASE e do MENU: escreva o que você quer ver no jogo e vai direto para quem faz",
+      "Se você estiver sem internet na hora, a sugestão fica guardada e sobe sozinha depois",
+      "A ranqueada e a oficina de criar naves saíram do menu por enquanto — nada foi perdido, elas voltam depois",
+      "No painel: cartão com todas as sugestões, com botão de copiar tudo de uma vez"
+    ] },
   { v: "3.4", itens: [
       "CORRIGIDO: a versão publicada estava sem nuvem nenhuma, então nada online funcionava nela — nem ranking, nem presentes, nem eventos, nem recados",
       "O painel ganhou um TESTE DA NUVEM que diz exatamente o que está travando e já mostra as regras prontas para copiar",
@@ -12042,7 +12423,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.4";
+const VERSAO = "3.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
