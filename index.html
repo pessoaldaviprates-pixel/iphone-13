@@ -853,6 +853,17 @@
     background:transparent;border:1px solid var(--line);color:var(--dim);
   }
   .eq-cargo.on{background:rgba(255,193,69,.16);color:var(--amber);border-color:var(--amber)}
+  .eq-novo-perms{margin-top:10px}
+  .eq-novo-cab{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:.56rem;letter-spacing:.16em;font-weight:700;color:var(--amber);
+    margin-bottom:8px;
+  }
+  .eq-novo-cab button{
+    cursor:pointer;font-size:.52rem;font-weight:700;letter-spacing:.06em;
+    padding:5px 9px;border-radius:8px;background:transparent;
+    border:1px solid var(--line);color:var(--dim);
+  }
   .eq-lista{display:flex;flex-direction:column;gap:9px;margin-top:14px}
   .eq-membro{
     background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;
@@ -1663,6 +1674,7 @@
           <button class="adm-btn gold" id="eq-add">ADICIONAR</button>
         </div>
         <div class="eq-cargos" id="eq-cargos"></div>
+        <div class="eq-novo-perms" id="eq-novo-perms"></div>
         <div class="eq-lista" id="eq-lista"></div>
       </div>
 
@@ -2884,13 +2896,22 @@ function nuvemFluxo(caminho, aoMudar, aoFalhar) {
 
 /* escrita leve: não mexe no aviso de status nem espera resposta.
    Usada no meio da partida, onde o que importa é sair rápido.             */
+/* Escrita leve. Devolve a resposta quando deu certo e NULL quando não deu
+   — inclusive quando o Firebase recusa por falta de regra (401/403).
+   Antes ela devolvia a resposta mesmo em caso de recusa, então quem
+   checava "=== null" achava que tinha funcionado.                        */
+let ultimoErroNuvem = 0;
 function nuvemSoltar(caminho, valor, metodo) {
   if (!nuvemAtiva()) return Promise.resolve(null);
   return fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json", {
     method: metodo || "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(valor)
-  }).catch(() => null);
+  }).then(r => {
+    if (r && r.ok) return r;
+    ultimoErroNuvem = (r && r.status) || 0;
+    return null;
+  }).catch(() => { ultimoErroNuvem = 0; return null; });
 }
 function nuvemJuntar(caminho, obj) { return nuvemSoltar(caminho, obj, "PATCH"); }
 
@@ -5524,8 +5545,15 @@ $("adm-search").addEventListener("input", admRenderPlayers);
    EQUIPE — o dono monta quem entra no painel e o que cada um enxerga
    ===================================================================== */
 let eqCargoNovo = "dev";
+let eqPermsNovo = {};      // o que vai ser marcado na hora de adicionar
 let eqMembros = [];
 
+function permsDoCargo(id) {
+  const c = CARGOS.find(x => x.id === id);
+  const p = {};
+  if (c) for (const k of c.perms) p[k] = true;
+  return p;
+}
 function renderCargosNovo() {
   const cx = $("eq-cargos");
   if (!cx) return;
@@ -5535,7 +5563,11 @@ function renderCargosNovo() {
     b.className = "eq-cargo" + (eqCargoNovo === c.id ? " on" : "");
     b.textContent = c.icone + " " + c.nome;
     b.title = c.desc;
-    b.addEventListener("click", () => { eqCargoNovo = c.id; renderCargosNovo(); });
+    b.addEventListener("click", () => {
+      eqCargoNovo = c.id;
+      eqPermsNovo = permsDoCargo(c.id);   // o atalho já marca as caixinhas
+      renderCargosNovo();
+    });
     cx.appendChild(b);
   }
   const d = CARGOS.find(c => c.id === eqCargoNovo);
@@ -5543,18 +5575,82 @@ function renderCargosNovo() {
   nota.style.cssText = "width:100%;font-size:.62rem;color:var(--dim);margin-top:6px;line-height:1.45";
   nota.textContent = d ? d.desc : "";
   cx.appendChild(nota);
+  renderPermsNovo();
 }
+
+/* as caixinhas ficam SEMPRE à mostra, para dar para montar o acesso da
+   pessoa antes mesmo de adicionar — o cargo é só um atalho que marca
+   várias de uma vez, e mexer numa delas vira "personalizado".            */
+function renderPermsNovo() {
+  const cx = $("eq-novo-perms");
+  if (!cx) return;
+  cx.innerHTML = "";
+  const ligadas = Object.keys(eqPermsNovo).length;
+  const cab = document.createElement("div");
+  cab.className = "eq-novo-cab";
+  cab.innerHTML = "<span>O QUE ELE VAI PODER FAZER · " + ligadas + " de " +
+                  TODAS_PERMISSOES.length + "</span>";
+  const limpar = document.createElement("button");
+  limpar.textContent = "DESMARCAR TUDO";
+  limpar.addEventListener("click", () => {
+    eqPermsNovo = {};
+    eqCargoNovo = "livre";
+    renderCargosNovo();
+  });
+  cab.appendChild(limpar);
+  cx.appendChild(cab);
+
+  const grade = document.createElement("div");
+  grade.className = "eq-perms";
+  for (const g of PERMISSOES) {
+    const t = document.createElement("div");
+    t.className = "eq-grupo";
+    t.textContent = g.grupo;
+    grade.appendChild(t);
+    for (const it of g.itens) {
+      const on = !!eqPermsNovo[it.id];
+      const b = document.createElement("button");
+      b.className = "eq-p" + (on ? " on" : "") + (it.perigo ? " perigo" : "");
+      b.title = it.desc;
+      b.innerHTML = "<i>✓</i><span>" + it.nome + "</span>";
+      b.addEventListener("click", () => {
+        if (eqPermsNovo[it.id]) delete eqPermsNovo[it.id];
+        else eqPermsNovo[it.id] = true;
+        // se ficou diferente do atalho, passa a ser personalizado
+        const doCargo = permsDoCargo(eqCargoNovo);
+        const igual = Object.keys(doCargo).length === Object.keys(eqPermsNovo).length &&
+                      Object.keys(doCargo).every(k => eqPermsNovo[k]);
+        if (!igual) eqCargoNovo = "livre";
+        renderCargosNovo();
+      });
+      grade.appendChild(b);
+    }
+  }
+  cx.appendChild(grade);
+}
+eqPermsNovo = permsDoCargo("dev");
 renderCargosNovo();
 
 async function admRenderEquipe() {
   const cx = $("eq-lista");
   if (!cx) return;
   cx.innerHTML = '<div class="adm-note">Carregando…</div>';
+  // confere se o galho aceita gravação antes de dizer que está vazio
+  const teste = await nuvemTestarNo("equipe");
+  if (!teste.ok) {
+    cx.innerHTML = '<div class="diag-item ruim"><b>✕</b><div>' +
+      "<div class='n'>O galho \"equipe\" está bloqueado</div>" +
+      "<div class='d'>" + (teste.cod === 401 || teste.cod === 403
+        ? "As regras do Firebase estão recusando. Aperte <b>TESTAR AGORA</b> no cartão do teste da nuvem, copie as regras e cole no Firebase."
+        : "Não deu para alcançar a nuvem agora.") +
+      " Enquanto isso não for resolvido, não dá para montar a equipe.</div></div></div>";
+    return;
+  }
   eqMembros = await equipeListar();
   cx.innerHTML = "";
   if (!eqMembros.length) {
     cx.innerHTML = '<div class="adm-note">Ninguém na equipe ainda. ' +
-      "Escreva o nick lá em cima, escolha o cargo e adicione.</div>";
+      "Escreva o nick lá em cima, escolha o que ele pode fazer e adicione.</div>";
     return;
   }
   for (const m of eqMembros) cx.appendChild(cartaoMembro(m));
@@ -5678,16 +5774,28 @@ $("eq-add").addEventListener("click", async () => {
   if (ja) { admMsg(nick + " já está na equipe."); AudioSys.deny(); return; }
   const cargo = CARGOS.find(c => c.id === eqCargoNovo) || CARGOS[0];
   const chave = chaveNova();
-  const perms = {};
-  for (const id of cargo.perms) perms[id] = true;
+  const perms = Object.assign({}, eqPermsNovo);   // exatamente o que está marcado
+  if (!Object.keys(perms).length) {
+    admMsg("Marque pelo menos uma coisa que ele pode fazer.");
+    AudioSys.deny();
+    return;
+  }
   const ok = await nuvemSoltar("equipe/" + equipeId(nick), {
     nome: nick, cargo: cargo.id, permissoes: perms,
     chave: admHash("eq|" + chave), chaveVisivel: chave,
     desde: Date.now(), porQuem: PERM.nick
   });
-  if (ok === null) { admMsg("Não deu para gravar. Aperte TESTAR AGORA."); AudioSys.deny(); return; }
+  if (ok === null) {
+    admMsg(ultimoErroNuvem === 401 || ultimoErroNuvem === 403
+      ? "⚠ O Firebase recusou: falta a regra do galho \"equipe\". Aperte TESTAR AGORA aqui embaixo e copie as regras."
+      : "⚠ Não deu para gravar" + (ultimoErroNuvem ? " (erro " + ultimoErroNuvem + ")" : " — sem internet?"));
+    AudioSys.deny();
+    $("adm-diag").scrollIntoView({ block: "center", behavior: "smooth" });
+    return;
+  }
   $("eq-nick").value = "";
-  admMsg(nick + " entrou como " + cargo.nome + " · chave " + chave);
+  admMsg(nick + " entrou como " + cargo.nome + " · chave " + chave +
+         " · " + Object.keys(perms).length + " permissão(ões)");
   AudioSys.victory();
   admRenderEquipe();
 });
@@ -12964,6 +13072,10 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.8", itens: [
+      "As caixinhas de permissão agora aparecem ANTES de adicionar a pessoa: dá para montar o acesso dela do zero, uma por uma",
+      "CORRIGIDO: quando o Firebase recusava uma gravação, o painel dizia que tinha dado certo. Agora avisa o motivo e leva você até o teste"
+    ] },
   { v: "3.7", itens: [
       "EQUIPE DO PAINEL: o dono pode dar acesso ao painel para outras pessoas, cada uma com o nick dela e uma chave própria",
       "As permissões são escolhidas uma a uma, como num servidor: o que não for liberado nem aparece na tela da pessoa",
@@ -13102,7 +13214,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.7";
+const VERSAO = "3.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
