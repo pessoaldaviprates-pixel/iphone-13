@@ -829,6 +829,48 @@
     text-align:center;padding:2px 4px 8px;
   }
 
+  .lembrar{
+    display:flex;align-items:center;gap:9px;cursor:pointer;
+    font-size:.72rem;color:var(--dim);margin:4px 0 2px;text-align:left;
+  }
+  .lembrar input{width:18px;height:18px;flex:none;accent-color:var(--cyan);padding:0}
+  .lembrar span{flex:1}
+
+  /* abas do painel */
+  .adm-abas{
+    display:none;gap:6px;overflow-x:auto;padding:0 0 12px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .adm-abas::-webkit-scrollbar{display:none}
+  .adm-abas.on{display:flex}
+  .adm-aba{
+    flex:none;cursor:pointer;white-space:nowrap;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.62rem;letter-spacing:.08em;padding:10px 14px;border-radius:12px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  }
+  .adm-aba.on{background:rgba(255,193,69,.16);color:var(--amber);border-color:var(--amber)}
+  .adm-aba i{
+    font-style:normal;margin-left:6px;background:var(--danger);color:#fff;
+    border-radius:6px;font-size:.5rem;padding:1px 5px;
+  }
+  .sub-abas{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 12px}
+  .sub-aba{
+    flex:1;min-width:74px;cursor:pointer;text-align:center;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.06em;padding:9px 6px;border-radius:11px;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+  }
+  .sub-aba.on{background:rgba(77,232,255,.16);color:var(--cyan);border-color:var(--cyan)}
+  .sub-aba .pip{
+    display:inline-block;margin-left:4px;background:var(--amber);color:#04121c;
+    border-radius:5px;font-size:.48rem;padding:0 4px;
+  }
+  .adm-vazio{
+    text-align:center;padding:34px 18px;color:var(--dim);font-size:.76rem;line-height:1.6;
+  }
+  .adm-vazio b{display:block;font-size:1.6rem;margin-bottom:8px}
+
   /* quem está usando o painel */
   .quem-linha{display:flex;align-items:center;gap:11px}
   .quem-ic{
@@ -1625,6 +1667,10 @@
   <div class="senha-pontos" id="senha-pontos"></div>
   <canvas id="senha-canvas" width="600" height="600"></canvas>
   <p id="senha-dica">Ligue pelo menos 4 pontos sem soltar o dedo.</p>
+  <label class="lembrar" id="senha-lembrar-linha" style="max-width:min(88vw,320px)">
+    <input type="checkbox" id="senha-lembrar" checked>
+    <span>Continuar conectado neste aparelho</span>
+  </label>
   <button class="ghost-btn" id="senha-refazer">REFAZER</button>
   <button class="ghost-btn" id="senha-voltar">VOLTAR</button>
 </div>
@@ -1642,6 +1688,7 @@
       <div class="adm-h" style="text-align:center;width:100%">ACESSO RESTRITO</div>
       <input id="adm-nick" maxlength="20" placeholder="Seu nick" autocomplete="off" autocapitalize="off">
       <input id="adm-pass" type="password" maxlength="32" placeholder="Sua chave (ou senha do dono)" autocomplete="off">
+      <label class="lembrar"><input type="checkbox" id="adm-lembrar" checked><span>Continuar conectado neste aparelho</span></label>
       <button class="big-btn" id="btn-adm-enter">ENTRAR</button>
       <p class="adm-note" id="adm-pass-note">
         O dono entra com o nick e a senha mestra. Quem está na equipe entra
@@ -1660,6 +1707,8 @@
       </div>
       <div class="quem-perms" id="quem-perms"></div>
     </div>
+
+    <div class="adm-abas" id="adm-abas"></div>
 
     <div id="adm-panel" style="display:none">
 
@@ -1788,7 +1837,9 @@
       </div>
 
       <div class="adm-card" id="adm-agora" style="display:none">
-        <div class="adm-h">🌍 O QUE ESTÁ VALENDO AGORA</div>
+        <div class="adm-h">🌍 O QUE ESTÁ VALENDO AGORA
+          <span class="vivo-cont" id="agora-cont"></span>
+        </div>
         <div class="mundo-agora" id="mundo-agora"></div>
       </div>
 
@@ -1817,95 +1868,119 @@
           <div class="adm-stats" id="adm-nuvem-stats"></div>
           <div class="adm-note" id="adm-nuvem-pendente" style="margin-bottom:10px"></div>
 
-          <div class="adm-h">CRISTAIS</div>
-          <div class="adm-row">
-            <input id="adm-nuvem-gem" type="number" inputmode="numeric" placeholder="Quantidade" value="10000">
-            <button class="adm-btn gold" id="adm-nuvem-dar">DAR</button>
-            <button class="adm-btn" id="adm-nuvem-set">DEFINIR</button>
+          <div class="sub-abas" id="acao-abas"></div>
+
+          <!-- ═══ DAR ═══ -->
+          <div class="sub-pane" id="pane-dar">
+            <div class="adm-h">CRISTAIS</div>
+            <div class="adm-row">
+              <input id="adm-nuvem-gem" type="number" inputmode="numeric" placeholder="Quantidade" value="10000">
+              <button class="adm-btn gold" id="adm-nuvem-dar">DAR</button>
+              <button class="adm-btn" id="adm-nuvem-set">DEFINIR</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">FASE</div>
+            <div class="adm-row">
+              <input id="adm-nuvem-fase" type="number" inputmode="numeric" min="0" max="120" placeholder="Fase" value="120">
+              <button class="adm-btn" id="adm-nuvem-fase-set">DEFINIR FASE</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">RANK</div>
+            <div class="adm-row">
+              <select id="adm-nuvem-rank-sel"></select>
+              <button class="adm-btn gold" id="adm-nuvem-rank">DAR RANK</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">LIBERAR</div>
+            <div class="adm-grid">
+              <button class="adm-btn" id="adm-nuvem-naves">TODAS AS NAVES</button>
+              <button class="adm-btn" id="adm-nuvem-fases">TODAS AS FASES</button>
+              <button class="adm-btn" id="adm-nuvem-hab">HABILIDADES</button>
+              <button class="adm-btn" id="adm-nuvem-melhorias">MELHORIAS MÁX.</button>
+              <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
+              <button class="adm-btn gold" id="adm-nuvem-tudo">DAR TUDO</button>
+            </div>
+
+            <div class="adm-h gold" style="margin-top:14px">AERONAVES EXCLUSIVAS</div>
+            <div class="adm-grid">
+              <button class="adm-btn gold" id="adm-nuvem-maverick">★ MAVERICK</button>
+              <button class="adm-btn gold" id="adm-nuvem-b2">★ B-2 SPIRIT</button>
+              <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
+            </div>
+            <p class="adm-note" style="margin-top:10px">Tudo o que você tocar aqui entra na <b>CAIXA</b>. Vá até a abinha 📦 CAIXA para escrever o recado e enviar.</p>
           </div>
 
-          <div class="adm-h" style="margin-top:14px">FASE</div>
-          <div class="adm-row">
-            <input id="adm-nuvem-fase" type="number" inputmode="numeric" min="0" max="120" placeholder="Fase" value="120">
-            <button class="adm-btn" id="adm-nuvem-fase-set">DEFINIR FASE</button>
+          <!-- ═══ TIRAR ═══ -->
+          <div class="sub-pane" id="pane-tirar" style="display:none">
+            <div class="adm-h red">TIRAR</div>
+            <div class="adm-grid">
+              <button class="adm-btn danger" id="adm-nuvem-gem-zero">ZERAR CRISTAIS</button>
+              <button class="adm-btn danger" id="adm-nuvem-naves-zero">TIRAR AS NAVES</button>
+              <button class="adm-btn danger" id="adm-nuvem-fases-zero">ZERAR FASES</button>
+              <button class="adm-btn danger" id="adm-nuvem-hab-zero">ZERAR HABILIDADES</button>
+              <button class="adm-btn danger" id="adm-nuvem-amu-zero">TIRAR AMULETOS</button>
+              <button class="adm-btn danger" id="adm-nuvem-naves-criadas">DESFAZER NAVES MONTADAS</button>
+            </div>
+
+            <div class="adm-h red" style="margin-top:14px">ZERAR DE VEZ</div>
+            <div class="adm-grid">
+              <button class="adm-btn danger wide" id="adm-nuvem-zerar">ZERAR O JOGADOR</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">OUTROS</div>
+            <div class="adm-grid">
+              <button class="adm-btn" id="adm-nuvem-god-on">⚡ DEIXAR INVENCÍVEL</button>
+              <button class="adm-btn" id="adm-nuvem-god-off">⚡ TIRAR INVENCÍVEL</button>
+              <button class="adm-btn" id="adm-nuvem-ocultar">🙈 ESCONDER DO RANKING</button>
+              <button class="adm-btn" id="adm-nuvem-cancelar">CANCELAR PENDENTE</button>
+              <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
+            </div>
           </div>
 
-          <div class="adm-h" style="margin-top:14px">RANK</div>
-          <div class="adm-row">
-            <select id="adm-nuvem-rank-sel"></select>
-            <button class="adm-btn gold" id="adm-nuvem-rank">DAR RANK</button>
+          <!-- ═══ INVENTÁRIO ═══ -->
+          <div class="sub-pane" id="pane-inv" style="display:none">
+            <div class="adm-h">
+              🎒 O QUE ESTA CONTA TEM
+              <button class="adm-btn" id="inv-abrir" style="float:right;padding:5px 10px;font-size:.62rem">VER TUDO</button>
+            </div>
+            <div class="inv-box" id="inv-box">
+              <div class="adm-note">Toque em VER TUDO para puxar o inventário completo desta conta.</div>
+            </div>
           </div>
 
-          <div class="adm-h" style="margin-top:14px">DAR</div>
-          <div class="adm-grid">
-            <button class="adm-btn" id="adm-nuvem-naves">TODAS AS NAVES</button>
-            <button class="adm-btn" id="adm-nuvem-fases">TODAS AS FASES</button>
-            <button class="adm-btn" id="adm-nuvem-hab">HABILIDADES</button>
-            <button class="adm-btn" id="adm-nuvem-melhorias">MELHORIAS MÁX.</button>
-            <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
-            <button class="adm-btn gold" id="adm-nuvem-maverick">★ MAVERICK</button>
-            <button class="adm-btn gold" id="adm-nuvem-b2">★ B-2 SPIRIT</button>
-            <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
-            <button class="adm-btn gold" id="adm-nuvem-tudo">DAR TUDO</button>
-          </div>
+          <!-- ═══ CAIXA ═══ -->
+          <div class="sub-pane" id="pane-caixa" style="display:none">
+            <div class="adm-h gold">📦 O QUE VAI NA CAIXA</div>
+            <div class="caixa-adm" id="caixa-adm">
+              <div class="caixa-vazia" id="caixa-vazia">Vazia. Vá na abinha 🎁 DAR ou ✕ TIRAR e toque no que quiser mandar.</div>
+              <div id="caixa-itens"></div>
+            </div>
+            <div class="cx-recado">
+              <div class="adm-h" style="margin-top:14px">✉ RECADO DENTRO DA CAIXA</div>
+              <input id="caixa-msg" maxlength="200" autocomplete="off"
+                     placeholder="Escreva um recado (aparece quando abrir a caixa)…">
+              <div class="cx-prontos" id="caixa-prontos"></div>
+            </div>
+            <div class="adm-grid" style="margin-top:12px">
+              <button class="adm-btn gold wide" id="caixa-enviar">📦 ENVIAR A CAIXA</button>
+              <button class="adm-btn danger" id="caixa-limpar">ESVAZIAR</button>
+            </div>
 
-          <div class="adm-h red" style="margin-top:14px">TIRAR E ZERAR</div>
-          <div class="adm-grid">
-            <button class="adm-btn danger" id="adm-nuvem-gem-zero">ZERAR CRISTAIS</button>
-            <button class="adm-btn danger" id="adm-nuvem-naves-zero">TIRAR AS NAVES</button>
-            <button class="adm-btn danger" id="adm-nuvem-fases-zero">ZERAR FASES</button>
-            <button class="adm-btn danger" id="adm-nuvem-hab-zero">ZERAR HABILIDADES</button>
-            <button class="adm-btn danger" id="adm-nuvem-amu-zero">TIRAR AMULETOS</button>
-            <button class="adm-btn danger" id="adm-nuvem-naves-criadas">DESFAZER NAVES MONTADAS</button>
-            <button class="adm-btn danger" id="adm-nuvem-zerar">ZERAR O JOGADOR</button>
+            <div class="adm-h gold" style="margin-top:18px">🌍 MANDAR PARA TODO MUNDO</div>
+            <p class="adm-note" style="max-width:none">
+              A mesma caixa e o mesmo recado, só que para todos os jogadores —
+              inclusive quem criar conta depois, enquanto estiver no prazo.
+            </p>
+            <div class="mundo-linha" style="margin-top:8px">
+              <span class="mundo-rot">VALE POR</span>
+              <input id="caixa-geral-dias" type="number" inputmode="numeric" min="1" value="7">
+              <span class="mundo-un">dias</span>
+            </div>
+            <div class="adm-grid" style="margin-top:8px">
+              <button class="adm-btn gold wide" id="caixa-todos">🌍 ENVIAR PARA TODO MUNDO</button>
+            </div>
+            <div class="cx-geral" id="cx-geral"></div>
           </div>
-
-          <div class="adm-h" style="margin-top:14px">OUTROS</div>
-          <div class="adm-grid">
-            <button class="adm-btn" id="adm-nuvem-god-on">⚡ DEIXAR INVENCÍVEL</button>
-            <button class="adm-btn" id="adm-nuvem-god-off">⚡ TIRAR INVENCÍVEL</button>
-            <button class="adm-btn" id="adm-nuvem-ocultar">🙈 ESCONDER DO RANKING</button>
-            <button class="adm-btn" id="adm-nuvem-cancelar">CANCELAR PENDENTE</button>
-            <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
-          </div>
-
-          <div class="adm-h" style="margin-top:16px">
-            🎒 INVENTÁRIO
-            <button class="adm-btn" id="inv-abrir" style="float:right;padding:5px 10px;font-size:.62rem">VER TUDO</button>
-          </div>
-          <div class="inv-box" id="inv-box">
-            <div class="adm-note">Toque em VER TUDO para puxar o inventário completo desta conta.</div>
-          </div>
-
-          <div class="adm-h gold" style="margin-top:16px">🎁 CAIXA DE PRESENTE</div>
-          <div class="caixa-adm" id="caixa-adm">
-            <div class="caixa-vazia" id="caixa-vazia">Toque nos botões acima para colocar itens na caixa.</div>
-            <div id="caixa-itens"></div>
-          </div>
-          <div class="cx-recado">
-            <div class="adm-h" style="margin-top:14px">✉ RECADO DENTRO DA CAIXA</div>
-            <input id="caixa-msg" maxlength="200" autocomplete="off"
-                   placeholder="Escreva um recado (aparece quando abrir a caixa)…">
-            <div class="cx-prontos" id="caixa-prontos"></div>
-          </div>
-          <div class="adm-grid" style="margin-top:10px">
-            <button class="adm-btn gold" id="caixa-enviar">📦 ENVIAR A CAIXA</button>
-            <button class="adm-btn danger" id="caixa-limpar">ESVAZIAR</button>
-          </div>
-          <div class="adm-h gold" style="margin-top:16px">🌍 MANDAR PARA TODO MUNDO</div>
-          <p class="adm-note" style="max-width:none">
-            A mesma caixa e o mesmo recado, só que para todos os jogadores —
-            inclusive quem criar conta depois, enquanto estiver no prazo.
-          </p>
-          <div class="mundo-linha" style="margin-top:8px">
-            <span class="mundo-rot">VALE POR</span>
-            <input id="caixa-geral-dias" type="number" inputmode="numeric" min="1" value="7">
-            <span class="mundo-un">dias</span>
-          </div>
-          <div class="adm-grid" style="margin-top:8px">
-            <button class="adm-btn gold wide" id="caixa-todos">🌍 ENVIAR PARA TODO MUNDO</button>
-          </div>
-          <div class="cx-geral" id="cx-geral"></div>
         </div>
       </div>
 
@@ -4862,7 +4937,25 @@ function entrarComPiloto(name) {
     senhaAtualizarTexto();
     return;
   }
-  abrirSenha("verificar", name, () => entrarNoMenu(name));
+  // se a pessoa marcou "continuar conectado" neste aparelho, entra direto
+  if (pilotoLembrado() === name) { entrarNoMenu(name); return; }
+  abrirSenha("verificar", name, () => {
+    if (senhaLembrar()) lembrarPiloto(name);
+    entrarNoMenu(name);
+  });
+}
+
+/* ---------------------------------------------------------------------
+   Continuar conectado no jogo: guarda só o nome do piloto neste
+   aparelho, para não ter de desenhar a senha toda vez que abrir.
+   Some ao tocar em TROCAR DE PILOTO.
+   --------------------------------------------------------------------- */
+function pilotoLembrado() { return storageGet("nn_lembrado", "") || ""; }
+function lembrarPiloto(nome) { storageSet("nn_lembrado", nome || ""); }
+function esquecerPiloto() { storageSet("nn_lembrado", ""); }
+function senhaLembrar() {
+  const c = $("senha-lembrar");
+  return !c || c.checked;
 }
 
 function avisoLogin(txt, tipo) {
@@ -4903,6 +4996,7 @@ $("btn-entrar").addEventListener("click", async () => {
     persist();
     $("login-nome").value = "";
     avisoLogin("Bem-vindo de volta!", "ok");
+    if (senhaLembrar()) lembrarPiloto(conta.nome || nome);
     entrarNoMenu(conta.nome || nome);
   };
 });
@@ -4919,10 +5013,12 @@ $("btn-new").addEventListener("click", () => {
     ROOT.profiles[name].senha = hash;
     $("new-name").value = "";
     AudioSys.buy();
+    lembrarPiloto(name);
     entrarNoMenu(name);
   });
 });
 $("btn-logout").addEventListener("click", () => {
+  esquecerPiloto();
   persist();
   S.mode = "login";
   renderLogin();
@@ -4941,6 +5037,9 @@ function senhaHash(seq) { return admHash("nn|" + seq.join("-")); }
 function abrirSenha(modo, nome, aoTerminar) {
   senhaEstado = { modo, nome, primeira: null, aoTerminar, seq: [], desenhando: false, px: 0, py: 0 };
   S.mode = "senha";
+  // a opção de continuar conectado só faz sentido ao ENTRAR
+  const linha = $("senha-lembrar-linha");
+  if (linha) linha.style.display = (modo === "verificar") ? "flex" : "none";
   senhaAtualizarTexto();
   showScreen("senha");
   requestAnimationFrame(desenharSenha);
@@ -5244,8 +5343,12 @@ function admOpen() {
   $("adm-pass-row").style.display = "flex";
   $("adm-panel").style.display = "none";
   $("adm-sel-box").style.display = "none";
-  $("adm-pass-note").textContent = "Digite a senha do administrador.";
+  $("adm-pass-note").textContent =
+    "O dono entra com o nick e a senha mestra. Quem está na equipe entra " +
+    "com o nick e a chave que o dono passou.";
   showScreen("adm");
+  // se já ficou conectado neste aparelho, entra sozinho
+  setTimeout(() => { try { admEntrarGuardado(); } catch (e) {} }, 150);
 }
 function admMsg(txt) {
   const el = $("adm-msg");
@@ -5383,6 +5486,8 @@ $("btn-adm-enter").addEventListener("click", async () => {
   if (!nick) { nota.textContent = "Escreva o seu nick."; AudioSys.deny(); return; }
   if (!chave) { nota.textContent = "Falta a chave."; AudioSys.deny(); return; }
 
+  const lembrar = $("adm-lembrar").checked;
+
   // 1) dono: nick da lista + senha mestra
   if (ehDono(nick)) {
     if (admHash(chave) !== ADM_MASTER) {
@@ -5393,6 +5498,7 @@ $("btn-adm-enter").addEventListener("click", async () => {
     }
     PERM.nick = nick; PERM.dono = true; PERM.cargo = "DONO";
     PERM.permissoes = {}; PERM.entrou = true;
+    if (lembrar) admLembrar(nick, chave); else admEsquecer();
     abrirPainelComo();
     return;
   }
@@ -5421,13 +5527,45 @@ $("btn-adm-enter").addEventListener("click", async () => {
   PERM.cargo = (CARGOS.find(c => c.id === m.cargo) || {}).nome || "EQUIPE";
   PERM.permissoes = m.permissoes || {};
   PERM.entrou = true;
+  if (lembrar) admLembrar(nick, chave); else admEsquecer();
   nuvemJuntar("equipe/" + equipeId(nick), { visto: Date.now() });
   abrirPainelComo();
 });
+
+/* ---------------------------------------------------------------------
+   Continuar conectado: guarda o nick e a chave só neste aparelho, para
+   não ter de digitar toda hora. O botão SAIR apaga.
+   --------------------------------------------------------------------- */
+function admLembrar(nick, chave) {
+  try { storageSet("nn_adm", JSON.stringify({ nick: nick, chave: chave, quando: Date.now() })); }
+  catch (e) {}
+}
+function admEsquecer() { try { storageSet("nn_adm", ""); } catch (e) {} }
+function admGuardado() {
+  try {
+    const t = storageGet("nn_adm", "");
+    if (!t) return null;
+    const d = JSON.parse(t);
+    return (d && d.nick && d.chave) ? d : null;
+  } catch (e) { return null; }
+}
+/* entra sozinho quando já tem acesso guardado */
+async function admEntrarGuardado() {
+  const d = admGuardado();
+  if (!d || PERM.entrou) return false;
+  $("adm-nick").value = d.nick;
+  $("adm-pass").value = d.chave;
+  $("adm-lembrar").checked = true;
+  $("adm-pass-note").textContent = "Entrando como " + d.nick + "…";
+  $("btn-adm-enter").click();
+  return true;
+}
 $("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
 $("adm-nick").addEventListener("keydown", e => { if (e.key === "Enter") $("adm-pass").focus(); });
 $("quem-sair").addEventListener("click", () => {
+  admEsquecer();
   PERM.entrou = false; PERM.dono = false; PERM.permissoes = {};
+  $("adm-abas").classList.remove("on");
   $("adm-panel").style.display = "none";
   $("adm-quem").style.display = "none";
   $("adm-pass-row").style.display = "";
@@ -5469,6 +5607,7 @@ function abrirPainelComo() {
 
   preencherRanks();
   aplicarPermissoes();
+  renderAbasAdm();
   if (pode("backup")) admRenderPlayers();
   admRenderRecadosProntos();
   admRenderMundo();
@@ -5484,6 +5623,136 @@ function abrirPainelComo() {
     if (pode("equipe")) admRenderEquipe();
   }
   AudioSys.buy();
+}
+
+/* =====================================================================
+   ABAS DO PAINEL
+   ---------------------------------------------------------------------
+   Eram treze cartões numa rolagem só. Agora cada assunto tem a sua aba,
+   e dentro das AÇÕES tem abinhas próprias (dar, tirar, inventário e a
+   caixa) para não ficar tudo amontoado.
+   Uma aba só aparece se a pessoa tiver ao menos uma permissão dela.
+   ===================================================================== */
+const ABAS_ADM = [
+  { id: "jogadores", nome: "👤 JOGADORES", perms: ["verLista"],
+    cartoes: ["adm-vivo", "adm-nuvem"] },
+  { id: "acoes",     nome: "⚡ AÇÕES",     perms: ["darCoisas", "darRaros", "invVer", "invTirar", "zerar", "presGeral"],
+    cartoes: ["adm-nuvem"] },
+  { id: "mundo",     nome: "🌍 MUNDO",     perms: ["recados", "eventos", "boosts", "trolls"],
+    cartoes: ["adm-agora", "adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls"] },
+  { id: "sugestoes", nome: "💡 SUGESTÕES", perms: ["sugVer"],
+    cartoes: ["adm-sug"] },
+  { id: "equipe",    nome: "👥 EQUIPE",    perms: ["equipe"],
+    cartoes: ["adm-equipe"] },
+  { id: "sistema",   nome: "🔧 SISTEMA",   perms: ["diag", "backup"],
+    cartoes: ["adm-diag", "adm-local", "adm-todos", "adm-backup"] }
+];
+let abaAdm = "";
+
+const SUB_ACOES = [
+  { id: "dar",    nome: "🎁 DAR",         pane: "pane-dar",   perms: ["darCoisas", "darRaros"] },
+  { id: "tirar",  nome: "✕ TIRAR",        pane: "pane-tirar", perms: ["invTirar", "zerar"] },
+  { id: "inv",    nome: "🎒 INVENTÁRIO",  pane: "pane-inv",   perms: ["invVer"] },
+  { id: "caixa",  nome: "📦 CAIXA",       pane: "pane-caixa", perms: ["darCoisas", "darRaros", "invTirar", "presGeral"] }
+];
+let subAcao = "dar";
+
+function abasLiberadas() { return ABAS_ADM.filter(a => a.perms.some(pode)); }
+function subsLiberadas() { return SUB_ACOES.filter(a => a.perms.some(pode)); }
+
+function renderAbasAdm() {
+  const cx = $("adm-abas");
+  const libs = abasLiberadas();
+  if (!libs.length) { cx.classList.remove("on"); return; }
+  cx.classList.add("on");
+  if (!libs.some(a => a.id === abaAdm)) abaAdm = libs[0].id;
+  cx.innerHTML = "";
+  for (const a of libs) {
+    const b = document.createElement("button");
+    b.className = "adm-aba" + (abaAdm === a.id ? " on" : "");
+    b.innerHTML = a.nome + (a.id === "sugestoes" && sugNovas() ? "<i>" + sugNovas() + "</i>" : "");
+    b.addEventListener("click", () => {
+      abaAdm = a.id;
+      renderAbasAdm();
+      try { cx.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) {}
+    });
+    cx.appendChild(b);
+  }
+  mostrarAba();
+}
+function sugNovas() {
+  return (typeof sugTodas !== "undefined" ? sugTodas : []).filter(x => !x.lida).length;
+}
+
+/* mostra só os cartões da aba escolhida */
+let agoraNoTopo = false;
+function mostrarAba() {
+  // o resumo do que está no ar vem ANTES dos botões, não depois
+  if (!agoraNoTopo) {
+    const ag = $("adm-agora"), mu = $("adm-mundo");
+    if (ag && mu && mu.parentNode) { mu.parentNode.insertBefore(ag, mu); agoraNoTopo = true; }
+  }
+  const todos = {};
+  for (const a of ABAS_ADM) for (const c of a.cartoes) todos[c] = true;
+  const atual = ABAS_ADM.find(a => a.id === abaAdm);
+  for (const id in todos) {
+    const el = $(id);
+    if (!el) continue;
+    const naAba = atual && atual.cartoes.indexOf(id) >= 0;
+    el.style.display = (naAba && permiteCartao(id)) ? "block" : "none";
+  }
+  // o cartão de jogadores serve às duas abas, mas com caras diferentes
+  const sel = $("adm-nuvem-sel");
+  const lista = $("adm-nuvem-lista");
+  const busca = $("adm-nuvem-busca");
+  if (abaAdm === "acoes") {
+    if (busca && busca.parentElement) busca.parentElement.style.display = "";
+    if (lista) lista.style.display = "";
+    if (sel) sel.style.display = admNuvemAlvo ? "block" : "none";
+    const cab = document.querySelector("#adm-nuvem .adm-h");
+    if (cab) cab.textContent = admNuvemAlvo ? "AÇÕES EM QUEM VOCÊ ESCOLHEU" : "ESCOLHA UM JOGADOR";
+    renderSubAcoes();
+  } else if (abaAdm === "jogadores") {
+    if (sel) sel.style.display = "none";
+    const cab = document.querySelector("#adm-nuvem .adm-h");
+    if (cab) cab.textContent = "JOGADORES ONLINE";
+  }
+  const vazio = $("adm-vazio");
+  if (vazio) vazio.style.display = abasLiberadas().length ? "none" : "block";
+}
+/* atalho para pular direto numa aba (e numa abinha) do painel */
+function admIrPara(aba, sub) {
+  if (aba) abaAdm = aba;
+  if (sub) subAcao = sub;
+  renderAbasAdm();
+  if (abaAdm === "acoes") renderSubAcoes();
+}
+window.admIrPara = admIrPara;
+
+function permiteCartao(id) {
+  const p = CARTOES_PERM[id];
+  if (!p) return true;
+  return Array.isArray(p) ? p.some(pode) : pode(p);
+}
+
+function renderSubAcoes() {
+  const cx = $("acao-abas");
+  if (!cx) return;
+  const libs = subsLiberadas();
+  if (!libs.some(a => a.id === subAcao)) subAcao = libs.length ? libs[0].id : "";
+  cx.innerHTML = "";
+  for (const a of libs) {
+    const b = document.createElement("button");
+    b.className = "sub-aba" + (subAcao === a.id ? " on" : "");
+    const n = a.id === "caixa" ? Object.keys(caixaAdm).length : 0;
+    b.innerHTML = a.nome + (n ? '<span class="pip">' + n + "</span>" : "");
+    b.addEventListener("click", () => { subAcao = a.id; renderSubAcoes(); });
+    cx.appendChild(b);
+  }
+  for (const a of SUB_ACOES) {
+    const p = $(a.pane);
+    if (p) p.style.display = (a.id === subAcao && libs.some(x => x.id === a.id)) ? "block" : "none";
+  }
 }
 
 /* cada cartão e cada botão só aparece se a permissão estiver ligada */
@@ -5518,9 +5787,7 @@ function aplicarPermissoes() {
   for (const id in CARTOES_PERM) {
     const el = $(id);
     if (!el) continue;
-    const p = CARTOES_PERM[id];
-    const ok = Array.isArray(p) ? p.some(pode) : pode(p);
-    el.style.display = ok ? "block" : "none";
+    el.style.display = permiteCartao(id) ? "block" : "none";
   }
   for (const id in BOTOES_PERM) {
     const el = $(id);
@@ -5746,18 +6013,28 @@ function cartaoMembro(m) {
     admRenderEquipe();
   });
   const tirar = document.createElement("button");
-  tirar.textContent = "TIRAR";
+  tirar.textContent = "✕ TIRAR DO ADM";
   tirar.style.color = "var(--danger)";
+  tirar.style.flex = "1 1 100%";
+  tirar.title = "Apaga a pessoa da equipe de vez: a chave dela para de valer na hora.";
   let confirma = false;
   tirar.addEventListener("click", async () => {
     if (!confirma) {
       confirma = true;
-      tirar.textContent = "CONFIRMAR?";
-      setTimeout(() => { confirma = false; tirar.textContent = "TIRAR"; }, 3000);
+      tirar.textContent = "TOQUE DE NOVO PARA TIRAR " + m.nome.toUpperCase();
+      setTimeout(() => { confirma = false; tirar.textContent = "✕ TIRAR DO ADM"; }, 4000);
       return;
     }
-    await nuvemReq("equipe/" + m.id, { method: "DELETE" });
-    admMsg(m.nome + " saiu da equipe");
+    const r = await nuvemReq("equipe/" + m.id, { method: "DELETE" });
+    // confere que sumiu mesmo, em vez de confiar
+    const ainda = await nuvemReq("equipe/" + m.id);
+    if (ainda) {
+      admMsg("⚠ Não deu para tirar " + m.nome + ". Aperte TESTAR AGORA em SISTEMA.");
+      AudioSys.deny();
+      return;
+    }
+    admMsg(m.nome + " foi tirado do painel de vez. A chave dele não vale mais.");
+    AudioSys.buy();
     admRenderEquipe();
   });
   acoes.appendChild(pausar); acoes.appendChild(tirar);
@@ -5819,6 +6096,7 @@ async function admCarregarSugestoes() {
   admRenderSugestoes();
 }
 function admRenderSugestoes() {
+  try { renderAbasAdm(); } catch (e) {}
   const cx = $("sug-lista");
   const novas = sugTodas.filter(s2 => !s2.lida).length;
   $("sug-cont").textContent = sugTodas.length
@@ -5827,8 +6105,8 @@ function admRenderSugestoes() {
     : "";
   cx.innerHTML = "";
   if (!sugTodas.length) {
-    cx.innerHTML = '<div class="adm-note">Ninguém mandou sugestão ainda. ' +
-      "O botão aparece no fim de cada fase.</div>";
+    cx.innerHTML = '<div class="adm-vazio"><b>💡</b>Nenhuma sugestão ainda.<br>' +
+      "O botão aparece para os jogadores no fim de cada fase.</div>";
     return;
   }
   for (const sg of sugTodas.slice(0, 120)) {
@@ -6230,6 +6508,7 @@ function admRenderMundoAgora() {
   if (!cx) return;
   mundoLimpar();
   cx.innerHTML = "";
+  const cont = $("agora-cont");
   const linha = (icone, nome, ate, aoTirar, cor) => {
     const d = document.createElement("div");
     d.className = "mundo-item";
@@ -6257,7 +6536,11 @@ function admRenderMundoAgora() {
     linha(def.icone, def.nome + (bo ? " x" + (MUNDO.efeitos[k].mult || 1) : ""),
           MUNDO.efeitos[k].ate, () => mundoApagar("efeitos/" + k), def.cor);
   }
-  if (!n) cx.innerHTML = '<div class="adm-note">Nada ligado agora. O jogo está no normal.</div>';
+  if (cont) cont.textContent = n ? n + (n === 1 ? " coisa ligada" : " coisas ligadas") : "";
+  if (!n) {
+    cx.innerHTML = '<div class="adm-vazio"><b>🌙</b>Nada ligado agora.<br>' +
+      "O jogo está rodando no normal para todo mundo.</div>";
+  }
 }
 
 function admRenderMundo() {
@@ -6373,7 +6656,8 @@ function vivoRender() {
   $("vivo-cont").textContent = ligados + " de " + lista.length + " com o jogo aberto";
   box.innerHTML = "";
   if (!lista.length) {
-    box.innerHTML = '<div class="adm-note">Ninguém apareceu ainda.</div>';
+    box.innerHTML = '<div class="adm-vazio"><b>👀</b>Ninguém apareceu ainda.<br>' +
+      "As pessoas entram nesta lista assim que abrem o jogo com internet.</div>";
     return;
   }
   for (const p of lista.slice(0, 60)) {
@@ -6485,6 +6769,10 @@ async function admNuvemSelecionar(p) {
   admNuvemAtualizarBotaoOcultar();
   admNuvemRender();
   admNuvemVerPendente();
+  if (abaAdm === "acoes" || abaAdm === "jogadores") {
+    abaAdm = "acoes";
+    renderAbasAdm();
+  }
 }
 async function admNuvemVerPendente() {
   if (!admNuvemAlvo) return;
@@ -6881,6 +7169,7 @@ function renderCaixaAdm() {
   }
   $("caixa-enviar").textContent = chaves.length
     ? "📦 ENVIAR (" + chaves.length + ")" : "📦 ENVIAR A CAIXA";
+  try { if (abaAdm === "acoes") renderSubAcoes(); } catch (e) {}
 }
 function porNaCaixa(presente, msg) {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
@@ -13072,6 +13361,12 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.9", itens: [
+      "Painel do administrador reorganizado em abas: Jogadores, Ações, Mundo, Sugestões, Equipe e Sistema — em vez de treze cartões numa rolagem só",
+      "Dentro de AÇÕES tem abinhas próprias: DAR, TIRAR, INVENTÁRIO e CAIXA, com contador do que já está no pacote",
+      "Dá para tirar alguém do painel de vez, e o jogo confere que sumiu mesmo antes de dizer que deu certo",
+      "Continuar conectado: o jogo e o painel guardam quem você é neste aparelho, sem pedir senha toda hora"
+    ] },
   { v: "3.8", itens: [
       "As caixinhas de permissão agora aparecem ANTES de adicionar a pessoa: dá para montar o acesso dela do zero, uma por uma",
       "CORRIGIDO: quando o Firebase recusava uma gravação, o painel dizia que tinha dado certo. Agora avisa o motivo e leva você até o teste"
@@ -13214,7 +13509,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.8";
+const VERSAO = "3.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
@@ -13314,6 +13609,15 @@ if (podeUsarSW) {
 /* ---------- Início ---------- */
 renderLogin();
 showScreen("login");
+
+/* Quem deixou "continuar conectado" entra direto, sem desenhar a senha.
+   Se o piloto tiver sumido do aparelho, cai na tela de entrada normal.   */
+(function entrarDireto() {
+  const nome = pilotoLembrado();
+  if (!nome) return;
+  if (!ROOT.profiles[nome]) { esquecerPiloto(); return; }
+  try { entrarNoMenu(nome); } catch (e) { esquecerPiloto(); }
+})();
 </script>
 </body>
 </html>

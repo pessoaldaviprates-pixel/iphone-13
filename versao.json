@@ -1,4 +1,4 @@
 {
-  "versao": "3.8",
-  "nota": "Permissoes escolhidas antes de adicionar e fim das gravacoes que falhavam em silencio"
+  "versao": "3.9",
+  "nota": "Painel em abas, acoes separadas em dar/tirar/inventario/caixa e continuar conectado"
 }
