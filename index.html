@@ -821,6 +821,25 @@
     text-align:center;padding:2px 4px 8px;
   }
 
+  /* teste da nuvem */
+  .diag-lista{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .diag-item{
+    display:flex;align-items:flex-start;gap:9px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;
+  }
+  .diag-item b{flex:none;font-size:.9rem;line-height:1.3}
+  .diag-item div{flex:1;min-width:0}
+  .diag-item .n{font-size:.74rem;font-weight:700}
+  .diag-item .d{font-size:.64rem;color:var(--dim);margin-top:2px;line-height:1.45;word-break:break-word}
+  .diag-item.ok{border-color:rgba(76,224,122,.5)}
+  .diag-item.ruim{border-color:var(--danger);background:rgba(255,82,82,.09)}
+  .diag-item .d b{color:var(--amber);font-size:inherit}
+  .diag-regras{
+    margin-top:10px;font-family:ui-monospace,Menlo,monospace;font-size:.58rem;
+    line-height:1.5;white-space:pre;overflow-x:auto;color:rgba(234,242,255,.85);
+    background:rgba(6,10,24,.8);border:1px solid var(--line);border-radius:11px;padding:10px;
+  }
+
   /* painel do mundo: eventos, boosts e travessuras */
   .mundo-linha{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
   .mundo-linha input[type=number]{width:74px;flex:none;padding:9px 8px;text-align:center}
@@ -1459,6 +1478,18 @@
     </div>
 
     <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-diag">
+        <div class="adm-h">🩺 TESTE DA NUVEM</div>
+        <p class="adm-note" style="max-width:none">
+          Se algum botão não estiver fazendo efeito, aperte aqui: o teste diz
+          exatamente o que está travando e o que fazer.
+        </p>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="diag-testar">TESTAR AGORA</button>
+        </div>
+        <div class="diag-lista" id="diag-lista"></div>
+      </div>
 
       <div class="adm-card" id="adm-mundo" style="display:none">
         <div class="adm-h gold">📢 RECADO PARA O JOGO INTEIRO</div>
@@ -4963,13 +4994,17 @@ $("btn-adm-enter").addEventListener("click", () => {
   $("adm-panel").style.display = "block";
   preencherRanks();
   admRenderPlayers();
+  // os cartões do mundo aparecem sempre: se a nuvem estiver desligada,
+  // o teste lá em cima explica o porquê em vez de sumirem sem aviso
+  for (const id of ["adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls", "adm-agora"]) {
+    $(id).style.display = "block";
+  }
+  admRenderRecadosProntos();
+  admRenderMundo();
+  if (!nuvemAtiva()) admTestarNuvem();
   if (nuvemAtiva()) {
     $("adm-nuvem").style.display = "block";
     $("adm-vivo").style.display = "block";
-    for (const id of ["adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls", "adm-agora"]) {
-      $(id).style.display = "block";
-    }
-    admRenderRecadosProntos();
     mundoLigar();
     nuvemReq("mundo").then(d => { mundoAplicar(d); admRenderMundo(); });
     admRenderMundo();
@@ -4983,6 +5018,128 @@ $("btn-adm-enter").addEventListener("click", () => {
 });
 $("adm-pass").addEventListener("keydown", e => { if (e.key === "Enter") $("btn-adm-enter").click(); });
 $("adm-search").addEventListener("input", admRenderPlayers);
+
+/* =====================================================================
+   TESTE DA NUVEM — diz o que está travando, em português
+   ---------------------------------------------------------------------
+   Quase sempre que "não acontece nada" é uma destas três coisas:
+   1) o jogo está sem endereço de nuvem (config.js vazio);
+   2) as regras do Firebase ainda não têm o galho novo (mundo, pedidos…),
+      e aí a gravação é recusada em silêncio;
+   3) a internet caiu.
+   Este teste escreve e apaga uma marca em cada galho e mostra qual falhou.
+   ===================================================================== */
+const REGRAS_NOS = ["pilotos", "presentes", "contas", "salas", "arena", "fila",
+                    "cenas", "pedidos", "mundo"];
+
+async function nuvemTestarNo(no) {
+  const alvo = no + "/__teste";
+  try {
+    const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + alvo + ".json", {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ t: Date.now() })
+    });
+    if (!r.ok) return { ok: false, cod: r.status };
+    await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + alvo + ".json", { method: "DELETE" });
+    return { ok: true };
+  } catch (e) { return { ok: false, cod: 0, erro: String(e && e.message) }; }
+}
+
+async function admTestarNuvem() {
+  const cx = $("diag-lista");
+  cx.innerHTML = '<div class="adm-note">Testando…</div>';
+  const linhas = [];
+  const add = (ok, nome, desc) => linhas.push({ ok, nome, desc });
+
+  if (!nuvemAtiva()) {
+    cx.innerHTML = "";
+    const d = document.createElement("div");
+    d.className = "diag-item ruim";
+    d.innerHTML = "<b>✕</b><div><div class='n'>O modo online está desligado</div>" +
+      "<div class='d'>Esta cópia do jogo está sem endereço de nuvem, então nada " +
+      "online funciona: nem ranking, nem presentes, nem eventos, nem recados.<br><br>" +
+      "Se você abriu pelo <b>link do Artifact antigo</b>, use a versão nova — ou " +
+      "abra pelo endereço do GitHub Pages, que já vem com a nuvem ligada.</div></div>";
+    cx.appendChild(d);
+    return;
+  }
+  add(true, "Endereço da nuvem", NUVEM_URL);
+
+  let bloqueados = [];
+  for (const no of REGRAS_NOS) {
+    const r = await nuvemTestarNo(no);
+    if (r.ok) add(true, "Galho " + no, "gravação liberada");
+    else {
+      bloqueados.push(no);
+      add(false, "Galho " + no,
+        r.cod === 401 || r.cod === 403
+          ? "as regras do Firebase estão recusando a gravação aqui"
+          : (r.cod ? "o servidor respondeu " + r.cod : "não deu para alcançar (" + (r.erro || "sem rede") + ")"));
+    }
+  }
+
+  cx.innerHTML = "";
+  for (const l of linhas) {
+    const d = document.createElement("div");
+    d.className = "diag-item " + (l.ok ? "ok" : "ruim");
+    d.innerHTML = "<b>" + (l.ok ? "✓" : "✕") + "</b><div><div class='n'>" +
+      escaparTexto(l.nome) + "</div><div class='d'>" + escaparTexto(l.desc) + "</div></div>";
+    cx.appendChild(d);
+  }
+
+  if (bloqueados.length) {
+    const aviso = document.createElement("div");
+    aviso.className = "diag-item ruim";
+    aviso.innerHTML = "<b>⚠</b><div><div class='n'>Faltam regras no Firebase</div>" +
+      "<div class='d'>Estes galhos estão bloqueados: <b>" + bloqueados.join(", ") + "</b>.<br>" +
+      "Abra o Firebase → Realtime Database → aba <b>Regras</b>, cole o texto " +
+      "abaixo por cima do que está lá e aperte <b>Publicar</b>. Depois volte aqui " +
+      "e teste de novo.</div></div>";
+    cx.appendChild(aviso);
+    const pre = document.createElement("div");
+    pre.className = "diag-regras";
+    pre.textContent = admRegrasJSON();
+    cx.appendChild(pre);
+    const copiar = document.createElement("button");
+    copiar.className = "adm-btn gold";
+    copiar.style.marginTop = "10px";
+    copiar.style.width = "100%";
+    copiar.textContent = "📋 COPIAR AS REGRAS";
+    copiar.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(admRegrasJSON());
+        copiar.textContent = "✓ COPIADO — cole no Firebase";
+      } catch (e) { copiar.textContent = "Selecione o texto acima e copie"; }
+    });
+    cx.appendChild(copiar);
+    AudioSys.deny();
+  } else {
+    const bom = document.createElement("div");
+    bom.className = "diag-item ok";
+    bom.innerHTML = "<b>✓</b><div><div class='n'>Está tudo certo</div>" +
+      "<div class='d'>Todos os galhos aceitam gravação. Os eventos, recados e " +
+      "boosts devem funcionar normalmente.</div></div>";
+    cx.appendChild(bom);
+    AudioSys.buy();
+  }
+}
+function admRegrasJSON() {
+  const no = (dentro) => dentro
+    ? '{\n      "$id": {\n        ".read": true,\n        ".write": true\n      }\n    }'
+    : '{\n      ".read": true,\n      ".write": true\n    }';
+  return '{\n  "rules": {\n' +
+    '    "pilotos": {\n      ".read": true,\n      "$id": { ".write": true }\n    },\n' +
+    '    "presentes": ' + no(true) + ',\n' +
+    '    "contas": ' + no(true) + ',\n' +
+    '    "salas": ' + no(true) + ',\n' +
+    '    "cenas": ' + no(true) + ',\n' +
+    '    "pedidos": ' + no(true) + ',\n' +
+    '    "arena": ' + no(false) + ',\n' +
+    '    "fila": ' + no(false) + ',\n' +
+    '    "mundo": ' + no(false) + '\n' +
+    '  }\n}';
+}
+$("diag-testar").addEventListener("click", admTestarNuvem);
 
 /* =====================================================================
    PAINEL DO MUNDO — recados, eventos, boosts e travessuras
@@ -5009,13 +5166,30 @@ function admSegundos(idTempo, idUnidade, padrao) {
   return n * u;
 }
 async function mundoEscrever(caminho, valor) {
-  const ok = await nuvemReq("mundo/" + caminho, {
-    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(valor)
-  });
+  if (!nuvemAtiva()) {
+    admMsg("O modo online está desligado nesta cópia — aperte TESTAR AGORA lá em cima.");
+    AudioSys.deny();
+    return null;
+  }
+  let resposta = null;
+  try {
+    resposta = await fetch(NUVEM_URL.replace(/\/$/, "") + "/mundo/" + caminho + ".json", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(valor)
+    });
+  } catch (e) {}
+  if (!resposta || !resposta.ok) {
+    const cod = resposta ? resposta.status : 0;
+    admMsg(cod === 401 || cod === 403
+      ? "⚠ O Firebase recusou: falta a regra do galho \"mundo\". Aperte TESTAR AGORA e copie as regras."
+      : "⚠ Não deu para gravar na nuvem" + (cod ? " (erro " + cod + ")" : " — sem internet?"));
+    AudioSys.deny();
+    $("adm-diag").scrollIntoView({ block: "center", behavior: "smooth" });
+    return null;
+  }
   // acende na hora aqui também, sem esperar o fluxo dar a volta
   mundoAplicar(await nuvemReq("mundo"));
   admRenderMundo();
-  return ok;
+  return true;
 }
 async function mundoApagar(caminho) {
   await nuvemReq("mundo/" + caminho, { method: "DELETE" });
@@ -5028,12 +5202,14 @@ async function admEnviarRecado(texto, tipo) {
   const t = (texto !== undefined ? texto : ($("msg-texto").value || "")).trim();
   if (!t) { admMsg("Escreva o recado primeiro."); AudioSys.deny(); return; }
   const seg = admSegundos("msg-tempo", null, 60);
-  await mundoEscrever("aviso", {
+  const ok = await mundoEscrever("aviso", {
     texto: t.slice(0, 160), tipo: tipo || $("msg-tipo").value || "normal",
     de: "ADMINISTRADOR", quando: Date.now(), ate: Date.now() + seg * 1000
   });
+  if (!ok) return false;               // o aviso do erro já apareceu
   admMsg("Recado no ar por " + seg + "s");
   AudioSys.buy();
+  return true;
 }
 function admRenderRecadosProntos() {
   const cx = $("msg-rapidas");
@@ -5067,8 +5243,10 @@ function admRenderEventos() {
       (atual && atual.id === ev.id ? '<span class="lig">NO AR</span>' : "");
     b.addEventListener("click", async () => {
       const seg = admSegundos("ev-tempo", "ev-un", 10);
-      await mundoEscrever("evento", { id: ev.id, ate: Date.now() + seg * 1000, quando: Date.now() });
-      admEnviarRecado(ev.icone + " " + ev.nome + " COMEÇOU!", "festa");
+      const ok = await mundoEscrever("evento",
+        { id: ev.id, ate: Date.now() + seg * 1000, quando: Date.now() });
+      if (!ok) return;
+      await admEnviarRecado(ev.icone + " " + ev.nome + " COMEÇOU!", "festa");
       admMsg(ev.nome + " no ar por " + seg + "s");
       AudioSys.victory();
     });
@@ -5112,8 +5290,9 @@ function admRenderBoosts() {
       e.stopPropagation();
       const m = Math.max(1, parseInt(mult.value, 10) || 2);
       const h = Math.max(0.1, parseFloat(hor.value) || 1);
-      await mundoEscrever("efeitos/" + bo.id, { mult: m, ate: Date.now() + h * 3600000 });
-      admEnviarRecado("⚡ " + bo.nome + " x" + m + " ligado por " + h + "h!", "premio");
+      const ok = await mundoEscrever("efeitos/" + bo.id, { mult: m, ate: Date.now() + h * 3600000 });
+      if (!ok) return;
+      await admEnviarRecado("⚡ " + bo.nome + " x" + m + " ligado por " + h + "h!", "premio");
       admMsg(bo.nome + " x" + m + " por " + h + "h");
       AudioSys.power();
     });
@@ -5138,7 +5317,8 @@ function admRenderTrolls() {
     b.addEventListener("click", async () => {
       if (mundoAtivo(tr.id)) { await mundoApagar("efeitos/" + tr.id); admMsg(tr.nome + " desligado"); return; }
       const seg = admSegundos("tr-tempo", "tr-un", 60);
-      await mundoEscrever("efeitos/" + tr.id, { ate: Date.now() + seg * 1000 });
+      const ok = await mundoEscrever("efeitos/" + tr.id, { ate: Date.now() + seg * 1000 });
+      if (!ok) return;
       admMsg(tr.nome + " por " + seg + "s");
       AudioSys.deny();
     });
@@ -5207,15 +5387,12 @@ $("boost-parar").addEventListener("click", async () => {
 });
 $("boost-tudo").addEventListener("click", async () => {
   const ate = Date.now() + 3600000;
+  let ok = true;
   for (const bo of BOOSTS) {
-    await nuvemReq("mundo/efeitos/" + bo.id, {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mult: 5, ate: ate })
-    });
+    if (!await mundoEscrever("efeitos/" + bo.id, { mult: 5, ate: ate })) { ok = false; break; }
   }
-  mundoAplicar(await nuvemReq("mundo"));
-  admRenderMundo();
-  admEnviarRecado("⚡ TUDO 5x POR UMA HORA! Aproveitem!", "premio");
+  if (!ok) return;
+  await admEnviarRecado("⚡ TUDO 5x POR UMA HORA! Aproveitem!", "premio");
   admMsg("Todos os boosts em 5x por 1h");
   AudioSys.victory();
 });
@@ -5228,16 +5405,13 @@ $("tr-parar").addEventListener("click", async () => {
 $("tr-caos").addEventListener("click", async () => {
   const seg = admSegundos("tr-tempo", "tr-un", 60);
   const ate = Date.now() + seg * 1000;
+  let ok = true;
   for (const tr of TROLLS) {
     if (tr.id === "lesma") continue;   // essa briga com o turbo
-    await nuvemReq("mundo/efeitos/" + tr.id, {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ate: ate })
-    });
+    if (!await mundoEscrever("efeitos/" + tr.id, { ate: ate })) { ok = false; break; }
   }
-  mundoAplicar(await nuvemReq("mundo"));
-  admRenderMundo();
-  admEnviarRecado("🔥 MODO CAOS! Segurem-se!", "alerta");
+  if (!ok) return;
+  await admEnviarRecado("🔥 MODO CAOS! Segurem-se!", "alerta");
   admMsg("Modo caos por " + seg + "s");
 });
 
@@ -11746,6 +11920,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "3.4", itens: [
+      "CORRIGIDO: a versão publicada estava sem nuvem nenhuma, então nada online funcionava nela — nem ranking, nem presentes, nem eventos, nem recados",
+      "O painel ganhou um TESTE DA NUVEM que diz exatamente o que está travando e já mostra as regras prontas para copiar",
+      "Quando uma gravação falha, o painel avisa em vez de dizer que deu certo"
+    ] },
   { v: "3.3", itens: [
       "O administrador agora pode mandar recados que aparecem na tela de todo mundo na hora",
       "12 EVENTOS com música e decoração próprias: Natal com neve, Halloween com morcegos, Festa com confete, Chuva de Ouro, Apocalipse, Aurora, Rave Neon, Fundo do Mar, Vulcão, Código, Arco-íris e Zona de Guerra",
@@ -11863,7 +12042,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "3.3";
+const VERSAO = "3.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
