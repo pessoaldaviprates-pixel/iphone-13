@@ -378,6 +378,26 @@
   body.leve #btn-play::after,
   body.leve .fim-raios,
   body.leve .tile::after{animation:none}
+  /* ---- menu leve de verdade ----
+     Em celular fraco o que pesa no menu não é o conteúdo: é o céu que
+     respira atrás, a grade de linhas, o brilho do JOGAR, o brasão
+     pulsando e o selo dos ladrilhos. Tudo isso é enfeite — no modo leve
+     eles param, e o menu passa a andar liso.                          */
+  body.leve .screen::before{animation:none;opacity:.6}
+  body.leve .screen::after{
+    background:radial-gradient(120% 82% at 50% 40%,transparent 42%,rgba(3,6,16,.86) 100%);
+  }
+  body.leve #btn-play{animation:none}
+  body.leve #btn-play::after{display:none}
+  body.leve .brand{animation:none}
+  body.leve .tile.tem::before{animation:none;opacity:.9}
+  body.leve .tile .selo{animation:none}
+  body.leve .piloto-cartao,body.leve .stat-panel,body.leve .menu-grade .tile{
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+  }
+  body.leve-max .screen::before{display:none}
+  body.leve-max .tile{transition:none}
+  body.leve-max .tile::after{display:none}
   body.leve .fim-raios{opacity:.35}
   body.leve-max .screen::before{animation:none}
   body.leve-max .screen::after{
@@ -566,6 +586,11 @@
     max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:.8em;
     position:relative;z-index:1;
   }
+  .tile.wide{grid-column:1 / -1;flex-direction:row;justify-content:center;gap:10px;padding:13px 12px}
+  .tile.wide b{font-size:1.3rem}
+  .tile.wide i{max-width:none;color:var(--dim)}
+  .tile.verde{border-color:rgba(124,247,192,.45)}
+  .tile.verde b{color:#7CF7C0;text-shadow:0 0 14px rgba(124,247,192,.5)}
   .tile.amber{border-color:rgba(255,193,69,.45)}
   .tile.amber b{color:var(--amber);text-shadow:0 0 14px rgba(255,193,69,.5)}
   .tile.amber::after{background:radial-gradient(90% 70% at 50% 0%,rgba(255,193,69,.18),transparent 70%)}
@@ -3550,6 +3575,7 @@
 
     <div class="menu-secao" id="menu-online-h">ONLINE</div>
     <div class="menu-grade online" id="menu-online">
+      <button class="tile verde wide" id="btn-multi"><b>🤝</b><span>JOGAR COM AMIGO</span><i id="multi-badge">jornada em dupla · duelo · ranqueada</i></button>
       <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
       <button class="tile magenta" id="btn-ranked"><b>⚔</b><span>RANQUEADA</span><i id="ranked-badge"></i></button>
       <button class="tile" id="btn-amigos"><b>👥</b><span>AMIGOS</span><i id="amigos-badge"></i><span class="selo" id="amigos-selo" style="display:none"></span></button>
@@ -14485,7 +14511,7 @@ $("chat-enviar").addEventListener("click", mandarDoChat);
 $("chat-campo").addEventListener("keydown", e => { if (e.key === "Enter") mandarDoChat(); });
 
 const btMulti = $("btn-multi");
-if (btMulti) btMulti.addEventListener("click", () => { AudioSys.resume(); abrirMulti("coop"); });
+if (btMulti) btMulti.addEventListener("click", () => { AudioSys.resume(); abrirMulti("jornada"); });
 const btMultiAm = $("btn-multi-amigos");
 if (btMultiAm) btMultiAm.addEventListener("click", () => trocarAbaMulti("amigos"));
 for (const b of document.querySelectorAll("#multi-abas .aba")) {
@@ -19608,6 +19634,19 @@ try {
 requestAnimationFrame(loop);
   }
 }
+/* Fora da partida quase nada precisa acontecer por quadro. O canvas é
+   apagado UMA vez ao sair do jogo (para não guardar a última cena atrás
+   das telas) e depois fica quieto.                                    */
+let canvasLimpo = false;
+function menuOcioso(dt) {
+  if (!canvasLimpo) {
+    canvasLimpo = true;
+    try { ctx.clearRect(0, 0, W, H); } catch (e) {}
+    if (decoP.length) decoP.length = 0;
+  }
+  // a única coisa que ainda anda é o relógio das telas que animam sozinhas
+  S.telaT = (S.telaT || 0) + dt;
+}
 function loopInterno(now) {
   let dt = (now - last) / 1000;
   const bruto = now - last;
@@ -19620,7 +19659,20 @@ function loopInterno(now) {
     if (ofAuto || !ofDragging) ofTheta += dt * (ofAuto ? 0.9 : 0);
     const cw = of3d.width / DPR, ch = of3d.height / DPR;
     render3D(ofCtx, save.ship, cw / 2, ch / 2 + 10, 5.6, ofTheta, cw, ch);
+  } else if (S.mode !== "playing") {
+    /* =================================================================
+       MENU E DEMAIS TELAS: o jogo fica PARADO
+       -----------------------------------------------------------------
+       As telas cobrem a tela inteira e são opacas — mesmo assim o jogo
+       continuava rodando atrás delas: a fase inteira sendo atualizada e
+       desenhada 60 vezes por segundo, sem ninguém ver. Era isso que
+       fazia o menu engasgar em celular fraco.
+       Agora, fora da partida, o laço não atualiza nem desenha nada. O
+       menu passa a ter o aparelho inteiro só para ele.
+       ================================================================= */
+    menuOcioso(dt);
   } else {
+    canvasLimpo = false;
     update(dt * mundoRitmo());
     hudAgora();                 // escreve o painel uma vez por quadro
     decoAtualizar(dt);
@@ -20130,6 +20182,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.4", itens: [
+      "BOTÃO NOVO NO MENU: 🤝 JOGAR COM AMIGO. Não tinha botão nenhum para o multijogador — dava para chegar na jornada e no cooperativo só por dentro de outra tela",
+      "MENU MUITO MAIS LEVE: fora da partida o jogo ficava rodando ATRÁS das telas, desenhando a fase inteira 60 vezes por segundo sem ninguém ver. Agora ele para de verdade — em celular fraco é a diferença entre menu travado e menu liso",
+      "No modo leve o menu também desliga o céu que respira, a grade de linhas, o brilho do JOGAR e o brasão pulsando"
+    ] },
   { v: "5.3", itens: [
       "ARENA MAIOR: só a arena afasta a câmera e mostra 56% mais campo — dá para ver a onda chegando de longe. Os botões encolhem junto, para não comerem a tela que você ganhou",
       "TIROS INIMIGOS NOVOS: viraram gotas de energia com rastro, miolo branco quente e fagulhas, apontando para onde vão",
@@ -20371,7 +20428,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.3";
+const VERSAO = "5.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
