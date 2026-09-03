@@ -420,6 +420,13 @@
     font-family:"Russo One",sans-serif;font-size:.95rem;letter-spacing:.06em;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
+  .piloto-nome{display:flex;align-items:center;gap:7px}
+  .piloto-vip{
+    display:none;flex:none;font-size:.8rem;
+    filter:drop-shadow(0 0 8px rgba(255,193,69,.8));
+  }
+  .piloto-cartao.vip{border-color:rgba(255,193,69,.5);box-shadow:var(--som-2),0 0 26px rgba(255,193,69,.16)}
+  .piloto-cartao.vip .piloto-vip{display:inline}
   .piloto-rank{font-size:.62rem;letter-spacing:.14em;font-weight:700;color:var(--amber);margin-top:1px}
   .piloto-barra{
     height:6px;border-radius:4px;background:rgba(255,255,255,.1);
@@ -440,9 +447,10 @@
   /* grade de atalhos */
   .menu-grade{display:grid;grid-template-columns:1fr 1fr;gap:9px}
   /* atalho sozinho na última linha ocupa a linha toda, sem buraco */
-  .menu-grade > .tile:last-child:nth-child(odd){grid-column:span 2}
-  .menu-grade > .tile:last-child:nth-child(odd){flex-direction:row;justify-content:center;gap:10px;padding:12px 8px}
-  .menu-grade > .tile:last-child:nth-child(odd) i{position:absolute;right:14px;bottom:8px}
+  .menu-grade.impar > .tile:last-of-type{
+    grid-column:span 2;flex-direction:row;justify-content:center;gap:10px;padding:13px 8px;
+  }
+  .menu-grade.impar > .tile:last-of-type i{position:absolute;right:14px;bottom:8px}
   .tile{
     position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
     padding:14px 8px 12px;cursor:pointer;text-align:center;overflow:hidden;
@@ -893,6 +901,206 @@
   .aba.on{background:rgba(77,232,255,.15);border-color:var(--cyan);color:var(--cyan)}
   .aba:active{transform:scale(.95)}
 
+  /* ---------- LOJA ---------- */
+  .tile.ouro{border-color:rgba(255,193,69,.5)}
+  .tile.ouro b{color:var(--amber);text-shadow:0 0 16px rgba(255,193,69,.6)}
+  .tile.ouro::after{background:radial-gradient(90% 70% at 50% 0%,rgba(255,193,69,.2),transparent 70%)}
+  .tile.vip{
+    border-color:var(--amber);
+    box-shadow:0 0 22px rgba(255,193,69,.28),inset 0 0 20px rgba(255,193,69,.06);
+  }
+  .loja-nota{
+    max-width:520px;margin:0 auto 13px;font-size:.78rem;color:var(--dim);
+    line-height:1.5;text-align:center;
+  }
+  .loja-lista{display:flex;flex-direction:column;gap:10px;max-width:520px;margin:0 auto}
+  .loja-card{
+    display:flex;align-items:center;gap:12px;text-align:left;
+    background:linear-gradient(160deg,rgba(20,32,70,.92),rgba(10,17,40,.92));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 13px;
+    box-shadow:var(--som-1);
+  }
+  .loja-card.meu{border-color:rgba(91,240,176,.4)}
+  .loja-card.nave{align-items:flex-start}
+  .loja-ic{
+    flex:none;width:48px;height:48px;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center;font-size:1.35rem;
+    color:var(--amber);background:rgba(255,193,69,.1);border:1px solid rgba(255,193,69,.28);
+  }
+  .loja-card.meu .loja-ic{color:var(--verde);background:rgba(91,240,176,.1);border-color:rgba(91,240,176,.3)}
+  .loja-nave{width:54px;height:54px;flex:none}
+  .loja-info{flex:1;min-width:0}
+  .loja-nome{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.92rem}
+  .loja-desc{font-size:.75rem;color:var(--dim);line-height:1.45;margin-top:2px}
+  .loja-num{
+    font-size:.68rem;color:var(--ink2);margin-top:5px;letter-spacing:.06em;
+    font-variant-numeric:tabular-nums;
+  }
+  .loja-falta{font-size:.72rem;color:var(--dim);text-align:center;margin-top:9px}
+  /* cartão do VIP */
+  .vip-cartao{
+    max-width:520px;margin:0 auto;text-align:center;
+    background:
+      radial-gradient(90% 60% at 50% 0%,rgba(255,193,69,.16),transparent 62%),
+      linear-gradient(180deg,rgba(28,38,72,.95),rgba(10,17,40,.96));
+    border:1px solid rgba(255,193,69,.4);border-radius:var(--r-xl);
+    padding:22px 18px 18px;box-shadow:var(--som-3),0 0 40px rgba(255,193,69,.12);
+  }
+  .vip-cartao.ligado{border-color:var(--amber);box-shadow:var(--som-3),0 0 50px rgba(255,193,69,.25)}
+  .vip-coroa{
+    font-size:2.5rem;line-height:1;margin-bottom:6px;
+    filter:drop-shadow(0 0 18px rgba(255,193,69,.7));
+  }
+  .vip-tit{
+    font-family:"Russo One",sans-serif;font-size:1.45rem;letter-spacing:.1em;
+    color:var(--amber);text-shadow:0 0 20px rgba(255,193,69,.5);
+  }
+  .vip-sub{font-size:.76rem;color:var(--ink2);margin:4px 0 16px;letter-spacing:.06em}
+  .vip-lista{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;text-align:left}
+  .vip-item{
+    display:flex;align-items:flex-start;gap:10px;
+    background:rgba(6,10,24,.5);border:1px solid rgba(255,193,69,.16);
+    border-radius:var(--r-md);padding:9px 12px;
+  }
+  .vip-item b{color:var(--amber);flex:none;font-size:.8rem;line-height:1.5}
+  .vip-item span{font-size:.78rem;line-height:1.45;color:var(--ink2)}
+
+  /* ---------- AMIGOS ---------- */
+  .aba.chama{border-color:var(--magenta);color:var(--magenta);background:rgba(255,77,143,.14)}
+  .am-h{
+    font-family:"Russo One",sans-serif;font-size:.6rem;letter-spacing:.18em;
+    color:var(--dim);margin:18px auto 9px;max-width:520px;
+  }
+  .am-h:first-child{margin-top:2px}
+  .am-lista{display:flex;flex-direction:column;gap:8px;max-width:520px;margin:0 auto}
+  .am-linha{
+    display:flex;align-items:center;gap:11px;
+    background:linear-gradient(160deg,rgba(20,32,70,.9),rgba(10,17,40,.9));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 12px;
+    box-shadow:var(--som-1);
+  }
+  .am-linha.esperando{opacity:.62}
+  .am-ini{
+    flex:none;width:40px;height:40px;border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Russo One",sans-serif;font-size:1rem;color:var(--cyan);
+    background:rgba(77,232,255,.12);border:1px solid rgba(77,232,255,.34);
+  }
+  .am-txt{flex:1;min-width:0}
+  .am-nome{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.92rem;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .am-meta{display:block;font-size:.66rem;color:var(--dim);margin-top:1px}
+  .am-acao{
+    position:relative;flex:none;width:40px;height:40px;border-radius:12px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink2);
+    font-size:1rem;display:flex;align-items:center;justify-content:center;
+    transition:transform .1s ease,background .16s ease;
+  }
+  .am-acao:active{transform:scale(.9)}
+  .am-acao.tem{border-color:var(--amber);color:var(--amber);background:rgba(255,193,69,.12)}
+  .am-acao.tem i{
+    position:absolute;top:-5px;right:-5px;font-style:normal;
+    background:var(--danger);color:#fff;border-radius:999px;
+    font-size:.55rem;font-weight:700;padding:1px 5px;line-height:1.5;
+  }
+  .am-acao.sim{border-color:var(--verde);color:var(--verde);background:rgba(91,240,176,.12)}
+  .am-acao.apagar{border-color:rgba(255,92,92,.3);color:var(--danger)}
+  .am-cartao{
+    max-width:520px;margin:0 auto 12px;
+    background:linear-gradient(180deg,rgba(20,32,70,.92),rgba(10,17,40,.92));
+    border:1px solid var(--line);border-radius:var(--r-xl);padding:16px;
+    box-shadow:var(--som-1);
+  }
+  .am-nota{font-size:.78rem;color:var(--dim);line-height:1.5;margin-bottom:11px}
+  .am-busca{display:flex;gap:8px}
+  .am-busca .ghost-btn{flex:none;padding:12px 16px}
+  .am-aviso{font-size:.76rem;margin-top:9px;min-height:1.2em;color:var(--dim)}
+  .am-aviso.ok{color:var(--verde);font-weight:700}
+  .am-aviso.erro{color:var(--danger);font-weight:700}
+  .am-meu{
+    font-family:"Russo One",sans-serif;font-size:1.25rem;color:var(--cyan);
+    text-align:center;padding:12px;border-radius:var(--r-md);
+    background:rgba(77,232,255,.08);border:1px dashed rgba(77,232,255,.35);
+    letter-spacing:.05em;
+  }
+  /* gametag */
+  .tag-mostra{
+    display:flex;align-items:center;gap:13px;margin-bottom:13px;
+    padding:13px;border-radius:var(--r-lg);
+    background:radial-gradient(circle at 22% 40%,rgba(195,77,255,.18),rgba(8,14,34,.7));
+    border:1px solid rgba(195,77,255,.34);
+  }
+  .tag-ini{
+    flex:none;width:50px;height:50px;border-radius:15px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Russo One",sans-serif;font-size:1.3rem;color:var(--violet);
+    background:rgba(195,77,255,.14);border:1px solid rgba(195,77,255,.45);
+  }
+  .tag-nome{
+    font-family:"Russo One",sans-serif;font-size:1.15rem;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+  }
+  .tag-regras{font-size:.66rem;color:var(--fraco);margin:8px 0 12px;letter-spacing:.03em}
+  #tag-campo:disabled{opacity:.5}
+
+  /* ---------- CONVERSA ---------- */
+  .chat-quem{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .chat-ini{
+    flex:none;width:36px;height:36px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Russo One",sans-serif;font-size:.92rem;color:var(--cyan);
+    background:rgba(77,232,255,.12);border:1px solid rgba(77,232,255,.34);
+  }
+  .chat-txt{min-width:0}
+  .chat-nome{
+    display:block;font-family:"Russo One",sans-serif;font-size:.92rem;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .chat-onde{display:block;font-size:.62rem;color:var(--dim);margin-top:1px}
+  .chat-rolagem{
+    flex:1;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
+    padding:14px 12px;display:flex;flex-direction:column;gap:7px;
+    overscroll-behavior:contain;
+  }
+  .chat-dia{
+    align-self:center;font-size:.6rem;letter-spacing:.14em;color:var(--fraco);
+    background:rgba(255,255,255,.04);border-radius:999px;padding:4px 12px;margin:6px 0;
+  }
+  .chat-bolha{
+    max-width:80%;align-self:flex-start;position:relative;
+    background:linear-gradient(160deg,rgba(24,38,80,.95),rgba(13,21,48,.95));
+    border:1px solid var(--line);
+    border-radius:16px 16px 16px 5px;
+    padding:9px 12px 7px;box-shadow:var(--som-1);
+  }
+  .chat-bolha.minha{
+    align-self:flex-end;
+    background:linear-gradient(160deg,rgba(20,70,90,.95),rgba(10,40,58,.95));
+    border-color:rgba(77,232,255,.34);
+    border-radius:16px 16px 5px 16px;
+  }
+  .chat-msg{display:block;font-size:.88rem;line-height:1.45;word-break:break-word}
+  .chat-hora{
+    display:block;text-align:right;font-size:.56rem;color:var(--fraco);margin-top:3px;
+    font-variant-numeric:tabular-nums;
+  }
+  .chat-barra{
+    flex:none;display:flex;gap:8px;align-items:center;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(9,15,36,.9),rgba(6,10,24,.98));
+    border-top:1px solid var(--line);
+  }
+  #chat-campo{flex:1;min-width:0;border-radius:999px;padding:12px 16px}
+  #chat-enviar{
+    flex:none;width:46px;height:46px;border-radius:50%;cursor:pointer;border:none;
+    background:linear-gradient(180deg,#7BF0FF,#2FD4F0);color:#04121c;
+    font-size:1.05rem;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 18px rgba(77,232,255,.4);
+  }
+  #chat-enviar:active{transform:scale(.92)}
+
   /* ranking online */
   .rank-list{display:flex;flex-direction:column;gap:8px;max-width:520px;margin:0 auto}
   .rank-row{
@@ -923,6 +1131,7 @@
   }
   .rank-info{flex:1;min-width:0}
   .rank-nome{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rank-nome.vip{color:var(--amber);text-shadow:0 0 12px rgba(255,193,69,.45)}
   .rank-meta{font-size:.68rem;color:var(--dim);margin-top:2px}
   .rank-fase{font-family:"Russo One",sans-serif;font-size:1rem;color:var(--amber);flex:none;text-align:right}
   .rank-fase span{display:block;font-family:"Chakra Petch",sans-serif;font-size:.55rem;letter-spacing:.12em;color:var(--dim)}
@@ -2895,7 +3104,7 @@
   <div class="piloto-cartao">
     <canvas class="piloto-nave" id="menu-nave" width="128" height="128"></canvas>
     <div class="piloto-info">
-      <div class="piloto-nome" id="menu-hello">Piloto</div>
+      <div class="piloto-nome" id="menu-hello">Piloto<span class="piloto-vip" id="piloto-vip">👑</span></div>
       <div class="piloto-rank" id="menu-rank">▲ BRONZE</div>
       <div class="piloto-barra"><i id="menu-barra"></i></div>
       <div class="piloto-meta" id="menu-meta">Fase 0 de 270</div>
@@ -2925,13 +3134,14 @@
       <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
       <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
       <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
+      <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
     </div>
 
     <div class="menu-secao" id="menu-online-h">ONLINE</div>
     <div class="menu-grade online" id="menu-online">
       <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
       <button class="tile magenta" id="btn-ranked"><b>⚔</b><span>RANQUEADA</span><i id="ranked-badge"></i></button>
-      <button class="tile" id="btn-multi"><b>👥</b><span>AMIGOS</span><i id="amigos-badge"></i></button>
+      <button class="tile" id="btn-amigos"><b>👥</b><span>AMIGOS</span><i id="amigos-badge"></i><span class="selo" id="amigos-selo" style="display:none"></span></button>
       <button class="tile" id="btn-rank"><b>🏆</b><span>RANKING</span><i></i></button>
     </div>
 
@@ -2942,6 +3152,48 @@
       <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     </div>
     <div id="cloud-status"></div>
+  </div>
+</div>
+
+<!-- LOJA VIP -->
+<div class="page" id="screen-loja">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">LOJA</div>
+    <div class="page-gems gem" id="loja-gems">0</div>
+  </div>
+  <div class="abas" id="loja-abas"></div>
+  <div class="scroll" id="loja-corpo"></div>
+</div>
+
+<!-- AMIGOS -->
+<div class="page" id="screen-amigos">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">AMIGOS</div>
+    <div class="page-gems" id="am-conta"></div>
+  </div>
+  <div class="abas" id="am-abas"></div>
+  <div class="scroll" id="am-corpo"></div>
+</div>
+
+<!-- CONVERSA -->
+<div class="page" id="screen-chat">
+  <div class="page-head">
+    <button class="back-btn" id="chat-voltar" aria-label="Voltar">‹</button>
+    <div class="chat-quem">
+      <span class="chat-ini" id="chat-ini">?</span>
+      <span class="chat-txt">
+        <span class="chat-nome" id="chat-nome">Amigo</span>
+        <span class="chat-onde" id="chat-onde">—</span>
+      </span>
+    </div>
+  </div>
+  <div class="chat-rolagem" id="chat-lista"></div>
+  <div class="chat-barra">
+    <input id="chat-campo" maxlength="200" placeholder="Escreva uma mensagem…"
+           autocomplete="off" enterkeyhint="send">
+    <button id="chat-enviar" aria-label="Enviar">➤</button>
   </div>
 </div>
 
@@ -3072,7 +3324,7 @@
     <div class="page-gems gem" id="rel-gems">0</div>
   </div>
   <div class="scroll">
-    <div class="of-h" style="text-align:center">AMULETOS EQUIPADOS (3 ESPAÇOS)</div>
+    <div class="of-h" style="text-align:center" id="rel-espacos">AMULETOS EQUIPADOS</div>
     <div class="amu-slots" id="amu-slots"></div>
     <div class="chest-row">
       <button class="big-btn amber" id="btn-chest">ABRIR BAÚ ESTELAR — ◆ 300</button>
@@ -3089,7 +3341,7 @@
   <div class="page-head">
     <button class="back-btn" data-back aria-label="Voltar">‹</button>
     <div class="page-title">JOGAR COM AMIGOS</div>
-    <button class="amigo-btn" id="btn-amigos" aria-label="Amigos">
+    <button class="amigo-btn" id="btn-multi-amigos" aria-label="Amigos">
       <span>👤</span><i>+</i>
     </button>
   </div>
@@ -3580,6 +3832,12 @@ function defaultSave() {
   return {
     savedAt: 0,
     crystals: 0, best: 0, hi: 0, pts: 0,
+    tag: "",                 // gametag: o nome que os amigos veem
+    tagQuando: 0,            // quando trocou pela última vez (uma vez por dia)
+    vipAte: 0,               // até quando o VIP vale
+    vipDia: "",              // último dia em que pegou o presente do VIP
+    passes: {},              // passes comprados, valem para sempre
+    trocouRecorde: false,
     upgrades: { dmg: 0, rate: 0, hull: 0, shield: 0, speed: 0, luck: 0,
                 mira: 0, crit: 0, ima: 0, reparo: 0, carga: 0, placa: 0, reserva: 0, estilha: 0 },
     skills: {},
@@ -3616,6 +3874,7 @@ function mergeSave(parsed) {
   const s = Object.assign(defaultSave(), parsed || {});
   const d = defaultSave();
   s.upgrades = Object.assign(d.upgrades, (parsed && parsed.upgrades) || {});
+  s.passes = (parsed && parsed.passes) || {};
   s.skills = (parsed && parsed.skills) || {};
   s.ships = (parsed && Array.isArray(parsed.ships) && parsed.ships.length) ? parsed.ships : [0];
   s.parts = (parsed && parsed.parts) || {};
@@ -3625,7 +3884,7 @@ function mergeSave(parsed) {
   s.weapons = (parsed && parsed.weapons) || {};
   s.weaponSel = (parsed && parsed.weaponSel) || {};
   s.amulets = (parsed && Array.isArray(parsed.amulets)) ? parsed.amulets : [];
-  s.equipped = (parsed && Array.isArray(parsed.equipped)) ? parsed.equipped.slice(0, 3) : [];
+  s.equipped = (parsed && Array.isArray(parsed.equipped)) ? parsed.equipped.slice(0, 4) : [];
   // conserta saves antigos: naves que não existem mais, ou fora da lista.
   // A frota pode ainda não ter sido montada quando o save é lido, então o
   // limite é obtido com cuidado — sem isso o perfil inteiro deixa de carregar.
@@ -3997,6 +4256,7 @@ function ligarBatimento() {
   batimentoTimer = setInterval(() => {
     if (!nuvemAtiva() || !save.__name) return;
     nuvemJuntar("pilotos/" + nuvemId(save.__name), {
+      tag: save.tag || "",
       onde: ondeEstou(), atualizado: Date.now(), versao: VERSAO
     });
   }, 20000);
@@ -4774,6 +5034,75 @@ SHIPS.push({
   baseDmg: 4.4, baseAgi: 1.6, baseHp: 980, baseRate: 1.35, baseGem: 1.5
 });
 
+/* =====================================================================
+   NAVES ESPECIAIS DA LOJA
+   ---------------------------------------------------------------------
+   São fortes, mas NENHUMA chega perto da Ômega-9. A regra está escrita
+   em código logo abaixo (tetoDaLoja) e conferida quando o jogo abre:
+   se alguma passar do teto, ela é rebaixada sozinha. Assim a sua nave
+   continua sendo a mais forte do jogo, aconteça o que acontecer.
+   ===================================================================== */
+const NAVES_LOJA_DE = SHIPS.length;
+const NAVES_LOJA = [
+  { name: "Centelha VIP", hue: 190, shape: 5, preco: 180000, vip: true,
+    power: "rate", ultId: "rate", powerName: "Rajada Prateada", powerMag: 40,
+    powerDesc: "+40% de cadência e tiros que atravessam um inimigo",
+    baseDmg: 2.2, baseAgi: 1.35, baseHp: 420, baseRate: 1.30, baseGem: 1.20 },
+  { name: "Aurora Real", hue: 285, shape: 4, preco: 240000, vip: true,
+    power: "ghost", ultId: "ghost", powerName: "Manto de Aurora", powerMag: 60,
+    powerDesc: "+60% de escudo e invencibilidade, e some por 2s ao levar dano",
+    baseDmg: 2.0, baseAgi: 1.42, baseHp: 520, baseRate: 1.12, baseGem: 1.25 },
+  { name: "Titã de Bronze", hue: 32, shape: 6, preco: 320000, vip: true,
+    power: "lives", ultId: "lives", powerName: "Casco de Bronze", powerMag: 3,
+    powerDesc: "+3 vidas máximas e um escudo que volta sozinho",
+    baseDmg: 1.9, baseAgi: 1.05, baseHp: 640, baseRate: 1.00, baseGem: 1.15 },
+  { name: "Lâmina Carmim", hue: 350, shape: 5, preco: 420000, vip: true,
+    power: "dmg", ultId: "dmg", powerName: "Corte Carmim", powerMag: 85,
+    powerDesc: "+85% de dano; quanto menos vida você tem, mais forte fica",
+    baseDmg: 2.9, baseAgi: 1.30, baseHp: 380, baseRate: 1.10, baseGem: 1.10 },
+  { name: "Guardiã Esmeralda", hue: 150, shape: 6, preco: 520000, vip: true,
+    power: "drone", ultId: "drone", powerName: "Enxame Esmeralda", powerMag: 0.9,
+    powerDesc: "Dois drones fixos que atiram com 90% do seu dano",
+    baseDmg: 2.3, baseAgi: 1.25, baseHp: 560, baseRate: 1.15, baseGem: 1.30 },
+  { name: "Coroa de Platina", hue: 210, shape: 7, preco: 800000, vip: true,
+    power: "gold", ultId: "gold", powerName: "Toque de Platina", powerMag: 90,
+    powerDesc: "+90% de cristais e todo item cai atraído para você",
+    baseDmg: 2.6, baseAgi: 1.38, baseHp: 600, baseRate: 1.22, baseGem: 1.90 }
+];
+/* o teto: nenhuma nave da loja passa de 68% da Ômega em nada */
+function tetoDaLoja() {
+  const o = SHIPS[OMEGA];
+  return { baseDmg: o.baseDmg * 0.68, baseHp: Math.round(o.baseHp * 0.68),
+           baseAgi: o.baseAgi * 0.92, baseRate: o.baseRate * 0.98,
+           baseGem: o.baseGem * 1.30, powerMag: 100 };
+}
+for (const n of NAVES_LOJA) {
+  const t = tetoDaLoja();
+  n.baseDmg = Math.min(n.baseDmg, t.baseDmg);
+  n.baseHp = Math.min(n.baseHp, t.baseHp);
+  n.baseAgi = Math.min(n.baseAgi, t.baseAgi);
+  n.baseRate = Math.min(n.baseRate, t.baseRate);
+  n.baseGem = Math.min(n.baseGem, t.baseGem);
+  if (n.power !== "drone") n.powerMag = Math.min(n.powerMag, t.powerMag);
+  n.price = n.preco;
+  n.daLoja = true;
+  SHIPS.push(n);
+}
+const NAVES_LOJA_ATE = SHIPS.length;
+function naveDaLoja(i) { return i >= NAVES_LOJA_DE && i < NAVES_LOJA_ATE; }
+/* confere de novo com o jogo montado: a Ômega tem que ganhar em tudo */
+function conferirTeto() {
+  const o = SHIPS[OMEGA];
+  const falhas = [];
+  for (let i = NAVES_LOJA_DE; i < NAVES_LOJA_ATE; i++) {
+    const n = SHIPS[i];
+    if (n.baseDmg >= o.baseDmg) falhas.push(n.name + " dano");
+    if (n.baseHp >= o.baseHp) falhas.push(n.name + " casco");
+    if (n.baseAgi > o.baseAgi) falhas.push(n.name + " agilidade");
+  }
+  return falhas;
+}
+
 function naveExclusiva(i) { return !!(SHIPS[i] && SHIPS[i].exclusiva); }
 function naveSuprema(i) { return !!(SHIPS[i] && SHIPS[i].suprema); }
 
@@ -5277,6 +5606,13 @@ const AMULET_SPECIALS = [
   { id: "colmeia", icon: "❈", name: "Colmeia Viva",         fx: () => "Dois drones extras lutam com você a fase inteira" }
 ];
 const CHEST_COST = 300;
+/* o baú fica mais barato para quem é VIP ou tem o Passe do Colecionador */
+function precoDoBau() {
+  let p2 = CHEST_COST;
+  if (typeof temVip === "function" && temVip()) p2 *= 0.7;
+  if (typeof temPasse === "function" && temPasse("colecao")) p2 *= 0.6;
+  return Math.max(50, Math.round(p2));
+}
 const SELL_VALUES = [40, 120, 400, 1500];
 function amuletDef(a) {
   if (a.rar === 3) {
@@ -5349,6 +5685,10 @@ function modoJusto() {
   // MP é criado num bloco posterior; a checagem tolera isso
   return typeof MP !== "undefined" && !!MP && !!MP.sala;
 }
+/* a loja é montada num bloco posterior; estas duas aguentam ser
+   chamadas antes disso sem quebrar o carregamento */
+function vipLigado() { try { return temVip(); } catch (e) { return false; } }
+function passeLigado(id) { try { return temPasse(id); } catch (e) { return false; } }
 function calcStats() {
   const justo = modoJusto();
   const ZERO = { dmg: 0, rate: 0, hull: 0, shield: 0, speed: 0, luck: 0,
@@ -5398,17 +5738,21 @@ function calcStats() {
     speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) * (1 + A.motor / 100),
     crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
-                 (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)) * (A.coroa ? 1.25 : 1) * mundoMult("cristais"),
-    dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100) * mundoMult("drop"),
+                 (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)) * (A.coroa ? 1.25 : 1) *
+                 (justo ? 1 : (vipLigado() ? 1.25 : 1)) * mundoMult("cristais"),
+    dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100) * mundoMult("drop") *
+              (justo ? 1 : (passeLigado("sorte") ? 1.4 : 1)),
     sideShot: hasSkill("atk", 10),
     missiles: hasSkill("atk", 20),
     critChance: (hasSkill("atk", 30) ? 0.15 : 0) + 0.03 * u.crit,
     pierce: (hasSkill("atk", 40) ? 1 : 0) + A.perfura,
-    startShield: hasSkill("def", 10),
+    startShield: hasSkill("def", 10) || (!justo && passeLigado("escudo")),
     nanobots: hasSkill("def", 20),
-    revive: (hasSkill("def", 30) ? 1 : 0) + (A.fenix ? 1 : 0),
+    revive: (hasSkill("def", 30) ? 1 : 0) + (A.fenix ? 1 : 0) +
+            (justo ? 0 : (passeLigado("renascer") ? 1 : 0)),
     nova: hasSkill("res", 40),
-    magnetR: Math.max(hasSkill("res", 10) ? 150 : 0, pw("magnet"), A.ima) + 35 * u.ima,
+    magnetR: (!justo && passeLigado("ima")) ? 99999
+             : Math.max(hasSkill("res", 10) ? 150 : 0, pw("magnet"), A.ima) + 35 * u.ima,
     vamp: pw("vamp") / 100 + A.sangue / 100 + 0.04 * u.reserva,
     frost: pw("frost") / 100 + A.gelo / 100,
     blast: Math.max(pw("blast"), A.brasa) + 9 * u.estilha + 7 * (P.estilha || 0),
@@ -5416,7 +5760,7 @@ function calcStats() {
     dronesExtra: A.colmeia ? 2 : 0,
     ecoChance: A.eco / 100,
     balaVel: 1 + A.veloz / 100 + 0.07 * u.mira + 0.05 * (P.mira || 0),
-    avareza: A.avareza / 100,
+    avareza: A.avareza / 100 + (justo ? 0 : (passeLigado("dobro") ? 0.15 : 0)),
     juizo: A.juizo,
     espelho: A.espelho,
     ampulha: A.ampulha,
@@ -5769,6 +6113,7 @@ const SCREENS = {
   login: $("screen-login"), adm: $("screen-adm"),
   menu: $("screen-menu"), levels: $("screen-levels"), shop: $("screen-shop"),
   hangar: $("screen-hangar"), oficina: $("screen-oficina"), reliquias: $("screen-reliquias"),
+  amigos: $("screen-amigos"), chat: $("screen-chat"), loja: $("screen-loja"),
   tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
   multi: $("screen-multi"), sala: $("screen-sala"), novidades: $("screen-novidades"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
@@ -5861,7 +6206,22 @@ function checarPresentesPeriodicamente() {
 setInterval(checarPresentesPeriodicamente, 6000);
 
 function refreshMenu() {
-  $("menu-hello").textContent = ROOT.current || "Piloto";
+  const h = $("menu-hello");
+  h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
+  document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
+  // presente do VIP: uma vez por dia, ao abrir o menu
+  try {
+    const g = vipPresenteDoDia();
+    if (g > 0) {
+      const av = $("presente-aviso");
+      if (av) {
+        av.style.display = "block";
+        av.textContent = "👑 Presente VIP do dia: +" + fmt(g) + " cristais!";
+        setTimeout(() => { av.style.display = "none"; }, 8000);
+      }
+      AudioSys.buy();
+    }
+  } catch (e) {}
   const online = nuvemAtiva();
   $("menu-online").style.display = online ? "grid" : "none";
   $("menu-online-h").style.display = online ? "block" : "none";
@@ -5897,6 +6257,15 @@ function refreshMenu() {
   $("menu-amu-badge").textContent = save.amulets.length
     ? save.equipped.length + "/3 equipados · " + save.amulets.length + " no total"
     : "nenhuma";
+  /* acerta a grade quando algum atalho está escondido */
+  for (const g of document.querySelectorAll("#screen-menu .menu-grade")) {
+    const vis = [...g.children].filter(e => getComputedStyle(e).display !== "none");
+    g.classList.toggle("impar", vis.length % 2 === 1);
+  }
+  const lb = $("menu-loja-badge");
+  if (lb) lb.textContent = temVip() ? "VIP · " + vipDiasQueFaltam() + "d" : "VIP e passes";
+  const bl = $("btn-loja");
+  if (bl) bl.classList.toggle("vip", temVip());
   const totalUp = UPGRADES.reduce((a, u) => a + u.max, 0);
   const meusUp = UPGRADES.reduce((a, u) => a + (save.upgrades[u.id] || 0), 0);
   $("menu-up-badge").textContent = meusUp + "/" + totalUp;
@@ -5909,7 +6278,7 @@ function refreshMenu() {
   const naveNova = SHIPS.some((sh, i) =>
     !shipOwned(i) && !naveExclusiva(i) && save.crystals >= sh.price);
   const reliquiaSolta = save.amulets.length > (save.equipped || []).length &&
-    (save.equipped || []).length < 3;
+    (save.equipped || []).length < espacosDeReliquia();
   const marca = (id, tem) => { const el = $(id); if (el) el.classList.toggle("tem", !!tem); };
   marca("btn-tree", avail > 0);
   marca("btn-shop", daParaComprar);
@@ -8817,14 +9186,835 @@ $("adm-import").addEventListener("click", () => {
   }
 });
 
-/* ---------- Seleção de fases ---------- */
-const SECTOR_NAMES = [
-  "SETOR 1 — PERIFERIA", "SETOR 2 — CAMPO DE ASTEROIDES", "SETOR 3 — NEBULOSA ROSA",
-  "SETOR 4 — CINTURÃO ESCURO", "SETOR 5 — TEMPESTADE IÔNICA", "SETOR 6 — NÚCLEO PROFUNDO",
-  "SETOR 7 — CEMITÉRIO DE NAVES", "SETOR 8 — ANEL DE PLASMA", "SETOR 9 — FENDA GELADA",
-  "SETOR 10 — OLHO DA TEMPESTADE", "SETOR 11 — FORJA ESTELAR", "SETOR 12 — MAR DE DESTROÇOS",
-  "SETOR 13 — LIMIAR DO VAZIO", "SETOR 14 — CORAÇÃO DA NEBULOSA"
+/* =====================================================================
+   AMIGOS — pedidos, lista e conversa
+   ---------------------------------------------------------------------
+   Como é guardado na nuvem:
+     amigos/<meuId>/lista/<id>   -> {nome, tag, desde}
+     amigos/<meuId>/pedidos/<id> -> {nome, tag, quando}   (quem me chamou)
+     conversas/<sala>/<chave>    -> {de, nome, txt, quando}
+   A sala da conversa é o par de ids em ordem, então os dois chegam no
+   mesmo lugar sem combinar nada antes.
+   ===================================================================== */
+const AM = {
+  lista: {},        // meus amigos
+  pedidos: {},      // quem me chamou e eu ainda não respondi
+  enviados: {},     // quem eu chamei
+  conversaCom: null,
+  mensagens: [],
+  fluxo: null,      // desliga o ouvido da conversa aberta
+  fluxoAvisos: null,
+  naoLidas: {},
+  ultimaVista: {}
+};
+
+function meuIdNuvem() { return save.__name ? nuvemId(save.__name) : null; }
+function salaDaConversa(a, b) { return [a, b].sort().join("__"); }
+
+/* a gametag é o nome que aparece para os outros; se não tiver, usa o nick */
+function minhaTag() { return (save.tag && save.tag.trim()) || save.__name || "Piloto"; }
+
+async function amigosCarregar() {
+  const eu = meuIdNuvem();
+  if (!eu || !nuvemAtiva()) return;
+  const d = await nuvemReq("amigos/" + eu);
+  AM.lista = (d && d.lista) || {};
+  AM.pedidos = (d && d.pedidos) || {};
+  AM.enviados = (d && d.enviados) || {};
+  amigosRender();
+  amigosSelo();
+}
+
+/* manda um pedido: escreve na caixa de pedidos do outro e na minha de enviados */
+async function amigoPedir(nome) {
+  const eu = meuIdNuvem();
+  if (!eu) return { ok: false, msg: "Entre com um piloto primeiro." };
+  nome = String(nome || "").trim();
+  if (!nome) return { ok: false, msg: "Escreva o nick do seu amigo." };
+  if (nome.toLowerCase() === String(save.__name).toLowerCase())
+    return { ok: false, msg: "Esse é você mesmo." };
+  const id = nuvemId(nome);
+  if (AM.lista[id]) return { ok: false, msg: "Vocês já são amigos." };
+  if (AM.enviados[id]) return { ok: false, msg: "Você já chamou essa pessoa. Espere ela aceitar." };
+  // confere se a pessoa existe
+  const p = await nuvemReq("pilotos/" + id);
+  if (!p) return { ok: false, msg: "Não achei ninguém com esse nick." };
+  if (AM.pedidos[id]) { await amigoAceitar(id); return { ok: true, msg: "Vocês já são amigos!" }; }
+  const meuCartao = { nome: save.__name, tag: minhaTag(), quando: Date.now() };
+  const ok1 = await nuvemSoltar("amigos/" + id + "/pedidos/" + eu, meuCartao);
+  if (ok1 === null) return { ok: false, msg: "Não deu para mandar agora. Tente de novo." };
+  await nuvemSoltar("amigos/" + eu + "/enviados/" + id,
+                    { nome: p.nome || nome, tag: p.tag || p.nome || nome, quando: Date.now() });
+  AM.enviados[id] = { nome: p.nome || nome };
+  amigosRender();
+  return { ok: true, msg: "Pedido enviado para " + (p.nome || nome) + "." };
+}
+
+async function amigoAceitar(id) {
+  const eu = meuIdNuvem();
+  if (!eu) return;
+  const ped = AM.pedidos[id];
+  if (!ped) return;
+  const agora = Date.now();
+  await nuvemSoltar("amigos/" + eu + "/lista/" + id,
+                    { nome: ped.nome, tag: ped.tag || ped.nome, desde: agora });
+  await nuvemSoltar("amigos/" + id + "/lista/" + eu,
+                    { nome: save.__name, tag: minhaTag(), desde: agora });
+  await nuvemSoltar("amigos/" + eu + "/pedidos/" + id, null, "DELETE");
+  await nuvemSoltar("amigos/" + id + "/enviados/" + eu, null, "DELETE");
+  AM.lista[id] = { nome: ped.nome, tag: ped.tag || ped.nome, desde: agora };
+  delete AM.pedidos[id];
+  amigosRender();
+  amigosSelo();
+  AudioSys.buy();
+}
+
+async function amigoRecusar(id) {
+  const eu = meuIdNuvem();
+  if (!eu) return;
+  await nuvemSoltar("amigos/" + eu + "/pedidos/" + id, null, "DELETE");
+  await nuvemSoltar("amigos/" + id + "/enviados/" + eu, null, "DELETE");
+  delete AM.pedidos[id];
+  amigosRender();
+  amigosSelo();
+}
+
+async function amigoRemover(id) {
+  const eu = meuIdNuvem();
+  if (!eu) return;
+  await nuvemSoltar("amigos/" + eu + "/lista/" + id, null, "DELETE");
+  await nuvemSoltar("amigos/" + id + "/lista/" + eu, null, "DELETE");
+  delete AM.lista[id];
+  amigosRender();
+}
+
+/* ---------- conversa ---------- */
+async function conversaAbrir(id) {
+  const eu = meuIdNuvem();
+  if (!eu) return;
+  AM.conversaCom = id;
+  AM.mensagens = [];
+  AM.naoLidas[id] = 0;
+  guardarVistas();
+  const sala = salaDaConversa(eu, id);
+  conversaDesligar();
+  // primeiro o que já existe, depois fica ouvindo o que chegar
+  const d = await nuvemReq("conversas/" + sala);
+  conversaAplicar(d);
+  AM.fluxo = nuvemFluxo("conversas/" + sala, () => {
+    nuvemReq("conversas/" + sala).then(conversaAplicar);
+  }, () => {
+    AM.fluxo = setInterval(() => {
+      nuvemReq("conversas/" + sala).then(conversaAplicar);
+    }, 2500);
+  });
+  chatRender();
+}
+function conversaAplicar(d) {
+  const arr = [];
+  for (const k in (d || {})) {
+    const m = d[k];
+    if (m && m.txt) arr.push({ k: k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0 });
+  }
+  arr.sort((a, b) => a.quando - b.quando);
+  const eraTantas = AM.mensagens.length;
+  AM.mensagens = arr.slice(-120);
+  chatRender(AM.mensagens.length !== eraTantas);
+}
+function conversaDesligar() {
+  if (AM.fluxo) {
+    try { if (typeof AM.fluxo === "function") AM.fluxo(); else clearInterval(AM.fluxo); } catch (e) {}
+    AM.fluxo = null;
+  }
+}
+async function conversaEnviar(texto) {
+  const eu = meuIdNuvem();
+  const alvo = AM.conversaCom;
+  texto = String(texto || "").trim().slice(0, 200);
+  if (!eu || !alvo || !texto) return false;
+  const sala = salaDaConversa(eu, alvo);
+  const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const ok = await nuvemSoltar("conversas/" + sala + "/" + chave,
+    { de: eu, nome: minhaTag(), txt: texto, quando: Date.now() });
+  if (ok === null) return false;
+  AM.mensagens.push({ k: chave, de: eu, nome: minhaTag(), txt: texto, quando: Date.now() });
+  chatRender(true);
+  // limpa conversa muito longa para não crescer sem fim
+  if (AM.mensagens.length > 120) {
+    const velha = AM.mensagens[0];
+    if (velha && velha.k) nuvemSoltar("conversas/" + sala + "/" + velha.k, null, "DELETE");
+  }
+  return true;
+}
+
+/* ---------- avisos de mensagem nova ---------- */
+function guardarVistas() {
+  try { storageSet("nn_chat_visto", JSON.stringify(AM.ultimaVista)); } catch (e) {}
+}
+try { AM.ultimaVista = JSON.parse(storageGet("nn_chat_visto", "{}")) || {}; } catch (e) { AM.ultimaVista = {}; }
+
+async function amigosChecarNovidades() {
+  const eu = meuIdNuvem();
+  if (!eu || !nuvemAtiva() || S.mode === "playing") return;
+  const d = await nuvemReq("amigos/" + eu);
+  const pedidosAntes = Object.keys(AM.pedidos).length;
+  AM.lista = (d && d.lista) || {};
+  AM.pedidos = (d && d.pedidos) || {};
+  AM.enviados = (d && d.enviados) || {};
+  if (Object.keys(AM.pedidos).length > pedidosAntes) AudioSys.power();
+  // conta mensagem não lida de cada amigo
+  for (const id in AM.lista) {
+    const sala = salaDaConversa(eu, id);
+    const c = await nuvemReq("conversas/" + sala);
+    let novas = 0, ultima = 0;
+    for (const k in (c || {})) {
+      const m = c[k];
+      if (!m || m.de === eu) continue;
+      if ((m.quando || 0) > (AM.ultimaVista[id] || 0)) novas++;
+      if ((m.quando || 0) > ultima) ultima = m.quando || 0;
+    }
+    AM.naoLidas[id] = novas;
+    AM.ultimoDe = ultima;
+  }
+  amigosSelo();
+  if (S.mode === "amigos") amigosRender();
+}
+setInterval(amigosChecarNovidades, 15000);
+
+function amigosSelo() {
+  const n = Object.keys(AM.pedidos).length +
+            Object.values(AM.naoLidas).reduce((a, x) => a + (x || 0), 0);
+  const b = $("amigos-selo");
+  if (b) {
+    b.textContent = n > 0 ? String(n) : "";
+    b.style.display = n > 0 ? "" : "none";
+  }
+  const t = $("btn-amigos");
+  if (t) t.classList.toggle("tem", n > 0);
+}
+
+/* ---------- desenho da tela de amigos ---------- */
+let amAba = "lista";
+const AM_ABAS = [
+  { id: "lista",   nome: "MEUS AMIGOS" },
+  { id: "pedidos", nome: "PEDIDOS" },
+  { id: "achar",   nome: "ADICIONAR" },
+  { id: "tag",     nome: "MINHA TAG" }
 ];
+
+function iniDe(nome) { return (String(nome || "?").trim()[0] || "?").toUpperCase(); }
+function quandoTexto(t) {
+  const s2 = Math.max(0, Math.round((Date.now() - t) / 1000));
+  if (s2 < 60) return "agora";
+  if (s2 < 3600) return Math.floor(s2 / 60) + " min";
+  if (s2 < 86400) return Math.floor(s2 / 3600) + " h";
+  return Math.floor(s2 / 86400) + " d";
+}
+
+function amigosRender() {
+  const abas = $("am-abas");
+  if (!abas) return;
+  abas.innerHTML = "";
+  for (const a of AM_ABAS) {
+    const b = document.createElement("button");
+    b.className = "aba" + (amAba === a.id ? " on" : "");
+    let n = a.id === "pedidos" ? Object.keys(AM.pedidos).length
+          : a.id === "lista" ? Object.keys(AM.lista).length : 0;
+    b.textContent = a.nome + (n ? " " + n : "");
+    if (a.id === "pedidos" && n) b.classList.add("chama");
+    b.addEventListener("click", () => { amAba = a.id; amigosRender(); });
+    abas.appendChild(b);
+  }
+  const cx = $("am-corpo");
+  cx.innerHTML = "";
+  $("am-conta").textContent = Object.keys(AM.lista).length
+    ? Object.keys(AM.lista).length + " amigo" + (Object.keys(AM.lista).length === 1 ? "" : "s") : "";
+
+  if (!nuvemAtiva()) {
+    cx.innerHTML = '<div class="vazio"><b>☁</b><strong>SEM CONEXÃO</strong>' +
+      "<span>Os amigos moram na nuvem. Confira o endereço no arquivo config.js.</span></div>";
+    return;
+  }
+  if (amAba === "lista") return amigosAbaLista(cx);
+  if (amAba === "pedidos") return amigosAbaPedidos(cx);
+  if (amAba === "achar") return amigosAbaAchar(cx);
+  return amigosAbaTag(cx);
+}
+
+function amigosAbaLista(cx) {
+  const ids = Object.keys(AM.lista);
+  if (!ids.length) {
+    cx.innerHTML = '<div class="vazio"><b>👥</b><strong>NENHUM AMIGO AINDA</strong>' +
+      "<span>Vá em ADICIONAR, escreva o nick de alguém e mande o pedido.</span></div>";
+    return;
+  }
+  const lista = document.createElement("div");
+  lista.className = "am-lista";
+  ids.sort((a, b) => (AM.naoLidas[b] || 0) - (AM.naoLidas[a] || 0));
+  for (const id of ids) {
+    const a = AM.lista[id];
+    const novas = AM.naoLidas[id] || 0;
+    const linha = document.createElement("div");
+    linha.className = "am-linha";
+    linha.innerHTML =
+      '<span class="am-ini">' + escaparTexto(iniDe(a.tag || a.nome)) + "</span>" +
+      '<span class="am-txt">' +
+        '<span class="am-nome">' + escaparTexto(a.tag || a.nome) + "</span>" +
+        '<span class="am-meta">' + escaparTexto("@" + (a.nome || "")) + "</span>" +
+      "</span>";
+    const bChat = document.createElement("button");
+    bChat.className = "am-acao" + (novas ? " tem" : "");
+    bChat.innerHTML = "💬" + (novas ? '<i>' + novas + "</i>" : "");
+    bChat.setAttribute("aria-label", "Conversar com " + (a.tag || a.nome));
+    bChat.addEventListener("click", () => abrirChat(id));
+    const bX = document.createElement("button");
+    bX.className = "am-acao apagar";
+    bX.textContent = "✕";
+    bX.setAttribute("aria-label", "Remover amigo");
+    let conf = false;
+    bX.addEventListener("click", () => {
+      if (!conf) { conf = true; bX.textContent = "?"; setTimeout(() => { conf = false; bX.textContent = "✕"; }, 2600); return; }
+      amigoRemover(id);
+    });
+    linha.appendChild(bChat);
+    linha.appendChild(bX);
+    lista.appendChild(linha);
+  }
+  cx.appendChild(lista);
+}
+
+function amigosAbaPedidos(cx) {
+  const ids = Object.keys(AM.pedidos);
+  const env = Object.keys(AM.enviados);
+  if (!ids.length && !env.length) {
+    cx.innerHTML = '<div class="vazio"><b>✉</b><strong>NENHUM PEDIDO</strong>' +
+      "<span>Quando alguém te chamar para ser amigo, aparece aqui.</span></div>";
+    return;
+  }
+  if (ids.length) {
+    const h = document.createElement("div");
+    h.className = "am-h";
+    h.textContent = "TE CHAMARAM";
+    cx.appendChild(h);
+    const lista = document.createElement("div");
+    lista.className = "am-lista";
+    for (const id of ids) {
+      const a = AM.pedidos[id];
+      const linha = document.createElement("div");
+      linha.className = "am-linha";
+      linha.innerHTML =
+        '<span class="am-ini">' + escaparTexto(iniDe(a.tag || a.nome)) + "</span>" +
+        '<span class="am-txt"><span class="am-nome">' + escaparTexto(a.tag || a.nome) + "</span>" +
+        '<span class="am-meta">' + escaparTexto("@" + (a.nome || "")) + " · " + quandoTexto(a.quando || Date.now()) + "</span></span>";
+      const sim = document.createElement("button");
+      sim.className = "am-acao sim";
+      sim.textContent = "✓";
+      sim.setAttribute("aria-label", "Aceitar");
+      sim.addEventListener("click", () => amigoAceitar(id));
+      const nao = document.createElement("button");
+      nao.className = "am-acao apagar";
+      nao.textContent = "✕";
+      nao.setAttribute("aria-label", "Recusar");
+      nao.addEventListener("click", () => amigoRecusar(id));
+      linha.appendChild(sim); linha.appendChild(nao);
+      lista.appendChild(linha);
+    }
+    cx.appendChild(lista);
+  }
+  if (env.length) {
+    const h = document.createElement("div");
+    h.className = "am-h";
+    h.textContent = "VOCÊ CHAMOU · ESPERANDO";
+    cx.appendChild(h);
+    const lista = document.createElement("div");
+    lista.className = "am-lista";
+    for (const id of env) {
+      const a = AM.enviados[id];
+      const linha = document.createElement("div");
+      linha.className = "am-linha esperando";
+      linha.innerHTML =
+        '<span class="am-ini">' + escaparTexto(iniDe(a.nome)) + "</span>" +
+        '<span class="am-txt"><span class="am-nome">' + escaparTexto(a.nome) + "</span>" +
+        '<span class="am-meta">esperando responder</span></span>';
+      lista.appendChild(linha);
+    }
+    cx.appendChild(lista);
+  }
+}
+
+function amigosAbaAchar(cx) {
+  cx.innerHTML =
+    '<div class="am-cartao">' +
+      '<div class="am-h" style="margin:0 0 9px">CHAMAR UM AMIGO</div>' +
+      '<p class="am-nota">Escreva o nick da conta Neon da pessoa. Ela recebe o pedido e decide se aceita.</p>' +
+      '<div class="am-busca"><input id="am-nick" maxlength="14" placeholder="Nick do amigo" autocomplete="off" autocapitalize="off">' +
+      '<button class="ghost-btn" id="am-chamar">CHAMAR</button></div>' +
+      '<div class="am-aviso" id="am-aviso"></div>' +
+    "</div>" +
+    '<div class="am-cartao">' +
+      '<div class="am-h" style="margin:0 0 9px">O SEU NICK</div>' +
+      '<p class="am-nota">É este que os seus amigos precisam escrever para te achar.</p>' +
+      '<div class="am-meu">' + escaparTexto(save.__name || "—") + "</div>" +
+    "</div>";
+  $("am-chamar").addEventListener("click", async () => {
+    const el = $("am-nick"), av = $("am-aviso");
+    av.className = "am-aviso";
+    av.textContent = "Procurando…";
+    const r = await amigoPedir(el.value);
+    av.className = "am-aviso " + (r.ok ? "ok" : "erro");
+    av.textContent = r.msg;
+    if (r.ok) { el.value = ""; AudioSys.buy(); }
+  });
+}
+
+/* ---------- gametag: só troca uma vez por dia ---------- */
+const DIA = 24 * 60 * 60 * 1000;
+function podeTrocarTag() {
+  const ult = save.tagQuando || 0;
+  return Date.now() - ult >= DIA;
+}
+function faltaParaTrocar() {
+  const falta = DIA - (Date.now() - (save.tagQuando || 0));
+  const h = Math.floor(falta / 3600000);
+  const m = Math.floor((falta % 3600000) / 60000);
+  return h > 0 ? h + "h" + String(m).padStart(2, "0") : m + " min";
+}
+function amigosAbaTag(cx) {
+  const pode = podeTrocarTag();
+  cx.innerHTML =
+    '<div class="am-cartao">' +
+      '<div class="tag-mostra"><span class="tag-ini">' + escaparTexto(iniDe(minhaTag())) + "</span>" +
+      '<span class="tag-nome" id="tag-atual">' + escaparTexto(minhaTag()) + "</span></div>" +
+      '<p class="am-nota">A sua gametag é o nome que os seus amigos veem no chat e no ranking. ' +
+        "O nick da conta continua o mesmo — a tag é só a aparência.</p>" +
+      '<input id="tag-campo" maxlength="16" placeholder="Sua gametag" autocomplete="off" value="' +
+        escaparTexto(save.tag || "") + '"' + (pode ? "" : " disabled") + ">" +
+      '<div class="tag-regras">Até 16 letras · sem espaço no começo · troca uma vez por dia</div>' +
+      '<button class="big-btn" id="tag-salvar" style="width:100%"' + (pode ? "" : " disabled") + ">" +
+        (pode ? "SALVAR GAMETAG" : "PODE TROCAR EM " + faltaParaTrocar()) + "</button>" +
+      '<div class="am-aviso" id="tag-aviso"></div>' +
+    "</div>";
+  if (!pode) return;
+  $("tag-salvar").addEventListener("click", async () => {
+    const el = $("tag-campo"), av = $("tag-aviso");
+    const nova = String(el.value || "").trim().slice(0, 16);
+    av.className = "am-aviso";
+    if (nova.length < 3) { av.className = "am-aviso erro"; av.textContent = "A gametag precisa de pelo menos 3 letras."; return; }
+    if (!/^[\wÀ-ÿ .\-]+$/.test(nova)) { av.className = "am-aviso erro"; av.textContent = "Use só letras, números, ponto e traço."; return; }
+    save.tag = nova;
+    save.tagQuando = Date.now();
+    persist();
+    // avisa os amigos da tag nova
+    const eu = meuIdNuvem();
+    if (eu) {
+      nuvemJuntar("pilotos/" + eu, { tag: nova });
+      for (const id in AM.lista) nuvemJuntar("amigos/" + id + "/lista/" + eu, { tag: nova });
+    }
+    AudioSys.buy();
+    av.className = "am-aviso ok";
+    av.textContent = "Pronto! Você poderá trocar de novo amanhã.";
+    setTimeout(amigosRender, 900);
+  });
+}
+
+/* ---------- tela da conversa ---------- */
+function abrirChat(id) {
+  const a = AM.lista[id];
+  if (!a) return;
+  S.mode = "chat";
+  $("chat-nome").textContent = a.tag || a.nome;
+  $("chat-ini").textContent = iniDe(a.tag || a.nome);
+  $("chat-onde").textContent = "carregando…";
+  $("chat-lista").innerHTML = '<div class="vazio"><b>💬</b><strong>ABRINDO</strong></div>';
+  showScreen("chat");
+  conversaAbrir(id);
+  // mostra onde o amigo está, se ele deixou registrado
+  nuvemReq("pilotos/" + id).then(p => {
+    if (!p) { $("chat-onde").textContent = "—"; return; }
+    const on = p.visto && (Date.now() - p.visto < 90000);
+    $("chat-onde").textContent = on ? "🟢 " + (p.onde || "no jogo")
+                                    : "fase " + (p.fase || 0);
+  });
+}
+function chatRender(rolar) {
+  const cx = $("chat-lista");
+  if (!cx || S.mode !== "chat") return;
+  const eu = meuIdNuvem();
+  if (!AM.mensagens.length) {
+    cx.innerHTML = '<div class="vazio"><b>💬</b><strong>CONVERSA NOVA</strong>' +
+      "<span>Diga um oi. As mensagens ficam guardadas para os dois.</span></div>";
+    return;
+  }
+  cx.innerHTML = "";
+  let diaAnterior = "";
+  for (const m of AM.mensagens) {
+    const d = new Date(m.quando || Date.now());
+    const dia = d.toLocaleDateString("pt-BR");
+    if (dia !== diaAnterior) {
+      diaAnterior = dia;
+      const sep = document.createElement("div");
+      sep.className = "chat-dia";
+      sep.textContent = dia === new Date().toLocaleDateString("pt-BR") ? "hoje" : dia;
+      cx.appendChild(sep);
+    }
+    const b = document.createElement("div");
+    b.className = "chat-bolha" + (m.de === eu ? " minha" : "");
+    b.innerHTML = '<span class="chat-msg">' + escaparLongo(m.txt) + "</span>" +
+                  '<span class="chat-hora">' +
+                  d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0") + "</span>";
+    cx.appendChild(b);
+  }
+  if (rolar !== false) cx.scrollTop = cx.scrollHeight;
+  if (AM.conversaCom) {
+    AM.ultimaVista[AM.conversaCom] = Date.now();
+    AM.naoLidas[AM.conversaCom] = 0;
+    guardarVistas();
+    amigosSelo();
+  }
+}
+
+/* =====================================================================
+   LOJA — VIP, passes e naves especiais
+   ---------------------------------------------------------------------
+   Tudo se compra com CRISTAIS, que é o dinheiro que já existe no jogo.
+   Nada aqui cobra dinheiro de verdade: para isso seria preciso ligar um
+   meio de pagamento (Google Play, App Store, Stripe), que uma página web
+   sozinha não faz. A loja está pronta caso você queira ligar um dia.
+   ===================================================================== */
+const VIP_DIAS = 30;
+const VIP_PRECO = 150000;
+const VIP_VANTAGENS = [
+  "+25% de cristais em tudo que você ganha",
+  "Um espaço extra de relíquia (4 no total)",
+  "Presente de cristais toda vez que você entra num dia novo",
+  "Seu nome fica dourado no ranking e no chat",
+  "Baú estelar 30% mais barato"
+];
+
+const PASSES = [
+  { id: "ima",     nome: "Passe do Ímã",        icone: "◈", preco: 40000,
+    desc: "Todo cristal e item da tela vem sozinho até você. Nunca mais perde nada." },
+  { id: "escudo",  nome: "Passe do Escudo",     icone: "◎", preco: 55000,
+    desc: "Você começa toda fase já com o escudo ligado." },
+  { id: "dobro",   nome: "Passe do Dobro",      icone: "◆", preco: 90000,
+    desc: "15% de chance de cada cristal valer o dobro." },
+  { id: "renascer",nome: "Passe do Renascer",   icone: "❦", preco: 120000,
+    desc: "+1 ressurreição por fase, além das que você já tiver." },
+  { id: "sorte",   nome: "Passe da Sorte",      icone: "✦", preco: 70000,
+    desc: "+40% de chance de cair arma, escudo e vida." },
+  { id: "veterano",nome: "Passe do Veterano",   icone: "★", preco: 100000,
+    desc: "Perdeu a fase? Você fica com todos os cristais em vez de metade." },
+  { id: "colecao", nome: "Passe do Colecionador",icone:"◇", preco: 80000,
+    desc: "Baú estelar 40% mais barato e nunca repete a mesma relíquia duas vezes seguidas." },
+  { id: "pressa",  nome: "Passe da Pressa",     icone: "»", preco: 45000,
+    desc: "Pula a apresentação das naves e a espera entre as ondas fica pela metade." }
+];
+
+function temVip() {
+  return (save.vipAte || 0) > Date.now();
+}
+function vipDiasQueFaltam() {
+  return Math.max(0, Math.ceil(((save.vipAte || 0) - Date.now()) / 86400000));
+}
+function temPasse(id) { return !!(save.passes && save.passes[id]); }
+function espacosDeReliquia() { return temVip() ? 4 : 3; }
+
+/* presente diário do VIP */
+function vipPresenteDoDia() {
+  if (!temVip()) return 0;
+  const hoje = new Date().toDateString();
+  if (save.vipDia === hoje) return 0;
+  save.vipDia = hoje;
+  const ganho = 5000 + Math.round((save.best || 0) * 60);
+  save.crystals += ganho;
+  persist();
+  return ganho;
+}
+
+let lojaAba = "vip";
+const LOJA_ABAS = [
+  { id: "vip",    nome: "👑 VIP" },
+  { id: "passes", nome: "🎟 PASSES" },
+  { id: "naves",  nome: "✈ NAVES" },
+  { id: "trocas", nome: "♻ TROCAS" }
+];
+
+function renderLoja() {
+  $("loja-gems").textContent = fmt(save.crystals);
+  const abas = $("loja-abas");
+  abas.innerHTML = "";
+  for (const a of LOJA_ABAS) {
+    const b = document.createElement("button");
+    b.className = "aba" + (lojaAba === a.id ? " on" : "");
+    b.textContent = a.nome;
+    b.addEventListener("click", () => { lojaAba = a.id; renderLoja(); });
+    abas.appendChild(b);
+  }
+  const cx = $("loja-corpo");
+  cx.innerHTML = "";
+  if (lojaAba === "vip") return lojaVip(cx);
+  if (lojaAba === "passes") return lojaPasses(cx);
+  if (lojaAba === "naves") return lojaNaves(cx);
+  return lojaTrocas(cx);
+}
+
+function lojaComprar(preco, aoConseguir, nomeDoItem) {
+  if (save.crystals < preco) { AudioSys.deny(); return false; }
+  save.crystals -= preco;
+  aoConseguir();
+  persist(); calcStats();
+  AudioSys.buy(); vibrate(28);
+  renderLoja();
+  return true;
+}
+
+function lojaVip(cx) {
+  const tem = temVip();
+  const cartao = document.createElement("div");
+  cartao.className = "vip-cartao" + (tem ? " ligado" : "");
+  cartao.innerHTML =
+    '<div class="vip-coroa">👑</div>' +
+    '<div class="vip-tit">NEON VIP</div>' +
+    '<div class="vip-sub">' + (tem
+      ? "Ativo · faltam " + vipDiasQueFaltam() + " dia" + (vipDiasQueFaltam() === 1 ? "" : "s")
+      : VIP_DIAS + " dias de vantagens") + "</div>" +
+    '<div class="vip-lista">' +
+      VIP_VANTAGENS.map(v => '<div class="vip-item"><b>✦</b><span>' + v + "</span></div>").join("") +
+    "</div>";
+  const b = document.createElement("button");
+  b.className = "big-btn amber";
+  b.style.width = "100%";
+  b.textContent = tem ? "RENOVAR POR MAIS " + VIP_DIAS + " DIAS — ◆ " + fmt(VIP_PRECO)
+                      : "VIRAR VIP — ◆ " + fmt(VIP_PRECO);
+  b.disabled = save.crystals < VIP_PRECO;
+  b.addEventListener("click", () => {
+    lojaComprar(VIP_PRECO, () => {
+      const base = Math.max(Date.now(), save.vipAte || 0);
+      save.vipAte = base + VIP_DIAS * 86400000;
+      save.vipDia = "";
+      const eu = meuIdNuvem();
+      if (eu) nuvemJuntar("pilotos/" + eu, { vip: true });
+    });
+  });
+  cartao.appendChild(b);
+  if (save.crystals < VIP_PRECO && !tem) {
+    const f = document.createElement("div");
+    f.className = "loja-falta";
+    f.textContent = "Faltam ◆ " + fmt(VIP_PRECO - save.crystals);
+    cartao.appendChild(f);
+  }
+  cx.appendChild(cartao);
+}
+
+function lojaPasses(cx) {
+  const nota = document.createElement("p");
+  nota.className = "loja-nota";
+  nota.textContent = "Os passes são para sempre: comprou uma vez, vale em toda partida, em qualquer nave.";
+  cx.appendChild(nota);
+  const lista = document.createElement("div");
+  lista.className = "loja-lista";
+  for (const pa of PASSES) {
+    const tem = temPasse(pa.id);
+    const card = document.createElement("div");
+    card.className = "loja-card" + (tem ? " meu" : "");
+    card.innerHTML =
+      '<div class="loja-ic">' + pa.icone + "</div>" +
+      '<div class="loja-info"><div class="loja-nome">' + pa.nome + "</div>" +
+      '<div class="loja-desc">' + pa.desc + "</div></div>";
+    const b = document.createElement("button");
+    b.className = "buy-btn";
+    if (tem) { b.classList.add("max"); b.textContent = "SEU"; b.disabled = true; }
+    else {
+      b.textContent = "◆ " + fmt(pa.preco);
+      b.disabled = save.crystals < pa.preco;
+      b.addEventListener("click", () => lojaComprar(pa.preco, () => {
+        save.passes = save.passes || {};
+        save.passes[pa.id] = true;
+      }));
+    }
+    card.appendChild(b);
+    lista.appendChild(card);
+  }
+  cx.appendChild(lista);
+}
+
+function lojaNaves(cx) {
+  const nota = document.createElement("p");
+  nota.className = "loja-nota";
+  nota.textContent = "Naves fortes, com poder próprio. Nenhuma chega perto da Ômega-9 — essa continua só sua.";
+  cx.appendChild(nota);
+  const lista = document.createElement("div");
+  lista.className = "loja-lista";
+  for (let i = NAVES_LOJA_DE; i < NAVES_LOJA_ATE; i++) {
+    const sh = SHIPS[i];
+    const tenho = shipOwned(i);
+    const card = document.createElement("div");
+    card.className = "loja-card nave" + (tenho ? " meu" : "");
+    const cv = document.createElement("canvas");
+    cv.className = "loja-nave";
+    cv.width = 108; cv.height = 108;
+    const g = cv.getContext("2d");
+    g.setTransform(2, 0, 0, 2, 54, 56);
+    drawShipSprite(g, i, 19);
+    const info = document.createElement("div");
+    info.className = "loja-info";
+    info.innerHTML =
+      '<div class="loja-nome">' + escaparTexto(sh.name) + "</div>" +
+      '<div class="loja-desc"><b style="color:var(--amber)">' + sh.powerName + "</b> — " + sh.powerDesc + "</div>" +
+      '<div class="loja-num">▲ ' + sh.baseDmg.toFixed(1) + "   ♥ " + sh.baseHp +
+        "   » " + sh.baseAgi.toFixed(2) + "   ◆ " + sh.baseGem.toFixed(2) + "</div>";
+    const b = document.createElement("button");
+    b.className = "buy-btn";
+    if (tenho) {
+      if (save.ship === i) { b.classList.add("max"); b.textContent = "EM USO"; b.disabled = true; }
+      else { b.textContent = "USAR"; b.addEventListener("click", () => {
+        save.ship = i; persist(); calcStats(); AudioSys.buy(); renderLoja(); }); }
+    } else {
+      b.textContent = "◆ " + fmt(sh.price);
+      b.disabled = save.crystals < sh.price;
+      b.addEventListener("click", () => lojaComprar(sh.price, () => {
+        save.ships.push(i); save.ship = i;
+      }));
+    }
+    card.appendChild(cv); card.appendChild(info); card.appendChild(b);
+    lista.appendChild(card);
+  }
+  cx.appendChild(lista);
+}
+
+function lojaTrocas(cx) {
+  const nota = document.createElement("p");
+  nota.className = "loja-nota";
+  nota.textContent = "Coisas paradas viram cristais.";
+  cx.appendChild(nota);
+  const lista = document.createElement("div");
+  lista.className = "loja-lista";
+
+  /* vender naves compradas que você não usa */
+  const repetidas = save.ships.filter(i => i !== save.ship && i !== 0 && !naveExclusiva(i));
+  const valeTudo = repetidas.reduce((a, i) => a + Math.round((SHIPS[i] || {}).price * 0.4 || 0), 0);
+  const c1 = document.createElement("div");
+  c1.className = "loja-card";
+  c1.innerHTML = '<div class="loja-ic">✈</div><div class="loja-info">' +
+    '<div class="loja-nome">Vender naves paradas</div>' +
+    '<div class="loja-desc">' + (repetidas.length
+      ? repetidas.length + " nave" + (repetidas.length === 1 ? "" : "s") + " que você não está usando, por 40% do preço."
+      : "Você não tem nave parada para vender.") + "</div></div>";
+  const b1 = document.createElement("button");
+  b1.className = "buy-btn";
+  b1.textContent = repetidas.length ? "◆ " + fmt(valeTudo) : "—";
+  b1.disabled = !repetidas.length;
+  let conf1 = false;
+  b1.addEventListener("click", () => {
+    if (!conf1) { conf1 = true; b1.textContent = "TOQUE DE NOVO"; setTimeout(() => { conf1 = false; renderLoja(); }, 3000); return; }
+    save.ships = save.ships.filter(i => !repetidas.includes(i));
+    save.crystals += valeTudo;
+    persist(); AudioSys.buy(); renderLoja();
+  });
+  c1.appendChild(b1);
+  lista.appendChild(c1);
+
+  /* trocar pontos por cristais */
+  const pontos = save.hi || 0;
+  const vale = Math.round(pontos * 0.5);
+  const c2 = document.createElement("div");
+  c2.className = "loja-card";
+  c2.innerHTML = '<div class="loja-ic">✧</div><div class="loja-info">' +
+    '<div class="loja-nome">Trocar o seu recorde</div>' +
+    '<div class="loja-desc">Transforma o seu recorde de pontos em cristais, uma vez. O recorde continua no ranking.</div></div>';
+  const b2 = document.createElement("button");
+  b2.className = "buy-btn";
+  const jaTrocou = !!save.trocouRecorde;
+  b2.textContent = jaTrocou ? "JÁ FOI" : "◆ " + fmt(vale);
+  b2.disabled = jaTrocou || vale <= 0;
+  b2.addEventListener("click", () => {
+    save.crystals += vale;
+    save.trocouRecorde = true;
+    persist(); AudioSys.buy(); renderLoja();
+  });
+  c2.appendChild(b2);
+  lista.appendChild(c2);
+
+  cx.appendChild(lista);
+}
+
+/* ---------- Seleção de fases ---------- */
+/* =====================================================================
+   OS 14 SETORES, CADA UM COM A SUA CARA
+   ---------------------------------------------------------------------
+   O nome do setor deixou de ser só um texto: cada um tem a sua cor de
+   céu, o seu brilho, o que flutua no ar e o clima da música. Voar da
+   Periferia até o Coração da Nebulosa passa por 14 lugares diferentes.
+   ===================================================================== */
+const SETORES = [
+  { nome: "PERIFERIA", icone: "✦", cor: "#4DE8FF",
+    conta: "A borda do setor 7. Céu limpo, poeira de estrela e pouca coisa no caminho.",
+    ceu: ["#060A18", "#0B1730"], brilho: ["rgba(77,232,255,.10)", "rgba(120,160,255,.06)"],
+    flutua: "poeira", ritmo: 1 },
+  { nome: "CAMPO DE ASTEROIDES", icone: "◍", cor: "#C6A98A",
+    conta: "Pedra girando de todo lado. O céu fica marrom de tanta poeira.",
+    ceu: ["#0C0A06", "#241B10"], brilho: ["rgba(198,169,138,.12)", "rgba(255,180,110,.05)"],
+    flutua: "pedra", ritmo: 1 },
+  { nome: "NEBULOSA ROSA", icone: "❁", cor: "#FF4D8F",
+    conta: "Um berçário de estrelas. Bonito, rosado, e cheio de gente escondida na névoa.",
+    ceu: ["#160617", "#3A0B33"], brilho: ["rgba(255,77,143,.16)", "rgba(195,77,255,.09)"],
+    flutua: "nevoa", ritmo: 1 },
+  { nome: "CINTURÃO ESCURO", icone: "◐", cor: "#6E7FA8",
+    conta: "Onde a luz não chega. Você enxerga pouco e ouve muito.",
+    ceu: ["#03040A", "#0A0D18"], brilho: ["rgba(110,127,168,.07)", "rgba(60,80,140,.05)"],
+    flutua: "vazio", ritmo: 0.9 },
+  { nome: "TEMPESTADE IÔNICA", icone: "⚡", cor: "#7BE8FF",
+    conta: "Raios cortando o céu o tempo todo. A eletricidade deixa tudo azulado.",
+    ceu: ["#040D1C", "#0C2946"], brilho: ["rgba(123,232,255,.16)", "rgba(80,160,255,.09)"],
+    flutua: "faisca", ritmo: 1.1 },
+  { nome: "NÚCLEO PROFUNDO", icone: "◉", cor: "#C34DFF",
+    conta: "O miolo do sistema. Pressão alta, luz roxa e nada de amigo por perto.",
+    ceu: ["#0B0418", "#231043"], brilho: ["rgba(195,77,255,.15)", "rgba(120,60,255,.08)"],
+    flutua: "anel", ritmo: 1 },
+  { nome: "CEMITÉRIO DE NAVES", icone: "☠", cor: "#8FA3A8",
+    conta: "Cascos velhos boiando. Tudo que veio antes de você parou aqui.",
+    ceu: ["#070B0D", "#141E22"], brilho: ["rgba(143,163,168,.09)", "rgba(90,120,130,.06)"],
+    flutua: "destroco", ritmo: 0.95 },
+  { nome: "ANEL DE PLASMA", icone: "◎", cor: "#FF8A4D",
+    conta: "Um anel de fogo em volta da estrela. Quente, laranja e barulhento.",
+    ceu: ["#180702", "#40160A"], brilho: ["rgba(255,138,77,.18)", "rgba(255,80,40,.10)"],
+    flutua: "brasa", ritmo: 1.15 },
+  { nome: "FENDA GELADA", icone: "❆", cor: "#A8E8FF",
+    conta: "Uma rachadura congelada no espaço. Cristal de gelo até onde a vista alcança.",
+    ceu: ["#04121C", "#0D2E42"], brilho: ["rgba(168,232,255,.15)", "rgba(120,200,255,.08)"],
+    flutua: "gelo", ritmo: 0.92 },
+  { nome: "OLHO DA TEMPESTADE", icone: "◌", cor: "#5BF0B0",
+    conta: "O centro parado de um redemoinho enorme. Calmo demais para ser bom.",
+    ceu: ["#02100C", "#0A2E24"], brilho: ["rgba(91,240,176,.15)", "rgba(60,200,180,.08)"],
+    flutua: "redemoinho", ritmo: 1 },
+  { nome: "FORJA ESTELAR", icone: "✷", cor: "#FFC145",
+    conta: "Onde as estrelas nascem. Ouro derretido pingando do céu.",
+    ceu: ["#180F02", "#43290A"], brilho: ["rgba(255,193,69,.18)", "rgba(255,140,40,.09)"],
+    flutua: "faulha", ritmo: 1.1 },
+  { nome: "MAR DE DESTROÇOS", icone: "▨", cor: "#9DB6E8",
+    conta: "Sucata de mil batalhas girando devagar. Dá para se esconder atrás dela.",
+    ceu: ["#060A14", "#131C33"], brilho: ["rgba(157,182,232,.10)", "rgba(100,130,200,.06)"],
+    flutua: "sucata", ritmo: 0.95 },
+  { nome: "LIMIAR DO VAZIO", icone: "○", cor: "#D8D8E8",
+    conta: "A última fronteira antes do nada. O céu quase não tem cor.",
+    ceu: ["#010104", "#0A0A12"], brilho: ["rgba(216,216,232,.06)", "rgba(160,160,200,.04)"],
+    flutua: "risco", ritmo: 0.88 },
+  { nome: "CORAÇÃO DA NEBULOSA", icone: "❤", cor: "#FF4D6B",
+    conta: "O fim da viagem. Tudo pulsa junto, como um coração muito grande.",
+    ceu: ["#1A0410", "#4A0A24"], brilho: ["rgba(255,77,107,.20)", "rgba(255,140,60,.10)"],
+    flutua: "pulso", ritmo: 1.05 }
+];
+const SECTOR_NAMES = SETORES.map((s2, i) => "SETOR " + (i + 1) + " — " + s2.nome);
+/* de que setor é uma fase (1 a 14) */
+function setorDaFase(f) {
+  return SETORES[clamp(Math.floor((f - 1) / 20), 0, SETORES.length - 1)] || SETORES[0];
+}
+function setorAtual() {
+  if (typeof MP !== "undefined" && MP && MP.modo === "arena") {
+    return SETORES[clamp(Math.floor((S.fase - 1) / 20), 0, SETORES.length - 1)];
+  }
+  return setorDaFase(S.fase);
+}
 function renderDificuldade() {
   const cx = $("dif-linha");
   if (!cx) return;
@@ -9708,9 +10898,14 @@ $("btn-of-cut").addEventListener("click", () => { AudioSys.resume(); playCutscen
 /* ---------- Relíquias (amuletos) ---------- */
 function renderReliquias() {
   $("rel-gems").textContent = fmt(save.crystals);
+  const bc = $("btn-chest");
+  if (bc) bc.textContent = "ABRIR BAÚ ESTELAR — ◆ " + fmt(precoDoBau());
+  const tit = $("rel-espacos");
+  if (tit) tit.textContent = "AMULETOS EQUIPADOS (" + espacosDeReliquia() + " ESPAÇOS" +
+    (temVip() ? " · VIP" : "") + ")";
   const slots = $("amu-slots");
   slots.innerHTML = "";
-  for (let s2 = 0; s2 < 3; s2++) {
+  for (let s2 = 0; s2 < espacosDeReliquia(); s2++) {
     const uid = save.equipped[s2];
     const a = uid ? save.amulets.find(x => x.uid === uid) : null;
     const el = document.createElement("button");
@@ -9787,10 +10982,10 @@ function renderReliquias() {
       });
     } else {
       bEq.textContent = "EQUIPAR";
-      bEq.disabled = save.equipped.length >= 3;
+      bEq.disabled = save.equipped.length >= espacosDeReliquia();
       bEq.addEventListener("click", () => {
         AudioSys.resume();
-        if (save.equipped.length >= 3) { AudioSys.deny(); return; }
+        if (save.equipped.length >= espacosDeReliquia()) { AudioSys.deny(); return; }
         save.equipped.push(a.uid);
         persist(); calcStats();
         AudioSys.buy();
@@ -9816,8 +11011,9 @@ function renderReliquias() {
 }
 $("btn-chest").addEventListener("click", () => {
   AudioSys.resume();
-  if (save.crystals < CHEST_COST) { AudioSys.deny(); return; }
-  save.crystals -= CHEST_COST;
+  const custo = precoDoBau();
+  if (save.crystals < custo) { AudioSys.deny(); return; }
+  save.crystals -= custo;
   const a = rollAmulet();
   persist();
   AudioSys.chest();
@@ -10892,8 +12088,48 @@ async function renderAmigos() {
   }
 }
 
-$("btn-multi").addEventListener("click", () => { AudioSys.resume(); abrirMulti("coop"); });
-$("btn-amigos").addEventListener("click", () => trocarAbaMulti("amigos"));
+/* o cooperativo está guardado: o botão do menu virou a aba AMIGOS.
+   Estes ouvintes só existem se a tela do multijogador estiver na página. */
+/* --- LOJA --- */
+$("btn-loja").addEventListener("click", () => {
+  AudioSys.resume();
+  S.mode = "loja";
+  renderLoja();
+  showScreen("loja");
+});
+
+/* --- aba AMIGOS --- */
+$("btn-amigos").addEventListener("click", () => {
+  AudioSys.resume();
+  S.mode = "amigos";
+  amAba = "lista";
+  amigosRender();
+  showScreen("amigos");
+  amigosCarregar();
+});
+$("chat-voltar").addEventListener("click", () => {
+  conversaDesligar();
+  AM.conversaCom = null;
+  S.mode = "amigos";
+  amigosRender();
+  showScreen("amigos");
+});
+function mandarDoChat() {
+  const el = $("chat-campo");
+  const txt = el.value;
+  if (!txt.trim()) return;
+  el.value = "";
+  conversaEnviar(txt).then(ok => {
+    if (!ok) { el.value = txt; }
+  });
+}
+$("chat-enviar").addEventListener("click", mandarDoChat);
+$("chat-campo").addEventListener("keydown", e => { if (e.key === "Enter") mandarDoChat(); });
+
+const btMulti = $("btn-multi");
+if (btMulti) btMulti.addEventListener("click", () => { AudioSys.resume(); abrirMulti("coop"); });
+const btMultiAm = $("btn-multi-amigos");
+if (btMultiAm) btMultiAm.addEventListener("click", () => trocarAbaMulti("amigos"));
 for (const b of document.querySelectorAll("#multi-abas .aba")) {
   b.addEventListener("click", () => trocarAbaMulti(b.dataset.modo));
 }
@@ -11323,7 +12559,8 @@ async function renderRanking(recarregar) {
     const cor = tab.id === "pvp" ? corDoRank(p.rank || 0) : "var(--amber)";
     row.innerHTML =
       '<div class="rank-pos">' + (i + 1) + "</div>" +
-      '<div class="rank-info"><div class="rank-nome">' + escaparTexto(p.nome) +
+      '<div class="rank-info"><div class="rank-nome' + (p.vip ? " vip" : "") + '">' +
+        escaparTexto(p.tag || p.nome) + (p.vip ? " 👑" : "") +
         (p.id === meuId ? " (você)" : "") + "</div>" +
       '<div class="rank-meta">' + tab.meta(p) + "</div></div>" +
       '<div class="rank-fase" style="color:' + cor + '">' + tab.valor(p) +
@@ -11345,6 +12582,7 @@ function escaparLongo(t) { return escaparHtml(String(t == null ? "" : t).slice(0
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   try { Musica.parar(); } catch (e) {}
+  try { conversaDesligar(); AM.conversaCom = null; } catch (e) {}
   if (arenaModo()) arenaSair();
   if (S.mode !== "arena") arenaDesligarFluxo();
   S.mode = "menu";
@@ -11415,6 +12653,153 @@ function tryCloak() {
 ultBtn.addEventListener("click", tryUlt);
 cloakBtn.addEventListener("click", tryCloak);
 
+/* =====================================================================
+   EFEITOS DOS PODERES
+   ---------------------------------------------------------------------
+   Cada ultimate ganhou a sua própria assinatura na tela: cúpula de
+   escudo, onda de choque, feixes de ouro, cópias fantasmas, floração de
+   gelo... Antes quase todas faziam a mesma coisa visualmente e só
+   mudava o texto. Agora dá para saber qual poder está rolando só de
+   olhar. Tudo desenhado na hora, com o custo controlado pelo modo leve.
+   ===================================================================== */
+let EFX = [];
+function efeito(tipo, dur, extra) {
+  EFX.push(Object.assign({ tipo: tipo, t: dur, max: dur }, extra || {}));
+  if (EFX.length > 14) EFX.splice(0, EFX.length - 14);
+}
+function efxAtualizar(dt) {
+  for (let i = EFX.length - 1; i >= 0; i--) {
+    const e = EFX[i];
+    e.t -= dt;
+    if (e.t <= 0) EFX.splice(i, 1);
+  }
+}
+function efxDesenhar() {
+  if (!EFX.length) return;
+  const leve = Q.nivel === 0;
+  for (const e of EFX) {
+    const f = clamp(e.t / e.max, 0, 1);       // 1 no começo, 0 no fim
+    const px = player.x, py = player.y;
+    if (e.tipo === "onda") {
+      // anel que abre a partir de um ponto
+      const r = (1 - f) * (e.r || 340);
+      ctx.strokeStyle = (e.cor || "rgba(255,158,77,") + (f * 0.85) + ")";
+      ctx.lineWidth = 3 + f * 9;
+      ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, TAU); ctx.stroke();
+      if (!leve) {
+        ctx.strokeStyle = (e.cor || "rgba(255,158,77,") + (f * 0.3) + ")";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(e.x, e.y, r * 0.72, 0, TAU); ctx.stroke();
+      }
+    } else if (e.tipo === "aura") {
+      // dois anéis girando colados na nave
+      for (let k = 0; k < (leve ? 1 : 2); k++) {
+        const rr = 26 + k * 11 + Math.sin(S.time * 7 + k) * 3;
+        ctx.strokeStyle = (e.cor || "rgba(255,80,80,") + (f * (0.7 - k * 0.25)) + ")";
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(px, py, rr, S.time * (3 + k * 2), S.time * (3 + k * 2) + 4.2);
+        ctx.stroke();
+      }
+    } else if (e.tipo === "domo") {
+      // cúpula hexagonal do escudo
+      const r = 40 + Math.sin(S.time * 4) * 2;
+      const g2 = ctx.createRadialGradient(px, py, r * 0.5, px, py, r);
+      g2.addColorStop(0, "rgba(255,193,69,0)");
+      g2.addColorStop(1, "rgba(255,193,69," + (f * 0.3) + ")");
+      ctx.fillStyle = g2;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, TAU); ctx.fill();
+      ctx.strokeStyle = "rgba(255,214,120," + (f * 0.85) + ")";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let k = 0; k <= 6; k++) {
+        const a = (k / 6) * TAU + S.time * 0.6;
+        const x2 = px + Math.cos(a) * r, y2 = py + Math.sin(a) * r;
+        if (k === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+      }
+      ctx.stroke();
+    } else if (e.tipo === "raios") {
+      // feixes de luz descendo do alto
+      const n = leve ? 4 : 8;
+      for (let k = 0; k < n; k++) {
+        const x2 = ((k + 0.5) / n) * W + Math.sin(S.time * 1.6 + k) * 12;
+        const g3 = ctx.createLinearGradient(x2, 0, x2, H * 0.85);
+        g3.addColorStop(0, (e.cor || "rgba(255,193,69,") + (f * 0.34) + ")");
+        g3.addColorStop(1, (e.cor || "rgba(255,193,69,") + "0)");
+        ctx.fillStyle = g3;
+        ctx.fillRect(x2 - 13, 0, 26, H * 0.85);
+      }
+    } else if (e.tipo === "fantasmas") {
+      // cópias da nave atrás de você
+      e.rastro = e.rastro || [];
+      e.rastro.push({ x: px, y: py });
+      if (e.rastro.length > 14) e.rastro.shift();
+      for (let k = 0; k < e.rastro.length; k += (leve ? 4 : 2)) {
+        const r2 = e.rastro[k];
+        ctx.globalAlpha = f * 0.16 * (k / e.rastro.length);
+        ctx.save(); ctx.translate(r2.x, r2.y);
+        drawShipSprite(ctx, save.ship, 16, { detalhe: false });
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    } else if (e.tipo === "gelo") {
+      // floração de gelo nas bordas
+      ctx.strokeStyle = "rgba(190,240,255," + (f * 0.5) + ")";
+      ctx.lineWidth = 2;
+      const n = leve ? 8 : 16;
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * TAU;
+        const x0 = W / 2 + Math.cos(a) * W * 0.62;
+        const y0 = H / 2 + Math.sin(a) * H * 0.55;
+        const cresc = (1 - f) * 26;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x0 - Math.cos(a) * cresc, y0 - Math.sin(a) * cresc);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(150,220,255," + (f * 0.09) + ")";
+      ctx.fillRect(0, 0, W, H);
+    } else if (e.tipo === "garras") {
+      // linhas que puxam a vida dos inimigos até você
+      ctx.strokeStyle = "rgba(255,77,143," + (f * 0.65) + ")";
+      ctx.lineWidth = 2;
+      for (const en of enemies) {
+        ctx.beginPath();
+        ctx.moveTo(en.x, en.y);
+        const mx = (en.x + px) / 2 + Math.sin(S.time * 6 + en.x) * 22;
+        ctx.quadraticCurveTo(mx, (en.y + py) / 2, px, py);
+        ctx.stroke();
+      }
+    } else if (e.tipo === "colmeia") {
+      // grade de favos pulsando em volta
+      ctx.strokeStyle = "rgba(77,232,255," + (f * 0.34) + ")";
+      ctx.lineWidth = 1.4;
+      const r = 34 + (1 - f) * 40;
+      for (let k = 0; k < (leve ? 3 : 6); k++) {
+        const a = (k / 6) * TAU + S.time;
+        const x2 = px + Math.cos(a) * r, y2 = py + Math.sin(a) * r;
+        ctx.beginPath();
+        for (let j = 0; j <= 6; j++) {
+          const a2 = (j / 6) * TAU;
+          const hx = x2 + Math.cos(a2) * 11, hy = y2 + Math.sin(a2) * 11;
+          if (j === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+        }
+        ctx.stroke();
+      }
+    } else if (e.tipo === "risca") {
+      // riscos de velocidade
+      ctx.strokeStyle = "rgba(255,255,255," + (f * 0.3) + ")";
+      ctx.lineWidth = 2;
+      const n = leve ? 8 : 18;
+      for (let k = 0; k < n; k++) {
+        const x2 = ((k * 137) % 100) / 100 * W;
+        const y2 = ((k * 271 + S.time * 900) % (H + 200)) - 100;
+        ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2, y2 + 60); ctx.stroke();
+      }
+    }
+  }
+}
+
 function activateUlt() {
   const type = ST.ultType;
   const ult = ULTS[type];
@@ -11426,33 +12811,44 @@ function activateUlt() {
   S.shake = Math.max(S.shake, 10);
   if (type === "dmg") {
     S.furyT = 5;
+    efeito("aura", 5, { cor: "rgba(255,80,80," });
+    efeito("onda", 0.7, { x: player.x, y: player.y, r: 260, cor: "rgba(255,80,80," });
   } else if (type === "rate") {
     S.barrage = { waves: 3, timer: 0 };
+    efeito("onda", 0.6, { x: player.x, y: player.y, r: 300, cor: "rgba(77,232,255," });
+    efeito("aura", 1.6, { cor: "rgba(77,232,255," });
   } else if (type === "lives") {
     player.shield = ST.shieldDur * 1.2;
     player.invuln = Math.max(player.invuln, 6);
-    enemyBullets = [];
+    enemyBullets.length = 0;
+    efeito("domo", 6);
   } else if (type === "gold") {
     for (let k = 0; k < 14; k++) {
       powerups.push({ x: rand(24, W - 24), y: rand(-260, -20), type: "gem", vy: rand(150, 220), t: rand(0, 2) });
     }
+    efeito("raios", 2.6, { cor: "rgba(255,193,69," });
   } else if (type === "ghost") {
     player.invis = 5;
+    efeito("fantasmas", 5);
   } else if (type === "vamp") {
     for (let j = enemies.length - 1; j >= 0; j--) damageEnemy(enemies[j], j, 6 * ST.dmg, false);
     damageBossAny(10 * ST.dmg);
     explosion(player.x, player.y, "#FF4D8F", 40, 320);
+    efeito("garras", 0.9);
   } else if (type === "frost") {
     for (const e of enemies) e.frozenT = 4;
     if (boss) boss.frozenT = 4;
+    efeito("gelo", 4);
   } else if (type === "blast") {
     blastArea(player.x, player.y - 120, 340, 8 * ST.dmg);
     damageBossAny(8 * ST.dmg);
     enemyBullets = [];
     explosion(player.x, player.y - 120, "#FF9E4D", 70, 420);
+    efeito("onda", 1.1, { x: player.x, y: player.y - 120, r: 460, cor: "rgba(255,158,77," });
     S.shake = 20;
   } else if (type === "drone") {
     S.hiveT = 8;
+    efeito("colmeia", 8);
   } else if (type === "magnet") {
     S.singu = { x: player.x, y: Math.max(150, player.y - 260), t: 2.5 };
   } else if (type === "maverick") {
@@ -11461,6 +12857,7 @@ function activateUlt() {
     setTimeout(() => { if (S.mode === "playing") rasante = { x: W + 40, y: H * 0.45, dir: -1, t: 1.4 }; }, 500);
     setTimeout(() => { if (S.mode === "playing") rasante = { x: -40, y: player.y - 60, dir: 1, t: 1.4 }; }, 1000);
     player.invuln = Math.max(player.invuln, 2.5);
+    efeito("risca", 2.4);
   } else if (type === "b2") {
     S.chuvaFogo = 6;
     S.chuvaT = 0;
@@ -12024,6 +13421,7 @@ function startGame(fase) {
   S.ultCharge = 0; S.furyT = 0; S.hiveT = 0; S.barrage = null; S.singu = null;
   // o Apocalipse vale só até a fase acabar: cada fase nova comeca zerada
   S.apocalipse = false; S.apocT = 0; S.apocPasso = 0; S.lentoT = 0; S.juizoPendente = false;
+  EFX.length = 0;
   S.inicioFase = Date.now();
   MP.meuDano = 0; MP.danoTotal = 0;
   player.lives = ST.maxLives;
@@ -12835,7 +14233,7 @@ function gameOver() {
   try { Musica.parar(); } catch (e) {}
   if (arenaModo()) arenaSalvarPlacar(true);
   const isRecord = S.score > save.hi && S.score > 0;
-  const gems = bankRunGems(0.5);
+  const gems = bankRunGems(temPasse("veterano") ? 1 : 0.5);
   $("go-score").textContent = S.score;
   $("go-fase").textContent = S.fase;
   $("go-gems").textContent = "+" + fmt(gems) + " cristais recuperados";
@@ -13048,6 +14446,7 @@ function update(dt) {
     player.tx = clamp(player.tx + (player.tx - player.x) * 1.8 * dt * 6, player.r, W - player.r);
     player.ty = clamp(player.ty + (player.ty - player.y) * 1.8 * dt * 6, player.r, limiteBaixo());
   }
+  efxAtualizar(dt);
   if (mundoAtivo("tremor")) S.shake = Math.max(S.shake, 5);
 
   /* ---------- APOCALIPSE ÔMEGA ----------
@@ -13227,7 +14626,7 @@ function update(dt) {
       ((waveIsBoss() && !boss) ||
        (!waveIsBoss() && S.waveState === "fighting" && enemies.length === 0))) {
     S.waveState = "done";
-    S.interTimer = 1.4;
+    S.interTimer = temPasse("pressa") ? 0.7 : 1.4;
   }
   if (S.waveState === "done") {
     S.interTimer -= dt;
@@ -13617,28 +15016,148 @@ function desenharPecas(g, sh, k, cor) {
   }
 }
 
-function drawShipSprite(g, idx, s2) {
-  const sh = SHIPS[naveValida(idx)] || SHIPS[0];
+/* =====================================================================
+   DESENHO DAS NAVES
+   ---------------------------------------------------------------------
+   Antes a nave era um recorte de uma cor só. Agora ela tem casco com
+   luz em cima e sombra embaixo, uma quilha no meio, riscos de chapa,
+   cabine de vidro com reflexo, luzes nas pontas das asas e o fogo do
+   motor saindo atrás. Continua tudo desenhado na hora, sem imagem
+   nenhuma para baixar — e o contorno é o mesmo de sempre, então cada
+   uma das 113 naves continua com o formato dela.
+   ===================================================================== */
+function corMisturada(hue, luz, sat) {
+  return "hsl(" + hue + "," + (sat === undefined ? 100 : sat) + "%," + luz + "%)";
+}
+function drawShipSprite(g, idx, s2, opc) {
+  const i2 = naveValida(idx);
+  const sh = SHIPS[i2] || SHIPS[0];
   const k = s2 / 18;
-  const color = shipColor(idx);
-  g.shadowColor = color;
-  g.shadowBlur = 16;
-  g.fillStyle = color;
-  g.beginPath();
+  const hue = shipHue(i2);
+  const cor = shipColor(i2);
+  const brilhoCor = shipGlowColor(i2);
   const pts = pontosDaNave(sh);
-  g.moveTo(pts[0][0] * k, pts[0][1] * k);
-  for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0] * k, pts[i][1] * k);
-  g.closePath();
+  const detalhe = !opc || opc.detalhe !== false;
+
+  /* --- contorno do casco --- */
+  const caminho = () => {
+    g.beginPath();
+    g.moveTo(pts[0][0] * k, pts[0][1] * k);
+    for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0] * k, pts[i][1] * k);
+    g.closePath();
+  };
+
+  /* mede a nave para acertar os degradês e as pontas das asas */
+  let minX = 99, maxX = -99, minY = 99, maxY = -99;
+  for (const pt of pts) {
+    if (pt[0] < minX) minX = pt[0];
+    if (pt[0] > maxX) maxX = pt[0];
+    if (pt[1] < minY) minY = pt[1];
+    if (pt[1] > maxY) maxY = pt[1];
+  }
+
+  /* --- rastro do motor, atrás de tudo --- */
+  if (detalhe) {
+    const mot = g.createLinearGradient(0, maxY * k * 0.6, 0, (maxY + 13) * k);
+    mot.addColorStop(0, "hsla(" + hue + ",100%,72%,.55)");
+    mot.addColorStop(1, "hsla(" + hue + ",100%,72%,0)");
+    g.fillStyle = mot;
+    g.beginPath();
+    g.moveTo(-3.4 * k, maxY * k * 0.55);
+    g.lineTo(3.4 * k, maxY * k * 0.55);
+    g.lineTo(1.5 * k, (maxY + 13) * k);
+    g.lineTo(-1.5 * k, (maxY + 13) * k);
+    g.closePath();
+    g.fill();
+  }
+
+  /* --- casco: luz em cima, cor no meio, sombra embaixo --- */
+  g.shadowColor = brilhoCor;
+  g.shadowBlur = 14;
+  const casco = g.createLinearGradient(0, minY * k, 0, maxY * k);
+  casco.addColorStop(0, corMisturada(hue, 82));
+  casco.addColorStop(0.42, cor);
+  casco.addColorStop(1, corMisturada(hue, 34, 78));
+  g.fillStyle = casco;
+  caminho();
   g.fill();
   g.shadowBlur = 0;
-  if (sh.criada) {
-    desenharPecas(g, sh, k, color);
-    if (sh.def && sh.def.pecas && sh.def.pecas.teto !== undefined) return;
-  }
-  g.fillStyle = "#062033";
+
+  if (!detalhe) return;
+
+  /* --- daqui para baixo tudo fica preso dentro do casco --- */
+  g.save();
+  caminho();
+  g.clip();
+
+  // quilha central mais clara, de ponta a ponta
+  const quilha = g.createLinearGradient(-2.6 * k, 0, 2.6 * k, 0);
+  quilha.addColorStop(0, "hsla(" + hue + ",100%,88%,0)");
+  quilha.addColorStop(0.5, "hsla(" + hue + ",100%,92%,.42)");
+  quilha.addColorStop(1, "hsla(" + hue + ",100%,88%,0)");
+  g.fillStyle = quilha;
+  g.fillRect(-2.6 * k, minY * k, 5.2 * k, (maxY - minY) * k);
+
+  // riscos de chapa: três linhas finas mais escuras atravessando
+  g.strokeStyle = "hsla(" + hue + ",70%,16%,.34)";
+  g.lineWidth = Math.max(0.6, 0.9 * k);
   g.beginPath();
-  g.ellipse(0, -4 * k, 3.4 * k, 6.5 * k, 0, 0, TAU);
+  for (let n = 1; n <= 3; n++) {
+    const y = (minY + (maxY - minY) * (n / 4)) * k;
+    g.moveTo(minX * k, y);
+    g.lineTo(maxX * k, y);
+  }
+  g.stroke();
+
+  // brilho de cima: uma faixa clara na metade de cima do casco
+  const topo = g.createLinearGradient(0, minY * k, 0, (minY + (maxY - minY) * 0.45) * k);
+  topo.addColorStop(0, "rgba(255,255,255,.30)");
+  topo.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = topo;
+  g.fillRect(minX * k, minY * k, (maxX - minX) * k, (maxY - minY) * 0.5 * k);
+
+  g.restore();
+
+  /* --- peças da nave montada pelo jogador --- */
+  if (sh.criada) {
+    desenharPecas(g, sh, k, cor);
+    if (sh.def && sh.def.pecas && sh.def.pecas.teto !== undefined) { desenharLuzes(); return; }
+  }
+
+  /* --- cabine: vidro escuro, aro claro e um reflexo em cima --- */
+  const cy = -4 * k, rx = 3.4 * k, ry = 6.5 * k;
+  const vidro = g.createLinearGradient(0, cy - ry, 0, cy + ry);
+  vidro.addColorStop(0, "#9FE8FF");
+  vidro.addColorStop(0.34, "#12405C");
+  vidro.addColorStop(1, "#04141F");
+  g.fillStyle = vidro;
+  g.beginPath(); g.ellipse(0, cy, rx, ry, 0, 0, TAU); g.fill();
+  g.strokeStyle = "hsla(" + hue + ",100%,86%,.75)";
+  g.lineWidth = Math.max(0.6, 0.8 * k);
+  g.stroke();
+  // reflexo do vidro
+  g.fillStyle = "rgba(255,255,255,.45)";
+  g.beginPath();
+  g.ellipse(-rx * 0.34, cy - ry * 0.42, rx * 0.32, ry * 0.26, -0.4, 0, TAU);
   g.fill();
+
+  desenharLuzes();
+
+  /* luzinhas de navegação nas pontas das asas, piscando devagar */
+  function desenharLuzes() {
+    const bat = 0.55 + Math.sin((typeof S !== "undefined" ? S.time : 0) * 3.4) * 0.45;
+    const pontas = [[minX, 0], [maxX, 0]];
+    // acha a altura real de cada ponta lateral
+    for (const pt of pts) {
+      if (pt[0] === minX) pontas[0][1] = pt[1];
+      if (pt[0] === maxX) pontas[1][1] = pt[1];
+    }
+    for (let n = 0; n < 2; n++) {
+      const lx = pontas[n][0] * k * 0.9, ly = pontas[n][1] * k;
+      g.fillStyle = n === 0 ? "rgba(255,110,140," + bat + ")" : "rgba(120,255,190," + bat + ")";
+      g.beginPath(); g.arc(lx, ly, Math.max(0.9, 1.3 * k), 0, TAU); g.fill();
+    }
+  }
 }
 
 function drawShip() {
@@ -14100,10 +15619,23 @@ let dtDesenho = 0.016;
    Tudo desenhado na hora, sem imagem nenhuma para baixar.
    --------------------------------------------------------------------- */
 let decoP = [];
-function decoAtualizar(dt) {
+/* ---------- o que flutua no ar ----------
+   Evento manda mais que setor: se tem festa rolando, cai confete; se não,
+   cai o que for a cara do setor onde a fase acontece.                    */
+function climaAgora() {
   const ev = eventoAtual();
-  if (!ev) { if (decoP.length) decoP.length = 0; return; }
-  const alvo = ev.particula === "codigo" ? 46 : 34;
+  if (ev) return { tipo: ev.particula, cor: ev.cor, evento: true };
+  if (S.mode !== "playing" && S.mode !== "paused") return null;
+  const set = setorAtual();
+  return set ? { tipo: set.flutua, cor: set.cor, evento: false } : null;
+}
+function decoAtualizar(dt) {
+  const cl = climaAgora();
+  if (!cl || !qEnfeites()) { if (decoP.length) decoP.length = 0; return; }
+  const ev = { particula: cl.tipo };
+  const alvo = Math.round((ev.particula === "codigo" ? 46 : 34) *
+               (Q.nivel >= 2 ? 1 : 0.6) * (cl.evento ? 1 : 0.85));
+  if (decoP.length > alvo) decoP.length = alvo;
   while (decoP.length < alvo) {
     decoP.push({ x: rand(0, W), y: rand(-H, H), v: rand(24, 120),
                  s: rand(1.4, 4.6), a: rand(0, TAU), giro: rand(-2, 2),
@@ -14111,24 +15643,37 @@ function decoAtualizar(dt) {
   }
   for (const p of decoP) {
     p.a += p.giro * dt;
-    if (ev.particula === "bolha" || ev.particula === "brasa" || ev.particula === "fumaca") {
+    if (ev.particula === "bolha" || ev.particula === "brasa" || ev.particula === "fumaca" ||
+        ev.particula === "nevoa" || ev.particula === "anel" || ev.particula === "pulso") {
       p.y -= p.v * dt;
       p.x += Math.sin(p.a) * 18 * dt;
       if (p.y < -20) { p.y = H + 20; p.x = rand(0, W); }
-    } else if (ev.particula === "aurora" || ev.particula === "arco") {
+    } else if (ev.particula === "aurora" || ev.particula === "arco" ||
+               ev.particula === "redemoinho" || ev.particula === "vazio") {
       p.x += Math.cos(p.a) * 20 * dt;
       p.y += Math.sin(p.a * 0.6) * 12 * dt;
     } else {
-      p.y += p.v * dt * (ev.particula === "meteoro" ? 3.4 : 1);
-      p.x += (ev.particula === "neve" ? Math.sin(p.a) * 22 : (ev.particula === "meteoro" ? -70 : 0)) * dt;
+      const rapido = ev.particula === "meteoro" ? 3.4
+                   : ev.particula === "faulha" ? 2.2
+                   : ev.particula === "faisca" ? 2.6
+                   : ev.particula === "poeira" ? 0.5
+                   : ev.particula === "risco" ? 0.35 : 1;
+      p.y += p.v * dt * rapido;
+      const lado = ev.particula === "neve" ? Math.sin(p.a) * 22
+                 : ev.particula === "meteoro" ? -70
+                 : ev.particula === "pedra" ? Math.sin(p.a) * 10
+                 : ev.particula === "sucata" ? Math.sin(p.a * 0.4) * 8
+                 : ev.particula === "destroco" ? Math.sin(p.a * 0.3) * 6 : 0;
+      p.x += lado * dt;
       if (p.y > H + 24) { p.y = -20; p.x = rand(0, W); }
       if (p.x < -30) p.x = W + 20;
     }
   }
 }
 function decoDesenhar() {
-  const ev = eventoAtual();
-  if (!ev) return;
+  const cl = climaAgora();
+  if (!cl || !decoP.length) return;
+  const ev = { particula: cl.tipo, cor: cl.cor };
   const t = S.time;
   ctx.save();
   for (const p of decoP) {
@@ -14187,6 +15732,107 @@ function decoDesenhar() {
       ctx.strokeStyle = "hsl(" + ((p.h + t * 120) % 360) + ",95%,62%)";
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(p.x, p.y - p.s * 6); ctx.lineTo(p.x, p.y + p.s * 6); ctx.stroke();
+
+    /* ---------- o que flutua em cada setor ---------- */
+    } else if (ev.particula === "poeira") {
+      // Periferia: poeira de estrela, pontinhos claros descendo devagar
+      ctx.fillStyle = "rgba(190,225,255," + (0.18 + p.s / 14) + ")";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 0.34, 0, TAU); ctx.fill();
+    } else if (ev.particula === "pedra") {
+      // Campo de Asteroides: pedrinhas irregulares girando
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+      ctx.fillStyle = "rgba(150,126,100,.5)";
+      ctx.beginPath();
+      const r0 = p.s * 1.5;
+      ctx.moveTo(r0, 0);
+      ctx.lineTo(r0 * 0.5, r0 * 0.8);
+      ctx.lineTo(-r0 * 0.7, r0 * 0.5);
+      ctx.lineTo(-r0, -r0 * 0.3);
+      ctx.lineTo(-r0 * 0.2, -r0 * 0.9);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    } else if (ev.particula === "nevoa") {
+      // Nebulosa Rosa: bolsões de névoa rosada
+      const gn = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s * 22);
+      gn.addColorStop(0, "rgba(255,110,170,.09)");
+      gn.addColorStop(1, "rgba(255,110,170,0)");
+      ctx.fillStyle = gn;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 22, 0, TAU); ctx.fill();
+    } else if (ev.particula === "vazio") {
+      // Cinturão Escuro: manchas escuras que engolem a luz
+      ctx.fillStyle = "rgba(2,3,8,.5)";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 9, 0, TAU); ctx.fill();
+    } else if (ev.particula === "faisca") {
+      // Tempestade Iônica: riscos elétricos curtos e tortos
+      ctx.strokeStyle = "rgba(140,235,255," + (0.35 + p.s / 10) + ")";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + Math.cos(p.a) * 9, p.y + 11);
+      ctx.lineTo(p.x + Math.cos(p.a) * 3, p.y + 22);
+      ctx.stroke();
+    } else if (ev.particula === "anel") {
+      // Núcleo Profundo: anéis roxos que abrem e somem
+      const fr = ((t * 0.5 + p.s) % 1);
+      ctx.strokeStyle = "rgba(195,77,255," + (0.3 * (1 - fr)) + ")";
+      ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 6 + fr * 42, 0, TAU); ctx.stroke();
+    } else if (ev.particula === "destroco") {
+      // Cemitério de Naves: pedaços de casco boiando
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a * 0.3);
+      ctx.fillStyle = "rgba(120,140,146,.42)";
+      ctx.fillRect(-p.s * 2.4, -p.s * 0.7, p.s * 4.8, p.s * 1.4);
+      ctx.fillStyle = "rgba(80,98,104,.5)";
+      ctx.fillRect(-p.s * 0.7, -p.s * 1.8, p.s * 1.4, p.s * 3.6);
+      ctx.restore();
+    } else if (ev.particula === "gelo") {
+      // Fenda Gelada: cristais de seis pontas
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+      ctx.strokeStyle = "rgba(190,240,255," + (0.3 + p.s / 12) + ")";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (let k = 0; k < 3; k++) {
+        const ang = (k / 3) * Math.PI;
+        ctx.moveTo(-Math.cos(ang) * p.s * 2, -Math.sin(ang) * p.s * 2);
+        ctx.lineTo(Math.cos(ang) * p.s * 2, Math.sin(ang) * p.s * 2);
+      }
+      ctx.stroke();
+      ctx.restore();
+    } else if (ev.particula === "redemoinho") {
+      // Olho da Tempestade: rastros curvos verdes girando devagar
+      ctx.strokeStyle = "rgba(91,240,176,.18)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.s * 12, p.a, p.a + 1.5);
+      ctx.stroke();
+    } else if (ev.particula === "faulha") {
+      // Forja Estelar: fagulhas douradas caindo com rastro
+      const gg = ctx.createLinearGradient(p.x, p.y - 12, p.x, p.y + 3);
+      gg.addColorStop(0, "rgba(255,193,69,0)");
+      gg.addColorStop(1, "rgba(255,215,120,.85)");
+      ctx.strokeStyle = gg;
+      ctx.lineWidth = p.s * 0.5;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y - 12); ctx.lineTo(p.x, p.y + 3); ctx.stroke();
+    } else if (ev.particula === "sucata") {
+      // Mar de Destroços: chapas retangulares girando
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a * 0.5);
+      ctx.strokeStyle = "rgba(157,182,232,.3)";
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(-p.s * 2, -p.s * 1.2, p.s * 4, p.s * 2.4);
+      ctx.restore();
+    } else if (ev.particula === "risco") {
+      // Limiar do Vazio: riscos verticais quase apagados
+      ctx.strokeStyle = "rgba(216,216,232,.09)";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y - p.s * 10); ctx.lineTo(p.x, p.y + p.s * 10); ctx.stroke();
+    } else if (ev.particula === "pulso") {
+      // Coração da Nebulosa: tudo pulsa junto, no mesmo compasso
+      const bat = 0.5 + Math.sin(t * 2.4) * 0.5;
+      const gp = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s * (10 + bat * 12));
+      gp.addColorStop(0, "rgba(255,77,107," + (0.10 + bat * 0.12) + ")");
+      gp.addColorStop(1, "rgba(255,77,107,0)");
+      ctx.fillStyle = gp;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * (10 + bat * 12), 0, TAU); ctx.fill();
     }
   }
   ctx.restore();
@@ -14202,7 +15848,11 @@ function fundoRefazer() {
   fundoCv = null; fundoMarca = "";
 }
 function fundoPronto(ev) {
-  const marca = Math.round(W) + "x" + Math.round(H) + "|" + (ev ? ev.id : "-") +
+  /* o céu vem do setor da fase; um evento por cima manda mais que o setor */
+  const set = (S.mode === "playing" || S.mode === "paused") ? setorAtual() : null;
+  const ceu = ev ? ev.fundo : (set ? set.ceu : ["#060A18", "#0B1730"]);
+  const bri = ev ? null : (set ? set.brilho : null);
+  const marca = Math.round(W) + "x" + Math.round(H) + "|" + (ev ? ev.id : (set ? set.nome : "-")) +
                 "|" + Q.nivel + "|" + Math.round(DPR * 100);
   if (fundoCv && fundoMarca === marca) return fundoCv;
   const e = Math.max(1, Math.min(2, DPR));
@@ -14211,24 +15861,24 @@ function fundoPronto(ev) {
   cv.height = Math.max(1, Math.ceil(H * e));
   const g = cv.getContext("2d");
   g.setTransform(e, 0, 0, e, 0, 0);
-  g.fillStyle = ev ? ev.fundo[0] : "#060A18";
+  g.fillStyle = ceu[0];
   g.fillRect(0, 0, W, H);
-  if (ev) {
-    const gf = g.createLinearGradient(0, 0, 0, H);
-    gf.addColorStop(0, ev.fundo[1]);
-    gf.addColorStop(1, ev.fundo[0]);
-    g.fillStyle = gf;
-    g.fillRect(0, 0, W, H);
-  }
+  const gf = g.createLinearGradient(0, 0, 0, H);
+  gf.addColorStop(0, ceu[1]);
+  gf.addColorStop(1, ceu[0]);
+  g.fillStyle = gf;
+  g.fillRect(0, 0, W, H);
   if (qFundoRico()) {
-    const g1 = g.createRadialGradient(W * 0.75, H * 0.2, 0, W * 0.75, H * 0.2, H * 0.8);
-    g1.addColorStop(0, "rgba(255,77,143,0.07)");
-    g1.addColorStop(1, "rgba(255,77,143,0)");
+    const c1 = bri ? bri[0] : "rgba(255,77,143,0.07)";
+    const c2 = bri ? bri[1] : "rgba(77,232,255,0.06)";
+    const g1 = g.createRadialGradient(W * 0.75, H * 0.2, 0, W * 0.75, H * 0.2, H * 0.85);
+    g1.addColorStop(0, c1);
+    g1.addColorStop(1, "rgba(0,0,0,0)");
     g.fillStyle = g1;
     g.fillRect(0, 0, W, H);
-    const g2 = g.createRadialGradient(W * 0.15, H * 0.7, 0, W * 0.15, H * 0.7, H * 0.7);
-    g2.addColorStop(0, "rgba(77,232,255,0.06)");
-    g2.addColorStop(1, "rgba(77,232,255,0)");
+    const g2 = g.createRadialGradient(W * 0.15, H * 0.72, 0, W * 0.15, H * 0.72, H * 0.75);
+    g2.addColorStop(0, c2);
+    g2.addColorStop(1, "rgba(0,0,0,0)");
     g.fillStyle = g2;
     g.fillRect(0, 0, W, H);
   }
@@ -14410,6 +16060,8 @@ function draw() {
   drawBoss();
   for (const p of powerups) drawPowerup(p);
   drawShip();
+
+  efxDesenhar();
 
   for (const p of particles) {
     if (p.y < -20 || p.y > H + 20) continue;
@@ -15155,7 +16807,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.2";
+const VERSAO = "4.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
