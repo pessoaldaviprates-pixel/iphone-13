@@ -839,6 +839,47 @@
   .adm-btn.danger{border-color:rgba(255,82,82,.5);color:var(--danger);background:rgba(255,82,82,.07)}
   .adm-btn.danger:active{background:rgba(255,82,82,.2)}
   .adm-btn.wide{grid-column:1/-1}
+  .adm-linha-btn{display:flex;gap:8px;margin-bottom:12px}
+  .adm-linha-btn .adm-btn{flex:1}
+  /* pedidos da loja no painel */
+  .pd-linha{
+    display:flex;align-items:center;gap:11px;margin-bottom:9px;flex-wrap:wrap;
+    background:rgba(6,10,24,.5);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:11px 12px;
+  }
+  .pd-linha .pd-txt{flex:1 1 120px}
+  .pd-linha.feito{opacity:.5}
+  .pd-ic{
+    flex:none;width:40px;height:40px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+    background:rgba(255,193,69,.12);border:1px solid rgba(255,193,69,.32);color:var(--amber);
+  }
+  .pd-txt{flex:1;min-width:0}
+  .pd-item{font-weight:700;font-size:.86rem;line-height:1.3}
+  .pd-quem{font-size:.68rem;color:var(--dim);margin-top:2px}
+  .pd-preco{
+    flex:none;font-family:"Russo One",sans-serif;font-size:1rem;color:var(--verde);
+  }
+  .pd-acoes{display:flex;gap:6px;flex:1 0 auto;justify-content:flex-end}
+  .pd-acoes .adm-btn{padding:9px 11px;font-size:.68rem;min-width:0}
+  .sup-linha{
+    display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer;
+    background:rgba(6,10,24,.5);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:11px 12px;
+  }
+  .sup-linha.nova{border-color:var(--danger);background:rgba(255,92,92,.07)}
+  .sup-linha .pd-ic{background:rgba(77,232,255,.1);border-color:rgba(77,232,255,.3);color:var(--cyan)}
+  /* conversa do painel */
+  .adm-chat{
+    max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
+    padding:10px;margin:10px 0;border-radius:var(--r-md);
+    background:rgba(3,6,16,.6);border:1px solid var(--line);
+    touch-action:pan-y;overscroll-behavior:contain;
+  }
+  .adm-chat .chat-bolha{max-width:88%}
+  .adm-resp{display:flex;gap:8px}
+  .adm-resp input{flex:1;min-width:0}
+  .adm-resp .adm-btn{flex:none;padding:11px 15px}
   .adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:12px}
   .adm-stat b{display:block;font-family:"Russo One",sans-serif;font-size:.95rem;font-variant-numeric:tabular-nums}
   .adm-stat span{font-size:.55rem;letter-spacing:.12em;color:var(--dim)}
@@ -956,6 +997,94 @@
   .aba.on{background:rgba(77,232,255,.15);border-color:var(--cyan);color:var(--cyan)}
   .aba:active{transform:scale(.95)}
 
+  /* ---------- LOJA: preço em dinheiro, pedido e linha direta ---------- */
+  .loja-como{
+    max-width:520px;margin:0 auto 14px;padding:12px 14px;
+    background:rgba(77,232,255,.07);border:1px solid rgba(77,232,255,.24);
+    border-radius:var(--r-md);font-size:.78rem;line-height:1.55;color:var(--ink2);
+  }
+  .loja-como b{color:var(--cyan);font-weight:700}
+  /* planos de VIP lado a lado */
+  .planos{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px}
+  .plano{
+    position:relative;text-align:center;padding:14px 8px 10px;
+    background:rgba(6,10,24,.55);border:1px solid rgba(255,193,69,.2);
+    border-radius:var(--r-md);
+  }
+  .plano.marcado{border-color:var(--amber);background:rgba(255,193,69,.08)}
+  .plano-selo{
+    position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+    background:var(--amber);color:#2a1c00;border-radius:999px;white-space:nowrap;
+    font-size:.5rem;font-weight:700;letter-spacing:.1em;padding:3px 9px;
+  }
+  .plano-dias{
+    font-family:"Russo One",sans-serif;font-size:.86rem;color:var(--ink);letter-spacing:.06em;
+  }
+  .plano-preco{
+    font-family:"Russo One",sans-serif;font-size:1.5rem;color:var(--amber);
+    line-height:1.1;margin:5px 0 1px;
+  }
+  .plano-porDia{font-size:.6rem;color:var(--dim);margin-bottom:9px}
+  .plano-btn{width:100%;min-width:0}
+  .bp-preco{font-variant-numeric:tabular-nums}
+  .buy-btn{background:linear-gradient(180deg,#8CF0A8,#3FBF6B);color:#04200f;
+           box-shadow:0 3px 0 rgba(15,90,45,.95),0 0 16px rgba(91,240,176,.22)}
+  .buy-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(15,90,45,.95)}
+  .buy-btn.max{background:rgba(255,255,255,.06);color:var(--dim);box-shadow:none}
+  .plano-btn{background:linear-gradient(180deg,#FFD173,#F2AC22);color:#231500;
+             box-shadow:0 3px 0 rgba(130,90,12,.95)}
+  .pedido-estado{
+    flex:none;font-family:"JetBrains Mono",ui-monospace,monospace;
+    font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:5px 9px;border-radius:999px;
+    background:rgba(255,193,69,.12);border:1px solid rgba(255,193,69,.32);color:var(--amber);
+  }
+  /* aviso que sobe depois de pedir */
+  .loja-aviso{
+    position:absolute;left:14px;right:76px;
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    z-index:12;opacity:0;pointer-events:none;transform:translateY(10px);
+    background:rgba(9,15,36,.97);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:11px 14px;font-size:.78rem;line-height:1.45;box-shadow:var(--som-2);
+    transition:opacity .25s ease,transform .25s ease;
+  }
+  .loja-aviso.on{opacity:1;transform:translateY(0)}
+  .loja-aviso.bom{border-color:rgba(91,240,176,.5);color:var(--verde)}
+  .loja-aviso.ruim{border-color:rgba(255,92,92,.5);color:var(--danger)}
+  /* botão redondo de chamar o administrador */
+  #loja-adm{
+    position:absolute;right:16px;
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    width:58px;height:58px;border-radius:50%;cursor:pointer;z-index:13;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--amber);color:#2a1c00;
+    background:radial-gradient(circle at 50% 34%,#FFE08A,#F0A81C);
+    box-shadow:0 0 26px rgba(255,193,69,.5),var(--som-2);
+    font-size:1.5rem;line-height:1;
+  }
+  #loja-adm:active{transform:scale(.9)}
+  #loja-adm.chamando{animation:admChama 1.3s ease-in-out infinite}
+  @keyframes admChama{
+    0%,100%{box-shadow:0 0 20px rgba(255,193,69,.45),var(--som-2)}
+    50%{box-shadow:0 0 40px rgba(255,193,69,.95),var(--som-2)}
+  }
+  #loja-adm i{
+    position:absolute;top:-2px;right:-2px;font-style:normal;
+    background:var(--danger);color:#fff;border-radius:999px;
+    font-family:"Chakra Petch",sans-serif;font-size:.6rem;font-weight:700;
+    padding:2px 6px;line-height:1.5;
+  }
+  #screen-loja{position:fixed}
+  .chat-ini.adm{color:var(--amber);background:rgba(255,193,69,.12);border-color:rgba(255,193,69,.4)}
+  .chat-bolha.doadm{
+    background:linear-gradient(160deg,rgba(64,48,12,.95),rgba(30,22,6,.95));
+    border-color:rgba(255,193,69,.34);
+  }
+  .chat-de{
+    display:block;font-family:"Russo One",sans-serif;font-size:.52rem;
+    letter-spacing:.2em;color:var(--amber);margin-bottom:4px;
+  }
+
   /* ---------- LOJA ---------- */
   .tile.ouro{border-color:rgba(255,193,69,.5)}
   .tile.ouro b{color:var(--amber);text-shadow:0 0 16px rgba(255,193,69,.6)}
@@ -988,9 +1117,11 @@
   .loja-nome{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.92rem}
   .loja-desc{font-size:.75rem;color:var(--dim);line-height:1.45;margin-top:2px}
   .loja-num{
-    font-size:.68rem;color:var(--ink2);margin-top:5px;letter-spacing:.06em;
+    display:flex;flex-wrap:wrap;gap:4px 12px;
+    font-size:.66rem;color:var(--dim);margin-top:6px;letter-spacing:.03em;
     font-variant-numeric:tabular-nums;
   }
+  .loja-num b{color:var(--ink);font-weight:700}
   .loja-falta{font-size:.72rem;color:var(--dim);text-align:center;margin-top:9px}
   /* cartão do VIP */
   .vip-cartao{
@@ -2731,6 +2862,24 @@
 
     <div id="adm-panel" style="display:none">
 
+      <div class="adm-card" id="adm-loja" style="display:none">
+        <div class="adm-h gold">🛒 PEDIDOS DA LOJA</div>
+        <p class="adm-note" style="max-width:none">
+          Quem pediu o quê e por quanto. Combine o pagamento na conversa e
+          toque em ENTREGAR — a compra cai na conta da pessoa na hora.
+        </p>
+        <div class="adm-linha-btn">
+          <button class="adm-btn" id="loja-atualizar">↻ ATUALIZAR</button>
+          <button class="adm-btn" id="loja-ver-tudo">MOSTRAR JÁ ENTREGUES</button>
+        </div>
+        <div id="adm-loja-lista"></div>
+        <div class="adm-h gold" style="margin-top:18px">💬 CONVERSAS</div>
+        <p class="adm-note" style="max-width:none">
+          Quem te chamou pelo botão ⊙ da loja. Toque para abrir e responder.
+        </p>
+        <div id="adm-sup-lista"></div>
+      </div>
+
       <div class="adm-card" id="adm-equipe" style="display:none">
         <div class="adm-h gold">👥 EQUIPE DO PAINEL</div>
         <p class="adm-note" style="max-width:none">
@@ -3222,6 +3371,30 @@
   </div>
   <div class="abas" id="loja-abas"></div>
   <div class="scroll" id="loja-corpo"></div>
+  <div class="loja-aviso" id="loja-aviso"></div>
+  <button id="loja-adm" aria-label="Falar com o administrador">
+    <span>⊙</span><i id="loja-adm-selo" style="display:none"></i>
+  </button>
+</div>
+
+<!-- CONVERSA COM O ADMINISTRADOR -->
+<div class="page" id="screen-suporte">
+  <div class="page-head">
+    <button class="back-btn" id="sup-voltar" aria-label="Voltar">‹</button>
+    <div class="chat-quem">
+      <span class="chat-ini adm">⊙</span>
+      <span class="chat-txt">
+        <span class="chat-nome">ADMINISTRADOR</span>
+        <span class="chat-onde">fala direto com quem faz o jogo</span>
+      </span>
+    </div>
+  </div>
+  <div class="chat-rolagem" id="sup-lista"></div>
+  <div class="chat-barra">
+    <input id="sup-campo" maxlength="300" placeholder="Escreva sua mensagem…"
+           autocomplete="off" enterkeyhint="send">
+    <button id="sup-enviar" aria-label="Enviar">➤</button>
+  </div>
 </div>
 
 <!-- AMIGOS -->
@@ -3890,6 +4063,7 @@ function defaultSave() {
   return {
     savedAt: 0,
     crystals: 0, best: 0, hi: 0, pts: 0,
+    pedidos: [],             // o que eu pedi na loja
     tag: "",                 // gametag: o nome que os amigos veem
     tagQuando: 0,            // quando trocou pela última vez (uma vez por dia)
     vipAte: 0,               // até quando o VIP vale
@@ -4448,6 +4622,36 @@ function aplicarPresente(p, g) {
   const itens = [];              // {icone, texto, ruim}
   let tirou = false;
   const anota = (icone, texto, ruim) => itens.push({ icone, texto, ruim: !!ruim });
+
+  /* compra entregue pela loja: VIP com dias, passes e naves */
+  if (g.compra) {
+    const c = g.compra;
+    if (c.vipDias) {
+      const base = Math.max(Date.now(), p.vipAte || 0);
+      p.vipAte = base + c.vipDias * 86400000;
+      p.vipDia = "";
+      partes.push("VIP por " + c.vipDias + " dias");
+      anota("👑", "VIP por " + c.vipDias + " dias");
+    }
+    if (c.passes && c.passes.length) {
+      p.passes = p.passes || {};
+      for (const id of c.passes) {
+        p.passes[id] = true;
+        const pa = (typeof PASSES !== "undefined") ? PASSES.find(x => x.id === id) : null;
+        anota(pa ? pa.icone : "🎟", pa ? pa.nome : "Passe");
+      }
+      partes.push(c.passes.length + " passe" + (c.passes.length === 1 ? "" : "s"));
+    }
+    if (c.naves && c.naves.length) {
+      p.ships = p.ships || [0];
+      for (const i of c.naves) {
+        if (p.ships.indexOf(i) < 0) p.ships.push(i);
+        anota("✈", (SHIPS[i] || {}).name || "Nave");
+      }
+      p.ship = c.naves[c.naves.length - 1];
+      partes.push(c.naves.length + " nave" + (c.naves.length === 1 ? "" : "s"));
+    }
+  }
 
   // 1) o que zera vem primeiro
   if (g.zerarTudo) {
@@ -5102,27 +5306,27 @@ SHIPS.push({
    ===================================================================== */
 const NAVES_LOJA_DE = SHIPS.length;
 const NAVES_LOJA = [
-  { name: "Centelha VIP", hue: 190, shape: 5, preco: 180000, vip: true,
+  { name: "Centelha VIP", hue: 190, shape: 5, preco: 1.00, vip: true,
     power: "rate", ultId: "rate", powerName: "Rajada Prateada", powerMag: 40,
     powerDesc: "+40% de cadência e tiros que atravessam um inimigo",
     baseDmg: 2.2, baseAgi: 1.35, baseHp: 420, baseRate: 1.30, baseGem: 1.20 },
-  { name: "Aurora Real", hue: 285, shape: 4, preco: 240000, vip: true,
+  { name: "Aurora Real", hue: 285, shape: 4, preco: 1.50, vip: true,
     power: "ghost", ultId: "ghost", powerName: "Manto de Aurora", powerMag: 60,
     powerDesc: "+60% de escudo e invencibilidade, e some por 2s ao levar dano",
     baseDmg: 2.0, baseAgi: 1.42, baseHp: 520, baseRate: 1.12, baseGem: 1.25 },
-  { name: "Titã de Bronze", hue: 32, shape: 6, preco: 320000, vip: true,
+  { name: "Titã de Bronze", hue: 32, shape: 6, preco: 2.00, vip: true,
     power: "lives", ultId: "lives", powerName: "Casco de Bronze", powerMag: 3,
     powerDesc: "+3 vidas máximas e um escudo que volta sozinho",
     baseDmg: 1.9, baseAgi: 1.05, baseHp: 640, baseRate: 1.00, baseGem: 1.15 },
-  { name: "Lâmina Carmim", hue: 350, shape: 5, preco: 420000, vip: true,
+  { name: "Lâmina Carmim", hue: 350, shape: 5, preco: 2.50, vip: true,
     power: "dmg", ultId: "dmg", powerName: "Corte Carmim", powerMag: 85,
     powerDesc: "+85% de dano; quanto menos vida você tem, mais forte fica",
     baseDmg: 2.9, baseAgi: 1.30, baseHp: 380, baseRate: 1.10, baseGem: 1.10 },
-  { name: "Guardiã Esmeralda", hue: 150, shape: 6, preco: 520000, vip: true,
+  { name: "Guardiã Esmeralda", hue: 150, shape: 6, preco: 3.00, vip: true,
     power: "drone", ultId: "drone", powerName: "Enxame Esmeralda", powerMag: 0.9,
     powerDesc: "Dois drones fixos que atiram com 90% do seu dano",
     baseDmg: 2.3, baseAgi: 1.25, baseHp: 560, baseRate: 1.15, baseGem: 1.30 },
-  { name: "Coroa de Platina", hue: 210, shape: 7, preco: 800000, vip: true,
+  { name: "Coroa de Platina", hue: 210, shape: 7, preco: 5.00, vip: true,
     power: "gold", ultId: "gold", powerName: "Toque de Platina", powerMag: 90,
     powerDesc: "+90% de cristais e todo item cai atraído para você",
     baseDmg: 2.6, baseAgi: 1.38, baseHp: 600, baseRate: 1.22, baseGem: 1.90 }
@@ -6172,6 +6376,7 @@ const SCREENS = {
   menu: $("screen-menu"), levels: $("screen-levels"), shop: $("screen-shop"),
   hangar: $("screen-hangar"), oficina: $("screen-oficina"), reliquias: $("screen-reliquias"),
   amigos: $("screen-amigos"), chat: $("screen-chat"), loja: $("screen-loja"),
+  suporte: $("screen-suporte"),
   tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
   multi: $("screen-multi"), sala: $("screen-sala"), novidades: $("screen-novidades"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
@@ -6761,6 +6966,10 @@ const PERMISSOES = [
     { id: "sugVer",    nome: "Ler as sugestões",         desc: "Ver tudo o que os jogadores mandaram" },
     { id: "sugMexer",  nome: "Marcar e apagar sugestões", desc: "Marcar como lida e apagar da lista" }
   ]},
+  { grupo: "LOJA", itens: [
+    { id: "lojaVer",   nome: "Ver os pedidos",           desc: "Ver quem pediu o quê e conversar" },
+    { id: "lojaDar",   nome: "Entregar compras",         desc: "Entregar VIP, passe ou nave a quem pagou" }
+  ]},
   { grupo: "JOGADORES", itens: [
     { id: "verLista",  nome: "Ver os jogadores",         desc: "Lista de quem existe e a janela AO VIVO" },
     { id: "assistir",  nome: "Assistir a tela",          desc: "Abrir o 👁 e ver a partida de alguém" },
@@ -7141,6 +7350,239 @@ function abrirPainelComo() {
    caixa) para não ficar tudo amontoado.
    Uma aba só aparece se a pessoa tiver ao menos uma permissão dela.
    ===================================================================== */
+/* =====================================================================
+   PAINEL: PEDIDOS DA LOJA E CONVERSAS
+   ---------------------------------------------------------------------
+   ENTREGAR entrega de verdade: escreve na conta da pessoa pela mesma
+   caixa de presente que já existe, então ela recebe assim que abrir o
+   jogo, com a animação e tudo.
+   ===================================================================== */
+let admLojaPedidos = {};
+let admLojaMostrarTudo = false;
+let admSupConversas = {};
+let admSupAberta = null;
+let admSupMsgs = [];
+
+async function admLojaCarregar() {
+  if (!nuvemAtiva()) return;
+  admLojaPedidos = (await nuvemReq("loja_pedidos")) || {};
+  const sup = (await nuvemReq("suporte")) || {};
+  admSupConversas = {};
+  for (const id in sup) {
+    const c = sup[id];
+    if (!c) continue;
+    let ultima = 0, quantas = 0;
+    for (const k in (c.msgs || {})) {
+      const m = c.msgs[k];
+      if (!m) continue;
+      quantas++;
+      if ((m.quando || 0) > ultima) ultima = m.quando || 0;
+    }
+    admSupConversas[id] = {
+      nome: (c.info && c.info.nome) || "?", tag: (c.info && c.info.tag) || "",
+      nova: !!(c.info && c.info.novasAdm), ultima: ultima, quantas: quantas
+    };
+  }
+  admLojaRender();
+  admLojaSelo();
+}
+
+function admLojaSelo() {
+  const esperando = Object.values(admLojaPedidos).filter(p2 => p2 && p2.estado === "esperando").length;
+  const conversas = Object.values(admSupConversas).filter(c => c.nova).length;
+  const aba = document.querySelector('.adm-aba[data-aba="loja"]');
+  if (aba) {
+    let b = aba.querySelector(".aba-selo");
+    const n = esperando + conversas;
+    if (n > 0) {
+      if (!b) { b = document.createElement("i"); b.className = "aba-selo"; aba.appendChild(b); }
+      b.textContent = String(n);
+    } else if (b) b.remove();
+  }
+}
+
+function admLojaRender() {
+  const cx = $("adm-loja-lista");
+  if (!cx) return;
+  const todos = Object.entries(admLojaPedidos)
+    .filter(([, p2]) => p2 && (admLojaMostrarTudo || p2.estado === "esperando"))
+    .sort((a, b) => (b[1].quando || 0) - (a[1].quando || 0));
+  cx.innerHTML = "";
+  if (!todos.length) {
+    cx.innerHTML = '<div class="vazio"><b>🧾</b><strong>NENHUM PEDIDO ESPERANDO</strong>' +
+      "<span>Quando alguém pedir alguma coisa na loja, aparece aqui.</span></div>";
+  }
+  for (const [chave, pd] of todos) {
+    const feito = pd.estado !== "esperando";
+    const el = document.createElement("div");
+    el.className = "pd-linha" + (feito ? " feito" : "");
+    el.innerHTML =
+      '<span class="pd-ic">' + (feito ? "✓" : "🧾") + "</span>" +
+      '<span class="pd-txt"><span class="pd-item">' + escaparTexto(pd.itemNome) + "</span>" +
+      '<span class="pd-quem">' + escaparTexto(pd.tag || pd.nome) +
+        " · " + quandoTexto(pd.quando || Date.now()) + " atrás" +
+        (feito ? " · " + pd.estado : "") + "</span></span>" +
+      '<span class="pd-preco">' + reais(pd.preco || 0) + "</span>";
+    if (!feito && pode("lojaDar")) {
+      const acoes = document.createElement("span");
+      acoes.className = "pd-acoes";
+      const bOk = document.createElement("button");
+      bOk.className = "adm-btn gold";
+      bOk.textContent = "ENTREGAR";
+      bOk.addEventListener("click", () => admEntregarPedido(chave, pd, bOk));
+      const bNo = document.createElement("button");
+      bNo.className = "adm-btn danger";
+      bNo.textContent = "✕";
+      bNo.addEventListener("click", async () => {
+        await nuvemJuntar("loja_pedidos/" + chave, { estado: "recusado" });
+        await admAvisarNaConversa(pd.de, "O pedido de " + pd.itemNome + " foi cancelado.");
+        admLojaCarregar();
+      });
+      acoes.appendChild(bOk); acoes.appendChild(bNo);
+      el.appendChild(acoes);
+    }
+    cx.appendChild(el);
+  }
+  admSupRender();
+}
+
+/* entrega usando a caixa de presente que já existe */
+async function admEntregarPedido(chave, pd, botao) {
+  if (botao) { botao.disabled = true; botao.textContent = "ENTREGANDO…"; }
+  const presente = { cristais: 0 };
+  let texto = pd.itemNome;
+  if (String(pd.item).indexOf("vip") === 0) {
+    presente.vipDias = pd.dias || 30;
+  } else if (String(pd.item).indexOf("passe:") === 0) {
+    const id = String(pd.item).slice(6);
+    if (id === "tudo") presente.passes = PASSES.filter(x => !x.pacote).map(x => x.id);
+    else presente.passes = [id];
+  } else if (String(pd.item).indexOf("nave:") === 0) {
+    presente.naves = [Number(String(pd.item).slice(5))];
+  }
+  const ok = await entregarCompra(pd.de, presente, texto);
+  if (ok) {
+    await nuvemJuntar("loja_pedidos/" + chave, { estado: "entregue", entregueEm: Date.now() });
+    await admAvisarNaConversa(pd.de, "Entregue! " + texto + " já está na sua conta. Obrigado 🙏");
+    admMsg("Entregue: " + texto);
+  } else {
+    admMsg("Não deu para entregar agora.");
+  }
+  if (botao) { botao.disabled = false; botao.textContent = "ENTREGAR"; }
+  admLojaCarregar();
+}
+
+/* Escreve a compra na MESMA caixa de presente que o painel já usa, para
+   a pessoa receber com a animação de sempre. Junta com o que estiver
+   pendente, para não apagar um presente que ainda não foi retirado.   */
+async function entregarCompra(idJogador, presente, texto) {
+  const pendente = (await nuvemReq("presentes/" + idJogador)) || {};
+  const novo = Object.assign({}, pendente);
+  const c = Object.assign({ vipDias: 0, passes: [], naves: [] }, novo.compra || {});
+  if (presente.vipDias) c.vipDias = (c.vipDias || 0) + presente.vipDias;
+  for (const id of (presente.passes || [])) if (c.passes.indexOf(id) < 0) c.passes.push(id);
+  for (const i of (presente.naves || [])) if (c.naves.indexOf(i) < 0) c.naves.push(i);
+  novo.compra = c;
+  novo.msg = "Obrigado pela compra! " + texto;
+  novo.quando = Date.now();
+  await nuvemReq("presentes/" + idJogador, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(novo)
+  });
+  const conf = await nuvemReq("presentes/" + idJogador);
+  return !!(conf && conf.compra);
+}
+
+async function admAvisarNaConversa(idJogador, texto) {
+  const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  await nuvemSoltar("suporte/" + idJogador + "/msgs/" + chave,
+    { de: "adm", nome: "ADMINISTRADOR", txt: texto, quando: Date.now() });
+  await nuvemJuntar("suporte/" + idJogador + "/info", { novasJogador: true });
+}
+
+function admSupRender() {
+  const cx = $("adm-sup-lista");
+  if (!cx) return;
+  cx.innerHTML = "";
+  const ids = Object.keys(admSupConversas)
+    .sort((a, b) => (admSupConversas[b].ultima || 0) - (admSupConversas[a].ultima || 0));
+  if (!ids.length) {
+    cx.innerHTML = '<div class="vazio"><b>💬</b><strong>NINGUÉM CHAMOU AINDA</strong>' +
+      "<span>Quem tocar no ⊙ da loja aparece aqui.</span></div>";
+    return;
+  }
+  for (const id of ids) {
+    const c = admSupConversas[id];
+    const el = document.createElement("div");
+    el.className = "sup-linha" + (c.nova ? " nova" : "");
+    el.innerHTML =
+      '<span class="pd-ic">' + escaparTexto((c.tag || c.nome || "?")[0].toUpperCase()) + "</span>" +
+      '<span class="pd-txt"><span class="pd-item">' + escaparTexto(c.tag || c.nome) + "</span>" +
+      '<span class="pd-quem">' + c.quantas + " mensagem" + (c.quantas === 1 ? "" : "s") +
+        (c.ultima ? " · " + quandoTexto(c.ultima) + " atrás" : "") + "</span></span>" +
+      (c.nova ? '<span class="pedido-estado">nova</span>' : "");
+    el.addEventListener("click", () => admAbrirConversa(id));
+    cx.appendChild(el);
+    if (admSupAberta === id) cx.appendChild(admCaixaConversa(id));
+  }
+}
+
+async function admAbrirConversa(id) {
+  if (admSupAberta === id) { admSupAberta = null; admSupRender(); return; }
+  admSupAberta = id;
+  admSupMsgs = [];
+  admSupRender();
+  const d = await nuvemReq("suporte/" + id + "/msgs");
+  const arr = [];
+  for (const k in (d || {})) { const m = d[k]; if (m && m.txt) arr.push(m); }
+  arr.sort((a, b) => (a.quando || 0) - (b.quando || 0));
+  admSupMsgs = arr.slice(-60);
+  await nuvemJuntar("suporte/" + id + "/info", { novasAdm: false });
+  if (admSupConversas[id]) admSupConversas[id].nova = false;
+  admSupRender();
+  admLojaSelo();
+}
+
+function admCaixaConversa(id) {
+  const cx = document.createElement("div");
+  const chat = document.createElement("div");
+  chat.className = "adm-chat";
+  if (!admSupMsgs.length) chat.innerHTML = '<div class="adm-note">Carregando…</div>';
+  for (const m of admSupMsgs) {
+    const d = new Date(m.quando || Date.now());
+    const b = document.createElement("div");
+    b.className = "chat-bolha" + (m.de === "adm" ? " minha" : "");
+    b.innerHTML = '<span class="chat-msg">' + escaparLongo(m.txt) + "</span>" +
+      '<span class="chat-hora">' + d.getHours() + ":" +
+      String(d.getMinutes()).padStart(2, "0") + "</span>";
+    chat.appendChild(b);
+  }
+  cx.appendChild(chat);
+  setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 30);
+  const linha = document.createElement("div");
+  linha.className = "adm-resp";
+  const inp = document.createElement("input");
+  inp.placeholder = "Responder…";
+  inp.maxLength = 300;
+  const bt = document.createElement("button");
+  bt.className = "adm-btn gold";
+  bt.textContent = "ENVIAR";
+  const manda = async () => {
+    const t = inp.value.trim();
+    if (!t) return;
+    inp.value = "";
+    admSupMsgs.push({ de: "adm", nome: "ADMINISTRADOR", txt: t, quando: Date.now() });
+    admSupRender();
+    await admAvisarNaConversa(id, t);
+  };
+  bt.addEventListener("click", manda);
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") manda(); });
+  linha.appendChild(inp); linha.appendChild(bt);
+  cx.appendChild(linha);
+  return cx;
+}
+
 const ABAS_ADM = [
   { id: "jogadores", nome: "👤 JOGADORES", perms: ["verLista"],
     cartoes: ["adm-vivo", "adm-nuvem"] },
@@ -7150,6 +7592,8 @@ const ABAS_ADM = [
     cartoes: ["adm-agora", "adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls"] },
   { id: "sugestoes", nome: "💡 SUGESTÕES", perms: ["sugVer"],
     cartoes: ["adm-sug"] },
+  { id: "loja",      nome: "🛒 LOJA",      perms: ["lojaVer", "lojaDar"],
+    cartoes: ["adm-loja"] },
   { id: "equipe",    nome: "👥 EQUIPE",    perms: ["equipe"],
     cartoes: ["adm-equipe"] },
   { id: "sistema",   nome: "🔧 SISTEMA",   perms: ["diag", "backup"],
@@ -7195,6 +7639,7 @@ function sugNovas() {
 /* mostra só os cartões da aba escolhida */
 let agoraNoTopo = false;
 function mostrarAba() {
+  if (abaAdm === "loja") { try { admLojaCarregar(); } catch (e) {} }
   // o resumo do que está no ar vem ANTES dos botões, não depois
   if (!agoraNoTopo) {
     const ag = $("adm-agora"), mu = $("adm-mundo");
@@ -9739,8 +10184,19 @@ function chatRender(rolar) {
    meio de pagamento (Google Play, App Store, Stripe), que uma página web
    sozinha não faz. A loja está pronta caso você queira ligar um dia.
    ===================================================================== */
-const VIP_DIAS = 30;
-const VIP_PRECO = 150000;
+/* ---------- preços em dinheiro de verdade ----------
+   Enquanto não existe uma forma de pagamento ligada, comprar é PEDIR:
+   o jogador escolhe, o pedido chega no painel, vocês combinam o
+   pagamento pelo chat e você entrega com um toque.                  */
+function reais(v) {
+  return "R$ " + v.toFixed(2).replace(".", ",");
+}
+const VIP_PLANOS = [
+  { dias: 10,  preco: 0.50, nome: "10 DIAS",  selo: "" },
+  { dias: 30,  preco: 1.00, nome: "30 DIAS",  selo: "MAIS PEDIDO" },
+  { dias: 90,  preco: 2.50, nome: "3 MESES",  selo: "ECONOMIZA 17%" },
+  { dias: 365, preco: 7.00, nome: "1 ANO",    selo: "MELHOR PREÇO" }
+];
 const VIP_VANTAGENS = [
   "+25% de cristais em tudo que você ganha",
   "Um espaço extra de relíquia (4 no total)",
@@ -9750,22 +10206,24 @@ const VIP_VANTAGENS = [
 ];
 
 const PASSES = [
-  { id: "ima",     nome: "Passe do Ímã",        icone: "◈", preco: 40000,
+  { id: "ima",     nome: "Passe do Ímã",        icone: "◈", preco: 0.50,
     desc: "Todo cristal e item da tela vem sozinho até você. Nunca mais perde nada." },
-  { id: "escudo",  nome: "Passe do Escudo",     icone: "◎", preco: 55000,
+  { id: "escudo",  nome: "Passe do Escudo",     icone: "◎", preco: 0.50,
     desc: "Você começa toda fase já com o escudo ligado." },
-  { id: "dobro",   nome: "Passe do Dobro",      icone: "◆", preco: 90000,
+  { id: "dobro",   nome: "Passe do Dobro",      icone: "◆", preco: 1.00,
     desc: "15% de chance de cada cristal valer o dobro." },
-  { id: "renascer",nome: "Passe do Renascer",   icone: "❦", preco: 120000,
+  { id: "renascer",nome: "Passe do Renascer",   icone: "❦", preco: 1.50,
     desc: "+1 ressurreição por fase, além das que você já tiver." },
-  { id: "sorte",   nome: "Passe da Sorte",      icone: "✦", preco: 70000,
+  { id: "sorte",   nome: "Passe da Sorte",      icone: "✦", preco: 1.00,
     desc: "+40% de chance de cair arma, escudo e vida." },
-  { id: "veterano",nome: "Passe do Veterano",   icone: "★", preco: 100000,
+  { id: "veterano",nome: "Passe do Veterano",   icone: "★", preco: 1.00,
     desc: "Perdeu a fase? Você fica com todos os cristais em vez de metade." },
-  { id: "colecao", nome: "Passe do Colecionador",icone:"◇", preco: 80000,
+  { id: "colecao", nome: "Passe do Colecionador",icone:"◇", preco: 1.00,
     desc: "Baú estelar 40% mais barato e nunca repete a mesma relíquia duas vezes seguidas." },
-  { id: "pressa",  nome: "Passe da Pressa",     icone: "»", preco: 45000,
-    desc: "Pula a apresentação das naves e a espera entre as ondas fica pela metade." }
+  { id: "pressa",  nome: "Passe da Pressa",     icone: "»", preco: 0.50,
+    desc: "Pula a apresentação das naves e a espera entre as ondas fica pela metade." },
+  { id: "tudo",    nome: "Pacote Completo",     icone: "★", preco: 5.00, pacote: true,
+    desc: "Os oito passes de uma vez, com desconto. Sai mais barato que comprar separado." }
 ];
 
 function temVip() {
@@ -9789,11 +10247,147 @@ function vipPresenteDoDia() {
   return ganho;
 }
 
+/* =====================================================================
+   PEDIDOS DA LOJA E LINHA DIRETA COM O ADM
+   ---------------------------------------------------------------------
+   Na nuvem:
+     loja_pedidos/<chave> -> {de, nome, tag, item, itemNome, preco,
+                              quando, estado: "esperando"|"entregue"|"recusado"}
+     suporte/<idJogador>/msgs/<chave> -> {de:"jogador"|"adm", nome, txt, quando}
+     suporte/<idJogador>/info -> {nome, tag, visto, novasAdm, novasJogador}
+   ===================================================================== */
+async function pedirNaLoja(item, itemNome, preco, extra) {
+  const eu = meuIdNuvem();
+  if (!eu) return { ok: false, msg: "Entre com um piloto primeiro." };
+  if (!nuvemAtiva()) return { ok: false, msg: "Sem conexão com a nuvem agora." };
+  const chave = eu + "_" + Date.now().toString(36);
+  const pacote = Object.assign({
+    de: eu, nome: save.__name || "", tag: minhaTag(),
+    item: item, itemNome: itemNome, preco: preco,
+    quando: Date.now(), estado: "esperando", versao: VERSAO
+  }, extra || {});
+  const ok = await nuvemSoltar("loja_pedidos/" + chave, pacote);
+  if (ok === null) return { ok: false, msg: "Não deu para enviar. Tente de novo." };
+  save.pedidos = save.pedidos || [];
+  save.pedidos.push({ chave: chave, itemNome: itemNome, preco: preco, quando: Date.now() });
+  if (save.pedidos.length > 30) save.pedidos.shift();
+  persist();
+  // avisa você na conversa, para não passar batido
+  await suporteEnviar("Pedi na loja: " + itemNome + " — " + reais(preco), true);
+  return { ok: true, msg: "Pedido enviado! Agora é só falar comigo no ⊙ aqui embaixo." };
+}
+
+/* ---------- conversa do jogador com o administrador ---------- */
+const SUP = { msgs: [], fluxo: null, naoLidas: 0 };
+function supCaminho() {
+  const eu = meuIdNuvem();
+  return eu ? "suporte/" + eu : null;
+}
+async function suporteEnviar(texto, automatico) {
+  const c = supCaminho();
+  texto = String(texto || "").trim().slice(0, 300);
+  if (!c || !texto) return false;
+  const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  const ok = await nuvemSoltar(c + "/msgs/" + chave, {
+    de: "jogador", nome: minhaTag(), txt: texto, quando: Date.now(), auto: !!automatico
+  });
+  if (ok === null) return false;
+  await nuvemJuntar(c + "/info", {
+    nome: save.__name || "", tag: minhaTag(), visto: Date.now(), novasAdm: true
+  });
+  SUP.msgs.push({ de: "jogador", nome: minhaTag(), txt: texto, quando: Date.now() });
+  supRender(true);
+  return true;
+}
+function supAplicar(d) {
+  const arr = [];
+  for (const k in ((d && d.msgs) || {})) {
+    const m = d.msgs[k];
+    if (m && m.txt) arr.push({ k: k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0 });
+  }
+  arr.sort((a, b) => a.quando - b.quando);
+  SUP.msgs = arr.slice(-80);
+  supRender(true);
+}
+async function suporteAbrir() {
+  const c = supCaminho();
+  if (!c) return;
+  S.mode = "suporte";
+  showScreen("suporte");
+  supRender();
+  if (!nuvemAtiva()) return;
+  const d = await nuvemReq(c);
+  supAplicar(d);
+  nuvemJuntar(c + "/info", { novasJogador: false });
+  SUP.naoLidas = 0;
+  supSelo();
+  suporteDesligar();
+  SUP.fluxo = nuvemFluxo(c, () => { nuvemReq(c).then(supAplicar); },
+    () => { SUP.fluxo = setInterval(() => nuvemReq(c).then(supAplicar), 3000); });
+}
+function suporteDesligar() {
+  if (SUP.fluxo) {
+    try { if (typeof SUP.fluxo === "function") SUP.fluxo(); else clearInterval(SUP.fluxo); } catch (e) {}
+    SUP.fluxo = null;
+  }
+}
+function supRender(rolar) {
+  const cx = $("sup-lista");
+  if (!cx || S.mode !== "suporte") return;
+  if (!SUP.msgs.length) {
+    cx.innerHTML = '<div class="vazio"><b>⊙</b><strong>FALE COMIGO</strong>' +
+      "<span>Dúvida sobre a loja, pagamento ou qualquer problema no jogo — " +
+      "escreve aqui embaixo que eu respondo.</span></div>";
+    return;
+  }
+  cx.innerHTML = "";
+  let dia = "";
+  for (const m of SUP.msgs) {
+    const d = new Date(m.quando || Date.now());
+    const dd = d.toLocaleDateString("pt-BR");
+    if (dd !== dia) {
+      dia = dd;
+      const sep = document.createElement("div");
+      sep.className = "chat-dia";
+      sep.textContent = dd === new Date().toLocaleDateString("pt-BR") ? "hoje" : dd;
+      cx.appendChild(sep);
+    }
+    const b = document.createElement("div");
+    b.className = "chat-bolha" + (m.de === "jogador" ? " minha" : " doadm");
+    b.innerHTML = (m.de === "adm" ? '<span class="chat-de">ADMINISTRADOR</span>' : "") +
+      '<span class="chat-msg">' + escaparLongo(m.txt) + "</span>" +
+      '<span class="chat-hora">' + d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0") + "</span>";
+    cx.appendChild(b);
+  }
+  if (rolar !== false) cx.scrollTop = cx.scrollHeight;
+}
+function supSelo() {
+  const b = $("loja-adm-selo");
+  if (b) {
+    b.textContent = SUP.naoLidas > 0 ? String(SUP.naoLidas) : "";
+    b.style.display = SUP.naoLidas > 0 ? "" : "none";
+  }
+}
+/* de tempos em tempos confere se você respondeu */
+async function supChecar() {
+  const c = supCaminho();
+  if (!c || !nuvemAtiva() || S.mode === "playing" || S.mode === "suporte") return;
+  const d = await nuvemReq(c + "/info");
+  if (d && d.novasJogador) {
+    SUP.naoLidas = 1;
+    supSelo();
+    const bt = $("loja-adm");
+    if (bt) bt.classList.add("chamando");
+  }
+}
+setInterval(supChecar, 20000);
+
 let lojaAba = "vip";
 const LOJA_ABAS = [
   { id: "vip",    nome: "👑 VIP" },
   { id: "passes", nome: "🎟 PASSES" },
   { id: "naves",  nome: "✈ NAVES" },
+  { id: "pedidos", nome: "🧾 MEUS PEDIDOS" },
   { id: "trocas", nome: "♻ TROCAS" }
 ];
 
@@ -9810,20 +10404,45 @@ function renderLoja() {
   }
   const cx = $("loja-corpo");
   cx.innerHTML = "";
+  if (lojaAba !== "trocas") {
+    const av = document.createElement("div");
+    av.className = "loja-como";
+    av.innerHTML = "<b>Como comprar:</b> toque no preço para me mandar o pedido, " +
+      "depois fale comigo no botão <b>⊙</b> aqui do lado para combinar o pagamento. " +
+      "Assim que pagar, eu entrego na hora.";
+    cx.appendChild(av);
+  }
   if (lojaAba === "vip") return lojaVip(cx);
   if (lojaAba === "passes") return lojaPasses(cx);
   if (lojaAba === "naves") return lojaNaves(cx);
+  if (lojaAba === "pedidos") return lojaMeusPedidos(cx);
   return lojaTrocas(cx);
 }
 
-function lojaComprar(preco, aoConseguir, nomeDoItem) {
-  if (save.crystals < preco) { AudioSys.deny(); return false; }
-  save.crystals -= preco;
-  aoConseguir();
-  persist(); calcStats();
-  AudioSys.buy(); vibrate(28);
-  renderLoja();
-  return true;
+/* botão de pedir: manda o pedido e mostra o que fazer em seguida */
+function botaoPedir(item, nome, preco, extra, classe) {
+  const b = document.createElement("button");
+  b.className = classe || "buy-btn";
+  b.innerHTML = '<span class="bp-preco">' + reais(preco) + "</span>";
+  b.addEventListener("click", async () => {
+    b.disabled = true;
+    b.textContent = "ENVIANDO…";
+    const r = await pedirNaLoja(item, nome, preco, extra);
+    AudioSys[r.ok ? "buy" : "deny"]();
+    b.textContent = r.ok ? "PEDIDO ENVIADO ✓" : "TENTE DE NOVO";
+    lojaAviso(r.msg, r.ok);
+    if (r.ok) vibrate(30);
+    setTimeout(() => { b.disabled = false; renderLoja(); }, 2400);
+  });
+  return b;
+}
+function lojaAviso(msg, bom) {
+  const el = $("loja-aviso");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "loja-aviso on " + (bom ? "bom" : "ruim");
+  clearTimeout(lojaAviso._t);
+  lojaAviso._t = setTimeout(() => { el.className = "loja-aviso"; }, 7000);
 }
 
 function lojaVip(cx) {
@@ -9835,32 +10454,25 @@ function lojaVip(cx) {
     '<div class="vip-tit">NEON VIP</div>' +
     '<div class="vip-sub">' + (tem
       ? "Ativo · faltam " + vipDiasQueFaltam() + " dia" + (vipDiasQueFaltam() === 1 ? "" : "s")
-      : VIP_DIAS + " dias de vantagens") + "</div>" +
+      : "Escolha quantos dias você quer") + "</div>" +
     '<div class="vip-lista">' +
       VIP_VANTAGENS.map(v => '<div class="vip-item"><b>✦</b><span>' + v + "</span></div>").join("") +
     "</div>";
-  const b = document.createElement("button");
-  b.className = "big-btn amber";
-  b.style.width = "100%";
-  b.textContent = tem ? "RENOVAR POR MAIS " + VIP_DIAS + " DIAS — ◆ " + fmt(VIP_PRECO)
-                      : "VIRAR VIP — ◆ " + fmt(VIP_PRECO);
-  b.disabled = save.crystals < VIP_PRECO;
-  b.addEventListener("click", () => {
-    lojaComprar(VIP_PRECO, () => {
-      const base = Math.max(Date.now(), save.vipAte || 0);
-      save.vipAte = base + VIP_DIAS * 86400000;
-      save.vipDia = "";
-      const eu = meuIdNuvem();
-      if (eu) nuvemJuntar("pilotos/" + eu, { vip: true });
-    });
-  });
-  cartao.appendChild(b);
-  if (save.crystals < VIP_PRECO && !tem) {
-    const f = document.createElement("div");
-    f.className = "loja-falta";
-    f.textContent = "Faltam ◆ " + fmt(VIP_PRECO - save.crystals);
-    cartao.appendChild(f);
+  const planos = document.createElement("div");
+  planos.className = "planos";
+  for (const pl of VIP_PLANOS) {
+    const c = document.createElement("div");
+    c.className = "plano" + (pl.selo ? " marcado" : "");
+    c.innerHTML =
+      (pl.selo ? '<div class="plano-selo">' + pl.selo + "</div>" : "") +
+      '<div class="plano-dias">' + pl.nome + "</div>" +
+      '<div class="plano-preco">' + reais(pl.preco) + "</div>" +
+      '<div class="plano-porDia">' + reais(pl.preco / pl.dias * 30) + " por mês</div>";
+    c.appendChild(botaoPedir("vip" + pl.dias,
+      "VIP de " + pl.nome.toLowerCase(), pl.preco, { dias: pl.dias }, "buy-btn plano-btn"));
+    planos.appendChild(c);
   }
+  cartao.appendChild(planos);
   cx.appendChild(cartao);
 }
 
@@ -9879,18 +10491,15 @@ function lojaPasses(cx) {
       '<div class="loja-ic">' + pa.icone + "</div>" +
       '<div class="loja-info"><div class="loja-nome">' + pa.nome + "</div>" +
       '<div class="loja-desc">' + pa.desc + "</div></div>";
-    const b = document.createElement("button");
-    b.className = "buy-btn";
-    if (tem) { b.classList.add("max"); b.textContent = "SEU"; b.disabled = true; }
-    else {
-      b.textContent = "◆ " + fmt(pa.preco);
-      b.disabled = save.crystals < pa.preco;
-      b.addEventListener("click", () => lojaComprar(pa.preco, () => {
-        save.passes = save.passes || {};
-        save.passes[pa.id] = true;
-      }));
+    if (tem) {
+      const b = document.createElement("button");
+      b.className = "buy-btn max";
+      b.textContent = "SEU";
+      b.disabled = true;
+      card.appendChild(b);
+    } else {
+      card.appendChild(botaoPedir("passe:" + pa.id, pa.nome, pa.preco));
     }
-    card.appendChild(b);
     lista.appendChild(card);
   }
   cx.appendChild(lista);
@@ -9919,25 +10528,57 @@ function lojaNaves(cx) {
     info.innerHTML =
       '<div class="loja-nome">' + escaparTexto(sh.name) + "</div>" +
       '<div class="loja-desc"><b style="color:var(--amber)">' + sh.powerName + "</b> — " + sh.powerDesc + "</div>" +
-      '<div class="loja-num">▲ ' + sh.baseDmg.toFixed(1) + "   ♥ " + sh.baseHp +
-        "   » " + sh.baseAgi.toFixed(2) + "   ◆ " + sh.baseGem.toFixed(2) + "</div>";
-    const b = document.createElement("button");
-    b.className = "buy-btn";
+      '<div class="loja-num">' +
+        '<span>dano <b>' + sh.baseDmg.toFixed(1) + "</b></span>" +
+        '<span>casco <b>' + sh.baseHp + "</b></span>" +
+        '<span>agilidade <b>' + sh.baseAgi.toFixed(2) + "</b></span>" +
+        '<span>cristais <b>' + sh.baseGem.toFixed(2) + "x</b></span></div>";
+    card.appendChild(cv); card.appendChild(info);
     if (tenho) {
+      const b = document.createElement("button");
+      b.className = "buy-btn";
       if (save.ship === i) { b.classList.add("max"); b.textContent = "EM USO"; b.disabled = true; }
       else { b.textContent = "USAR"; b.addEventListener("click", () => {
         save.ship = i; persist(); calcStats(); AudioSys.buy(); renderLoja(); }); }
+      card.appendChild(b);
     } else {
-      b.textContent = "◆ " + fmt(sh.price);
-      b.disabled = save.crystals < sh.price;
-      b.addEventListener("click", () => lojaComprar(sh.price, () => {
-        save.ships.push(i); save.ship = i;
-      }));
+      card.appendChild(botaoPedir("nave:" + i, sh.name, sh.price, { nave: i }));
     }
-    card.appendChild(cv); card.appendChild(info); card.appendChild(b);
     lista.appendChild(card);
   }
   cx.appendChild(lista);
+}
+
+function lojaMeusPedidos(cx) {
+  const nota = document.createElement("p");
+  nota.className = "loja-nota";
+  nota.textContent = "Tudo que você já pediu. Depois de combinar o pagamento comigo, eu entrego na hora.";
+  cx.appendChild(nota);
+  const meus = (save.pedidos || []).slice().reverse();
+  if (!meus.length) {
+    cx.innerHTML += '<div class="vazio"><b>🧾</b><strong>NENHUM PEDIDO AINDA</strong>' +
+      "<span>Escolha o que quiser nas outras abas e toque no preço.</span></div>";
+    return;
+  }
+  const lista = document.createElement("div");
+  lista.className = "loja-lista";
+  for (const pd of meus) {
+    const c = document.createElement("div");
+    c.className = "loja-card";
+    c.innerHTML =
+      '<div class="loja-ic">🧾</div><div class="loja-info">' +
+      '<div class="loja-nome">' + escaparTexto(pd.itemNome) + "</div>" +
+      '<div class="loja-desc">' + reais(pd.preco) + " · pedido " + quandoTexto(pd.quando) + " atrás</div></div>" +
+      '<span class="pedido-estado">esperando</span>';
+    lista.appendChild(c);
+  }
+  cx.appendChild(lista);
+  const b = document.createElement("button");
+  b.className = "ghost-btn";
+  b.style.cssText = "width:100%;max-width:520px;margin:14px auto 0;display:block";
+  b.textContent = "⊙ FALAR COM O ADMINISTRADOR";
+  b.addEventListener("click", suporteAbrir);
+  cx.appendChild(b);
 }
 
 function lojaTrocas(cx) {
@@ -12148,6 +12789,32 @@ async function renderAmigos() {
 
 /* o cooperativo está guardado: o botão do menu virou a aba AMIGOS.
    Estes ouvintes só existem se a tela do multijogador estiver na página. */
+/* --- conversa com o administrador --- */
+$("loja-adm").addEventListener("click", () => { AudioSys.resume(); suporteAbrir(); });
+const btLojaAt = $("loja-atualizar");
+if (btLojaAt) btLojaAt.addEventListener("click", () => admLojaCarregar());
+const btLojaTudo = $("loja-ver-tudo");
+if (btLojaTudo) btLojaTudo.addEventListener("click", () => {
+  admLojaMostrarTudo = !admLojaMostrarTudo;
+  btLojaTudo.textContent = admLojaMostrarTudo ? "SÓ OS QUE ESPERAM" : "MOSTRAR JÁ ENTREGUES";
+  admLojaRender();
+});
+$("sup-voltar").addEventListener("click", () => {
+  suporteDesligar();
+  S.mode = "loja";
+  renderLoja();
+  showScreen("loja");
+});
+function mandarSuporte() {
+  const el = $("sup-campo");
+  const t = el.value;
+  if (!t.trim()) return;
+  el.value = "";
+  suporteEnviar(t).then(ok => { if (!ok) el.value = t; });
+}
+$("sup-enviar").addEventListener("click", mandarSuporte);
+$("sup-campo").addEventListener("keydown", e => { if (e.key === "Enter") mandarSuporte(); });
+
 /* --- LOJA --- */
 $("btn-loja").addEventListener("click", () => {
   AudioSys.resume();
@@ -16897,7 +17564,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.4";
+const VERSAO = "4.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
