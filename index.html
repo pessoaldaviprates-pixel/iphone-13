@@ -2229,6 +2229,45 @@
   .rk-degrau b{flex:1;font-weight:700}
   .rk-degrau span{color:var(--dim);font-size:.6rem}
 
+  /* ---- jornada em dupla ---- */
+  .jor-lista{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  .jor-cartao{
+    display:flex;align-items:center;gap:11px;padding:12px;border-radius:15px;cursor:pointer;
+    background:var(--panel);border:1px solid rgba(124,247,192,.28);
+  }
+  .jor-cartao.nova{border-color:var(--line)}
+  .jor-cartao:active{transform:scale(.99)}
+  .jor-ic{
+    width:44px;height:44px;flex:none;border-radius:13px;font-size:1.35rem;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(124,247,192,.12);border:1px solid rgba(124,247,192,.3);
+  }
+  .jor-txt{flex:1;min-width:0}
+  .jor-txt b{display:block;font-size:.86rem;font-weight:700}
+  .jor-txt span{display:block;font-size:.63rem;color:var(--dim);margin-top:2px;line-height:1.4}
+  .jor-barra{display:block;height:5px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:6px;overflow:hidden}
+  .jor-barra u{display:block;height:100%;background:linear-gradient(90deg,#7CF7C0,#4DE8FF)}
+  .jor-vai{
+    flex:none;font-size:.56rem;font-weight:800;letter-spacing:.1em;color:#7CF7C0;
+    border:1px solid rgba(124,247,192,.45);border-radius:99px;padding:6px 10px;
+  }
+  .jor-capa{
+    display:flex;gap:12px;align-items:center;padding:14px;border-radius:16px;margin-bottom:12px;
+    background:linear-gradient(135deg,rgba(124,247,192,.16),rgba(77,232,255,.06));
+    border:1px solid rgba(124,247,192,.34);
+  }
+  .jor-capa-ic{
+    width:50px;height:50px;flex:none;border-radius:15px;font-size:1.6rem;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,24,.5);border:1px solid rgba(234,242,255,.14);
+  }
+  .jor-capa-txt{flex:1;min-width:0}
+  .jor-capa-txt b{display:block;font-family:"Russo One",sans-serif;font-size:.98rem;letter-spacing:.05em}
+  .jor-capa-txt span{display:block;font-size:.64rem;color:var(--dim);margin-top:3px;line-height:1.45}
+  .jor-capa-txt span b{display:inline;font-family:inherit;font-size:inherit;color:#7CF7C0}
+  .fase-btn.escolhida{outline:2px solid var(--cyan);outline-offset:2px}
+  .jor-rodape{margin-top:16px;padding-bottom:8px}
+
   /* arena */
   .adm-h.roxo{color:var(--violet)}
   .arena-nums{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
@@ -3731,13 +3770,27 @@
     </button>
   </div>
   <div class="abas" id="multi-abas">
-    <button class="aba on" data-modo="coop" id="aba-coop">🤝 CO-OP</button>
+    <button class="aba on" data-modo="jornada" id="aba-jornada">🚀 JORNADA</button>
+    <button class="aba" data-modo="coop" id="aba-coop">🤝 SALA RÁPIDA</button>
     <button class="aba" data-modo="pvp">⚔ DUELO</button>
     <button class="aba" data-modo="ranked" id="aba-ranked">🏆 RANQUEADA</button>
     <button class="aba" data-modo="amigos">👥 AMIGOS</button>
   </div>
   <div class="scroll">
-    <div id="multi-coop" class="multi-painel">
+    <div id="multi-jornada" class="multi-painel">
+      <div class="mp-hero">
+        <div class="mp-hero-ic">🚀</div>
+        <div class="mp-hero-txt">
+          <b>JORNADA EM DUPLA</b>
+          <span>270 fases para cada amizade. O que vocês avançarem com um amigo
+          fica com ele; com outro amigo, a jornada começa do zero — com as
+          melhorias próprias daquela dupla.</span>
+        </div>
+      </div>
+      <div class="jor-lista" id="jor-lista"></div>
+    </div>
+
+    <div id="multi-coop" class="multi-painel" style="display:none">
       <div class="mp-hero">
         <div class="mp-hero-ic">🤝</div>
         <div class="mp-hero-txt">
@@ -3849,6 +3902,37 @@
         <div class="adm-h">JOGADORES ONLINE</div>
         <div class="profile-list" id="online-lista"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- JORNADA EM DUPLA -->
+<div class="page" id="screen-jornada">
+  <div class="page-head">
+    <button class="back-btn" id="jor-voltar" aria-label="Voltar">‹</button>
+    <div class="page-title" id="jor-titulo">JORNADA</div>
+    <div class="page-gems gem" id="jor-gems">0</div>
+  </div>
+  <div class="scroll">
+    <div class="jor-capa" id="jor-capa"></div>
+    <div class="abas" id="jor-abas">
+      <button class="aba on" data-jor="fases">▶ FASES</button>
+      <button class="aba" data-jor="up">⚙ MELHORIAS DA DUPLA</button>
+    </div>
+    <div id="jor-pane-fases">
+      <p class="adm-note" style="margin:10px 0">Toque na fase em que vocês querem
+      jogar. Dá para voltar em qualquer fase já vencida para pegar cristais.</p>
+      <div class="areas" id="jor-areas"></div>
+      <div class="levels" id="jor-fases"></div>
+    </div>
+    <div id="jor-pane-up" style="display:none">
+      <p class="adm-note" style="margin:10px 0">Estas melhorias valem só nesta
+      jornada, com este amigo. Com outro amigo, outras melhorias.</p>
+      <div class="parts" id="jor-ups"></div>
+    </div>
+    <div class="jor-rodape">
+      <button class="big-btn" id="jor-jogar">CHAMAR E COMEÇAR</button>
+      <div class="adm-note" id="jor-dica" style="margin-top:8px"></div>
     </div>
   </div>
 </div>
@@ -4316,7 +4400,8 @@ function defaultSave() {
     transmitir: true,        // deixa os amigos verem a sua tela
     controle: "auto",        // auto | pc | toque
     amigos: [],              // apelidos dos amigos
-    habNv: {}                // nível das habilidades: "nave:habilidade" -> nível
+    habNv: {},               // nível das habilidades: "nave:habilidade" -> nível
+    jornadas: {}             // campanha em dupla: "nick|nick" -> {fase, up, ...}
   };
 }
 function mergeSave(parsed) {
@@ -4328,6 +4413,7 @@ function mergeSave(parsed) {
   s.ships = (parsed && Array.isArray(parsed.ships) && parsed.ships.length) ? parsed.ships : [0];
   s.parts = (parsed && parsed.parts) || {};
   s.habNv = (parsed && parsed.habNv) || {};
+  s.jornadas = (parsed && parsed.jornadas) || {};
   s.custom = (parsed && parsed.custom) || {};
   s.paints = (parsed && parsed.paints) || {};
   s.glows = (parsed && parsed.glows) || {};
@@ -6282,8 +6368,13 @@ let ST = null;
 /* No cooperativo e no competitivo ninguém leva vantagem de loja: valem só
    a nave escolhida e a habilidade de quem joga. */
 function modoJusto() {
-  // MP é criado num bloco posterior; a checagem tolera isso
-  return typeof MP !== "undefined" && !!MP && !!MP.sala;
+  /* Só o COMPETITIVO zera tudo: no duelo e na ranqueada os dois têm de
+     começar iguais, senão vence quem jogou mais e não quem joga melhor.
+     No cooperativo, na jornada em dupla e na arena todo mundo está do
+     mesmo lado — lá vale o que cada um construiu, e é por isso que as
+     melhorias da dupla fazem diferença.
+     (MP é criado num bloco posterior; a checagem tolera isso.)        */
+  return typeof MP !== "undefined" && !!MP && !!MP.sala && MP.modo === "pvp";
 }
 /* a loja é montada num bloco posterior; estas duas aguentam ser
    chamadas antes disso sem quebrar o carregamento */
@@ -6304,6 +6395,8 @@ function calcStats() {
   const nvPoder = justo ? 0 : habNivel(save.ship, "poder");
   const nvUlt   = justo ? 0 : habNivel(save.ship, "ult");
   const nvTudo  = justo ? 0 : habNiveisDaNave(save.ship);
+  /* melhorias compradas dentro da jornada daquela dupla (só valem lá) */
+  const jm = (id) => { try { return justo ? 1 : jornadaMult(id); } catch (e) { return 1; } };
   const pw = id => (sh.power === id ? sh.powerMag * (1 + 0.10 * nvPoder) : 0);
   const A = { vida: 0, escudo: 0, dano: 0, cadencia: 0, cristal: 0, sorte: 0, ima: 0, motor: 0,
               furia: 0, gelo: 0, brasa: 0, sangue: 0, muralha: 0, perfura: 0, eco: 0,
@@ -6325,26 +6418,27 @@ function calcStats() {
     dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk) * sh.baseDmg *
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg *
          (1 + (A.dano + A.prisma) / 100) * (A.coroa ? 1.25 : 1) * (1 + 0.01 * nvTudo) *
-         mundoMult("dano"),
+         jm("dano") * mundoMult("dano"),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
                   (1 + pw("rate") / 100) * wp.rate * (1 + (A.cadencia + A.prisma) / 100) * (sh.baseRate || 1) *
-                  (1 + (sh.bonusCad || 0)) * mundoMult("cadencia")),
+                  (1 + (sh.bonusCad || 0)) * jm("cadencia") * mundoMult("cadencia")),
     maxHp: Math.max(40, Math.round(
       (80 + (sh.baseHp || 120)) *
       (1 + 0.12 * u.hull) * (1 + 0.08 * (P.armor || 0)) *
       (1 + 0.02 * def) * (1 + A.vida * 0.08) * (1 + A.muralha / 100) *
-      (A.coroa ? 0.85 : 1) * mundoMult("vida"))),
+      (A.coroa ? 0.85 : 1) * jm("casco") * mundoMult("vida"))),
     maxLives: 3 + u.hull + (hasSkill("def", 40) ? 2 : 0) + Math.floor((P.armor || 0) / 2) +
               pw("lives") + A.vida + (A.coroa ? 1 : 0),
     shieldDur: (6 + 1.5 * u.shield) * (1 + 0.02 * def) * (1 + pw("ghost") / 100) *
-               (1 + A.escudo / 100) * (1 + 0.08 * (P.escudo || 0)),
+               (1 + A.escudo / 100) * (1 + 0.08 * (P.escudo || 0)) * jm("escudo"),
     invulnDur: 2.2 * (1 + 0.02 * def) * (1 + pw("ghost") / 100) *
                (1 + A.guarda / 100) * (1 + 0.08 * u.placa),
-    speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) * (1 + A.motor / 100),
+    speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) *
+            (1 + A.motor / 100) * jm("motor"),
     crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
                  (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)) * (A.coroa ? 1.25 : 1) *
-                 (justo ? 1 : (vipLigado() ? 1.25 : 1)) * mundoMult("cristais"),
+                 (justo ? 1 : (vipLigado() ? 1.25 : 1)) * jm("cristal") * mundoMult("cristais"),
     dropMult: (hasSkill("res", 20) ? 1.6 : 1) * (1 + A.sorte / 100) * mundoMult("drop") *
               (justo ? 1 : (passeLigado("sorte") ? 1.4 : 1)),
     sideShot: hasSkill("atk", 10),
@@ -6665,7 +6759,7 @@ function makeStars() {
 makeStars();
 
 /* ---------- Parâmetros de fase ---------- */
-const FASES_COOP = 200;
+const FASES_COOP = TOTAL_FASES;   // a jornada em dupla vai até o fim, igual ao solo
 /* ---------------------------------------------------------------------
    Dificuldade
    Nos modos com outra gente (cooperativo, arena, ranqueada) todo mundo
@@ -6690,7 +6784,7 @@ function dificuldadeAtual() {
 
 function totalFasesDoModo() {
   if (typeof MP !== "undefined" && MP && MP.modo === "arena") return 999999;   // sem fim
-  return (typeof MP !== "undefined" && MP && MP.modo === "coop") ? FASES_COOP : TOTAL_FASES;
+  return TOTAL_FASES;   // a jornada em dupla tem as mesmas 270 fases do solo
 }
 function faseWaves(f)  {
   if (typeof MP !== "undefined" && MP && MP.modo === "arena") return 1;
@@ -6722,7 +6816,8 @@ const SCREENS = {
   amigos: $("screen-amigos"), chat: $("screen-chat"), loja: $("screen-loja"),
   suporte: $("screen-suporte"),
   tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
-  multi: $("screen-multi"), sala: $("screen-sala"), novidades: $("screen-novidades"),
+  multi: $("screen-multi"), sala: $("screen-sala"), jornada: $("screen-jornada"),
+  novidades: $("screen-novidades"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
@@ -10178,19 +10273,60 @@ async function amigosCarregar() {
 }
 
 /* manda um pedido: escreve na caixa de pedidos do outro e na minha de enviados */
+/* ---------------------------------------------------------------------
+   Achar gente pelo nick, do jeito que as pessoas escrevem
+   ---------------------------------------------------------------------
+   O endereço de cada piloto na nuvem é um número tirado do nome EXATO.
+   Só que ninguém digita o nome exato: escreve tudo minúsculo, esquece o
+   acento, deixa um espaço no fim. Aí a conta dava outro número e o jogo
+   dizia "não achei ninguém" mesmo com o nick certo.
+   Agora, se o caminho direto não achar, o jogo baixa a lista de pilotos
+   e procura de verdade: sem acento, sem maiúscula, sem espaço — e
+   também pela gametag.
+   --------------------------------------------------------------------- */
+function nickSimples(t) {
+  let x = String(t == null ? "" : t);
+  try { x = x.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
+  return x.toLowerCase().replace(/\s+/g, "");
+}
+async function acharPiloto(nome) {
+  const alvo = nickSimples(nome);
+  if (!alvo) return null;
+  // 1) caminho direto: funciona quando a pessoa escreveu igualzinho
+  const direto = await nuvemReq("pilotos/" + nuvemId(String(nome).trim()));
+  if (direto && direto.nome) return { id: nuvemId(String(nome).trim()), p: direto };
+  // 2) procura na lista inteira, ignorando maiúscula, acento e espaço
+  const todos = await nuvemReq("pilotos");
+  if (!todos) return null;
+  let parecido = null;
+  for (const id in todos) {
+    const p = todos[id];
+    if (!p || !p.nome) continue;
+    if (nickSimples(p.nome) === alvo || nickSimples(p.tag) === alvo) return { id, p };
+    if (!parecido && nickSimples(p.nome).indexOf(alvo) === 0) parecido = { id, p };
+  }
+  return parecido;   // "Mav" acha "Maverick", se não houver igual
+}
+
 async function amigoPedir(nome) {
   const eu = meuIdNuvem();
   if (!eu) return { ok: false, msg: "Entre com um piloto primeiro." };
   nome = String(nome || "").trim();
   if (!nome) return { ok: false, msg: "Escreva o nick do seu amigo." };
-  if (nome.toLowerCase() === String(save.__name).toLowerCase())
+  if (nickSimples(nome) === nickSimples(save.__name))
     return { ok: false, msg: "Esse é você mesmo." };
-  const id = nuvemId(nome);
+  if (!nuvemAtiva()) return { ok: false, msg: "O modo online está desligado neste aparelho." };
+  // confere se a pessoa existe, do jeito que você escreveu ou parecido
+  const achado = await acharPiloto(nome);
+  if (!achado) {
+    return { ok: false, msg: "Não achei ninguém com esse nick. Confira se ele já " +
+             "abriu o jogo com internet pelo menos uma vez — é o que coloca o nome na lista." };
+  }
+  const id = achado.id;
+  const p = achado.p;
+  if (id === eu) return { ok: false, msg: "Esse é você mesmo." };
   if (AM.lista[id]) return { ok: false, msg: "Vocês já são amigos." };
   if (AM.enviados[id]) return { ok: false, msg: "Você já chamou essa pessoa. Espere ela aceitar." };
-  // confere se a pessoa existe
-  const p = await nuvemReq("pilotos/" + id);
-  if (!p) return { ok: false, msg: "Não achei ninguém com esse nick." };
   if (AM.pedidos[id]) { await amigoAceitar(id); return { ok: true, msg: "Vocês já são amigos!" }; }
   const meuCartao = { nome: save.__name, tag: minhaTag(), quando: Date.now() };
   const ok1 = await nuvemSoltar("amigos/" + id + "/pedidos/" + eu, meuCartao);
@@ -12343,6 +12479,7 @@ const MP = {
   semente: 0,
   meuDano: 0,      // dano que EU dei no chefe (somado com o do parceiro)
   danoTotal: 0,
+  jornadaChave: null,   // qual jornada em dupla está valendo
   fim: null
 };
 /* ---------------------------------------------------------------------
@@ -12354,6 +12491,77 @@ const RANKED_LIGADO = true;
 const CRIAR_NAVE_LIGADO = false;
 
 function mpCoop() { return !!MP.sala && MP.modo === "coop"; }
+
+/* =====================================================================
+   JORNADA EM DUPLA — 270 fases para cada amizade
+   ---------------------------------------------------------------------
+   Cada dupla tem a jornada dela. Com o amigo 1 vocês continuam de onde
+   pararam; com o amigo 2 começa tudo de novo na fase 1, com as melhorias
+   próprias daquela dupla. Nada se mistura.
+
+   A chave da jornada é o par de nicks em ordem alfabética, então os dois
+   aparelhos chegam à MESMA chave sozinhos — cada um guarda a sua cópia,
+   e a fase mais adiantada dos dois vale para a dupla.
+   ===================================================================== */
+const JORNADA_UP = [
+  { id: "dano",     icone: "▲", nome: "Canhão da dupla", desc: "+7% de dano por nível",        base: 900,  passo: 1.55 },
+  { id: "cadencia", icone: "≡", nome: "Gatilho leve",    desc: "+6% de cadência por nível",    base: 900,  passo: 1.55 },
+  { id: "casco",    icone: "♥", nome: "Casco reforçado", desc: "+9% de vida por nível",        base: 1100, passo: 1.55 },
+  { id: "escudo",   icone: "◎", nome: "Defletor duplo",  desc: "+10% de escudo por nível",     base: 1100, passo: 1.55 },
+  { id: "motor",    icone: "»", nome: "Motor da dupla",  desc: "+6% de agilidade por nível",   base: 800,  passo: 1.55 },
+  { id: "cristal",  icone: "◆", nome: "Garimpo",         desc: "+10% de cristais por nível",   base: 1300, passo: 1.6  }
+];
+const JORNADA_UP_MAX = 8;
+
+function chaveDupla(a, b) {
+  const x = nickSimples(a), y = nickSimples(b);
+  return (x < y ? x + "|" + y : y + "|" + x);
+}
+function jornadaNova(nomeAmigo) {
+  return { amigo: String(nomeAmigo || "Amigo"), fase: 1, maior: 1, jogadas: 0,
+           cristais: 0, up: {}, quando: 0 };
+}
+function jornadaDe(nomeAmigo, criar) {
+  if (!save.jornadas) save.jornadas = {};
+  const k = chaveDupla(save.__name, nomeAmigo);
+  if (!save.jornadas[k] && criar) save.jornadas[k] = jornadaNova(nomeAmigo);
+  const j = save.jornadas[k];
+  if (j) {
+    j.amigo = j.amigo || String(nomeAmigo || "Amigo");
+    j.up = j.up || {};
+    j.maior = Math.max(1, j.maior || 1);
+    j.fase = clamp(j.fase || 1, 1, TOTAL_FASES);
+  }
+  return j || null;
+}
+/* a jornada que está valendo agora (dentro da partida ou na tela dela) */
+function jornadaAtual() {
+  if (!MP.jornadaChave || !save.jornadas) return null;
+  return save.jornadas[MP.jornadaChave] || null;
+}
+function jornadaNivel(j, id) {
+  const v = j && j.up ? j.up[id] : 0;
+  return (typeof v === "number" && v > 0) ? Math.min(JORNADA_UP_MAX, Math.floor(v)) : 0;
+}
+function jornadaCusto(up, nivel) {
+  return Math.round(up.base * Math.pow(up.passo, nivel) / 50) * 50;
+}
+/* quanto cada melhoria da dupla rende na partida de agora */
+function jornadaMult(id) {
+  const j = jornadaAtual();
+  if (!j) return 1;
+  const n = jornadaNivel(j, id);
+  if (!n) return 1;
+  const passo = id === "casco" ? 0.09 : id === "escudo" ? 0.10
+              : id === "cristal" ? 0.10 : id === "dano" ? 0.07 : 0.06;
+  return 1 + passo * n;
+}
+/* código de sala que os dois calculam igual: ninguém precisa digitar */
+function codigoDaDupla(chave) {
+  let h = 5381;
+  for (let i = 0; i < chave.length; i++) h = ((h << 5) + h + chave.charCodeAt(i)) >>> 0;
+  return String(1000 + (h % 9000));
+}
 
 /* sorteio igual nos dois aparelhos: mesma semente, mesmos inimigos */
 function rngDe(semente) {
@@ -12389,6 +12597,24 @@ async function mpCriarSala(modo) {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(sala)
   });
   if (ok === null) { avisoMulti("Não deu para criar a sala."); MP.sala = null; return; }
+  abrirSala();
+}
+/* cria a sala com um código escolhido (o da dupla), em vez de sorteado */
+async function mpCriarSalaFixa(codigo, modo) {
+  MP.sala = codigo; MP.modo = modo; MP.host = true; MP.eu = mpMeuId();
+  MP.outros = {}; MP.fim = null; MP.semOutroDesde = 0;
+  calcStats();
+  const sala = {
+    modo, host: MP.eu, estado: "lobby", criada: Date.now(),
+    fase: MP.jornadaFase || Math.max(1, save.best || 1),
+    jogadores: {}
+  };
+  sala.jogadores[MP.eu] = mpMeuResumo(true);
+  const ok = await nuvemReq(mpCaminho(), {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(sala)
+  });
+  if (ok === null) { avisoMulti("Não deu para abrir a sala."); MP.sala = null; return; }
+  MP.fase = sala.fase;
   abrirSala();
 }
 async function mpEntrarSala(codigo, modo) {
@@ -12433,9 +12659,13 @@ function avisoMulti(txt) {
 /* ----- tela da sala ----- */
 function abrirSala() {
   S.mode = "sala";
+  const jor = MP.jornadaChave ? (save.jornadas || {})[MP.jornadaChave] : null;
   $("sala-codigo").textContent = MP.sala;
-  $("sala-titulo").textContent = MP.modo === "pvp" ? "DUELO" : "COOPERATIVO";
-  $("sala-modo").textContent = MP.host ? "VOCÊ CRIOU" : "CONVIDADO";
+  $("sala-titulo").textContent = MP.modo === "pvp" ? "DUELO"
+    : jor ? "JORNADA" : "COOPERATIVO";
+  $("sala-modo").textContent = jor
+    ? "FASE " + (MP.jornadaFase || jor.fase || 1) + " · " + jor.amigo
+    : (MP.host ? "VOCÊ CRIOU" : "CONVIDADO");
   $("sala-comecar").style.display = MP.host ? "block" : "none";
   showScreen("sala");
   mpIniciarLoop();
@@ -13173,7 +13403,9 @@ function mpAtualizarPlacar() {
 
 async function mpComecar() {
   if (!MP.host || !MP.sala) return;
-  const fase = MP.modo === "pvp" ? 1 : Math.max(1, (save.coopBest || 0) + 1);
+  const fase = MP.modo === "pvp" ? 1
+             : (MP.jornadaChave && MP.jornadaFase) ? MP.jornadaFase
+             : Math.max(1, (save.coopBest || 0) + 1);
   await nuvemReq(mpCaminho() + "/estado", {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify("jogando")
   });
@@ -13268,6 +13500,7 @@ async function mpSair(voltarMenu, atraso) {
   P2P.falhas = 0; P2P.desistiu = false;
   mpPararLoop();
   MP.sala = null; MP.outros = {}; MP.modo = null; MP.host = false;
+  MP.jornadaChave = null; MP.jornadaFase = 0;
   calcStats();
   $("mp-placar").style.display = "none";
   const cx = $("mp-conexao"); if (cx) cx.style.display = "none";
@@ -13452,6 +13685,11 @@ $("btn-ranked").addEventListener("click", () => {
 });
 $("rk-procurar").addEventListener("click", rkProcurar);
 $("rk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
+$("jor-voltar").addEventListener("click", () => { AudioSys.resume(); abrirMulti("jornada"); });
+$("jor-jogar").addEventListener("click", () => { AudioSys.resume(); jornadaJogar(); });
+for (const b of document.querySelectorAll("#jor-abas .aba")) {
+  b.addEventListener("click", () => { AudioSys.resume(); jornadaTrocarAba(b.dataset.jor); });
+}
 $("mrk-procurar").addEventListener("click", rkProcurar);
 $("mrk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
 
@@ -13697,21 +13935,237 @@ function abrirMulti(aba) {
   if (c) c.style.display = COOP_LIGADO ? "" : "none";
   const r = $("aba-ranked");
   if (r) r.style.display = RANKED_LIGADO ? "" : "none";
-  if (!COOP_LIGADO && (!aba || aba === "coop")) aba = "amigos";
+  if (!COOP_LIGADO && (!aba || aba === "coop" || aba === "jornada")) aba = "amigos";
   if (!RANKED_LIGADO && aba === "ranked") aba = "pvp";
-  trocarAbaMulti(aba || "coop");
+  trocarAbaMulti(aba || "jornada");
   atualizarPvpCartao();
   showScreen("multi");
 }
+/* =====================================================================
+   TELAS DA JORNADA EM DUPLA
+   ---------------------------------------------------------------------
+   Aba nova no multijogador: uma lista com cada amigo e a jornada que
+   vocês têm juntos. Toca no amigo, escolhe a fase (a próxima ou qualquer
+   uma já vencida) ou compra melhorias que valem só naquela dupla, e
+   aperta CHAMAR E COMEÇAR. A sala tem um número calculado a partir dos
+   dois nicks, então ninguém precisa digitar código nenhum: os dois caem
+   na mesma sala sozinhos.
+   ===================================================================== */
+const JOR = { amigo: null, chave: null, aba: "fases" };
+
+/* junta os amigos de verdade (da nuvem) com os anotados neste aparelho */
+function jornadaAmigos() {
+  const nomes = [];
+  const vistos = {};
+  const por = (n) => {
+    const k = nickSimples(n);
+    if (!n || !k || vistos[k]) return;
+    vistos[k] = 1; nomes.push(String(n));
+  };
+  try { for (const id in AM.lista) por(AM.lista[id].nome); } catch (e) {}
+  for (const n of (save.amigos || [])) por(n);
+  // quem já tem jornada aparece mesmo se saiu da lista
+  for (const k in (save.jornadas || {})) {
+    const j = save.jornadas[k];
+    if (j && j.amigo) por(j.amigo);
+  }
+  return nomes;
+}
+function jornadaRenderLista() {
+  const cx = $("jor-lista");
+  if (!cx) return;
+  const amigos = jornadaAmigos();
+  cx.innerHTML = "";
+  if (!amigos.length) {
+    cx.innerHTML = '<div class="vazio"><b>👥</b><strong>NENHUM AMIGO AINDA</strong>' +
+      '<span>Adicione alguém na aba AMIGOS para começar uma jornada. ' +
+      'Cada amizade tem a jornada dela, com progresso e melhorias próprios.</span></div>';
+    return;
+  }
+  for (const nome of amigos) {
+    const j = jornadaDe(nome, false);
+    const fase = j ? j.maior : 0;
+    const pct = Math.round(Math.min(fase, TOTAL_FASES) / TOTAL_FASES * 100);
+    const ups = j ? JORNADA_UP.reduce((t, u) => t + jornadaNivel(j, u.id), 0) : 0;
+    const cartao = document.createElement("div");
+    cartao.className = "jor-cartao" + (j ? "" : " nova");
+    cartao.innerHTML =
+      '<div class="jor-ic">' + (j ? "🚀" : "✦") + "</div>" +
+      '<div class="jor-txt">' +
+        '<b>' + escaparTexto(nome) + "</b>" +
+        '<span>' + (j
+          ? "Fase " + j.fase + " de " + TOTAL_FASES + " · maior: " + fase +
+            (ups ? " · " + ups + " melhorias" : "")
+          : "Jornada nova, começa na fase 1") + "</span>" +
+        '<i class="jor-barra"><u style="width:' + pct + '%"></u></i>' +
+      "</div>" +
+      '<div class="jor-vai">' + (j ? "CONTINUAR" : "COMEÇAR") + "</div>";
+    cartao.addEventListener("click", () => { AudioSys.resume(); abrirJornada(nome); });
+    cx.appendChild(cartao);
+  }
+}
+
+function abrirJornada(nome) {
+  const j = jornadaDe(nome, true);
+  JOR.amigo = nome;
+  JOR.chave = chaveDupla(save.__name, nome);
+  JOR.aba = "fases";
+  j.quando = Date.now();
+  persist();
+  S.mode = "jornada";
+  jornadaRender();
+  showScreen("jornada");
+}
+function jornadaTrocarAba(a) {
+  JOR.aba = a;
+  for (const b of document.querySelectorAll("#jor-abas .aba")) {
+    b.classList.toggle("on", b.dataset.jor === a);
+  }
+  $("jor-pane-fases").style.display = a === "fases" ? "block" : "none";
+  $("jor-pane-up").style.display = a === "up" ? "block" : "none";
+}
+function jornadaRender() {
+  const j = jornadaDe(JOR.amigo, true);
+  if (!j) return;
+  porCristais("jor-gems");
+  $("jor-titulo").textContent = "COM " + String(JOR.amigo || "").toUpperCase().slice(0, 12);
+  const pct = Math.round(Math.min(j.maior, TOTAL_FASES) / TOTAL_FASES * 100);
+  $("jor-capa").innerHTML =
+    '<div class="jor-capa-ic">🚀</div>' +
+    '<div class="jor-capa-txt">' +
+      "<b>" + escaparTexto(j.amigo) + "</b>" +
+      "<span>Vocês estão na fase <b>" + j.fase + "</b> de " + TOTAL_FASES +
+      " · " + pct + "% da jornada · " + (j.jogadas || 0) + " partidas juntos</span>" +
+      '<i class="jor-barra"><u style="width:' + pct + '%"></u></i>' +
+    "</div>";
+  jornadaTrocarAba(JOR.aba);
+  jornadaRenderFases(j);
+  jornadaRenderUps(j);
+  $("jor-dica").textContent = "A sala é a número " + codigoDaDupla(JOR.chave) +
+    ". Peça para " + j.amigo + " abrir a mesma jornada: vocês caem juntos, sem digitar nada.";
+}
+function jornadaRenderFases(j) {
+  const cx = $("jor-fases");
+  if (!cx) return;
+  cx.innerHTML = "";
+  const feitas = Math.max(0, (j.maior || 1) - 1);
+  const nSetores = Math.ceil(TOTAL_FASES / 20);
+  for (let si = 0; si < nSetores; si++) {
+    const de = si * 20 + 1, ate = Math.min(TOTAL_FASES, de + 19);
+    if (de > j.maior) break;               // só mostra até onde a dupla chegou
+    let prontas = 0;
+    for (let f = de; f <= ate; f++) if (f <= feitas) prontas++;
+    const total = ate - de + 1;
+    const bloco = document.createElement("div");
+    bloco.className = "setor-bloco";
+    const cab = document.createElement("div");
+    cab.className = "setor-cab" + (prontas === total ? " pronto" : "");
+    cab.innerHTML =
+      '<span class="setor-nome">' + (SECTOR_NAMES[si] || "SETOR " + (si + 1)) + "</span>" +
+      '<span class="setor-barra"><i style="width:' + Math.round(prontas / total * 100) + '%"></i></span>' +
+      '<span class="setor-cont">' + prontas + "/" + total + "</span>";
+    bloco.appendChild(cab);
+    const g = document.createElement("div");
+    g.className = "fase-grid";
+    for (let f = de; f <= ate; f++) {
+      const b = document.createElement("button");
+      b.className = "fase-btn";
+      if (isBossFase(f)) b.classList.add("boss");
+      if (f < j.maior) { b.classList.add("done"); b.innerHTML = f + "<small>★</small>"; }
+      else if (f === j.maior) { b.classList.add("next"); b.innerHTML = f + "<small>" + (isBossFase(f) ? "CHEFE" : "AQUI") + "</small>"; }
+      else { b.classList.add("locked"); b.textContent = f; }
+      if (f === j.fase) b.classList.add("escolhida");
+      if (f <= j.maior) {
+        b.addEventListener("click", () => {
+          AudioSys.resume();
+          j.fase = f;
+          persist();
+          jornadaRender();
+        });
+      }
+      g.appendChild(b);
+    }
+    bloco.appendChild(g);
+    cx.appendChild(bloco);
+  }
+  requestAnimationFrame(() => {
+    const alvo = cx.querySelector(".fase-btn.escolhida") || cx.querySelector(".fase-btn.next");
+    if (alvo) alvo.scrollIntoView({ block: "center" });
+  });
+}
+function jornadaRenderUps(j) {
+  const cx = $("jor-ups");
+  if (!cx) return;
+  cx.innerHTML = "";
+  for (const u of JORNADA_UP) {
+    const nv = jornadaNivel(j, u.id);
+    const row = document.createElement("div");
+    row.className = "part-row";
+    const pips = [];
+    for (let k = 0; k < JORNADA_UP_MAX; k++) pips.push('<span class="pip' + (k < nv ? " on" : "") + '"></span>');
+    row.innerHTML =
+      '<div class="part-icon">' + u.icone + "</div>" +
+      '<div class="part-info"><div class="part-name">' + u.nome + " · nível " + nv + "</div>" +
+      '<div class="part-desc">' + u.desc + "</div>" +
+      '<div class="pips">' + pips.join("") + "</div></div>";
+    const btn = document.createElement("button");
+    btn.className = "buy-btn";
+    if (nv >= JORNADA_UP_MAX) {
+      btn.classList.add("max"); btn.textContent = "MÁX"; btn.disabled = true;
+    } else {
+      const custo = jornadaCusto(u, nv);
+      btn.textContent = "◆ " + fmt(custo);
+      btn.disabled = save.crystals < custo;
+      btn.addEventListener("click", () => {
+        AudioSys.resume();
+        if (save.crystals < custo) { AudioSys.deny(); return; }
+        save.crystals -= custo;
+        j.up[u.id] = nv + 1;
+        persist(); calcStats();
+        AudioSys.buy(); vibrate(20);
+        jornadaRender();
+      });
+    }
+    row.appendChild(btn);
+    cx.appendChild(row);
+  }
+}
+/* entra na sala da dupla: quem chegar primeiro cria, o outro entra */
+async function jornadaJogar() {
+  const j = jornadaDe(JOR.amigo, true);
+  if (!j) return;
+  if (!nuvemAtiva()) { avisoMulti("O modo online está desligado neste aparelho."); AudioSys.deny(); return; }
+  const codigo = codigoDaDupla(JOR.chave);
+  const bt = $("jor-jogar");
+  bt.disabled = true;
+  bt.textContent = "ABRINDO A SALA…";
+  MP.jornadaChave = JOR.chave;
+  MP.jornadaFase = j.fase;
+  try {
+    const sala = await nuvemReq("salas/" + codigo);
+    const viva = sala && sala.criada && (Date.now() - sala.criada) < 3 * 3600000;
+    if (viva && sala.modo === "coop") await mpEntrarSala(codigo, "coop");
+    else await mpCriarSalaFixa(codigo, "coop");
+    j.jogadas = (j.jogadas || 0) + 1;
+    persist();
+  } catch (e) {
+    avisoMulti("Não deu para abrir a sala agora.");
+  }
+  bt.disabled = false;
+  bt.textContent = "CHAMAR E COMEÇAR";
+}
+
 function trocarAbaMulti(aba) {
   for (const b of document.querySelectorAll("#multi-abas .aba")) {
     b.classList.toggle("on", b.dataset.modo === aba);
   }
+  $("multi-jornada").style.display = aba === "jornada" ? "block" : "none";
   $("multi-coop").style.display = aba === "coop" ? "block" : "none";
   $("multi-pvp").style.display = aba === "pvp" ? "block" : "none";
   $("multi-ranked").style.display = aba === "ranked" ? "block" : "none";
   $("multi-amigos").style.display = aba === "amigos" ? "block" : "none";
   if (aba === "amigos") renderAmigos();
+  if (aba === "jornada") jornadaRenderLista();
   if (aba === "ranked") mrkRender();
   mpNetTexto();
 }
@@ -13941,14 +14395,24 @@ $("sala-copiar").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(MP.sala); $("sala-dica").textContent = "Código copiado!"; }
   catch (e) { $("sala-dica").textContent = "Código: " + MP.sala; }
 });
-$("amigo-add").addEventListener("click", () => {
-  const nome = ($("amigo-nome").value || "").trim();
-  if (!nome || nome === save.__name) return;
-  save.amigos = save.amigos || [];
-  if (save.amigos.indexOf(nome) < 0) save.amigos.push(nome);
-  $("amigo-nome").value = "";
-  persist();
-  AudioSys.buy();
+$("amigo-add").addEventListener("click", async () => {
+  const el = $("amigo-nome");
+  const nome = (el.value || "").trim();
+  if (!nome) return;
+  const av = $("multi-aviso") || $("sala-dica");
+  /* usa o mesmo sistema da aba AMIGOS: pedido de verdade, que a pessoa
+     aceita do lado dela — em vez de só anotar o nome neste aparelho  */
+  const r = await amigoPedir(nome);
+  if (r.ok) {
+    save.amigos = save.amigos || [];
+    if (save.amigos.indexOf(nome) < 0) save.amigos.push(nome);
+    el.value = "";
+    persist();
+    AudioSys.buy();
+  } else {
+    AudioSys.deny();
+  }
+  avisoMulti(r.msg);
   renderAmigos();
 });
 
@@ -16132,10 +16596,20 @@ function faseVictory() {
   S.mode = "victory";
   try { Musica.parar(); } catch (e) {}
   const coop = typeof MP !== "undefined" && MP && MP.modo === "coop";
-  const first = coop ? (S.fase > (save.coopBest || 0)) : (S.fase > save.best);
+  /* jornada em dupla: o progresso é daquela amizade, não do jogo todo */
+  const jor = coop ? jornadaAtual() : null;
+  const first = jor ? (S.fase >= (jor.maior || 1))
+              : coop ? (S.fase > (save.coopBest || 0)) : (S.fase > save.best);
   if (first) {
-    if (coop) { save.coopBest = S.fase; }
+    if (jor) {
+      jor.maior = Math.max(jor.maior || 1, Math.min(TOTAL_FASES, S.fase + 1));
+      jor.fase = Math.min(TOTAL_FASES, S.fase + 1);
+      jor.quando = Date.now();
+      save.coopBest = Math.max(save.coopBest || 0, S.fase);
+    } else if (coop) { save.coopBest = S.fase; }
     else { save.best = S.fase; save.pts++; }
+  } else if (jor) {
+    jor.fase = Math.min(TOTAL_FASES, Math.max(jor.fase || 1, S.fase + 1));
   }
   // melhor tempo da fase
   const dur = S.inicioFase ? (Date.now() - S.inicioFase) / 1000 : 0;
@@ -19128,6 +19602,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.2", itens: [
+      "ABA JORNADA: uma campanha de 270 fases para CADA amizade. Com o amigo 1 vocês continuam de onde pararam; com o amigo 2 a jornada começa do zero, sem misturar nada",
+      "Você escolhe o amigo, escolhe a fase (a próxima ou qualquer uma já vencida, para voltar e pegar cristais) e aperta CHAMAR E COMEÇAR",
+      "A sala tem um número calculado pelos dois nicks: ninguém digita código, os dois caem juntos sozinhos",
+      "MELHORIAS DA DUPLA: canhão, gatilho, casco, defletor, motor e garimpo, até o nível 8 — guardadas por amizade, então as do amigo 1 não valem com o amigo 2",
+      "As melhorias agora valem de verdade no cooperativo: o modo justo passou a ser só do duelo e da ranqueada, onde os dois PRECISAM começar iguais",
+      "CORRIGIDO: adicionar amigo não achava ninguém. O jogo procurava pelo nome EXATO — escrever em minúscula, sem acento ou com um espaço a mais já dava \"não achei\". Agora procura na lista de verdade, ignorando maiúscula, acento e espaço, e ainda acha pelo começo do nick e pela gametag"
+    ] },
   { v: "5.1", itens: [
       "BICHARADA ALIENÍGENA: os inimigos deixaram de ser naves e viraram criaturas — TRÊS MODELOS DE CADA TIPO, nove ao todo, com olho de pupila fininha, dentes, tentáculos e casca com veias",
       "CHEFES MAIS DUROS: 27% mais casca e uma segunda etapa — abaixo de 35% de vida o bicho entra em FÚRIA e tudo nele fica 42% mais rápido",
@@ -19349,7 +19831,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.1";
+const VERSAO = "5.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
