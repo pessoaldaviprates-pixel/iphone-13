@@ -4511,7 +4511,9 @@ function contaId(nome) { return nuvemHash(String(nome).trim().toLowerCase()); }
 
 let ultimoEnvioConta = 0;
 async function contaEnviar(forcar) {
-  if (!nuvemAtiva() || !save.__name || !save.senha) return;
+  if (!nuvemAtiva() || !save.__name) return;
+  // toda conta precisa de senha para subir, menos as liberadas
+  if (!save.senha && !contaSemSenha(save.__name)) return;
   const agora = Date.now();
   if (!forcar && agora - ultimoEnvioConta < 25000) return;
   ultimoEnvioConta = agora;
@@ -4519,7 +4521,8 @@ async function contaEnviar(forcar) {
   delete copia.__name;
   await nuvemReq("contas/" + contaId(save.__name), {
     method: "PUT", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome: save.__name, senha: save.senha, save: copia, atualizado: agora })
+    body: JSON.stringify({ nome: save.__name, senha: save.senha || "",
+                           semSenha: !save.senha, save: copia, atualizado: agora })
   });
 }
 async function contaBuscar(nome) {
@@ -6612,9 +6615,25 @@ function entrarNoMenu(name) {
     if (presenteGuardado && presenteGuardado.length) setTimeout(mostrarCaixaPresente, 400);
   });
 }
+/* =====================================================================
+   CONTAS SEM SENHA
+   ---------------------------------------------------------------------
+   Estas entram direto: não pedem para desenhar o padrão nem na criação
+   nem na entrada, e nem sincronizando de outro aparelho. Serve para
+   conta de teste ou emprestada, que passa de mão em mão.
+   O nome não diferencia maiúscula de minúscula.
+   ===================================================================== */
+const CONTAS_SEM_SENHA = ["7anoS"];
+function contaSemSenha(nome) {
+  const n = String(nome || "").trim().toLowerCase();
+  return CONTAS_SEM_SENHA.some(x => x.toLowerCase() === n);
+}
+
 function entrarComPiloto(name) {
   const p = ROOT.profiles[name];
   if (!p) return;
+  // conta liberada: entra sem desenhar nada
+  if (contaSemSenha(name)) { entrarNoMenu(name); return; }
   if (!p.senha) {
     // conta antiga: agora toda conta precisa de senha
     abrirSenha("criar", name, (ok, hash) => {
@@ -6665,6 +6684,29 @@ $("btn-entrar").addEventListener("click", async () => {
   const local = ROOT.profiles[nome];
   if (local) { $("login-nome").value = ""; entrarComPiloto(nome); return; }
 
+  /* conta liberada que ainda não existe neste aparelho: cria ou puxa da
+     nuvem, sem pedir senha em momento nenhum */
+  if (contaSemSenha(nome)) {
+    if (nuvemAtiva()) {
+      avisoLogin("Procurando a conta…");
+      const c2 = await contaBuscar(nome);
+      if (c2) {
+        ROOT.profiles[c2.nome || nome] = mergeSave(c2.save || {});
+        persist();
+        $("login-nome").value = "";
+        avisoLogin("Bem-vindo de volta!", "ok");
+        entrarNoMenu(c2.nome || nome);
+        return;
+      }
+    }
+    ROOT.profiles[nome] = defaultSave();
+    persist();
+    $("login-nome").value = "";
+    AudioSys.buy();
+    entrarNoMenu(nome);
+    return;
+  }
+
   if (!nuvemAtiva()) {
     avisoLogin("Não existe conta com esse nome neste aparelho.", "erro");
     AudioSys.deny();
@@ -6698,6 +6740,14 @@ $("btn-new").addEventListener("click", () => {
   const name = $("new-name").value.trim();
   if (!name) return;
   if (ROOT.profiles[name]) { $("new-name").value = ""; return; }
+  // conta liberada: nasce sem senha e entra na hora
+  if (contaSemSenha(name)) {
+    ROOT.profiles[name] = defaultSave();
+    $("new-name").value = "";
+    AudioSys.buy();
+    entrarNoMenu(name);
+    return;
+  }
   abrirSenha("criar", name, (ok, hash) => {
     if (!ok) return;
     ROOT.profiles[name] = defaultSave();
@@ -17564,7 +17614,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.5";
+const VERSAO = "4.6";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
