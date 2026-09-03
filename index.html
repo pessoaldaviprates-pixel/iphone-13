@@ -4646,7 +4646,20 @@ function loginAs(name) {
    no Firebase e cole o endereço dele em NUVEM_URL, no arquivo config.js
    (é o único arquivo que você precisa editar). Passo a passo: NUVEM.md.
    ===================================================================== */
-const NUVEM_URL = (window.NN_CONFIG && window.NN_CONFIG.NUVEM_URL) || "";
+/* Endereço da nuvem. Vem do config.js — e, só para teste, dá para apontar
+   para um servidor LOCAL pela barra de endereço (?nuvem=http://127.0.0.1:...).
+   Só endereço local é aceito: assim ninguém consegue mandar um link que
+   desvia o jogo de outra pessoa para um banco estranho.                */
+const NUVEM_URL = (function () {
+  const doArquivo = (window.NN_CONFIG && window.NN_CONFIG.NUVEM_URL) || "";
+  try {
+    const q = new URLSearchParams(location.search).get("nuvem");
+    if (q && /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(q.replace(/\/$/, ""))) {
+      return q.replace(/\/$/, "");
+    }
+  } catch (e) {}
+  return doArquivo;
+})();
 
 function nuvemAtiva() { return typeof NUVEM_URL === "string" && NUVEM_URL.indexOf("http") === 0; }
 
@@ -20518,6 +20531,10 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.7", itens: [
+      "CORRIGIDO (grave): o modo online sumiu na 5.5 e na 5.6. O arquivo de configuração foi publicado com o endereço de TESTE em vez do endereço do banco de verdade — sem ele nada online aparece: nem ranking, nem arena, nem amigos, nem multijogador. O endereço certo está de volta",
+      "Para não acontecer de novo: os testes não mexem mais no arquivo de configuração (agora eles apontam para o servidor de teste pela barra de endereço, e só endereço local é aceito), e tanto a conferência quanto o empacotador recusam publicar com o endereço de teste"
+    ] },
   { v: "5.6", itens: [
       "MANDAR ATUALIZAR: no painel, na aba MUNDO, um botão tira todo mundo da versão velha — quem estiver atrasado limpa o cache e recarrega sozinho, quem já está na nova nem percebe",
       "O painel mostra quantos pilotos estão em cada versão, e cada jogador da lista tem o ⬇ para mandar só ele atualizar",
@@ -20777,7 +20794,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.6";
+const VERSAO = "5.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
