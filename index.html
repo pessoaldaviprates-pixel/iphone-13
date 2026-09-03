@@ -962,6 +962,8 @@
   .olho-placar:active{transform:scale(.9)}
   .olho-placar.off{border-color:rgba(255,193,69,.45);color:var(--amber);background:rgba(255,193,69,.08)}
   .olho-placar:disabled{opacity:.4;cursor:default}
+  .profile-meta .v-ok{color:#7CF7C0}
+  .profile-meta .v-velha{color:var(--amber)}
   .adm-ta{
     width:100%;min-height:96px;resize:vertical;padding:10px 12px;border-radius:11px;
     background:rgba(6,10,24,.8);border:1px solid var(--line);color:var(--ink);
@@ -2025,6 +2027,16 @@
   .diag-item.ok{border-color:rgba(76,224,122,.5)}
   .diag-item.ruim{border-color:var(--danger);background:rgba(255,82,82,.09)}
   .diag-item .d b{color:var(--amber);font-size:inherit}
+  .adm-lista-versoes{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .att-linha{
+    display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;
+    background:var(--panel2);border:1px solid rgba(255,193,69,.35);font-size:.68rem;
+  }
+  .att-linha.ok{border-color:rgba(124,247,192,.4)}
+  .att-linha b{min-width:44px}
+  .att-linha span{color:var(--dim);min-width:70px}
+  .att-linha i{font-style:normal;color:var(--dim);font-size:.6rem;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;flex:1}
   .diag-regras{
     margin-top:10px;font-family:ui-monospace,Menlo,monospace;font-size:.58rem;
     line-height:1.5;white-space:pre;overflow-x:auto;color:rgba(234,242,255,.85);
@@ -3151,6 +3163,24 @@
           <button class="adm-btn gold wide" id="diag-testar">TESTAR AGORA</button>
         </div>
         <div class="diag-lista" id="diag-lista"></div>
+      </div>
+
+      <div class="adm-card" id="adm-atualiza" style="display:none">
+        <div class="adm-h gold">⬇ MANDAR ATUALIZAR</div>
+        <p class="adm-note" style="max-width:none">
+          Quem estiver numa versão antiga limpa o cache e recarrega sozinho.
+          Quem já está na versão nova nem percebe. Serve para tirar todo mundo
+          de uma versão velha presa no celular.
+        </p>
+        <div class="adm-linha-jog" style="margin-top:10px">
+          <span class="adm-note" style="margin:0">Versão publicada agora: <b id="att-versao">—</b></span>
+        </div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="att-todos">⬇ MANDAR TODO MUNDO ATUALIZAR</button>
+          <button class="adm-btn" id="att-limpar">APAGAR A ORDEM</button>
+        </div>
+        <div class="adm-note" id="att-estado" style="margin-top:8px"></div>
+        <div id="att-lista" class="adm-lista-versoes"></div>
       </div>
 
       <div class="adm-card" id="adm-mundo" style="display:none">
@@ -4516,6 +4546,7 @@ function mergeRoot(base, extra) {
     if (!a || (b && (b.savedAt || 0) > (a.savedAt || 0))) base.profiles[name] = mergeSave(b);
   }
   if (!base.adminPass && extra.adminPass) base.adminPass = extra.adminPass;
+  if (!base.adm && extra.adm) base.adm = extra.adm;   // acesso do painel guardado
   if (!base.current && extra.current) base.current = extra.current;
   return base;
 }
@@ -5160,6 +5191,20 @@ function aplicarPresente(p, g) {
   // 2) o que dá tudo
   if (g.tudo) { admDesbloquearTudo(p); partes.push("tudo desbloqueado"); anota("★", "TUDO desbloqueado"); }
 
+  /* ordem de atualizar mandada só para esta pessoa */
+  if (g.atualizar) {
+    partes.push("atualização");
+    anota("⬇", "O jogo vai se atualizar agora");
+    setTimeout(() => {
+      try {
+        versaoNova = { versao: g.atualizar === true ? VERSAO : String(g.atualizar),
+                       nota: "O administrador mandou atualizar o seu jogo." };
+        mostrarPortaoAtualizacao();
+        if (S.mode !== "playing") setTimeout(() => limparTudoERecarregar(), 1500);
+      } catch (e) {}
+    }, 2500);
+  }
+
   // 3) valores
   if (typeof g.setCristais === "number") {
     p.crystals = Math.max(0, g.setCristais);
@@ -5509,7 +5554,33 @@ async function checarPresenteGeral(d) {
   nuvemEnviar(true);
 }
 
+/* =====================================================================
+   ATUALIZAÇÃO MANDADA PELO PAINEL
+   ---------------------------------------------------------------------
+   Tem gente que fica presa numa versão velha: o celular guardou a página
+   e a pessoa nunca fecha o jogo. O administrador agora aperta um botão e
+   TODO MUNDO que estiver numa versão anterior limpa o cache e recarrega
+   sozinho. Quem já está na versão nova nem percebe.
+   ===================================================================== */
+function versaoNumero(v) {
+  const p2 = String(v || "0").split(".");
+  return (parseInt(p2[0], 10) || 0) * 1000 + (parseInt(p2[1], 10) || 0);
+}
+function obedecerOrdemDeAtualizar(att) {
+  if (!att || !att.versao) return;
+  if (versaoNumero(att.versao) <= versaoNumero(VERSAO)) return;   // já estou igual ou à frente
+  const marca = "att" + att.versao + "|" + (att.quando || 0);
+  if (storageGet("nn_att_feita", "") === marca) return;           // já obedeci a esta
+  storageSet("nn_att_feita", marca);
+  versaoNova = { versao: att.versao, nota: att.nota ||
+                 "O administrador mandou atualizar. Vai levar alguns segundos." };
+  mostrarPortaoAtualizacao();
+  // fora de partida, atualiza sozinho logo em seguida
+  if (S.mode !== "playing") setTimeout(() => { try { limparTudoERecarregar(); } catch (e) {} }, 1200);
+}
+
 function mundoAplicar(d) {
+  try { obedecerOrdemDeAtualizar(d && d.att); } catch (e) {}
   try { checarPresenteGeral(d); } catch (e) {}
   MUNDO.geral = (d && d.geral) || null;
   MUNDO.aviso = (d && d.aviso) || null;
@@ -7700,6 +7771,14 @@ let admConfirmar = null;
 function admOpen() {
   S.mode = "adm";
   admTarget = null;
+  /* Já entrei nesta sessão? Então vai direto para o painel. Antes ele
+     escondia o painel e mostrava a senha de novo toda vez que você saía
+     e voltava — daí a sensação de ter de digitar a toda hora.        */
+  if (PERM.entrou) {
+    showScreen("adm");
+    try { abrirPainelComo(); } catch (e) {}
+    return;
+  }
   $("adm-pass").value = "";
   $("adm-search").value = "";
   admMsg("");
@@ -7900,17 +7979,27 @@ $("btn-adm-enter").addEventListener("click", async () => {
    não ter de digitar toda hora. O botão SAIR apaga.
    --------------------------------------------------------------------- */
 function admLembrar(nick, chave) {
-  try { storageSet("nn_adm", JSON.stringify({ nick: nick, chave: chave, quando: Date.now() })); }
-  catch (e) {}
+  const d = { nick: nick, chave: chave, quando: Date.now() };
+  try { storageSet("nn_adm", JSON.stringify(d)); } catch (e) {}
+  /* guarda também dentro do ROOT, que vai para o IndexedDB: em celular
+     que limpa o armazenamento do site sozinho (o iPhone faz isso), o
+     acesso do painel sobrevive e você não digita de novo.           */
+  try { ROOT.adm = d; persist(); } catch (e) {}
 }
-function admEsquecer() { try { storageSet("nn_adm", ""); } catch (e) {} }
+function admEsquecer() {
+  try { storageSet("nn_adm", ""); } catch (e) {}
+  try { delete ROOT.adm; persist(); } catch (e) {}
+}
 function admGuardado() {
   try {
     const t = storageGet("nn_adm", "");
-    if (!t) return null;
-    const d = JSON.parse(t);
-    return (d && d.nick && d.chave) ? d : null;
-  } catch (e) { return null; }
+    if (t) {
+      const d = JSON.parse(t);
+      if (d && d.nick && d.chave) return d;
+    }
+  } catch (e) {}
+  const r = ROOT && ROOT.adm;
+  return (r && r.nick && r.chave) ? r : null;
 }
 /* entra sozinho quando já tem acesso guardado */
 async function admEntrarGuardado() {
@@ -8247,7 +8336,7 @@ const ABAS_ADM = [
   { id: "acoes",     nome: "⚡ AÇÕES",     perms: ["darCoisas", "darRaros", "invVer", "invTirar", "zerar", "presGeral"],
     cartoes: ["adm-nuvem"] },
   { id: "mundo",     nome: "🌍 MUNDO",     perms: ["recados", "eventos", "boosts", "trolls"],
-    cartoes: ["adm-agora", "adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls"] },
+    cartoes: ["adm-agora", "adm-atualiza", "adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls"] },
   { id: "sugestoes", nome: "💡 SUGESTÕES", perms: ["sugVer"],
     cartoes: ["adm-sug"] },
   { id: "loja",      nome: "🛒 LOJA",      perms: ["lojaVer", "lojaDar"],
@@ -8298,6 +8387,7 @@ function sugNovas() {
 let agoraNoTopo = false;
 function mostrarAba() {
   if (abaAdm === "loja") { try { admLojaCarregar(); } catch (e) {} }
+  if (abaAdm === "mundo") { try { attRender(); } catch (e) {} }
   // o resumo do que está no ar vem ANTES dos botões, não depois
   if (!agoraNoTopo) {
     const ag = $("adm-agora"), mu = $("adm-mundo");
@@ -8371,6 +8461,7 @@ const CARTOES_PERM = {
   "adm-sug":     "sugVer",
   "adm-equipe":  "equipe",
   "adm-diag":    "diag",
+  "adm-atualiza": "recados",
   "adm-mundo":   "recados",
   "adm-eventos": "eventos",
   "adm-boosts":  "boosts",
@@ -8939,6 +9030,66 @@ function admRegrasJSON() {
 $("diag-testar").addEventListener("click", admTestarNuvem);
 
 /* =====================================================================
+   MANDAR ATUALIZAR — tira todo mundo de uma versão velha
+   ---------------------------------------------------------------------
+   Escreve a ordem em mundo/att. Como todo jogo já escuta o nó mundo pelo
+   fluxo, a ordem chega na hora: quem estiver numa versão anterior limpa
+   o cache, desliga o service worker e recarrega sozinho.
+   ===================================================================== */
+async function attRender() {
+  const el = $("att-versao");
+  if (el) el.textContent = VERSAO;
+  const est = $("att-estado");
+  const lista = $("att-lista");
+  if (!nuvemAtiva()) {
+    if (est) est.textContent = "O modo online está desligado neste aparelho.";
+    return;
+  }
+  const m = await nuvemReq("mundo/att");
+  if (est) {
+    est.textContent = m && m.versao
+      ? "Ordem no ar: atualizar para a " + m.versao + " (mandada " + tempoRelativo(m.quando) + ")."
+      : "Nenhuma ordem no ar.";
+  }
+  /* quem está em qual versão, direto da lista de pilotos */
+  if (!lista) return;
+  const pil = (await nuvemReq("pilotos")) || {};
+  const contas = {};
+  for (const id in pil) {
+    const v = (pil[id] && pil[id].versao) || "?";
+    (contas[v] = contas[v] || []).push(pil[id].nome || id);
+  }
+  const versoes = Object.keys(contas).sort((a, b) => versaoNumero(b) - versaoNumero(a));
+  lista.innerHTML = versoes.length
+    ? versoes.map(v => {
+        const atual = versaoNumero(v) >= versaoNumero(VERSAO);
+        return '<div class="att-linha' + (atual ? " ok" : "") + '">' +
+          "<b>v" + escaparTexto(v) + "</b>" +
+          "<span>" + contas[v].length + " piloto" + (contas[v].length === 1 ? "" : "s") + "</span>" +
+          "<i>" + escaparTexto(contas[v].slice(0, 4).join(", ")) +
+          (contas[v].length > 4 ? "…" : "") + "</i></div>";
+      }).join("")
+    : '<div class="adm-note">Ninguém apareceu na nuvem ainda.</div>';
+}
+$("att-todos").addEventListener("click", async () => {
+  const b = $("att-todos");
+  b.disabled = true; b.textContent = "MANDANDO…";
+  const ok = await nuvemSoltar("mundo/att", {
+    versao: VERSAO, quando: Date.now(),
+    nota: "O administrador mandou atualizar para a versão " + VERSAO + "."
+  });
+  b.disabled = false; b.textContent = "⬇ MANDAR TODO MUNDO ATUALIZAR";
+  admMsg(ok === null ? "O Firebase recusou a gravação." :
+         "Pronto: quem estiver na versão antiga vai atualizar sozinho.");
+  attRender();
+});
+$("att-limpar").addEventListener("click", async () => {
+  await nuvemReq("mundo/att", { method: "DELETE" });
+  admMsg("Ordem apagada.");
+  attRender();
+});
+
+/* =====================================================================
    PAINEL DO MUNDO — recados, eventos, boosts e travessuras
    ---------------------------------------------------------------------
    Tudo escreve no mesmo nó mundo/ da nuvem, e como todo jogo escuta esse
@@ -9356,7 +9507,11 @@ function admNuvemRender() {
       '<span class="profile-name">' + escaparTexto(p.nome) +
         (fora ? ' <em class="selo-oculto">fora do placar</em>' : "") + "</span>" +
       '<span class="profile-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
-      " · " + (p.naves || 1) + " naves</span></span>";
+      " · " + (p.naves || 1) + " naves" +
+      (p.versao ? " · <b class='" +
+        (versaoNumero(p.versao) >= versaoNumero(VERSAO) ? "v-ok" : "v-velha") +
+        "'>v" + escaparTexto(p.versao) + "</b>" : "") +
+      "</span></span>";
     b.addEventListener("click", () => { admNuvemSelecionar(p); });
 
     /* olho: tira e devolve ao placar sem precisar entrar em outra aba */
@@ -9389,6 +9544,27 @@ function admNuvemRender() {
         }
       });
       linha.appendChild(olho);
+    }
+    /* mandar SÓ esta pessoa atualizar (aparece quando ela está atrasada) */
+    if (pode("verLista") && p.versao && versaoNumero(p.versao) < versaoNumero(VERSAO)) {
+      const att = document.createElement("button");
+      att.className = "olho-placar off";
+      att.textContent = "⬇";
+      att.title = "Mandar " + p.nome + " atualizar (está na v" + p.versao + ")";
+      att.setAttribute("aria-label", att.title);
+      att.addEventListener("click", async ev => {
+        ev.stopPropagation();
+        att.disabled = true;
+        const ok = await nuvemEnviarPresente(p.id, {
+          atualizar: VERSAO,
+          recado: "Atualização do jogo — vai levar alguns segundos."
+        });
+        admMsg(ok === null ? "Não deu para mandar agora."
+                           : "Mandado! " + p.nome + " atualiza assim que abrir o jogo.");
+        att.disabled = false;
+        AudioSys.buy();
+      });
+      linha.appendChild(att);
     }
     el.appendChild(linha);
   }
@@ -20342,6 +20518,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.6", itens: [
+      "MANDAR ATUALIZAR: no painel, na aba MUNDO, um botão tira todo mundo da versão velha — quem estiver atrasado limpa o cache e recarrega sozinho, quem já está na nova nem percebe",
+      "O painel mostra quantos pilotos estão em cada versão, e cada jogador da lista tem o ⬇ para mandar só ele atualizar",
+      "A versão de cada piloto aparece na lista: verde quem está em dia, amarelo quem está atrasado",
+      "CORRIGIDO: o painel pedia a senha quase toda vez que você entrava. Sair da tela e voltar escondia o painel e mostrava a senha de novo, mesmo com você já conectado — agora volta direto",
+      "O acesso do painel também fica guardado no banco do aparelho, então sobrevive quando o celular limpa o armazenamento do site sozinho"
+    ] },
   { v: "5.5", itens: [
       "CORRIGIDO: adicionar amigo, o chat com os amigos e o chat comigo (o ⊙ da loja) não funcionavam para quem está com as regras antigas do Firebase — dava \"tente de novo\" e não enviava. Agora, se o Firebase recusar o galho novo, o jogo guarda a mesma coisa junto com a ficha do piloto, que toda regra antiga já libera. Funciona dos dois jeitos, sozinho",
       "CORRIGIDO: no cooperativo o inimigo que o parceiro matava continuava vivo na sua tela. A leitura de reserva (usada quando a rede não deixa o fluxo do Firebase passar) simplesmente não aplicava os abates — agora aplica, e o abate ainda sai antes da hora, sem esperar o passo da rede (medido: 103 ms pela nuvem)",
@@ -20594,7 +20777,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.5";
+const VERSAO = "5.6";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
