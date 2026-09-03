@@ -74,13 +74,26 @@
     -webkit-user-select:none;user-select:none;
     -webkit-text-size-adjust:100%;
   }
+  /* Quem rola de cima para baixo */
   .scroll,.login-rolagem,.inv-lista,.vivo-lista,.cn-etapa .scroll,
-  .cp-conteudo,#screen-menu.show,#erro-box{
+  .cp-conteudo,#screen-menu.show,#erro-box,
+  .chat-rolagem,.adm-chat,.sg-cartao,.gaveta{
     touch-action:pan-y;
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
   }
-  .cn-filtros{touch-action:pan-x;overscroll-behavior:contain}
+  /* Quem desliza para o lado: TODA fila de abas e de filtros.
+     O corpo da página tem touch-action:none para a tela ficar parada, e
+     isso também travava estas filas — por isso cada uma libera o pan-x. */
+  .cn-filtros,.abas,.adm-abas,.hangar-filtros,.areas,.dif-linha,.msg-rapidas{
+    touch-action:pan-x;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .cn-filtros::-webkit-scrollbar,.abas::-webkit-scrollbar,
+  .adm-abas::-webkit-scrollbar,.hangar-filtros::-webkit-scrollbar,
+  .dif-linha::-webkit-scrollbar{display:none}
   #game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
   button{font-family:inherit;color:inherit}
   input{
@@ -296,6 +309,14 @@
   }
   @keyframes habPulso{0%,100%{opacity:.25;transform:scale(.96)}50%{opacity:.8;transform:scale(1)}}
   .hab-btn.combo{border-style:dashed;border-color:rgba(255,193,69,.6);color:var(--amber);cursor:default}
+  /* selinho com o nível da habilidade, para saber o que já foi melhorado */
+  .hab-btn .hab-nv{
+    position:absolute;top:-4px;left:-4px;z-index:3;
+    min-width:14px;height:14px;padding:0 3px;border-radius:99px;
+    background:var(--amber);color:#04101c;
+    font-size:.5rem;font-weight:800;line-height:14px;text-align:center;
+    box-shadow:0 0 8px rgba(255,193,69,.6);
+  }
   /* o supremo do Ômega-9: um tico maior, dourado e com anel proprio */
   .hab-btn.supremo{
     width:calc(var(--hab-tam,44px) + 6px);height:calc(var(--hab-tam,44px) + 6px);
@@ -886,6 +907,25 @@
   .adm-search{margin-bottom:10px}
   #adm-players{width:100%;max-height:none}
   #adm-players .profile-btn.sel{border-color:var(--amber);background:rgba(255,193,69,.08)}
+  /* linha da lista com o olho de esconder do placar */
+  .adm-linha-jog{display:flex;align-items:stretch;gap:8px;margin-bottom:9px}
+  .adm-linha-jog .profile-btn{flex:1;min-width:0;margin:0}
+  .profile-btn.oculto{opacity:.62}
+  .selo-oculto{
+    font-style:normal;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;
+    background:rgba(255,193,69,.14);border:1px solid rgba(255,193,69,.34);
+    color:var(--amber);border-radius:999px;padding:2px 7px;margin-left:7px;
+    vertical-align:middle;
+  }
+  .olho-placar{
+    flex:none;width:48px;border-radius:var(--r-md);cursor:pointer;font-size:1.1rem;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink2);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .1s ease,border-color .18s ease;
+  }
+  .olho-placar:active{transform:scale(.9)}
+  .olho-placar.off{border-color:rgba(255,193,69,.45);color:var(--amber);background:rgba(255,193,69,.08)}
+  .olho-placar:disabled{opacity:.4;cursor:default}
   .adm-ta{
     width:100%;min-height:96px;resize:vertical;padding:10px 12px;border-radius:11px;
     background:rgba(6,10,24,.8);border:1px solid var(--line);color:var(--ink);
@@ -2534,6 +2574,22 @@
   .part-desc{font-size:.65rem;color:var(--dim)}
   .part-row .pips{margin-top:4px}
   .part-row .buy-btn{min-width:64px;padding:8px 8px;font-size:.72rem}
+  /* melhoria de habilidades */
+  .hab-up{margin-top:12px;border-top:1px solid rgba(255,193,69,.22);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+  .hab-up .cab{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .hab-up .cab b{font-size:.74rem;letter-spacing:.1em;color:var(--amber)}
+  .hab-up .cab span{font-size:.62rem;color:var(--dim)}
+  .hab-linha{display:flex;align-items:center;gap:10px;background:rgba(255,193,69,.05);border:1px solid rgba(255,193,69,.14);border-radius:12px;padding:8px}
+  .hab-linha .ic{width:34px;height:34px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,193,69,.12);font-size:1rem}
+  .hab-linha .txt{flex:1;min-width:0}
+  .hab-linha .nm{font-size:.76rem;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .hab-linha .nv{font-size:.58rem;font-weight:700;letter-spacing:.08em;color:#04101c;background:var(--amber);border-radius:99px;padding:1px 6px}
+  .hab-linha .nv.zero{background:rgba(255,255,255,.14);color:var(--dim)}
+  .hab-linha .ds{font-size:.63rem;color:var(--dim);line-height:1.35;margin-top:2px}
+  .hab-linha .gn{font-size:.62rem;color:#7CF7C0;margin-top:3px}
+  .hab-linha .barra{height:5px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:5px;overflow:hidden}
+  .hab-linha .barra u{display:block;height:100%;background:linear-gradient(90deg,var(--amber),#FF9E4D)}
+  .hab-linha .buy-btn{min-width:78px;padding:8px 6px;font-size:.68rem}
   #cloud-btn{display:none}
   #cloud-status{font-size:.68rem;color:var(--dim);line-height:1.4}
 
@@ -3074,6 +3130,7 @@
               <button class="adm-btn gold" id="adm-nuvem-maverick">★ MAVERICK</button>
               <button class="adm-btn gold" id="adm-nuvem-b2">★ B-2 SPIRIT</button>
               <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
+              <button class="adm-btn gold wide" id="adm-nuvem-privada">🚽 TRONO REAL (PRIVADA)</button>
             </div>
             <p class="adm-note" style="margin-top:10px">Tudo o que você tocar aqui entra na <b>CAIXA</b>. Vá até a abinha 📦 CAIXA para escrever o recado e enviar.</p>
           </div>
@@ -3234,6 +3291,8 @@
             <button class="adm-btn" id="adm-paint-all">PINTURAS E ARMAS</button>
             <button class="adm-btn gold" id="adm-maverick">★ DAR MAVERICK</button>
             <button class="adm-btn gold" id="adm-b2">★ DAR B-2 SPIRIT</button>
+            <button class="adm-btn gold" id="adm-omega">☢ DAR ÔMEGA-9</button>
+            <button class="adm-btn gold" id="adm-privada">🚽 DAR TRONO REAL</button>
             <button class="adm-btn danger wide" id="adm-ships-zero">DEIXAR SÓ A NAVE INICIAL</button>
           </div>
         </div>
@@ -4099,7 +4158,8 @@ function defaultSave() {
     arenaOnda: 0,            // maior onda que você alcançou na arena
     transmitir: true,        // deixa os amigos verem a sua tela
     controle: "auto",        // auto | pc | toque
-    amigos: []               // apelidos dos amigos
+    amigos: [],              // apelidos dos amigos
+    habNv: {}                // nível das habilidades: "nave:habilidade" -> nível
   };
 }
 function mergeSave(parsed) {
@@ -4110,6 +4170,7 @@ function mergeSave(parsed) {
   s.skills = (parsed && parsed.skills) || {};
   s.ships = (parsed && Array.isArray(parsed.ships) && parsed.ships.length) ? parsed.ships : [0];
   s.parts = (parsed && parsed.parts) || {};
+  s.habNv = (parsed && parsed.habNv) || {};
   s.custom = (parsed && parsed.custom) || {};
   s.paints = (parsed && parsed.paints) || {};
   s.glows = (parsed && parsed.glows) || {};
@@ -5179,7 +5240,8 @@ const ULTS = {
   magnet: { name: "Singularidade",      desc: "Puxa os inimigos para um ponto e o colapsa" },
   maverick: { name: "Ataque Supersônico", desc: "Voo rasante que atravessa a tela destruindo tudo na passagem" },
   b2:       { name: "Apocalipse",         desc: "Chuva de fogo sobre toda a tela por 6 segundos" },
-  omega:    { name: "Operação Ômega",     desc: "Nuclear, bombardeio, tanques e tropas ao mesmo tempo" }
+  omega:    { name: "Operação Ômega",     desc: "Nuclear, bombardeio, tanques e tropas ao mesmo tempo" },
+  privada:  { name: "Explosão Intestinal", desc: "Solta tudo de uma vez: bombas de cocô, gás, chuva marrom e descarga" }
 };
 const CUT_QUOTES = {
   omega:  "“Eu não vim lutar sozinho. Eu vim com o exército inteiro.”",
@@ -5194,7 +5256,8 @@ const CUT_QUOTES = {
   drone:  "“Nunca voo sozinha. Nunca.”",
   magnet: "“Tudo o que brilha vem até mim.”",
   maverick: "“Não existe segundo lugar. Existe o primeiro e existe o resto.”",
-  b2:       "“Eles nunca me veem chegar. Só veem a cratera.”"
+  b2:       "“Eles nunca me veem chegar. Só veem a cratera.”",
+  privada:  "“Sentado no trono, mando no universo. Puxa a descarga.”"
 };
 const SHIPS = [];
 for (let i = 0; i < 50; i++) {
@@ -5297,6 +5360,24 @@ SHIPS.push({
   powerName: "Comando Supremo", powerMag: 150,
   powerDesc: "+150% de dano e um arsenal inteiro às ordens: nuclear sem limite, tanques, bombardeio e tropas",
   baseDmg: 4.4, baseAgi: 1.6, baseHp: 980, baseRate: 1.35, baseGem: 1.5
+});
+
+/* =====================================================================
+   TRONO REAL — a privada voadora do administrador
+   ---------------------------------------------------------------------
+   É uma privada de porcelana com um homem sentado dentro, jornal na mão
+   e coroa na cabeça. Luta com o que tem: bomba de cocô, jato de
+   descarga, gás, papel higiênico e, quando aperta, a EXPLOSÃO
+   INTESTINAL. Forte, engraçada — e ainda assim abaixo da Ômega-9.
+   ===================================================================== */
+const PRIVADA = SHIPS.length;
+SHIPS.push({
+  name: "Trono Real", price: 0, exclusiva: true, privada: true,
+  hue: 96, shape: 8,
+  power: "gold", ultId: "privada",
+  powerName: "Descarga Suprema", powerMag: 120,
+  powerDesc: "+120% de cristais e 8 habilidades de cocô: bombas, gás, papel e a explosão intestinal",
+  baseDmg: 3.2, baseAgi: 1.35, baseHp: 760, baseRate: 1.15, baseGem: 2
 });
 
 /* =====================================================================
@@ -5757,7 +5838,72 @@ HABILIDADES[OMEGA] = [
     desc: "Liga o arsenal inteiro NO AUTOMÁTICO e não desliga mais: todas as habilidades disparando sem parar até a fase acabar. Sem recarga, sem limite." }
 ];
 
+/* ---------- Habilidades da privada do administrador ---------- */
+HABILIDADES[PRIVADA] = [
+  { id: "bombaCoco", nome: "Bomba de Cocô",   icone: "💩", cd: 6,
+    desc: "Larga 6 bombas fedorentas que explodem em área" },
+  { id: "descarga",  nome: "Descarga Suprema", icone: "🌀", cd: 12,
+    desc: "Jato de descarga que varre a tela inteira e leva os tiros embora" },
+  { id: "gasLetal",  nome: "Gás Letal",       icone: "☁", cd: 10,
+    desc: "Nuvem de gás que queima os inimigos por perto durante 6s" },
+  { id: "papel",     nome: "Papel Higiênico", icone: "🧻", cd: 9,
+    desc: "Enrola todo mundo: inimigos e chefe ficam parados por 4s" },
+  { id: "tampa",     nome: "Escudo de Tampa", icone: "⭕", cd: 14,
+    desc: "Baixa a tampa: escudo cheio e 4s sem tomar dano" },
+  { id: "chuvaCoco", nome: "Chuva Marrom",    icone: "▼", cd: 13,
+    desc: "Chove cocô do céu em cima de todo mundo por 5 segundos" },
+  { id: "ralo",      nome: "Ralo sem Fundo",  icone: "🚽", cd: 16,
+    desc: "Abre um ralo que puxa e engole os inimigos da tela" },
+  { id: "intestinal", nome: "EXPLOSÃO INTESTINAL", icone: "☢", cd: 22,
+    desc: "Solta tudo de uma vez: bombas, gás, papel, chuva marrom e descarga" }
+];
+
 function habilidadesDaNave() { return HABILIDADES[save.ship] || []; }
+
+/* =====================================================================
+   MELHORIA DE HABILIDADES — cada habilidade sobe de nível com cristais
+   ---------------------------------------------------------------------
+   Vale para TODAS as naves. As que têm habilidades próprias (com botão
+   na tela) sobem uma por uma; as outras sobem o poder e a ultimate.
+   Cada nível deixa a habilidade mais forte (+15%), recarrega mais
+   rápido (−5%) e ainda dá +1% de dano para a nave. Custa caro de
+   propósito: é a melhoria mais pesada do jogo.
+   ===================================================================== */
+const HAB_MAX = 10;
+function custoHab(nivel) {
+  return Math.round(2200 * Math.pow(1.62, nivel) / 50) * 50;
+}
+function habsUpgrade(i) {
+  i = naveValida(i);
+  const lista = HABILIDADES[i];
+  if (lista && lista.length) return lista;
+  const sh = SHIPS[i];
+  const ult = ULTS[sh.ultId || sh.power] || { name: "Sobrecarga", desc: "descarrega tudo de uma vez" };
+  return [
+    { id: "poder", nome: sh.powerName, icone: "✦", desc: sh.powerDesc, basica: true },
+    { id: "ult",   nome: ult.name,     icone: "★", desc: ult.desc,     basica: true }
+  ];
+}
+function chaveHab(i, id) { return naveValida(i) + ":" + id; }
+function habNivel(i, id) {
+  if (!save.habNv) save.habNv = {};
+  const v = save.habNv[chaveHab(i, id)];
+  return (typeof v === "number" && v > 0) ? Math.min(HAB_MAX, Math.floor(v)) : 0;
+}
+function nivelAtivo(id) {
+  try { return modoJusto() ? 0 : habNivel(save.ship, id); } catch (e) { return 0; }
+}
+/* quanto a habilidade em uso rende a mais, e quanto ela recarrega mais rápido */
+function habForca(id)  { return 1 + 0.15 * nivelAtivo(id); }
+function habRecarga(cd, id) { return cd * (1 - 0.05 * nivelAtivo(id)); }
+function habNiveisDaNave(i) {
+  let t = 0;
+  for (const h of habsUpgrade(i)) t += habNivel(i, h.id);
+  return t;
+}
+function habNiveisAtivos() {
+  try { return modoJusto() ? 0 : habNiveisDaNave(save.ship); } catch (e) { return 0; }
+}
 
 function naveValida(i) {
   return (typeof i === "number" && i >= 0 && i < SHIPS.length) ? i : 0;
@@ -5790,7 +5936,10 @@ const SHAPE_PTS = [
   /* 7 — Ômega-9: fortaleza voadora, casco largo com quatro pilones */
   [[0,-22],[4,-16],[7,-11],[10,-12],[11,-4],[21,-1],[22,5],[13,4],[12,10],[7,9],
    [6,15],[2,13],[0,17],[-2,13],[-6,15],[-7,9],[-12,10],[-13,4],[-22,5],[-21,-1],
-   [-11,-4],[-10,-12],[-7,-11],[-4,-16]]
+   [-11,-4],[-10,-12],[-7,-11],[-4,-16]],
+  /* 8 — Trono Real: privada vista de cima, tampa levantada e caixa atrás */
+  [[0,-20],[6,-18],[9,-13],[10,-6],[9,1],[7,6],[9,8],[12,12],[13,17],[12,20],
+   [-12,20],[-13,17],[-12,12],[-9,8],[-7,6],[-9,1],[-10,-6],[-9,-13],[-6,-18]]
 ];
 
 /* peças de melhoria por nave */
@@ -5965,7 +6114,11 @@ function calcStats() {
   const sh = SHIPS[naveValida(save.ship)] || SHIPS[0];
   const P = justo ? {} : shipPartsOf(save.ship);
   const wp = WEAPONS.find(w => w.id === curWeaponId()) || WEAPONS[0];
-  const pw = id => (sh.power === id ? sh.powerMag : 0);
+  /* o poder da nave cresce com o nível da habilidade "poder" */
+  const nvPoder = justo ? 0 : habNivel(save.ship, "poder");
+  const nvUlt   = justo ? 0 : habNivel(save.ship, "ult");
+  const nvTudo  = justo ? 0 : habNiveisDaNave(save.ship);
+  const pw = id => (sh.power === id ? sh.powerMag * (1 + 0.10 * nvPoder) : 0);
   const A = { vida: 0, escudo: 0, dano: 0, cadencia: 0, cristal: 0, sorte: 0, ima: 0, motor: 0,
               furia: 0, gelo: 0, brasa: 0, sangue: 0, muralha: 0, perfura: 0, eco: 0,
               guarda: 0, enxame: 0, prisma: 0, veloz: 0, avareza: 0,
@@ -5985,7 +6138,8 @@ function calcStats() {
   ST = {
     dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk) * sh.baseDmg *
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg *
-         (1 + (A.dano + A.prisma) / 100) * (A.coroa ? 1.25 : 1) * mundoMult("dano"),
+         (1 + (A.dano + A.prisma) / 100) * (A.coroa ? 1.25 : 1) * (1 + 0.01 * nvTudo) *
+         mundoMult("dano"),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
                   (1 + pw("rate") / 100) * wp.rate * (1 + (A.cadencia + A.prisma) / 100) * (sh.baseRate || 1) *
                   (1 + (sh.bonusCad || 0)) * mundoMult("cadencia")),
@@ -6031,7 +6185,8 @@ function calcStats() {
     ampulha: A.ampulha,
     ultType: sh.ultId || sh.power,
     ultRate: (A.tempo ? 1.35 : 1) * (1 + A.furia / 100) *
-             (1 + 0.08 * u.carga) * (1 + 0.07 * (P.carga || 0)),
+             (1 + 0.08 * u.carga) * (1 + 0.07 * (P.carga || 0)) * (1 + 0.08 * nvUlt),
+    ultForca: 1 + 0.12 * nvUlt,
     reparoOnda: 0.06 * u.reparo,
     cloak: A.capa,
     wStyle: wp.id,
@@ -8731,12 +8886,48 @@ function admNuvemRender() {
   }
   for (const p of lista.slice(0, 80)) {
     const b = document.createElement("button");
-    b.className = "profile-btn" + (admNuvemAlvo && admNuvemAlvo.id === p.id ? " sel" : "");
-    b.innerHTML = '<span class="profile-name">' + escaparTexto(p.nome) + "</span>" +
+    const fora = ficaDeForaDoRanking(p);
+    b.className = "profile-btn" + (admNuvemAlvo && admNuvemAlvo.id === p.id ? " sel" : "") +
+                  (fora ? " oculto" : "");
+    b.innerHTML = '<span class="profile-txt">' +
+      '<span class="profile-name">' + escaparTexto(p.nome) +
+        (fora ? ' <em class="selo-oculto">fora do placar</em>' : "") + "</span>" +
       '<span class="profile-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
-      " · " + (p.naves || 1) + " naves</span>";
+      " · " + (p.naves || 1) + " naves</span></span>";
     b.addEventListener("click", () => { admNuvemSelecionar(p); });
-    el.appendChild(b);
+
+    /* olho: tira e devolve ao placar sem precisar entrar em outra aba */
+    const linha = document.createElement("div");
+    linha.className = "adm-linha-jog";
+    linha.appendChild(b);
+    const fixo = OCULTOS_FIXOS.indexOf(String(p.nome).trim().toLowerCase()) >= 0;
+    if (pode("verLista")) {
+      const olho = document.createElement("button");
+      olho.className = "olho-placar" + (fora ? " off" : "");
+      olho.textContent = fixo ? "🔒" : (fora ? "🙈" : "👁");
+      olho.disabled = !!fixo;
+      olho.title = fixo ? "Conta do administrador: nunca entra nas tabelas."
+                        : (fora ? "Está fora do placar. Toque para mostrar."
+                                : "Aparece no placar. Toque para esconder.");
+      olho.setAttribute("aria-label", olho.title);
+      olho.addEventListener("click", async ev => {
+        ev.stopPropagation();
+        olho.disabled = true;
+        const novo = !fora;
+        await nuvemJuntar("pilotos/" + p.id, { oculto: novo });
+        p.oculto = novo;
+        cacheRanking = null;
+        admMsg(p.nome + (novo ? " sumiu das tabelas" : " voltou para as tabelas"));
+        AudioSys.buy();
+        admNuvemCarregar();
+        if (admNuvemAlvo && admNuvemAlvo.id === p.id) {
+          admNuvemAlvo.oculto = novo;
+          admNuvemAtualizarBotaoOcultar();
+        }
+      });
+      linha.appendChild(olho);
+    }
+    el.appendChild(linha);
   }
 }
 async function admNuvemSelecionar(p) {
@@ -9390,6 +9581,8 @@ $("adm-nuvem-b2").addEventListener("click", () =>
   porNaCaixa({ exclusiva: B2 }, "B-2 Spirit"));
 $("adm-nuvem-omega").addEventListener("click", () =>
   porNaCaixa({ exclusiva: OMEGA }, "Ômega-9 Arsenal"));
+$("adm-nuvem-privada").addEventListener("click", () =>
+  porNaCaixa({ exclusiva: PRIVADA }, "Trono Real"));
 
 /* tirar e zerar (dois toques) */
 $("adm-nuvem-gem-zero").addEventListener("click", () =>
@@ -9547,6 +9740,16 @@ $("adm-b2").addEventListener("click", () =>
     if (p.ships.indexOf(B2) < 0) p.ships.push(B2);
     p.ship = B2;
   }, "B-2 Spirit entregue"));
+$("adm-omega").addEventListener("click", () =>
+  admAct(p => {
+    if (p.ships.indexOf(OMEGA) < 0) p.ships.push(OMEGA);
+    p.ship = OMEGA;
+  }, "Ômega-9 Arsenal entregue"));
+$("adm-privada").addEventListener("click", () =>
+  admAct(p => {
+    if (p.ships.indexOf(PRIVADA) < 0) p.ships.push(PRIVADA);
+    p.ship = PRIVADA;
+  }, "Trono Real entregue"));
 $("adm-ships-all").addEventListener("click", () =>
   admAct(p => { p.ships = []; for (let i = 0; i < MAVERICK; i++) p.ships.push(i); }, "Todas as naves"));
 $("adm-ships-zero").addEventListener("click", () =>
@@ -11118,17 +11321,7 @@ function renderHangar(scrollToSel) {
       bCut.addEventListener("click", () => { AudioSys.resume(); playCutscene(save.ship, "hangar"); });
       tools.appendChild(bOf); tools.appendChild(bCut);
       card.appendChild(tools);
-      const listaHab = HABILIDADES[i];
-      if (listaHab) {
-        const box = document.createElement("div");
-        box.className = "parts";
-        box.innerHTML = '<div class="part-name" style="color:var(--amber)">HABILIDADES (' +
-          listaHab.length + ')</div>' +
-          listaHab.map(h => '<div class="part-desc" style="line-height:1.5">' +
-            h.icone + " <b style=\"color:var(--ink)\">" + h.nome + "</b> — " + h.desc +
-            (h.combo ? "" : " (recarga " + h.cd + "s)") + "</div>").join("");
-        card.appendChild(box);
-      }
+      card.appendChild(buildHabPanel(i));
       card.appendChild(buildPartsPanel(i));
     }
     list.appendChild(card);
@@ -11139,6 +11332,69 @@ function renderHangar(scrollToSel) {
       if (sel) sel.scrollIntoView({ block: "center" });
     });
   }
+}
+
+/* =====================================================================
+   PAINEL DE HABILIDADES — subir de nível gastando cristais
+   ---------------------------------------------------------------------
+   Vale para todas as naves. Mostra o que cada nível já rendeu e o que
+   vai render no próximo, para dar para decidir antes de gastar.
+   ===================================================================== */
+function buildHabPanel(i) {
+  const wrap = document.createElement("div");
+  wrap.className = "hab-up";
+  const lista = habsUpgrade(i);
+  const soma = habNiveisDaNave(i);
+  const cab = document.createElement("div");
+  cab.className = "cab";
+  cab.innerHTML = "<b>HABILIDADES (" + lista.length + ")</b>" +
+    "<span>" + soma + "/" + (lista.length * HAB_MAX) + " níveis · +" + soma + "% de dano</span>";
+  wrap.appendChild(cab);
+
+  for (const h of lista) {
+    const nv = habNivel(i, h.id);
+    const row = document.createElement("div");
+    row.className = "hab-linha";
+    const ganho = h.basica
+      ? (h.id === "poder" ? "+" + Math.round(nv * 10) + "% no poder da nave"
+                          : "+" + Math.round(nv * 8) + "% de carga da ultimate")
+      : "+" + Math.round(nv * 15) + "% de força" +
+        (h.combo || !h.cd ? "" : " · recarga " + (Math.round(h.cd * (1 - 0.05 * nv) * 10) / 10) + "s");
+    row.innerHTML =
+      '<div class="ic">' + h.icone + '</div>' +
+      '<div class="txt">' +
+        '<div class="nm">' + escaparTexto(h.nome) +
+          '<span class="nv' + (nv ? "" : " zero") + '">NÍVEL ' + nv + '/' + HAB_MAX + '</span></div>' +
+        '<div class="ds">' + escaparLongo(h.desc || "") + '</div>' +
+        '<div class="gn">' + ganho + '</div>' +
+        '<div class="barra"><u style="width:' + Math.round((nv / HAB_MAX) * 100) + '%"></u></div>' +
+      '</div>';
+    const btn = document.createElement("button");
+    btn.className = "buy-btn";
+    if (nv >= HAB_MAX) {
+      btn.classList.add("max");
+      btn.textContent = "MÁX";
+      btn.disabled = true;
+    } else {
+      const custo = custoHab(nv);
+      btn.innerHTML = "◆ " + fmt(custo);
+      btn.disabled = save.crystals < custo;
+      btn.addEventListener("click", () => {
+        AudioSys.resume();
+        if (save.crystals < custo) { AudioSys.deny(); return; }
+        save.crystals -= custo;
+        if (!save.habNv) save.habNv = {};
+        save.habNv[chaveHab(i, h.id)] = nv + 1;
+        persist(); calcStats();
+        AudioSys.buy(); vibrate(20);
+        renderHangar(false);
+        if (typeof renderHabBar === "function") renderHabBar(true);
+      });
+    }
+    row.appendChild(btn);
+    wrap.appendChild(row);
+  }
+  return wrap;
 }
 
 function buildPartsPanel(i) {
@@ -12119,8 +12375,21 @@ function mpEmpacotar() {
     Date.now() % 100000000,
     (save.__name || "Piloto").replace(/[,;|]/g, " ")
   ].join(",");
-  const tiros = bullets.slice(-8)
-    .map(b => Math.round(b.x) + "," + Math.round(b.y)).join("|");
+  /* Os tiros iam só com a posição, então chegavam PARADOS no outro
+     aparelho e sumiam no pacote seguinte. Agora vai também a velocidade
+     e um número de série: o outro lado cria o tiro de verdade e ele voa
+     sozinho entre um pacote e outro. Fica liso mesmo com a rede lenta. */
+  const novos = [];
+  for (let i = bullets.length - 1; i >= 0 && novos.length < 10; i--) {
+    const b = bullets[i];
+    if (!b || b.serie === undefined) continue;
+    if (b.serie <= (MP.serieEnviada || 0)) break;
+    novos.push(b);
+  }
+  if (novos.length) MP.serieEnviada = novos[0].serie;
+  const tiros = novos.reverse().map(b =>
+    b.serie + "," + Math.round(b.x) + "," + Math.round(b.y) + "," +
+    Math.round(b.vx / 10) + "," + Math.round(b.vy / 10)).join("|");
   const abates = MP.modo === "pvp" ? "" : mpMeusAbates.slice(-120).join("|");
   return cab + ";" + tiros + ";" + abates;
 }
@@ -12133,7 +12402,14 @@ function mpDesempacotar(linha) {
     pontos: +t[5], dano: +t[6], onda: +t[7], nave: +t[8], rank: +t[9],
     ts: +t[10], nome: t.slice(11).join(",")
   };
-  d.tiros = partes[1] ? partes[1].split("|").map(p => p.split(",").map(Number)) : [];
+  d.tiros = partes[1]
+    ? partes[1].split("|").map(p => {
+        const v = p.split(",").map(Number);
+        return v.length >= 5
+          ? { serie: v[0], x: v[1], y: v[2], vx: v[3] * 10, vy: v[4] * 10 }
+          : { serie: 0, x: v[0], y: v[1], vx: 0, vy: -560 };   // pacote antigo
+      })
+    : [];
   d.abates = partes[2] ? partes[2].split("|") : [];
   return d;
 }
@@ -12143,7 +12419,11 @@ const REDE = { ida: 120, intervalo: 110, ruim: 0 };
 function redeAnotar(ms) {
   REDE.ida = REDE.ida * 0.7 + ms * 0.3;
   // manda no máximo tão rápido quanto a resposta volta
-  REDE.intervalo = clamp(Math.round(REDE.ida * 1.15), 110, 520);
+  /* na arena todo mundo voa junto na mesma tela: vale mandar mais vezes.
+     No cooperativo e no duelo o ritmo continua o de antes.            */
+  const piso = (typeof MP !== "undefined" && MP && MP.modo === "arena") ? 70 : 110;
+  const teto = (typeof MP !== "undefined" && MP && MP.modo === "arena") ? 360 : 520;
+  REDE.intervalo = clamp(Math.round(REDE.ida * 1.05), piso, teto);
   REDE.ruim = REDE.ida > 400 ? Math.min(5, REDE.ruim + 1) : Math.max(0, REDE.ruim - 1);
 }
 async function mpEnviarPosicao() {
@@ -12671,13 +12951,21 @@ function arenaComecarOnda(onda) {
   S.banner = { text: "ARENA · ONDA " + onda, sub: "todo mundo é aliado", t: 2.2 };
   arenaRenderHud();
 }
-/* pula para a onda que a arena está, sem parar o jogo */
+/* Pula para a onda que a arena está, sem parar o jogo.
+   Antes isso apagava tudo de uma vez e dava a sensação de travada. Agora
+   os seus tiros e os cristais que caíram continuam na tela, e os
+   inimigos velhos somem numa explosãozinha em vez de sumir do nada.  */
 function arenaIrParaOnda(onda) {
   if (!arenaModo() || S.mode !== "playing" || onda === S.fase) return;
+  for (const e of enemies) {
+    if (e && e.y > -20 && e.y < H + 20) explosion(e.x, e.y, "#C34DFF", 4, 120);
+  }
   S.fase = onda;
   S.waveIdx = 1;
   S.nWaves = 1;
-  enemies = []; enemyBullets = []; boss = null;
+  enemies.length = 0;
+  enemyBullets.length = 0;
+  boss = null;
   MP.meuDano = 0;
   setupWave();
   S.banner = { text: "ONDA " + onda, sub: arenaOndaChefe(onda) ? "⚠ CHEFE" : "", t: 1.5 };
@@ -13178,17 +13466,32 @@ canvas.addEventListener("pointerup", endDrag);
 canvas.addEventListener("pointercancel", endDrag);
 canvas.addEventListener("contextmenu", e => e.preventDefault());
 /* durante a partida nada mais rola: o dedo é só para pilotar */
+/* A tela do jogo fica parada: nada de arrastar a página. Mas o que
+   ROLA DE VERDADE tem de rolar — e antes isso era uma lista de nomes de
+   classe escrita à mão, então toda fila nova (as abas, os filtros do
+   hangar, a conversa) nascia travada. Agora a regra é geral: se algum
+   pai do que você tocou pode rolar para aquele lado, deixa rolar. */
+function podeRolar(el, horizontal) {
+  const st = getComputedStyle(el);
+  const fluxo = horizontal ? st.overflowX : st.overflowY;
+  if (fluxo !== "auto" && fluxo !== "scroll") return false;
+  return horizontal ? el.scrollWidth > el.clientWidth + 2
+                    : el.scrollHeight > el.clientHeight + 2;
+}
+let toqueX = 0, toqueY = 0;
+document.addEventListener("touchstart", e => {
+  const t = e.touches && e.touches[0];
+  if (t) { toqueX = t.clientX; toqueY = t.clientY; }
+}, { passive: true });
+
 document.addEventListener("touchmove", e => {
   if (e.target === canvas || e.target === of3d) { e.preventDefault(); return; }
   if (S.mode === "playing" || S.mode === "cutscene") { e.preventDefault(); return; }
-  // fora da partida, deixa rolar apenas dentro de quem tem rolagem própria
+  const t = e.touches && e.touches[0];
+  const horizontal = t ? Math.abs(t.clientX - toqueX) > Math.abs(t.clientY - toqueY) : false;
   let n = e.target;
-  while (n && n !== document.body) {
-    if (n.classList && (n.classList.contains("scroll") ||
-        n.classList.contains("login-rolagem") || n.classList.contains("inv-lista") ||
-        n.classList.contains("vivo-lista") || n.classList.contains("cn-filtros") ||
-        n.classList.contains("cp-conteudo") || n.id === "screen-menu" ||
-        n.id === "erro-box" || n.classList.contains("nov-lista"))) return;
+  while (n && n !== document.body && n.nodeType === 1) {
+    try { if (podeRolar(n, horizontal)) return; } catch (err) {}
     n = n.parentNode;
   }
   e.preventDefault();
@@ -13579,6 +13882,7 @@ function efxDesenhar() {
 function activateUlt() {
   const type = ST.ultType;
   const ult = ULTS[type];
+  const UF = ST.ultForca || 1;   // o nível da ultimate no hangar deixa ela mais forte
   S.ultCharge = 0;
   ultBtnSync();
   AudioSys.ultFire();
@@ -13586,47 +13890,48 @@ function activateUlt() {
   S.banner = { text: ult.name.toUpperCase() + "!", sub: "", t: 1.6 };
   S.shake = Math.max(S.shake, 10);
   if (type === "dmg") {
-    S.furyT = 5;
-    efeito("aura", 5, { cor: "rgba(255,80,80," });
+    S.furyT = 5 * UF;
+    efeito("aura", 5 * UF, { cor: "rgba(255,80,80," });
     efeito("onda", 0.7, { x: player.x, y: player.y, r: 260, cor: "rgba(255,80,80," });
   } else if (type === "rate") {
-    S.barrage = { waves: 3, timer: 0 };
+    S.barrage = { waves: Math.round(3 * UF), timer: 0 };
     efeito("onda", 0.6, { x: player.x, y: player.y, r: 300, cor: "rgba(77,232,255," });
     efeito("aura", 1.6, { cor: "rgba(77,232,255," });
   } else if (type === "lives") {
-    player.shield = ST.shieldDur * 1.2;
-    player.invuln = Math.max(player.invuln, 6);
+    player.shield = ST.shieldDur * 1.2 * UF;
+    player.invuln = Math.max(player.invuln, 6 * UF);
     enemyBullets.length = 0;
-    efeito("domo", 6);
+    efeito("domo", 6 * UF);
   } else if (type === "gold") {
-    for (let k = 0; k < 14; k++) {
+    const nGem = Math.round(14 * UF);
+    for (let k = 0; k < nGem; k++) {
       powerups.push({ x: rand(24, W - 24), y: rand(-260, -20), type: "gem", vy: rand(150, 220), t: rand(0, 2) });
     }
     efeito("raios", 2.6, { cor: "rgba(255,193,69," });
   } else if (type === "ghost") {
-    player.invis = 5;
-    efeito("fantasmas", 5);
+    player.invis = 5 * UF;
+    efeito("fantasmas", 5 * UF);
   } else if (type === "vamp") {
-    for (let j = enemies.length - 1; j >= 0; j--) damageEnemy(enemies[j], j, 6 * ST.dmg, false);
-    damageBossAny(10 * ST.dmg);
+    for (let j = enemies.length - 1; j >= 0; j--) damageEnemy(enemies[j], j, 6 * ST.dmg * UF, false);
+    damageBossAny(10 * ST.dmg * UF);
     explosion(player.x, player.y, "#FF4D8F", 40, 320);
     efeito("garras", 0.9);
   } else if (type === "frost") {
-    for (const e of enemies) e.frozenT = 4;
-    if (boss) boss.frozenT = 4;
-    efeito("gelo", 4);
+    for (const e of enemies) e.frozenT = 4 * UF;
+    if (boss) boss.frozenT = 4 * UF;
+    efeito("gelo", 4 * UF);
   } else if (type === "blast") {
-    blastArea(player.x, player.y - 120, 340, 8 * ST.dmg);
-    damageBossAny(8 * ST.dmg);
+    blastArea(player.x, player.y - 120, 340 * UF, 8 * ST.dmg * UF);
+    damageBossAny(8 * ST.dmg * UF);
     enemyBullets = [];
     explosion(player.x, player.y - 120, "#FF9E4D", 70, 420);
     efeito("onda", 1.1, { x: player.x, y: player.y - 120, r: 460, cor: "rgba(255,158,77," });
     S.shake = 20;
   } else if (type === "drone") {
-    S.hiveT = 8;
-    efeito("colmeia", 8);
+    S.hiveT = 8 * UF;
+    efeito("colmeia", 8 * UF);
   } else if (type === "magnet") {
-    S.singu = { x: player.x, y: Math.max(150, player.y - 260), t: 2.5 };
+    S.singu = { x: player.x, y: Math.max(150, player.y - 260), t: 2.5 * UF };
   } else if (type === "maverick") {
     // três passagens rasantes seguidas
     rasante = { x: -40, y: Math.max(120, player.y - 200), dir: 1, t: 1.4 };
@@ -13635,12 +13940,15 @@ function activateUlt() {
     player.invuln = Math.max(player.invuln, 2.5);
     efeito("risca", 2.4);
   } else if (type === "b2") {
-    S.chuvaFogo = 6;
+    S.chuvaFogo = 6 * UF;
     S.chuvaT = 0;
     player.invuln = Math.max(player.invuln, 1.5);
   } else if (type === "omega") {
     // a ultimate do Ômega-9 é a operação inteira
     try { EFEITOS.operacao(); } catch (e) {}
+  } else if (type === "privada") {
+    // a ultimate do Trono Real é a explosão intestinal
+    try { EFEITOS.intestinal(); } catch (e) {}
   }
 }
 
@@ -13690,19 +13998,22 @@ function superNova(x, y) {
   addText(W / 2, H * 0.42, "SUPER NOVA!", "#FFC145");
 }
 
+/* força da habilidade que está sendo usada agora (sobe com o nível) */
+let FH = 1;
 const EFEITOS = {
   /* ----- Maverick ----- */
   sidewinder() {
-    for (let k = 0; k < 6; k++) {
+    const qtd = Math.round(6 * FH);
+    for (let k = 0; k < qtd; k++) {
       missilesArr.push({ x: player.x + rand(-16, 16), y: player.y - 8,
-                         vx: rand(-180, 180), vy: -260, t: 3.2, r: 5 });
+                         vx: rand(-180, 180), vy: -260, t: 3.2, r: 5 * FH });
     }
     addText(player.x, player.y - 34, "SIDEWINDER", "#FFC145");
   },
-  vulcan() { S.vulcanT = 4; addText(player.x, player.y - 34, "VULCAN", "#4DE8FF"); },
+  vulcan() { S.vulcanT = 4 * FH; addText(player.x, player.y - 34, "VULCAN", "#4DE8FF"); },
   posComb() {
-    S.turboT = 3;
-    player.invuln = Math.max(player.invuln, 3);
+    S.turboT = 3 * FH;
+    player.invuln = Math.max(player.invuln, 3 * FH);
     addText(player.x, player.y - 34, "PÓS-COMBUSTOR", "#FF7B4D");
   },
   flares() {
@@ -13715,19 +14026,19 @@ const EFEITOS = {
     if (n) S.score += n * 5;
   },
   rasante() {
-    rasante = { x: player.x, y: player.y, dir: player.x < W / 2 ? 1 : -1, t: 1.1 };
-    player.invuln = Math.max(player.invuln, 1.3);
+    rasante = { x: player.x, y: player.y, dir: player.x < W / 2 ? 1 : -1, t: 1.1, forca: FH };
+    player.invuln = Math.max(player.invuln, 1.3 * FH);
     addText(player.x, player.y - 34, "VOO RASANTE", "#FF7B4D");
   },
 
   /* ----- Ômega-9 Arsenal ----- */
   nuclear()    { ogivaNuclear(); },
-  tanques()    { chamarTropa("tanque", 5); },
-  esquadrao()  { bombardeioAereo(3); },
-  fuzileiros() { chamarTropa("soldado", 8); },
-  artilharia() { pedirArtilharia(9); },
+  tanques()    { chamarTropa("tanque", Math.round(5 * FH)); },
+  esquadrao()  { bombardeioAereo(Math.round(3 * FH)); },
+  fuzileiros() { chamarTropa("soldado", Math.round(8 * FH)); },
+  artilharia() { pedirArtilharia(Math.round(9 * FH)); },
   orbital()    { canhaoOrbital(); },
-  helicoptero(){ chamarTropa("heli", 2); },
+  helicoptero(){ chamarTropa("heli", Math.round(2 * FH)); },
   reparo() {
     player.lives = ST.maxLives;
     player.hp = ST.maxHp;
@@ -13736,7 +14047,7 @@ const EFEITOS = {
     updateHud();
   },
   blindagem() {
-    player.invuln = Math.max(player.invuln, 8);
+    player.invuln = Math.max(player.invuln, 8 * FH);
     addText(player.x, player.y - 40, "BLINDAGEM ÔMEGA", "#FFC145");
   },
   apocalipse() {
@@ -13773,45 +14084,113 @@ const EFEITOS = {
 
   /* ----- B-2 Spirit ----- */
   bombardeio() {
-    for (let k = 0; k < 8; k++) {
-      bombas.push({ x: player.x + (k - 3.5) * 26, y: player.y - 12,
-                    vy: -30 - k * 6, t: 0.35 + k * 0.06, raio: 78 });
+    const nb = Math.round(8 * FH);
+    for (let k = 0; k < nb; k++) {
+      bombas.push({ x: player.x + (k - (nb - 1) / 2) * 26, y: player.y - 12,
+                    vy: -30 - k * 6, t: 0.35 + k * 0.06, raio: 78 * FH });
     }
     addText(player.x, player.y - 34, "BOMBARDEIO", "#FF9E4D");
   },
   buraco() {
     buracos.push({ x: player.x + rand(-40, 40), y: Math.max(120, player.y - 240),
-                   r: 30, t: 7, pulso: 0 });
+                   r: 30 * FH, t: 7 * FH, pulso: 0 });
     addText(player.x, player.y - 34, "BURACO NEGRO", "#C34DFF");
   },
-  furtivo() { player.invis = 5; AudioSys.cloak(); addText(player.x, player.y - 34, "FURTIVO", "#C34DFF"); },
+  furtivo() { player.invis = 5 * FH; AudioSys.cloak(); addText(player.x, player.y - 34, "FURTIVO", "#C34DFF"); },
   cruzador() {
     missilesArr.push({ x: player.x, y: player.y - 10, vx: 0, vy: -300, t: 4, r: 10, pesado: true });
     addText(player.x, player.y - 34, "MÍSSIL CRUZADOR", "#FFC145");
   },
   emp() {
     limparTiros("EMP");
-    for (const e of enemies) e.frozenT = Math.max(e.frozenT || 0, 4);
-    if (boss) boss.frozenT = Math.max(boss.frozenT || 0, 4);
+    for (const e of enemies) e.frozenT = Math.max(e.frozenT || 0, 4 * FH);
+    if (boss) boss.frozenT = Math.max(boss.frozenT || 0, 4 * FH);
     for (let k = 0; k < 3; k++) {
       setTimeout(() => AudioSys.tone(180 + k * 120, 0.18, "square", 0.12, 60), k * 90);
     }
   },
   napalm() {
-    for (let k = 0; k < 7; k++) {
-      fogo.push({ x: rand(30, W - 30), y: rand(H * 0.12, H * 0.62), r: 46, t: 5 });
+    const nf = Math.round(7 * FH);
+    for (let k = 0; k < nf; k++) {
+      fogo.push({ x: rand(30, W - 30), y: rand(H * 0.12, H * 0.62), r: 46 * FH, t: 5 });
     }
     addText(player.x, player.y - 34, "NAPALM", "#FF7B4D");
   },
   titanio() {
-    player.shield = ST.shieldDur * 1.5;
-    player.invuln = Math.max(player.invuln, 3);
+    player.shield = ST.shieldDur * 1.5 * FH;
+    player.invuln = Math.max(player.invuln, 3 * FH);
     addText(player.x, player.y - 34, "ESCUDO DE TITÂNIO", "#FFC145");
   },
-  escolta() { S.hiveT = Math.max(S.hiveT, 10); addText(player.x, player.y - 34, "ESCOLTA", "#4DE8FF"); },
+  escolta() { S.hiveT = Math.max(S.hiveT, 10 * FH); addText(player.x, player.y - 34, "ESCOLTA", "#4DE8FF"); },
   contra() {
     const n = limparTiros("CONTRAMEDIDAS");
-    danoEmArea(player.x, player.y, 200, (2 + n * 0.4) * ST.dmg, "#4DE8FF");
+    danoEmArea(player.x, player.y, 200 * FH, (2 + n * 0.4) * ST.dmg * FH, "#4DE8FF");
+  },
+
+  /* ----- Trono Real: o arsenal de cocô ----- */
+  bombaCoco() {
+    const n = Math.round(6 * FH);
+    for (let k = 0; k < n; k++) {
+      bombas.push({ x: player.x + rand(-70, 70), y: player.y - 10,
+                    vy: -55 - k * 8, t: 0.4 + k * 0.07, raio: 74 * FH, coco: true });
+    }
+    AudioSys.explode();
+    addText(player.x, player.y - 34, "BOMBA DE COCÔ 💩", "#C08B45");
+  },
+  descarga() {
+    const n = limparTiros("DESCARGA");
+    danoEmArea(W / 2, H / 2, Math.max(W, H), (6 + n * 0.3) * ST.dmg * FH, "#7CE8FF");
+    for (let k = 0; k < 46; k++) {
+      const a = (k / 46) * TAU * 2;
+      particles.push({ x: player.x, y: player.y,
+                       vx: Math.cos(a) * (150 + k * 7), vy: Math.sin(a) * (150 + k * 7),
+                       t: 0.8, max: 0.8, color: k % 3 ? "#5FD6FF" : "#C08B45", r: 3 });
+    }
+    S.shake = Math.max(S.shake, 12);
+    AudioSys.bigBoom();
+    addText(player.x, player.y - 34, "DESCARGA SUPREMA 🌀", "#5FD6FF");
+  },
+  gasLetal() {
+    const n = Math.round(5 * FH);
+    for (let k = 0; k < n; k++) {
+      fogo.push({ x: player.x + rand(-100, 100), y: player.y + rand(-140, 40),
+                  r: 56 * FH, t: 6, coco: true });
+    }
+    addText(player.x, player.y - 34, "GÁS LETAL ☁", "#9BD46B");
+  },
+  papel() {
+    for (const e of enemies) e.frozenT = Math.max(e.frozenT || 0, 4 * FH);
+    if (boss) boss.frozenT = Math.max(boss.frozenT || 0, 4 * FH);
+    limparTiros("PAPEL HIGIÊNICO");
+    addText(player.x, player.y - 34, "PAPEL HIGIÊNICO 🧻", "#EFEFEF");
+  },
+  tampa() {
+    player.shield = ST.shieldDur * 1.5 * FH;
+    player.invuln = Math.max(player.invuln, 4 * FH);
+    addText(player.x, player.y - 34, "TAMPA FECHADA", "#EFEFEF");
+  },
+  chuvaCoco() {
+    S.chuvaCoco = Math.max(S.chuvaCoco || 0, 5 * FH);
+    S.cocoT = 0;
+    S.cocoRaio = 66 * FH;
+    addText(player.x, player.y - 40, "CHUVA MARROM", "#C08B45");
+  },
+  ralo() {
+    buracos.push({ x: player.x + rand(-30, 30), y: Math.max(140, player.y - 250),
+                   r: 34 * FH, t: 8 * FH, pulso: 0, coco: true });
+    addText(player.x, player.y - 34, "RALO SEM FUNDO 🚽", "#8C6239");
+  },
+  intestinal() {
+    S.banner = { text: "💩 EXPLOSÃO INTESTINAL 💩", sub: "todo o arsenal do trono", t: 2.6 };
+    S.shake = Math.max(S.shake, 22);
+    EFEITOS.bombaCoco();
+    EFEITOS.gasLetal();
+    EFEITOS.papel();
+    EFEITOS.chuvaCoco();
+    EFEITOS.descarga();
+    EFEITOS.ralo();
+    player.invuln = Math.max(player.invuln, 4 * FH);
+    vibrate([80, 50, 80, 50, 140]);
   }
 };
 
@@ -13820,8 +14199,10 @@ function usarHabilidade(h) {
   if ((habCd[h.id] || 0) > 0) return;
   const fn = EFEITOS[h.id];
   if (!fn) return;
+  FH = habForca(h.id);           // quanto o nível dela deixa mais forte
   fn();
-  habCd[h.id] = h.cd;   // o supremo tem cd 0: pode apertar sempre
+  FH = 1;
+  habCd[h.id] = habRecarga(h.cd, h.id);   // o supremo tem cd 0: pode apertar sempre
   AudioSys.ultFire();
   vibrate(25);
   renderHabBar();
@@ -13923,8 +14304,11 @@ function renderHabBar(forcar) {
       b.className = "hab-btn" + (h.combo ? " combo" : "") + (h.supremo ? " supremo" : "");
       b.dataset.id = h.id;
       const tecla = h.combo ? null : TECLAS_HAB[n++];
-      b.title = h.nome + " — " + h.desc + (tecla && modoPC ? "  [" + tecla.toUpperCase() + "]" : "");
+      const nv = nivelAtivo(h.id);
+      b.title = h.nome + (nv ? " (nível " + nv + ")" : "") + " — " + h.desc +
+        (tecla && modoPC ? "  [" + tecla.toUpperCase() + "]" : "");
       b.innerHTML = '<span class="ic">' + h.icone + "</span>" +
+        (nv ? '<span class="hab-nv">' + nv + "</span>" : "") +
         (tecla && modoPC ? '<span class="hab-tecla">' + tecla.toUpperCase() + "</span>" : "");
       if (!h.combo) b.addEventListener("click", () => usarHabilidade(h));
       bar.appendChild(b);
@@ -14248,6 +14632,7 @@ function startGame(fase) {
   bullets = []; enemyBullets = []; enemies = []; missilesArr = []; powerups = []; particles = []; texts = [];
   aliados = []; obuses = []; laserOrbital = null; raios = [];
   bombas = []; buracos = []; fogo = []; rasante = null;
+  S.chuvaCoco = 0;
   habCd = {};
   boss = null;
   dragging = false; dragId = null;
@@ -14698,13 +15083,15 @@ function bulletDmg() {
   if (ST.critChance > 0 && Math.random() < ST.critChance) return { d: base * 2, crit: true };
   return { d: base, crit: false };
 }
+let serieTiro = 0;
 function playerShoot() {
   const x = player.x, y = player.y - player.r - 2;
   const vk = ST.balaVel || 1;          // Amuleto Certeiro: bala mais rápida
   const spd = -560 * vk;
   const style = ST.wStyle;
   const br = style === "plasma" ? 6 : style === "vulcan" ? 2.5 : style === "laser" ? 3 : 4;
-  const mk = (bx, by, vx, vy) => bullets.push({ x: bx, y: by, vx, vy, r: br, pierce: ST.pierce, style });
+  const mk = (bx, by, vx, vy) => bullets.push({
+    x: bx, y: by, vx, vy, r: br, pierce: ST.pierce, style, serie: ++serieTiro });
   if (player.weapon === 1) mk(x, y, 0, spd);
   else if (player.weapon === 2) { mk(x - 9, y, 0, spd); mk(x + 9, y, 0, spd); }
   else { mk(x, y, 0, spd); mk(x - 10, y + 6, -110 * vk, spd); mk(x + 10, y + 6, 110 * vk, spd); }
@@ -15093,6 +15480,16 @@ function update(dt) {
       bombas.push({ x: rand(20, W - 20), y: -10, vy: 260, t: 0, queda: true, raio: 70 });
     }
   }
+  /* chuva marrom do Trono Real */
+  if (S.chuvaCoco > 0) {
+    S.chuvaCoco -= dt;
+    S.cocoT = (S.cocoT || 0) - dt;
+    if (S.cocoT <= 0) {
+      S.cocoT = 0.14;
+      bombas.push({ x: rand(20, W - 20), y: -10, vy: 240, t: 0, queda: true,
+                    raio: S.cocoRaio || 66, coco: true });
+    }
+  }
 
   /* recargas das habilidades */
   let mudouCd = false;
@@ -15113,7 +15510,7 @@ function update(dt) {
     if (b.queda) {
       b.y += b.vy * dt;
       if (b.y > H - 40 || enemies.some(e => dist2(b.x, b.y, e.x, e.y) < 900)) {
-        danoEmArea(b.x, b.y, b.raio, 4 * ST.dmg, "#FF9E4D");
+        danoEmArea(b.x, b.y, b.raio, 4 * ST.dmg, b.coco ? "#C08B45" : "#FF9E4D");
         AudioSys.explode();
         bombas.splice(i, 1);
       } else if (b.y > H + 20) { bombas.splice(i, 1); }
@@ -15121,9 +15518,10 @@ function update(dt) {
       b.t -= dt;
       b.y += b.vy * dt;
       b.vy += 40 * dt;
-      particles.push({ x: b.x, y: b.y, vx: 0, vy: 30, t: 0.2, max: 0.2, color: "#FF9E4D", r: 2 });
+      particles.push({ x: b.x, y: b.y, vx: 0, vy: 30, t: 0.2, max: 0.2,
+                       color: b.coco ? "#8C6239" : "#FF9E4D", r: 2 });
       if (b.t <= 0) {
-        danoEmArea(b.x, b.y, b.raio, 5 * ST.dmg, "#FF9E4D");
+        danoEmArea(b.x, b.y, b.raio, 5 * ST.dmg, b.coco ? "#C08B45" : "#FF9E4D");
         AudioSys.explode();
         S.shake = Math.max(S.shake, 7);
         bombas.splice(i, 1);
@@ -15203,7 +15601,8 @@ function update(dt) {
   if (rasante) {
     rasante.t -= dt;
     rasante.x += rasante.dir * 900 * dt;
-    danoEmArea(rasante.x, rasante.y, 70, 9 * ST.dmg * dt * 10, "#FF7B4D");
+    danoEmArea(rasante.x, rasante.y, 70 * (rasante.forca || 1),
+               9 * ST.dmg * dt * 10 * (rasante.forca || 1), "#FF7B4D");
     for (let k = 0; k < 2; k++) {
       particles.push({ x: rasante.x, y: rasante.y + rand(-14, 14),
                        vx: -rasante.dir * 200, vy: rand(-30, 30),
@@ -15592,20 +15991,38 @@ function update(dt) {
   /* --- chefe --- */
   updateBoss(dt);
 
-  /* --- duelo: tiros do adversário --- */
-  if (MP.sala && MP.modo === "pvp" && player.alive) {
+  /* --- tiros dos outros pilotos ---
+     Vale para TODO modo com gente junto. Cada tiro recebido vira um
+     projétil local que voa sozinho, então ele aparece bonito mesmo com
+     a rede devagar. O número de série impede criar o mesmo tiro duas
+     vezes quando o mesmo pacote chega repetido.
+     No duelo o tiro machuca; na arena e no cooperativo é só enfeite,
+     porque quem faz o dano de verdade é o dono do tiro.             */
+  if (MP.sala && player.alive) {
+    const duelo = MP.modo === "pvp";
     for (const id in MP.outros) {
       const o = MP.outros[id];
       if (!o || !o.tiros) continue;
       o.sim = o.sim || [];
-      // os tiros recebidos viram projéteis locais, uma única vez
-      const marca = o.ts || 0;
-      if (o.marcaUsada !== marca) {
-        o.marcaUsada = marca;
-        for (const t of o.tiros) {
-          o.sim.push({ x: t[0], y: t[1], vx: -t[2] * 0.6, vy: -t[3] * 0.6, r: 5, t: 2.5 });
+      for (const t of o.tiros) {
+        if (!t || typeof t !== "object") continue;
+        if (t.serie <= (o.ultimaSerie || 0)) continue;
+        o.ultimaSerie = t.serie;
+        o.sim.push(duelo
+          ? { x: t.x, y: t.y, vx: -t.vx * 0.6, vy: -t.vy * 0.6, r: 5, t: 2.5 }
+          : { x: t.x, y: t.y, vx: t.vx, vy: t.vy, r: 4, t: 1.8 });
+      }
+      if (o.sim.length > 70) o.sim = o.sim.slice(-70);
+      if (!duelo) {
+        // aliado: só anda e some, não bate em ninguém
+        for (let i = o.sim.length - 1; i >= 0; i--) {
+          const b = o.sim[i];
+          if (!b) { o.sim.splice(i, 1); continue; }
+          b.t -= dt;
+          b.x += b.vx * dt; b.y += b.vy * dt;
+          if (b.t <= 0 || b.y < -40 || b.y > H + 40) o.sim.splice(i, 1);
         }
-        if (o.sim.length > 60) o.sim = o.sim.slice(-60);
+        continue;
       }
       for (let i = o.sim.length - 1; i >= 0; i--) {
         if (i >= o.sim.length) { i = o.sim.length; continue; }
@@ -15836,10 +16253,122 @@ function desenharPecas(g, sh, k, cor) {
 function corMisturada(hue, luz, sat) {
   return "hsl(" + hue + "," + (sat === undefined ? 100 : sat) + "%," + luz + "%)";
 }
+/* retângulo de cantos redondos (usado no Trono Real) */
+function caixaRedonda(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r);
+  g.lineTo(x + w, y + h - r); g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  g.lineTo(x + r, y + h); g.quadraticCurveTo(x, y + h, x, y + h - r);
+  g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
+  g.closePath();
+}
+
+/* ---------------------------------------------------------------------
+   TRONO REAL — a privada do administrador, com o homem sentado dentro:
+   coroa na cabeça, jornal na mão e o cheirinho subindo.
+   --------------------------------------------------------------------- */
+function desenharPrivada(g, k, detalhe) {
+  const t = (typeof S !== "undefined" && S) ? S.time : 0;
+
+  /* rastro: a descarga saindo por baixo */
+  if (detalhe) {
+    const mot = g.createLinearGradient(0, 16 * k, 0, 34 * k);
+    mot.addColorStop(0, "rgba(155,212,107,.55)");
+    mot.addColorStop(1, "rgba(155,212,107,0)");
+    g.fillStyle = mot;
+    g.beginPath();
+    g.moveTo(-5 * k, 16 * k); g.lineTo(5 * k, 16 * k);
+    g.lineTo(2 * k, 34 * k); g.lineTo(-2 * k, 34 * k);
+    g.closePath(); g.fill();
+  }
+
+  g.shadowColor = "#9BD46B";
+  g.shadowBlur = 14;
+  /* caixa de descarga, atrás */
+  const cx = g.createLinearGradient(0, 6 * k, 0, 20 * k);
+  cx.addColorStop(0, "#FFFFFF"); cx.addColorStop(1, "#AEBFC7");
+  g.fillStyle = cx;
+  caixaRedonda(g, -13 * k, 6 * k, 26 * k, 14 * k, 3 * k); g.fill();
+  /* vaso de porcelana */
+  const vs = g.createLinearGradient(0, -20 * k, 0, 8 * k);
+  vs.addColorStop(0, "#FFFFFF"); vs.addColorStop(0.55, "#E6EEF2"); vs.addColorStop(1, "#B4C3CA");
+  g.fillStyle = vs;
+  g.beginPath(); g.ellipse(0, -6 * k, 10 * k, 14 * k, 0, 0, TAU); g.fill();
+  g.shadowBlur = 0;
+  if (!detalhe) return;
+
+  /* tampa do assento */
+  g.strokeStyle = "#C6D5DC";
+  g.lineWidth = Math.max(1, 2.4 * k);
+  g.beginPath(); g.ellipse(0, -6 * k, 8.2 * k, 11.6 * k, 0, 0, TAU); g.stroke();
+  /* água */
+  const ag = g.createRadialGradient(0, -6 * k, 0, 0, -6 * k, 9 * k);
+  ag.addColorStop(0, "#9FEBFF"); ag.addColorStop(1, "#276F94");
+  g.fillStyle = ag;
+  g.beginPath(); g.ellipse(0, -6 * k, 6.4 * k, 9.4 * k, 0, 0, TAU); g.fill();
+
+  /* o homem sentado */
+  g.fillStyle = "#2E6BB8";
+  g.beginPath(); g.ellipse(0, -4 * k, 4.6 * k, 6 * k, 0, 0, TAU); g.fill();
+  g.strokeStyle = "#F2C49B";
+  g.lineWidth = Math.max(0.8, 1.7 * k);
+  g.lineCap = "round";
+  g.beginPath();
+  g.moveTo(-4 * k, -4 * k); g.lineTo(-7 * k, -1 * k);
+  g.moveTo(4 * k, -4 * k); g.lineTo(7 * k, -1 * k);
+  g.stroke();
+  /* jornal */
+  g.fillStyle = "#EDE7D9";
+  g.fillRect(-5 * k, -1.8 * k, 10 * k, 4.6 * k);
+  g.strokeStyle = "rgba(0,0,0,.24)";
+  g.lineWidth = Math.max(0.5, 0.5 * k);
+  g.beginPath();
+  for (let n = 1; n <= 3; n++) { const y = (-1.8 + n * 1.1) * k; g.moveTo(-4.2 * k, y); g.lineTo(4.2 * k, y); }
+  g.stroke();
+  /* cabeça, cabelo, olhos */
+  g.fillStyle = "#F2C49B";
+  g.beginPath(); g.arc(0, -11 * k, 3.4 * k, 0, TAU); g.fill();
+  g.fillStyle = "#3A2A1B";
+  g.beginPath(); g.arc(0, -11.6 * k, 3.4 * k, Math.PI, TAU); g.fill();
+  g.fillStyle = "#14202A";
+  g.beginPath();
+  g.arc(-1.2 * k, -10.5 * k, Math.max(0.5, 0.6 * k), 0, TAU);
+  g.arc(1.2 * k, -10.5 * k, Math.max(0.5, 0.6 * k), 0, TAU);
+  g.fill();
+  /* coroa: é o trono, afinal */
+  g.fillStyle = "#FFC145";
+  g.beginPath();
+  g.moveTo(-3 * k, -13.8 * k); g.lineTo(-3 * k, -16.6 * k); g.lineTo(-1.5 * k, -15.2 * k);
+  g.lineTo(0, -17.2 * k); g.lineTo(1.5 * k, -15.2 * k); g.lineTo(3 * k, -16.6 * k);
+  g.lineTo(3 * k, -13.8 * k);
+  g.closePath(); g.fill();
+  /* botão de descarga */
+  g.fillStyle = "#FFC145";
+  g.beginPath(); g.arc(0, 12 * k, 2.2 * k, 0, TAU); g.fill();
+  g.strokeStyle = "rgba(0,0,0,.2)";
+  g.lineWidth = Math.max(0.5, 0.6 * k);
+  g.stroke();
+  /* o cheirinho subindo */
+  g.strokeStyle = "rgba(155,212,107,.5)";
+  g.lineWidth = Math.max(0.6, 0.9 * k);
+  for (let n = 0; n < 3; n++) {
+    const bx = (-4 + n * 4) * k;
+    g.beginPath();
+    for (let m = 0; m <= 6; m++) {
+      const y = (-17 - m * 1.6) * k;
+      const x = bx + Math.sin(t * 3 + m * 0.9 + n) * 1.5 * k;
+      if (m === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+    g.stroke();
+  }
+}
+
 function drawShipSprite(g, idx, s2, opc) {
   const i2 = naveValida(idx);
   const sh = SHIPS[i2] || SHIPS[0];
   const k = s2 / 18;
+  if (sh.privada) { desenharPrivada(g, k, !opc || opc.detalhe !== false); return; }
   const hue = shipHue(i2);
   const cor = shipColor(i2);
   const brilhoCor = shipGlowColor(i2);
@@ -16751,8 +17280,9 @@ function draw() {
   for (const f of fogo) {
     const a = clamp(f.t / 5, 0, 1);
     const g3 = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-    g3.addColorStop(0, "rgba(255,193,69," + (0.42 * a) + ")");
-    g3.addColorStop(1, "rgba(255,77,60,0)");
+    g3.addColorStop(0, f.coco ? "rgba(155,212,107," + (0.42 * a) + ")"
+                              : "rgba(255,193,69," + (0.42 * a) + ")");
+    g3.addColorStop(1, f.coco ? "rgba(120,150,60,0)" : "rgba(255,77,60,0)");
     ctx.fillStyle = g3;
     ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
   }
@@ -16787,15 +17317,20 @@ function draw() {
 
   for (const b of bullets) { if (b) drawBullet(b); }
 
-  /* bombas */
-  ctx.fillStyle = "#FFC145";
-  ctx.shadowColor = "#FF9E4D"; ctx.shadowBlur = 10;
+  /* bombas (as do Trono Real caem marrons) */
+  ctx.shadowBlur = 10;
   for (const b of bombas) {
+    ctx.fillStyle = b.coco ? "#8C6239" : "#FFC145";
+    ctx.shadowColor = b.coco ? "#C08B45" : "#FF9E4D";
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.beginPath();
-    ctx.ellipse(0, 0, 4, 9, 0, 0, TAU);
+    ctx.ellipse(0, 0, b.coco ? 6 : 4, b.coco ? 7 : 9, 0, 0, TAU);
     ctx.fill();
+    if (b.coco) {
+      ctx.beginPath(); ctx.ellipse(0, -4, 4, 4, 0, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0, -8, 2.4, 2.8, 0, 0, TAU); ctx.fill();
+    }
     ctx.restore();
   }
   ctx.shadowBlur = 0;
@@ -16854,11 +17389,7 @@ function draw() {
       // tiros do outro
       ctx.fillStyle = MP.modo === "pvp" ? "#FF87B3" : "#9FF3C8";
       ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 6;
-      if (o.sim && MP.modo === "pvp") {
-        for (const b of o.sim) ctx.fillRect(b.x - 2, b.y - 7, 4, 12);
-      } else if (o.tiros) {
-        for (const t of o.tiros) ctx.fillRect(t[0] - 2, t[1] - 7, 4, 12);
-      }
+      if (o.sim) for (const b of o.sim) ctx.fillRect(b.x - 2, b.y - 7, 4, 12);
       ctx.shadowBlur = 0;
     }
   }
@@ -16974,6 +17505,12 @@ function loopInterno(now) {
     draw();
     // enquanto joga, a posição vai pelo laço de desenho: mais constante
     if (MP.sala && now - (MP.ultimoEnvio || 0) > REDE.intervalo) {
+      MP.ultimoEnvio = now;
+      mpEnviarPosicao();
+    }
+    // se acabei de atirar, vale mandar antes da hora: o tiro chega junto
+    if (MP.sala && MP.modo === "arena" && (MP.serieEnviada || 0) < serieTiro - 5 &&
+        now - (MP.ultimoEnvio || 0) > 45) {
       MP.ultimoEnvio = now;
       mpEnviarPosicao();
     }
@@ -17614,7 +18151,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.6";
+const VERSAO = "4.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
