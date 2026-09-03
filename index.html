@@ -285,6 +285,10 @@
     padding:1px 5px;line-height:1.5;
   }
   #hab-abrir.guardada i{display:block}
+  /* na arena a câmera afasta e os controles encolhem junto */
+  body.na-arena #ult-btn,body.na-arena #capa-btn{transform:scale(var(--ui-escala,1));transform-origin:bottom center}
+  body.na-arena .hud-col,body.na-arena .hud-btn{transform:scale(var(--ui-escala,1));transform-origin:top center}
+  body.na-arena #hab-abrir{transform:scale(var(--ui-escala,1));transform-origin:bottom right}
   .hab-btn{
     width:var(--hab-tam,44px);height:var(--hab-tam,44px);
     border-radius:calc(var(--hab-tam,44px) * .32);flex:none;cursor:pointer;
@@ -380,6 +384,13 @@
     background:radial-gradient(120% 82% at 50% 40%,transparent 42%,rgba(3,6,16,.86) 100%);
   }
   body.leve-max #ult-btn.ready{animation:none;box-shadow:0 0 18px rgba(77,232,255,.75)}
+  /* fila de habilidades aberta em celular fraco: sem anel e sem brilho.
+     São até 11 botões por cima do jogo, e o desenho deles a cada quadro
+     custava quadros de verdade.                                        */
+  body.leve .hab-btn.pronta::before{display:none}
+  body.leve .hab-btn.pronta{box-shadow:none}
+  body.leve .hab-btn.supremo{box-shadow:none}
+  body.leve-max .hab-btn{background:rgba(10,16,34,.9)}
   body.leve-max .hab-btn.supremo.ligado{animation:none}
   body.leve-max #presente-aviso{animation:none}
   /* respeita quem pediu menos movimento no próprio aparelho */
@@ -4219,14 +4230,19 @@ function qChutePeloAparelho() {
   }
   return n;
 }
+/* Antes, escolher a mesma qualidade não fazia nada ("if igual, return").
+   Só que ao trocar de fase o cenário é remontado, e às vezes ele voltava
+   pesado mesmo com LEVE marcado: o botão certo já estava aceso, apertar
+   nele não adiantava, e a pessoa tinha de ir no AUTOMÁTICO e voltar.
+   Agora reaplicar é sempre permitido — refaz fundo, estrelas e figuras. */
 function qAplicar(novo, porQue) {
   novo = clamp(novo, 0, 2);
-  if (novo === Q.nivel) return;
+  const mesmo = (novo === Q.nivel);
   Q.nivel = novo;
   Q.ultimaTroca = Date.now();
   Q.tempos.length = 0;
   Q.bons = 0;
-  storageSet("nn_qual", String(novo));
+  if (!mesmo) storageSet("nn_qual", String(novo));
   document.body.classList.toggle("leve", novo <= 1);
   document.body.classList.toggle("leve-max", novo === 0);
   try { resize(); } catch (e) {}
@@ -4241,6 +4257,10 @@ const Q_NOMES = [
   { id: 1, nome: "MÉDIO",    dica: "meio-termo entre bonito e leve" },
   { id: 2, nome: "CAPRICHADO", dica: "tudo ligado, para aparelho que aguenta" }
 ];
+/* remonta o cenário com a qualidade que está valendo (usado a cada fase) */
+function qReaplicar() {
+  try { qAplicar(Q.nivel, "fase nova"); } catch (e) {}
+}
 function qMostrarNoPainel() {
   const cx = $("qual-linha");
   if (!cx) return;
@@ -4306,9 +4326,16 @@ function qMedir(ms) {
    sobra mais espaco para desviar — sem mexer em nenhuma outra conta.
    Em tela pequena o afastamento e menor, para a nave nao virar formiga.  */
 let ZOOM = 1;
+/* A ARENA INFINITA afasta mais que as fases: lá voam todos os jogadores
+   juntos, com onda atrás de onda, e ver mais longe é o que deixa dar para
+   desviar. Só a arena — as fases continuam do tamanho de sempre.       */
+function naArena() {
+  try { return !!(MP && MP.modo === "arena"); } catch (e) { return false; }
+}
 function zoomDaTela(lp) {
   // celular estreito afasta menos; tablet e PC afastam mais
-  const z = lp < 380 ? 0.94 : lp < 460 ? 0.90 : lp < 760 ? 0.87 : 0.84;
+  let z = lp < 380 ? 0.94 : lp < 460 ? 0.90 : lp < 760 ? 0.87 : 0.84;
+  if (naArena()) z *= 0.8;      // arena: mais campo de visão
   return z;
 }
 /* converte um ponto da tela (dedo/mouse) para a coordenada da arena */
@@ -4324,6 +4351,25 @@ function resize() {
   canvas.width = Math.round(lp * DPR);
   canvas.height = Math.round(window.innerHeight * DPR);
   ctx.setTransform(DPR * ZOOM, 0, 0, DPR * ZOOM, 0, 0);
+  /* Se a arena afastou, os botões também encolhem: eles tomariam um
+     pedaço grande demais de uma tela que agora mostra mais jogo.     */
+  const escala = naArena() ? 0.82 : 1;
+  const raiz = document.documentElement;
+  if (raiz.dataset.uiEscala !== String(escala)) {
+    raiz.dataset.uiEscala = String(escala);
+    raiz.style.setProperty("--ui-escala", String(escala));
+  }
+  document.body.classList.toggle("na-arena", naArena());
+}
+/* chamado quando entra e quando sai da arena, para a tela se ajustar */
+function ajustarParaArena() {
+  try {
+    resize();
+    figurasAjustar();
+    fundoRefazer();
+    makeStars();
+    renderHabBar(true);
+  } catch (e) {}
 }
 resize();
 window.addEventListener("resize", () => {
@@ -6433,7 +6479,9 @@ function calcStats() {
                (1 + A.escudo / 100) * (1 + 0.08 * (P.escudo || 0)) * jm("escudo"),
     invulnDur: 2.2 * (1 + 0.02 * def) * (1 + pw("ghost") / 100) *
                (1 + A.guarda / 100) * (1 + 0.08 * u.placa),
-    speedK: 1.15 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) *
+    /* um tico mais lentos que antes (1.15 -> 1.06): a nave ficou menos
+       escorregadia e dá para mirar melhor sem perder a agilidade   */
+    speedK: 1.06 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) *
             (1 + A.motor / 100) * jm("motor"),
     crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
@@ -12799,6 +12847,7 @@ function mpAplicarSala(sala) {
     if (!MP.outros[id]) MP.outros[id] = {};
     Object.assign(MP.outros[id], d);
     mpGuardarPasso(MP.outros[id], d);
+    for (const pd of (d.poderes || [])) mpPoderRecebido(MP.outros[id], pd);
     if (d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
   }
   for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
@@ -12861,6 +12910,60 @@ function mpAplicarAbates(lista) {
     }
   }
 }
+/* =====================================================================
+   MOSTRAR OS PODERES PARA O OUTRO
+   ---------------------------------------------------------------------
+   Tiro já aparecia; ultimate e habilidade, não — quem estava do outro
+   lado só via a nave parada e do nada tomava dano. Agora cada poder vira
+   um recadinho (número de série, tipo e nome) que vai na hora pelo canal
+   firme e também dentro do pacote normal, para funcionar até pela nuvem.
+   Do outro lado ele vira clarão, anel e o nome escrito por cima da nave.
+   ===================================================================== */
+let mpPoderes = [];        // últimos poderes meus, para irem no pacote
+let mpPoderSerie = 0;
+function mpAvisarPoder(tipo, nome) {
+  if (!MP.sala) return;
+  mpPoderSerie++;
+  const msg = mpPoderSerie + "," + String(tipo || "ult").replace(/[,;|]/g, "") + "," +
+              String(nome || "").replace(/[,;|]/g, " ").slice(0, 26);
+  mpPoderes.push(msg);
+  if (mpPoderes.length > 5) mpPoderes.shift();
+  p2pEnviar("x" + msg, true);
+}
+function mpPoderRecebido(o, msg) {
+  if (!o || !msg) return;
+  const v = String(msg).split(",");
+  const serie = +v[0];
+  if (!serie) return;
+  if (!o.poderesVistos) o.poderesVistos = {};
+  if (o.poderesVistos[serie]) return;
+  o.poderesVistos[serie] = 1;
+  o.poder = { tipo: v[1] || "ult", nome: v.slice(2).join(",") || "PODER", t: 1.8, max: 1.8 };
+  try { AudioSys.ultFire(); } catch (e) {}
+}
+/* clarão do poder do outro, desenhado em volta da nave dele */
+function mpDesenharPoderDoOutro(o, x, y) {
+  if (!o || !o.poder || o.poder.t <= 0) return;
+  const p = o.poder;
+  const f = p.t / p.max;
+  const cor = p.tipo === "ult" ? "255,193,69" : "124,247,192";
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, f * 1.2);
+  ctx.strokeStyle = "rgba(" + cor + ",.9)";
+  ctx.lineWidth = 3;
+  const r1 = 26 + (1 - f) * 90;
+  ctx.beginPath(); ctx.arc(x, y, r1, 0, TAU); ctx.stroke();
+  ctx.globalAlpha = Math.min(1, f * 0.7);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(x, y, r1 * 0.62, 0, TAU); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.textAlign = "center";
+  ctx.font = "800 11px 'Chakra Petch',sans-serif";
+  ctx.fillStyle = "rgba(" + cor + "," + Math.min(1, f * 1.4) + ")";
+  ctx.fillText(String(p.nome).toUpperCase(), x, y - 40 - (1 - f) * 16);
+  ctx.restore();
+}
+
 /* mostra os tiros do parceiro voando na minha tela */
 function mpDesenharTirosDoOutro(o) {
   if (!o || !o.tiros || !o.tiros.length) return;
@@ -12919,7 +13022,8 @@ function mpEmpacotar() {
     b.serie + "," + Math.round(b.x) + "," + Math.round(b.y) + "," +
     Math.round(b.vx / 10) + "," + Math.round(b.vy / 10)).join("|");
   const abates = MP.modo === "pvp" ? "" : mpMeusAbates.slice(-120).join("|");
-  return cab + ";" + tiros + ";" + abates;
+  const poderes = mpPoderes.join("|");
+  return cab + ";" + tiros + ";" + abates + ";" + poderes;
 }
 function mpDesempacotar(linha) {
   const partes = String(linha).split(";");
@@ -12939,6 +13043,7 @@ function mpDesempacotar(linha) {
       })
     : [];
   d.abates = partes[2] ? partes[2].split("|") : [];
+  d.poderes = partes[3] ? partes[3].split("|") : [];
   return d;
 }
 /* =====================================================================
@@ -13163,8 +13268,13 @@ function p2pReceber(txt) {
     if (!MP.outros[id]) MP.outros[id] = {};
     Object.assign(MP.outros[id], d);
     mpGuardarPasso(MP.outros[id], d);
+    for (const pd of (d.poderes || [])) mpPoderRecebido(MP.outros[id], pd);
     if (d.abates && d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
     mpAtualizarPlacar();
+  } else if (tipo === "x") {                // poder do outro (ult/habilidade)
+    const id = P2P.parceiro || "p2p";
+    if (!MP.outros[id]) MP.outros[id] = {};
+    mpPoderRecebido(MP.outros[id], corpo);
   } else if (tipo === "k") {                // abates, na hora
     if (MP.modo !== "pvp") mpAplicarAbates(corpo.split("|"));
   } else if (tipo === "w") {                // onda e fase do anfitrião
@@ -13843,6 +13953,7 @@ async function arenaEntrar() {
   MP.sala = "arena"; MP.modo = "arena"; MP.host = false;
   MP.eu = mpMeuId(); MP.outros = {}; MP.fim = null; MP.meuDano = 0;
   ARENA.ligada = true;
+  ajustarParaArena();   // arena afasta a câmera e encolhe os botões
   calcStats();
   // recupera o que eu já tinha derrubado nesta arena, para nunca diminuir
   const meu = await nuvemReq(arenaCaminho() + "/k/" + MP.eu);
@@ -13921,6 +14032,7 @@ function arenaSair() {
   }
   ARENA.ligada = false;
   MP.sala = null; MP.modo = null; MP.outros = {};
+  ajustarParaArena();   // volta ao tamanho normal das fases
   calcStats();
   $("arena-hud").classList.remove("on");
   $("mp-placar").style.display = "none";
@@ -14937,7 +15049,7 @@ cloakBtn.addEventListener("click", tryCloak);
 let EFX = [];
 function efeito(tipo, dur, extra) {
   EFX.push(Object.assign({ tipo: tipo, t: dur, max: dur }, extra || {}));
-  if (EFX.length > 14) EFX.splice(0, EFX.length - 14);
+  if (EFX.length > 22) EFX.splice(0, EFX.length - 22);
 }
 function efxAtualizar(dt) {
   for (let i = EFX.length - 1; i >= 0; i--) {
@@ -15068,6 +15180,120 @@ function efxDesenhar() {
         const y2 = ((k * 271 + S.time * 900) % (H + 200)) - 100;
         ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2, y2 + 60); ctx.stroke();
       }
+
+    /* =================================================================
+       EFEITOS NOVOS — para dar para SABER o que cada poder fez
+       ================================================================= */
+    } else if (e.tipo === "flash") {
+      // clarão que toma a tela e some (nuclear, EMP, sinalizadores)
+      ctx.fillStyle = (e.cor || "rgba(255,255,255,") + (f * f * 0.55) + ")";
+      ctx.fillRect(0, 0, W, H);
+    } else if (e.tipo === "choque") {
+      // três anéis grossos saindo do ponto, um atrás do outro
+      for (let k = 0; k < 3; k++) {
+        const at = clamp((1 - f) * 1.35 - k * 0.16, 0, 1);
+        if (at <= 0) continue;
+        ctx.strokeStyle = (e.cor || "rgba(255,193,69,") + ((1 - at) * 0.9) + ")";
+        ctx.lineWidth = 10 - k * 2.6;
+        ctx.beginPath();
+        ctx.arc(e.x === undefined ? px : e.x, e.y === undefined ? py : e.y,
+                at * (e.r || 420), 0, TAU);
+        ctx.stroke();
+      }
+    } else if (e.tipo === "mira") {
+      // retículo em cima de cada inimigo: mostra quem foi marcado
+      const cor = e.cor || "rgba(255,193,69,";
+      ctx.strokeStyle = cor + (f * 0.9) + ")";
+      ctx.lineWidth = 1.6;
+      let n = 0;
+      for (const en of enemies) {
+        if (leve && (n++ % 2)) continue;
+        const r = en.r + 8 + (1 - f) * 6;
+        ctx.beginPath(); ctx.arc(en.x, en.y, r, 0, TAU); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(en.x - r - 5, en.y); ctx.lineTo(en.x - r + 3, en.y);
+        ctx.moveTo(en.x + r - 3, en.y); ctx.lineTo(en.x + r + 5, en.y);
+        ctx.moveTo(en.x, en.y - r - 5); ctx.lineTo(en.x, en.y - r + 3);
+        ctx.moveTo(en.x, en.y + r - 3); ctx.lineTo(en.x, en.y + r + 5);
+        ctx.stroke();
+      }
+      if (boss && !boss.entering) {
+        const r = boss.r + 16 + (1 - f) * 8;
+        ctx.beginPath(); ctx.arc(boss.x, boss.y, r, 0, TAU); ctx.stroke();
+      }
+    } else if (e.tipo === "cruz") {
+      // cruzes no chão onde a bomba vai cair
+      const cor = e.cor || "rgba(255,120,60,";
+      e.pontos = e.pontos || (function () {
+        const ps = [];
+        const n = e.n || 8;
+        for (let k = 0; k < n; k++) ps.push({ x: rand(30, W - 30), y: rand(H * 0.18, H * 0.75) });
+        return ps;
+      })();
+      ctx.strokeStyle = cor + (f * 0.9) + ")";
+      ctx.lineWidth = 2;
+      for (const pt of e.pontos) {
+        const r = 16 + Math.sin(S.time * 12 + pt.x) * 3;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, r * (0.5 + f * 0.7), 0, TAU); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pt.x - r, pt.y); ctx.lineTo(pt.x + r, pt.y);
+        ctx.moveTo(pt.x, pt.y - r); ctx.lineTo(pt.x, pt.y + r);
+        ctx.stroke();
+      }
+    } else if (e.tipo === "feixe") {
+      // coluna de luz descendo do céu num ponto (tropas, canhão orbital)
+      const x2 = e.x === undefined ? px : e.x;
+      const larg = (e.larg || 34) * (0.6 + f * 0.6);
+      const g4 = ctx.createLinearGradient(x2, 0, x2, H);
+      g4.addColorStop(0, (e.cor || "rgba(255,193,69,") + (f * 0.55) + ")");
+      g4.addColorStop(1, (e.cor || "rgba(255,193,69,") + "0)");
+      ctx.fillStyle = g4;
+      ctx.fillRect(x2 - larg, 0, larg * 2, H);
+      ctx.strokeStyle = (e.cor || "rgba(255,193,69,") + (f * 0.9) + ")";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x2, 0); ctx.lineTo(x2, H); ctx.stroke();
+    } else if (e.tipo === "redemoinho") {
+      // espiral que gira (descarga, ralo, buraco)
+      const x2 = e.x === undefined ? px : e.x, y2 = e.y === undefined ? py : e.y;
+      ctx.strokeStyle = (e.cor || "rgba(95,214,255,") + (f * 0.8) + ")";
+      ctx.lineWidth = 3;
+      const voltas = leve ? 2 : 3.5;
+      ctx.beginPath();
+      for (let a = 0; a < voltas * TAU; a += 0.22) {
+        const r = (a / (voltas * TAU)) * (e.r || 120) * (1.1 - f * 0.4);
+        const an = a + S.time * 5 * (e.giro || 1);
+        const xx = x2 + Math.cos(an) * r, yy = y2 + Math.sin(an) * r;
+        if (a === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+      }
+      ctx.stroke();
+    } else if (e.tipo === "respingo") {
+      // borrifadas para todos os lados (napalm, gás, cocô)
+      e.gotas = e.gotas || (function () {
+        const gs = [];
+        const n = leve ? 10 : 20;
+        for (let k = 0; k < n; k++) {
+          const a = (k / n) * TAU + rand(-0.2, 0.2);
+          gs.push({ a, d: rand(0.4, 1), r: rand(3, 9) });
+        }
+        return gs;
+      })();
+      const x2 = e.x === undefined ? px : e.x, y2 = e.y === undefined ? py : e.y;
+      ctx.fillStyle = (e.cor || "rgba(192,139,69,") + (f * 0.85) + ")";
+      for (const g5 of e.gotas) {
+        const d = (1 - f) * (e.r || 150) * g5.d;
+        ctx.beginPath();
+        ctx.arc(x2 + Math.cos(g5.a) * d, y2 + Math.sin(g5.a) * d, g5.r * f, 0, TAU);
+        ctx.fill();
+      }
+    } else if (e.tipo === "alvo") {
+      // anel que fecha em volta da nave (reparo, escudo, blindagem)
+      const cor = e.cor || "rgba(124,247,192,";
+      for (let k = 0; k < 2; k++) {
+        const r = (f * 130 + 26) - k * 10;
+        ctx.strokeStyle = cor + (((1 - f) * 0.9) - k * 0.25) + ")";
+        ctx.lineWidth = 3 - k;
+        ctx.beginPath(); ctx.arc(px, py, Math.max(4, r), 0, TAU); ctx.stroke();
+      }
     }
   }
 }
@@ -15076,6 +15302,7 @@ function activateUlt() {
   const type = ST.ultType;
   const ult = ULTS[type];
   const UF = ST.ultForca || 1;   // o nível da ultimate no hangar deixa ela mais forte
+  try { mpAvisarPoder("ult", ult && ult.name); } catch (e) {}
   S.ultCharge = 0;
   ultBtnSync();
   AudioSys.ultFire();
@@ -15085,6 +15312,7 @@ function activateUlt() {
   if (type === "dmg") {
     S.furyT = 5 * UF;
     efeito("aura", 5 * UF, { cor: "rgba(255,80,80," });
+    efeito("choque", 0.8, { r: 300, cor: "rgba(255,80,80," });
     efeito("onda", 0.7, { x: player.x, y: player.y, r: 260, cor: "rgba(255,80,80," });
   } else if (type === "rate") {
     S.barrage = { waves: Math.round(3 * UF), timer: 0 };
@@ -15095,6 +15323,7 @@ function activateUlt() {
     player.invuln = Math.max(player.invuln, 6 * UF);
     enemyBullets.length = 0;
     efeito("domo", 6 * UF);
+    efeito("alvo", 0.9, { cor: "rgba(255,214,120," });
   } else if (type === "gold") {
     const nGem = Math.round(14 * UF);
     for (let k = 0; k < nGem; k++) {
@@ -15109,22 +15338,29 @@ function activateUlt() {
     damageBossAny(10 * ST.dmg * UF);
     explosion(player.x, player.y, "#FF4D8F", 40, 320);
     efeito("garras", 0.9);
+    efeito("flash", 0.28, { cor: "rgba(255,77,143," });
   } else if (type === "frost") {
     for (const e of enemies) e.frozenT = 4 * UF;
     if (boss) boss.frozenT = 4 * UF;
     efeito("gelo", 4 * UF);
+    efeito("flash", 0.3, { cor: "rgba(190,240,255," });
+    efeito("mira", 1.0, { cor: "rgba(190,240,255," });
   } else if (type === "blast") {
     blastArea(player.x, player.y - 120, 340 * UF, 8 * ST.dmg * UF);
     damageBossAny(8 * ST.dmg * UF);
     enemyBullets = [];
     explosion(player.x, player.y - 120, "#FF9E4D", 70, 420);
     efeito("onda", 1.1, { x: player.x, y: player.y - 120, r: 460, cor: "rgba(255,158,77," });
+    efeito("flash", 0.34, { cor: "rgba(255,200,120," });
+    efeito("choque", 1.0, { x: player.x, y: player.y - 120, r: 520, cor: "rgba(255,158,77," });
     S.shake = 20;
   } else if (type === "drone") {
     S.hiveT = 8 * UF;
     efeito("colmeia", 8 * UF);
   } else if (type === "magnet") {
     S.singu = { x: player.x, y: Math.max(150, player.y - 260), t: 2.5 * UF };
+    efeito("redemoinho", 1.6, { x: player.x, y: Math.max(150, player.y - 260),
+                                r: 170, cor: "rgba(195,77,255," });
   } else if (type === "maverick") {
     // três passagens rasantes seguidas
     rasante = { x: -40, y: Math.max(120, player.y - 200), dir: 1, t: 1.4 };
@@ -15201,12 +15437,16 @@ const EFEITOS = {
       missilesArr.push({ x: player.x + rand(-16, 16), y: player.y - 8,
                          vx: rand(-180, 180), vy: -260, t: 3.2, r: 5 * FH });
     }
+    efeito("mira", 1.1, { cor: "rgba(255,193,69," });
     addText(player.x, player.y - 34, "SIDEWINDER", "#FFC145");
   },
-  vulcan() { S.vulcanT = 4 * FH; addText(player.x, player.y - 34, "VULCAN", "#4DE8FF"); },
+  vulcan() { S.vulcanT = 4 * FH;
+    efeito("aura", 4 * FH, { cor: "rgba(77,232,255," }); addText(player.x, player.y - 34, "VULCAN", "#4DE8FF"); },
   posComb() {
     S.turboT = 3 * FH;
     player.invuln = Math.max(player.invuln, 3 * FH);
+    efeito("risca", 3 * FH);
+    efeito("alvo", 0.6, { cor: "rgba(255,123,77," });
     addText(player.x, player.y - 34, "PÓS-COMBUSTOR", "#FF7B4D");
   },
   flares() {
@@ -15217,30 +15457,58 @@ const EFEITOS = {
                        t: 0.6, max: 0.6, color: "#FFC145", r: 3 });
     }
     if (n) S.score += n * 5;
+    efeito("flash", 0.35, { cor: "rgba(255,214,120," });
+    efeito("choque", 0.7, { r: 320, cor: "rgba(255,193,69," });
   },
   rasante() {
     rasante = { x: player.x, y: player.y, dir: player.x < W / 2 ? 1 : -1, t: 1.1, forca: FH };
+    efeito("risca", 1.3);
     player.invuln = Math.max(player.invuln, 1.3 * FH);
     addText(player.x, player.y - 34, "VOO RASANTE", "#FF7B4D");
   },
 
   /* ----- Ômega-9 Arsenal ----- */
-  nuclear()    { ogivaNuclear(); },
-  tanques()    { chamarTropa("tanque", Math.round(5 * FH)); },
-  esquadrao()  { bombardeioAereo(Math.round(3 * FH)); },
-  fuzileiros() { chamarTropa("soldado", Math.round(8 * FH)); },
-  artilharia() { pedirArtilharia(Math.round(9 * FH)); },
-  orbital()    { canhaoOrbital(); },
-  helicoptero(){ chamarTropa("heli", Math.round(2 * FH)); },
+  nuclear()    {
+    efeito("flash", 0.5, { cor: "rgba(255,238,180," });
+    efeito("choque", 1.1, { r: 560, cor: "rgba(255,193,69," });
+    ogivaNuclear();
+  },
+  tanques()    {
+    efeito("feixe", 0.9, { x: player.x, larg: 60, cor: "rgba(124,247,192," });
+    chamarTropa("tanque", Math.round(5 * FH));
+  },
+  esquadrao()  {
+    efeito("cruz", 1.2, { n: 9, cor: "rgba(255,158,77," });
+    bombardeioAereo(Math.round(3 * FH));
+  },
+  fuzileiros() {
+    efeito("feixe", 0.9, { x: player.x, larg: 46, cor: "rgba(255,193,69," });
+    chamarTropa("soldado", Math.round(8 * FH));
+  },
+  artilharia() {
+    efeito("cruz", 1.4, { n: Math.round(9 * FH), cor: "rgba(255,120,60," });
+    pedirArtilharia(Math.round(9 * FH));
+  },
+  orbital()    {
+    efeito("feixe", 1.2, { x: W / 2, larg: 90, cor: "rgba(160,240,255," });
+    canhaoOrbital();
+  },
+  helicoptero(){
+    efeito("feixe", 0.8, { x: player.x, larg: 40, cor: "rgba(200,220,255," });
+    chamarTropa("heli", Math.round(2 * FH));
+  },
   reparo() {
     player.lives = ST.maxLives;
     player.hp = ST.maxHp;
     player.shield = Math.max(player.shield, ST.shieldDur);
     limparTiros("REPARO DE CAMPANHA");
+    efeito("alvo", 1.1, { cor: "rgba(124,247,192," });
     updateHud();
   },
   blindagem() {
     player.invuln = Math.max(player.invuln, 8 * FH);
+    efeito("domo", 8 * FH);
+    efeito("alvo", 0.8, { cor: "rgba(255,193,69," });
     addText(player.x, player.y - 40, "BLINDAGEM ÔMEGA", "#FFC145");
   },
   apocalipse() {
@@ -15252,6 +15520,9 @@ const EFEITOS = {
     S.apocT = 0;
     S.apocPasso = 0;
     S.banner = { text: "☢ APOCALIPSE ÔMEGA ☢", sub: "arsenal solto até o fim da fase", t: 3.4 };
+    efeito("flash", 0.6, { cor: "rgba(255,220,150," });
+    efeito("choque", 1.4, { r: 620, cor: "rgba(255,77,143," });
+    efeito("feixe", 1.4, { x: W / 2, larg: 110, cor: "rgba(255,193,69," });
     S.shake = 26;
     AudioSys.bigBoom();
     vibrate([90, 60, 90, 60, 160]);
@@ -15265,6 +15536,8 @@ const EFEITOS = {
   },
   operacao() {
     S.banner = { text: "OPERAÇÃO ÔMEGA", sub: "arsenal completo", t: 2.4 };
+    efeito("flash", 0.45, { cor: "rgba(255,220,150," });
+    efeito("choque", 1.2, { r: 520, cor: "rgba(255,193,69," });
     ogivaNuclear();
     bombardeioAereo(3);
     chamarTropa("tanque", 5);
@@ -15282,22 +15555,29 @@ const EFEITOS = {
       bombas.push({ x: player.x + (k - (nb - 1) / 2) * 26, y: player.y - 12,
                     vy: -30 - k * 6, t: 0.35 + k * 0.06, raio: 78 * FH });
     }
+    efeito("cruz", 1.0, { n: 8, cor: "rgba(255,158,77," });
     addText(player.x, player.y - 34, "BOMBARDEIO", "#FF9E4D");
   },
   buraco() {
     buracos.push({ x: player.x + rand(-40, 40), y: Math.max(120, player.y - 240),
                    r: 30 * FH, t: 7 * FH, pulso: 0 });
+    efeito("redemoinho", 1.4, { x: player.x, y: Math.max(120, player.y - 240),
+                                r: 130, cor: "rgba(195,77,255," });
     addText(player.x, player.y - 34, "BURACO NEGRO", "#C34DFF");
   },
-  furtivo() { player.invis = 5 * FH; AudioSys.cloak(); addText(player.x, player.y - 34, "FURTIVO", "#C34DFF"); },
+  furtivo() { player.invis = 5 * FH; AudioSys.cloak();
+    efeito("fantasmas", 5 * FH); addText(player.x, player.y - 34, "FURTIVO", "#C34DFF"); },
   cruzador() {
     missilesArr.push({ x: player.x, y: player.y - 10, vx: 0, vy: -300, t: 4, r: 10, pesado: true });
+    efeito("mira", 1.0, { cor: "rgba(255,193,69," });
     addText(player.x, player.y - 34, "MÍSSIL CRUZADOR", "#FFC145");
   },
   emp() {
     limparTiros("EMP");
     for (const e of enemies) e.frozenT = Math.max(e.frozenT || 0, 4 * FH);
     if (boss) boss.frozenT = Math.max(boss.frozenT || 0, 4 * FH);
+    efeito("flash", 0.4, { cor: "rgba(150,220,255," });
+    efeito("choque", 0.9, { r: 480, cor: "rgba(77,232,255," });
     for (let k = 0; k < 3; k++) {
       setTimeout(() => AudioSys.tone(180 + k * 120, 0.18, "square", 0.12, 60), k * 90);
     }
@@ -15307,17 +15587,25 @@ const EFEITOS = {
     for (let k = 0; k < nf; k++) {
       fogo.push({ x: rand(30, W - 30), y: rand(H * 0.12, H * 0.62), r: 46 * FH, t: 5 });
     }
+    efeito("respingo", 0.9, { r: 200, cor: "rgba(255,123,77," });
     addText(player.x, player.y - 34, "NAPALM", "#FF7B4D");
   },
   titanio() {
     player.shield = ST.shieldDur * 1.5 * FH;
     player.invuln = Math.max(player.invuln, 3 * FH);
+    efeito("domo", 3 * FH);
+    efeito("alvo", 0.8, { cor: "rgba(255,193,69," });
     addText(player.x, player.y - 34, "ESCUDO DE TITÂNIO", "#FFC145");
   },
-  escolta() { S.hiveT = Math.max(S.hiveT, 10 * FH); addText(player.x, player.y - 34, "ESCOLTA", "#4DE8FF"); },
+  escolta() {
+    S.hiveT = Math.max(S.hiveT, 10 * FH);
+    efeito("colmeia", 10 * FH);
+    addText(player.x, player.y - 34, "ESCOLTA", "#4DE8FF");
+  },
   contra() {
     const n = limparTiros("CONTRAMEDIDAS");
     danoEmArea(player.x, player.y, 200 * FH, (2 + n * 0.4) * ST.dmg * FH, "#4DE8FF");
+    efeito("choque", 0.7, { r: 240 * FH, cor: "rgba(77,232,255," });
   },
 
   /* ----- Trono Real: o arsenal de cocô ----- */
@@ -15328,6 +15616,7 @@ const EFEITOS = {
                     vy: -55 - k * 8, t: 0.4 + k * 0.07, raio: 74 * FH, coco: true });
     }
     AudioSys.explode();
+    efeito("respingo", 0.9, { r: 180, cor: "rgba(140,98,57," });
     addText(player.x, player.y - 34, "BOMBA DE COCÔ 💩", "#C08B45");
   },
   descarga() {
@@ -15341,6 +15630,8 @@ const EFEITOS = {
     }
     S.shake = Math.max(S.shake, 12);
     AudioSys.bigBoom();
+    efeito("redemoinho", 1.3, { r: 220, cor: "rgba(95,214,255," });
+    efeito("choque", 0.8, { r: 460, cor: "rgba(95,214,255," });
     addText(player.x, player.y - 34, "DESCARGA SUPREMA 🌀", "#5FD6FF");
   },
   gasLetal() {
@@ -15349,32 +15640,41 @@ const EFEITOS = {
       fogo.push({ x: player.x + rand(-100, 100), y: player.y + rand(-140, 40),
                   r: 56 * FH, t: 6, coco: true });
     }
+    efeito("respingo", 1.1, { r: 190, cor: "rgba(155,212,107," });
     addText(player.x, player.y - 34, "GÁS LETAL ☁", "#9BD46B");
   },
   papel() {
     for (const e of enemies) e.frozenT = Math.max(e.frozenT || 0, 4 * FH);
     if (boss) boss.frozenT = Math.max(boss.frozenT || 0, 4 * FH);
     limparTiros("PAPEL HIGIÊNICO");
+    efeito("mira", 1.2, { cor: "rgba(240,240,240," });
     addText(player.x, player.y - 34, "PAPEL HIGIÊNICO 🧻", "#EFEFEF");
   },
   tampa() {
     player.shield = ST.shieldDur * 1.5 * FH;
     player.invuln = Math.max(player.invuln, 4 * FH);
+    efeito("domo", 4 * FH);
+    efeito("alvo", 0.8, { cor: "rgba(240,240,240," });
     addText(player.x, player.y - 34, "TAMPA FECHADA", "#EFEFEF");
   },
   chuvaCoco() {
     S.chuvaCoco = Math.max(S.chuvaCoco || 0, 5 * FH);
     S.cocoT = 0;
     S.cocoRaio = 66 * FH;
+    efeito("cruz", 1.6, { n: 10, cor: "rgba(192,139,69," });
     addText(player.x, player.y - 40, "CHUVA MARROM", "#C08B45");
   },
   ralo() {
     buracos.push({ x: player.x + rand(-30, 30), y: Math.max(140, player.y - 250),
                    r: 34 * FH, t: 8 * FH, pulso: 0, coco: true });
+    efeito("redemoinho", 1.6, { x: player.x, y: Math.max(140, player.y - 250),
+                                r: 150, giro: -1, cor: "rgba(140,98,57," });
     addText(player.x, player.y - 34, "RALO SEM FUNDO 🚽", "#8C6239");
   },
   intestinal() {
     S.banner = { text: "💩 EXPLOSÃO INTESTINAL 💩", sub: "todo o arsenal do trono", t: 2.6 };
+    efeito("flash", 0.5, { cor: "rgba(190,150,90," });
+    efeito("choque", 1.3, { r: 560, cor: "rgba(155,212,107," });
     S.shake = Math.max(S.shake, 22);
     EFEITOS.bombaCoco();
     EFEITOS.gasLetal();
@@ -15393,6 +15693,7 @@ function usarHabilidade(h) {
   const fn = EFEITOS[h.id];
   if (!fn) return;
   FH = habForca(h.id);           // quanto o nível dela deixa mais forte
+  try { mpAvisarPoder("hab", h.nome); } catch (e) {}
   fn();
   FH = 1;
   habCd[h.id] = habRecarga(h.cd, h.id);   // o supremo tem cd 0: pode apertar sempre
@@ -15426,6 +15727,7 @@ function ajustarBarraHab(quantas) {
   const alt = window.innerHeight;
   let gap = alt < 620 ? 5 : 6;
   let tam = alt < 620 ? 38 : larg < 360 ? 40 : 44;
+  if (naArena()) tam = Math.round(tam * 0.82);   // arena: botão menor, mais jogo
   let porLinha = 1, linhas = 1;
   // encolhe até caber em no máximo duas filas
   for (let volta = 0; volta < 8; volta++) {
@@ -15437,16 +15739,31 @@ function ajustarBarraHab(quantas) {
   // se mesmo assim passar de duas filas, aperta o espaçamento
   if (linhas > 2) { gap = 4; porLinha = Math.max(1, Math.floor((larg + gap) / (tam + gap)));
                     linhas = Math.ceil(quantas / porLinha); }
-  bar.style.setProperty("--hab-tam", tam + "px");
-  bar.style.setProperty("--hab-gap", gap + "px");
-  bar.style.setProperty("--console-base", CONSOLE_BASE + "px");
+  /* Escrever variável de CSS obriga o navegador a recalcular o estilo da
+     página inteira. Isto aqui roda quatro vezes por segundo, e a página é
+     grande: em celular fraco dava para sentir a queda com a fila aberta.
+     Agora só escreve quando o valor muda de verdade.                   */
+  if (bar.dataset.tam !== String(tam)) {
+    bar.dataset.tam = String(tam);
+    bar.style.setProperty("--hab-tam", tam + "px");
+  }
+  if (bar.dataset.gap !== String(gap)) {
+    bar.dataset.gap = String(gap);
+    bar.style.setProperty("--hab-gap", gap + "px");
+    bar.style.setProperty("--console-base", CONSOLE_BASE + "px");
+  }
   habAltura = linhas * (tam + gap) + 6;
 }
 /* posiciona a vida e o botão de guardar conforme o espaço em uso */
+let rodapeUltimo = -1;
 function ajustarRodape(quantas) {
   const raiz = document.documentElement;
-  raiz.style.setProperty("--vida-base", (CONSOLE_BASE + habAltura + 6) + "px");
-  raiz.style.setProperty("--abrir-base", (CONSOLE_BASE + habAltura + 4) + "px");
+  // mesma economia da barra: só mexe no CSS quando a altura muda
+  if (rodapeUltimo !== habAltura) {
+    rodapeUltimo = habAltura;
+    raiz.style.setProperty("--vida-base", (CONSOLE_BASE + habAltura + 6) + "px");
+    raiz.style.setProperty("--abrir-base", (CONSOLE_BASE + habAltura + 4) + "px");
+  }
   const bt = $("hab-abrir");
   if (bt) {
     bt.classList.toggle("on", quantas > 0 && S.mode === "playing");
@@ -15796,6 +16113,9 @@ function desenharAliados() {
 /* ---------- Início de fase ---------- */
 function startGame(fase) {
   calcStats();
+  /* a fase nova remonta o cenário com a qualidade que está valendo:
+     sem isso ela às vezes voltava pesada com LEVE marcado na tela */
+  try { qReaplicar(); } catch (e) {}
   S.mode = "playing";
   try { Musica.tocar(fase, isBossFase(fase) || arenaOndaChefe(fase)); } catch (e) {}
   S.fase = clamp(fase, 1, totalFasesDoModo());
@@ -16067,6 +16387,8 @@ function bossZones() {
 function damageBossZone(z, d) {
   boss.hitFlash = 0.06;
   addUlt(0.004);
+  // CASCA VIVA: enquanto está de pé, o chefe segura mais da metade do dano
+  if (boss.casca > 0) d *= 0.45;
   if (z.pod) {
     z.pod.hp -= d;
     if (z.pod.hp <= 0) {
@@ -16097,6 +16419,150 @@ function damageBossAny(d) {
 function bossCanAct() {
   return boss && !boss.entering && boss.frozenT <= 0;
 }
+/* =====================================================================
+   PODERES DO CHEFE — oito golpes que qualquer chefe pode soltar
+   ---------------------------------------------------------------------
+   Além do jeito de lutar de cada um, todo chefe tira um golpe da manga de
+   tempos em tempos, sorteado na hora. Assim a mesma luta nunca sai igual
+   duas vezes. Os perigosos avisam antes (marca no chão ou faixa na tela),
+   para dar sempre para desviar — é difícil, não é injusto.
+   Em fúria os golpes vêm quase no dobro da frequência.
+   ===================================================================== */
+const BOSS_PODERES = [
+  { id: "teia",    nome: "TEIA DE ESPINHOS",  aviso: false },
+  { id: "praga",   nome: "CHUVA DE PRAGA",    aviso: true  },
+  { id: "garras",  nome: "GARRAS DO VAZIO",   aviso: true  },
+  { id: "chamado", nome: "CHAMADO DA COLMEIA",aviso: false },
+  { id: "raio",    nome: "RAIO CORROSIVO",    aviso: true  },
+  { id: "casca",   nome: "CASCA VIVA",        aviso: false },
+  { id: "bote",    nome: "BOTE",              aviso: true  },
+  { id: "nevoa",   nome: "NÉVOA ÁCIDA",       aviso: false }
+];
+let bossMarcas = [];   // avisos no chão antes do golpe
+
+function bossSortearPoder() {
+  if (!boss) return;
+  const p = BOSS_PODERES[Math.floor(Math.random() * BOSS_PODERES.length)];
+  boss.poderAtual = p.id;
+  boss.poderNome = p.nome;
+  if (p.aviso) {
+    boss.aviso = 0.9;                 // quase um segundo de aviso
+    S.banner = { text: "⚠ " + p.nome, sub: "desvia!", t: 1.1 };
+  } else {
+    bossSoltarPoder(p.id);
+  }
+}
+function bossSoltarPoder(id) {
+  if (!boss) return;
+  const forte = boss.furia ? 1.4 : 1;
+  const vel = 190 + S.fase * 1.1;
+  if (id === "teia") {
+    const n = Math.round(16 * forte);
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * TAU + Math.random() * 0.3;
+      enemyBullets.push({ x: boss.x, y: boss.y, vx: Math.cos(a) * vel * 0.7,
+                          vy: Math.sin(a) * vel * 0.7, r: 5, dano: adapt().dano });
+    }
+    AudioSys.explode();
+  } else if (id === "praga") {
+    const n = Math.round(9 * forte);
+    for (let k = 0; k < n; k++) {
+      const x = rand(20, W - 20);
+      enemyBullets.push({ x, y: -20 - k * 26, vx: rand(-25, 25), vy: vel * 0.85,
+                          r: 6, dano: adapt().dano });
+    }
+  } else if (id === "garras") {
+    // duas faixas que varrem a tela na diagonal
+    for (const lado of [-1, 1]) {
+      for (let k = 0; k < 14; k++) {
+        const t = k / 14;
+        enemyBullets.push({
+          x: lado < 0 ? -20 : W + 20, y: H * (0.2 + t * 0.5),
+          vx: lado * (vel * 1.15), vy: -18 + t * 30, r: 5, dano: adapt().dano
+        });
+      }
+    }
+  } else if (id === "chamado") {
+    const n = Math.round(4 * forte);
+    for (let k = 0; k < n; k++) {
+      const e = spawnEnemy(Math.random() < 0.5 ? "drone" : "striker");
+      if (e) { e.x = boss.x + rand(-70, 70); e.y = boss.y + rand(10, 40); }
+    }
+    addText(boss.x, boss.y - 40, "CHAMADO", "#C34DFF");
+  } else if (id === "raio") {
+    boss.raio = { x: boss.alvoX === undefined ? player.x : boss.alvoX, t: 0.9, larg: 34 * forte };
+  } else if (id === "casca") {
+    boss.casca = 4.5;
+    addText(boss.x, boss.y - 44, "CASCA VIVA", "#8CFF5A");
+  } else if (id === "bote") {
+    boss.bote = { x: clamp(player.x, 50, W - 50), y: clamp(player.y - 40, 120, H * 0.7), t: 0.75 };
+  } else if (id === "nevoa") {
+    for (let k = 0; k < 5; k++) {
+      fogo.push({ x: player.x + rand(-90, 90), y: player.y + rand(-90, 40),
+                  r: 60, t: 4.5, acida: true });
+    }
+    addText(boss.x, boss.y - 40, "NÉVOA ÁCIDA", "#9BD46B");
+  }
+}
+/* roda todo quadro: conta o tempo, mostra o aviso e resolve o golpe */
+function bossPoderes(dt) {
+  if (!boss || boss.entering) return;
+  if (boss.casca > 0) boss.casca -= dt;
+  // marca do raio no chão, antes de descer
+  if (boss.raio) {
+    boss.raio.t -= dt;
+    if (boss.raio.t <= 0) {
+      // o raio desce: fere quem estiver na faixa
+      if (player.alive && Math.abs(player.x - boss.raio.x) < boss.raio.larg) hitPlayer();
+      explosion(boss.raio.x, H * 0.6, "#8CFF5A", 26, 300);
+      S.shake = Math.max(S.shake, 14);
+      AudioSys.bigBoom();
+      boss.raio = null;
+    }
+  }
+  if (boss.bote) {
+    boss.bote.t -= dt;
+    boss.x += (boss.bote.x - boss.x) * 7 * dt;
+    boss.y += (boss.bote.y - boss.y) * 7 * dt;
+    if (player.alive && dist2(boss.x, boss.y, player.x, player.y) < (boss.r + player.r) * (boss.r + player.r)) {
+      hitPlayer();
+      boss.bote = null;
+    } else if (boss.bote.t <= 0) boss.bote = null;
+  }
+  if (boss.aviso > 0) {
+    boss.aviso -= dt;
+    if (boss.aviso <= 0) bossSoltarPoder(boss.poderAtual);
+    return;
+  }
+  boss.poderT = (boss.poderT === undefined ? 4.5 : boss.poderT) - dt;
+  if (boss.poderT <= 0) {
+    boss.poderT = (boss.furia ? 3.2 : 5.6) + Math.random() * 2.2;
+    bossSortearPoder();
+  }
+}
+/* desenha os avisos: faixa do raio e mira do bote */
+function bossDesenharAvisos() {
+  if (!boss) return;
+  if (boss.raio) {
+    const f = clamp(boss.raio.t / 0.9, 0, 1);
+    const g2 = ctx.createLinearGradient(0, 0, 0, H);
+    g2.addColorStop(0, "rgba(140,255,90," + (0.28 * (1 - f) + 0.12) + ")");
+    g2.addColorStop(1, "rgba(140,255,90,0)");
+    ctx.fillStyle = g2;
+    ctx.fillRect(boss.raio.x - boss.raio.larg, 0, boss.raio.larg * 2, H);
+    ctx.strokeStyle = "rgba(140,255,90,.8)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(boss.raio.x, 0); ctx.lineTo(boss.raio.x, H);
+    ctx.stroke();
+  }
+  if (boss.casca > 0) {
+    ctx.strokeStyle = "rgba(140,255,90," + (0.35 + Math.sin(boss.t * 9) * 0.2) + ")";
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(boss.x, boss.y, boss.r + 14, 0, TAU); ctx.stroke();
+  }
+}
+
 function bossCanFire() {
   return bossCanAct() && player.alive && player.invis <= 0;
 }
@@ -16120,6 +16586,7 @@ function updateBoss(dt) {
   if (boss.furia) dt *= 1.42;
   boss.t += dt;
   if (boss.hitFlash > 0) boss.hitFlash -= dt;
+  bossPoderes(dt);          // os oito golpes sorteados
   if (boss.frozenT > 0) { boss.frozenT -= dt; return; }
   const targetY = Math.max(120, H * 0.17);
   if (boss.entering) {
@@ -16807,11 +17274,18 @@ function update(dt) {
     if (colidiu) superNova(colidiu.x, colidiu.y);
   }
 
-  /* poças de napalm */
+  /* poças de napalm (e a névoa ácida do chefe, que é ao contrário) */
   for (let i = fogo.length - 1; i >= 0; i--) {
     const f = fogo[i];
     f.t -= dt;
     if (f.t <= 0) { fogo.splice(i, 1); continue; }
+    if (f.acida) {
+      // névoa do chefe: deixa VOCÊ lento enquanto estiver dentro dela
+      if (player.alive && dist2(f.x, f.y, player.x, player.y) < f.r * f.r) {
+        S.lentoT = Math.max(S.lentoT || 0, 0.35);
+      }
+      continue;
+    }
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       if (dist2(f.x, f.y, e.x, e.y) < f.r * f.r) damageEnemy(e, j, 5 * ST.dmg * dt, false);
@@ -17234,8 +17708,13 @@ function update(dt) {
         if (!t || typeof t !== "object") continue;
         if (t.serie <= (o.ultimaSerie || 0)) continue;
         o.ultimaSerie = t.serie;
+        /* No duelo cada um joga na SUA tela, com a própria nave embaixo.
+           Então o adversário tem de aparecer espelhado: o que para ele é
+           embaixo-à-esquerda, para mim é em cima-à-direita. Sem isso ele
+           aparecia no mesmo canto em que estava na tela dele — e os dois
+           viam a briga trocada.                                        */
         o.sim.push(duelo
-          ? { x: t.x, y: t.y, vx: -t.vx * 0.6, vy: -t.vy * 0.6, r: 5, t: 2.5 }
+          ? { x: W - t.x, y: H - t.y, vx: -t.vx, vy: -t.vy, r: 5, t: 2.5 }
           : { x: t.x, y: t.y, vx: t.vx, vy: t.vy, r: 4, t: 1.8 });
       }
       if (o.sim.length > 70) o.sim = o.sim.slice(-70);
@@ -17753,7 +18232,9 @@ function drawShip() {
     ctx.stroke();
   }
 
-  drawShipSprite(ctx, save.ship, 18);
+  /* na arena a câmera afasta: a sua nave é desenhada um tico maior para
+     você não perder ela de vista no meio de tanta gente */
+  drawShipSprite(ctx, save.ship, naArena() ? 21 : 18);
   ctx.restore();
   ctx.globalAlpha = 1;
 
@@ -18125,6 +18606,7 @@ function drawBoss() {
 
   // a pele viva vai por cima de qualquer chefe
   if (qEnfeites() !== false) bossPeleViva(boss);
+  bossDesenharAvisos();
 
   // congelado?
   if (boss.frozenT > 0) {
@@ -18273,13 +18755,48 @@ function figuraTiroAliado(cor) {
     g.fillRect(-1.8, -7, 3.6, 11);
   });
 }
+/* ---------------------------------------------------------------------
+   TIRO INIMIGO — antes era uma bolinha chapada; agora é uma gota de
+   energia: rastro atrás, casca colorida, miolo branco quente e quatro
+   fagulhas. Continua sendo uma figura guardada, então não custa nada a
+   mais no meio da partida.
+   --------------------------------------------------------------------- */
 function figuraTiroInimigo(r, cor) {
-  const B = 8;
+  const B = 11;
   const rr = Math.max(1, Math.round(r * 2) / 2);
-  return figura("ti|" + rr + "|" + cor, rr + B * FOLGA, rr + B * FOLGA, g => {
-    g.shadowColor = "#FF4D8F"; g.shadowBlur = B;
+  const meia = rr * 2.6 + B * FOLGA;
+  return figura("ti2|" + rr + "|" + cor, meia, meia, g => {
+    // rastro que se abre para trás
+    const rastro = g.createLinearGradient(0, rr * 2.4, 0, -rr);
+    rastro.addColorStop(0, "rgba(255,255,255,0)");
+    rastro.addColorStop(1, cor);
+    g.globalAlpha = 0.5;
+    g.fillStyle = rastro;
+    g.beginPath();
+    g.moveTo(-rr * 0.62, 0);
+    g.quadraticCurveTo(0, rr * 2.6, rr * 0.62, 0);
+    g.closePath(); g.fill();
+    g.globalAlpha = 1;
+    // corpo
+    g.shadowColor = cor; g.shadowBlur = B;
     g.fillStyle = cor;
-    g.beginPath(); g.arc(0, 0, rr, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(0, 0, rr, rr * 1.22, 0, 0, TAU); g.fill();
+    // miolo quente
+    g.shadowBlur = 0;
+    const nucleo = g.createRadialGradient(0, -rr * 0.2, 0, 0, 0, rr);
+    nucleo.addColorStop(0, "rgba(255,255,255,.95)");
+    nucleo.addColorStop(0.55, "rgba(255,255,255,.45)");
+    nucleo.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = nucleo;
+    g.beginPath(); g.ellipse(0, -rr * 0.1, rr * 0.62, rr * 0.8, 0, 0, TAU); g.fill();
+    // fagulhas nas pontas
+    g.fillStyle = "rgba(255,255,255,.7)";
+    for (let k = 0; k < 4; k++) {
+      const a = (k / 4) * TAU + 0.6;
+      g.beginPath();
+      g.arc(Math.cos(a) * rr * 1.35, Math.sin(a) * rr * 1.35, Math.max(0.6, rr * 0.16), 0, TAU);
+      g.fill();
+    }
   });
 }
 /* ---------- figurinhas dos inimigos ---------- */
@@ -18874,9 +19391,9 @@ function draw() {
   for (const f of fogo) {
     const a = clamp(f.t / 5, 0, 1);
     const g3 = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-    g3.addColorStop(0, f.coco ? "rgba(155,212,107," + (0.42 * a) + ")"
+    g3.addColorStop(0, (f.coco || f.acida) ? "rgba(155,212,107," + (0.42 * a) + ")"
                               : "rgba(255,193,69," + (0.42 * a) + ")");
-    g3.addColorStop(1, f.coco ? "rgba(120,150,60,0)" : "rgba(255,77,60,0)");
+    g3.addColorStop(1, (f.coco || f.acida) ? "rgba(120,150,60,0)" : "rgba(255,77,60,0)");
     ctx.fillStyle = g3;
     ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
   }
@@ -18943,7 +19460,10 @@ function draw() {
   for (const b of enemyBullets) {
     if (!b) continue;
     if (b.y < -30 || b.y > H + 30 || b.x < -30 || b.x > W + 30) continue;
-    carimbar(figuraTiroInimigo(b.r, b.homing ? "#FF5252" : "#FF87B3"), b.x, b.y);
+    const fig = figuraTiroInimigo(b.r, b.homing ? "#FF5252" : "#FF87B3");
+    // a gota aponta para onde o tiro vai, então o rastro fica certo
+    if (b.vx || b.vy) carimbarGirado(fig, b.x, b.y, Math.atan2(b.vy, b.vx) - Math.PI / 2);
+    else carimbar(fig, b.x, b.y);
   }
 
   /* o outro piloto (cooperativo ou duelo) */
@@ -18962,8 +19482,10 @@ function draw() {
       }
       const suave = mpPosicaoSuave(o);
       const atraso = clamp((Date.now() - (o.pts || Date.now())) / 1000, 0, 0.4);
-      const alvoX = suave ? suave.x : o.x + (o.vx || 0) * atraso * 0.7;
-      const alvoY = suave ? suave.y : o.y + (o.vy || 0) * atraso * 0.7;
+      let alvoX = suave ? suave.x : o.x + (o.vx || 0) * atraso * 0.7;
+      let alvoY = suave ? suave.y : o.y + (o.vy || 0) * atraso * 0.7;
+      // duelo: a nave dele vem de cima, espelhada (veja a nota nos tiros)
+      if (MP.modo === "pvp") { alvoX = W - alvoX; alvoY = H - alvoY; }
       // aproximação por tempo: liso mesmo se um quadro demorar
       const k = 1 - Math.pow(suave ? 0.000002 : 0.0006, dtDesenho);
       o.dx = o.dx === undefined ? alvoX : lerp(o.dx, alvoX, k);
@@ -18986,6 +19508,12 @@ function draw() {
       ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 6;
       if (o.sim) for (const b of o.sim) ctx.fillRect(b.x - 2, b.y - 7, 4, 12);
       ctx.shadowBlur = 0;
+      // ultimate ou habilidade que ele acabou de soltar
+      if (o.poder) {
+        o.poder.t -= dtDesenho;
+        if (o.poder.t <= 0) o.poder = null;
+        else mpDesenharPoderDoOutro(o, o.dx, o.dy);
+      }
     }
   }
 
@@ -19602,6 +20130,18 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.3", itens: [
+      "ARENA MAIOR: só a arena afasta a câmera e mostra 56% mais campo — dá para ver a onda chegando de longe. Os botões encolhem junto, para não comerem a tela que você ganhou",
+      "TIROS INIMIGOS NOVOS: viraram gotas de energia com rastro, miolo branco quente e fagulhas, apontando para onde vão",
+      "OITO GOLPES SORTEADOS PARA OS CHEFES: teia de espinhos, chuva de praga, garras do vazio, chamado da colmeia, raio corrosivo, casca viva, bote e névoa ácida — os perigosos avisam antes, e em fúria vêm quase no dobro",
+      "TODA HABILIDADE GANHOU O EFEITO DELA: retículo de mira, cruzes no chão onde a bomba cai, feixe de luz para as tropas, redemoinho, respingo, clarão e ondas de choque — dá para SABER o que aconteceu",
+      "As habilidades das naves de administrador ficaram muito mais claras: a nuclear tem clarão e três ondas, as tropas descem num feixe, a artilharia marca o chão antes",
+      "Naves um tico mais lentas (−8%), para mirar melhor sem perder a agilidade",
+      "CORRIGIDO: no duelo você aparecia no lugar errado — cada um vê a própria nave embaixo, então o adversário agora aparece espelhado, vindo de cima",
+      "CORRIGIDO: o outro jogador não via a sua ultimate nem as suas habilidades. Agora cada poder vira um clarão com o nome escrito por cima da sua nave, na hora",
+      "CORRIGIDO: trocar de fase às vezes voltava pesado com a qualidade LEVE marcada, e apertar o mesmo botão não fazia nada. Agora reaplicar sempre funciona, e toda fase nova já começa com a sua escolha valendo",
+      "CORRIGIDO: abrir a fila de habilidades derrubava os quadros. Ela mexia no estilo da página inteira quatro vezes por segundo; agora só quando muda de verdade, e no modo leve os botões perdem o brilho que custava caro"
+    ] },
   { v: "5.2", itens: [
       "ABA JORNADA: uma campanha de 270 fases para CADA amizade. Com o amigo 1 vocês continuam de onde pararam; com o amigo 2 a jornada começa do zero, sem misturar nada",
       "Você escolhe o amigo, escolhe a fase (a próxima ou qualquer uma já vencida, para voltar e pegar cristais) e aperta CHAMAR E COMEÇAR",
@@ -19831,7 +20371,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.2";
+const VERSAO = "5.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
