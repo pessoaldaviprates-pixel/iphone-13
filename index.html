@@ -4787,12 +4787,98 @@ function nuvemSoltar(caminho, valor, metodo) {
 }
 function nuvemJuntar(caminho, obj) { return nuvemSoltar(caminho, obj, "PATCH"); }
 
+/* =====================================================================
+   MODO COMPATÍVEL — para quem está com as regras antigas do Firebase
+   ---------------------------------------------------------------------
+   Os galhos amigos/, conversas/, suporte/ e loja_pedidos/ nasceram
+   depois, e só existem nas regras da versão 5.1 para cá. Quem ainda não
+   colou as regras novas via o pedido de amizade e o chat falharem com
+   "tente de novo" — e não tinha como o jogo adivinhar isso.
+   Agora ele tenta o galho certo e, se o Firebase recusar, guarda a MESMA
+   informação dentro de pilotos/<id>, que toda regra antiga já libera
+   (é o galho do ranking, sem ele nada online funcionaria).
+   Assim a amizade e o chat funcionam de qualquer jeito, e continuam
+   funcionando sozinhos quando as regras novas forem coladas.
+   ===================================================================== */
+let NUVEM_COMPAT = storageGet("nn_compat", "0") === "1";
+function compatLigar() {
+  if (NUVEM_COMPAT) return;
+  NUVEM_COMPAT = true;
+  storageSet("nn_compat", "1");
+}
+/* traduz um caminho novo para o lugar equivalente dentro de pilotos/ */
+function compatDe(caminho) {
+  const c = String(caminho || "");
+  let m = /^amigos\/([^/]+)(\/.*)?$/.exec(c);
+  if (m) return "pilotos/" + m[1] + "/_am" + (m[2] || "");
+  m = /^suporte\/([^/]+)(\/.*)?$/.exec(c);
+  if (m) return "pilotos/" + m[1] + "/_sup" + (m[2] || "");
+  m = /^loja_pedidos\/([^/]+)(\/.*)?$/.exec(c);
+  if (m) return "pilotos/" + m[1] + "/_loja" + (m[2] || "");
+  return null;
+}
+/* escreve tentando o galho certo e caindo para o compatível */
+async function nuvemSoltarC(caminho, valor, metodo) {
+  const alt = compatDe(caminho);
+  if (!NUVEM_COMPAT) {
+    const r = await nuvemSoltar(caminho, valor, metodo);
+    if (r !== null) return r;
+    if (!alt) return null;
+  }
+  if (!alt) return null;
+  const r2 = await nuvemSoltar(alt, valor, metodo);
+  if (r2 !== null) compatLigar();
+  return r2;
+}
+function nuvemJuntarC(caminho, obj) { return nuvemSoltarC(caminho, obj, "PATCH"); }
+/* lê dos dois lugares e junta, para não perder o que ficou no antigo */
+async function nuvemReqC(caminho) {
+  const alt = compatDe(caminho);
+  const a = await nuvemReq(caminho);
+  if (!alt) return a;
+  const b = await nuvemReq(alt);
+  if (!b) return a;
+  if (!a) { compatLigar(); return b; }
+  const junto = Object.assign({}, a);
+  for (const k in b) {
+    if (junto[k] && typeof junto[k] === "object" && typeof b[k] === "object") {
+      junto[k] = Object.assign({}, junto[k], b[k]);
+    } else junto[k] = b[k];
+  }
+  return junto;
+}
+/* Fluxo do galho certo — ou do compatível, quando é esse que vale.
+   UM stream só de propósito: o navegador deixa poucas conexões abertas
+   ao mesmo tempo com o mesmo servidor (seis, no padrão). Abrir dois por
+   assunto estoura o limite e as gravações ficam presas na fila. */
+function nuvemFluxoC(caminho, aoMudar, aoFalhar) {
+  const alt = compatDe(caminho);
+  return nuvemFluxo(NUVEM_COMPAT && alt ? alt : caminho, aoMudar, aoFalhar);
+}
+
 function nuvemMostrarStatus() {
   const el = $("nuvem-status");
   if (!el) return;
   if (!nuvemAtiva()) { el.style.display = "none"; return; }
   el.style.display = "block";
-  if (nuvemStatus === "ok") {
+  if (nuvemStatus === "ok" && NUVEM_COMPAT) {
+    /* está funcionando, mas pelo caminho de compatibilidade: vale avisar
+       sem assustar, com o botão que resolve ali do lado                */
+    el.className = "nuvem-ok";
+    el.innerHTML = "☁ Modo online ligado <b>(modo compatível)</b>" +
+      "<div class='nuvem-dica'>As regras do seu Firebase são de antes da " +
+      "versão 5.1, então amizades e conversas ficam guardadas junto com a " +
+      "ficha do piloto. Funciona assim mesmo — mas colando as regras novas " +
+      "fica mais organizado.</div>" +
+      "<button class='nuvem-btn' id='nuvem-copiar'>📋 COPIAR AS REGRAS NOVAS</button>";
+    const bt2 = $("nuvem-copiar");
+    if (bt2) bt2.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(admRegrasJSON());
+        bt2.textContent = "✓ COPIADO — cole no Firebase e publique";
+      } catch (e) { bt2.textContent = "Abra o painel → TESTE DA NUVEM"; }
+    });
+  } else if (nuvemStatus === "ok") {
     el.className = "nuvem-ok";
     el.textContent = "☁ Modo online ligado";
   } else if (nuvemStatus === "erro") {
@@ -7926,7 +8012,19 @@ let admSupMsgs = [];
 async function admLojaCarregar() {
   if (!nuvemAtiva()) return;
   admLojaPedidos = (await nuvemReq("loja_pedidos")) || {};
+  // junta os pedidos que ficaram na ficha de cada piloto (regras antigas)
+  const pilLoja = (await nuvemReq("pilotos")) || {};
+  for (const id in pilLoja) {
+    const pl = pilLoja[id] && pilLoja[id]._loja;
+    for (const k in (pl || {})) admLojaPedidos[k] = pl[k];
+  }
+  /* No modo compatível as conversas ficam dentro de pilotos/<id>/_sup,
+     então o painel junta os dois lugares para não perder ninguém.   */
   const sup = (await nuvemReq("suporte")) || {};
+  const pil = (await nuvemReq("pilotos")) || {};
+  for (const id in pil) {
+    if (pil[id] && pil[id]._sup) sup[id] = Object.assign({}, sup[id] || {}, pil[id]._sup);
+  }
   admSupConversas = {};
   for (const id in sup) {
     const c = sup[id];
@@ -8056,9 +8154,9 @@ async function entregarCompra(idJogador, presente, texto) {
 
 async function admAvisarNaConversa(idJogador, texto) {
   const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  await nuvemSoltar("suporte/" + idJogador + "/msgs/" + chave,
+  await nuvemSoltarC("suporte/" + idJogador + "/msgs/" + chave,
     { de: "adm", nome: "ADMINISTRADOR", txt: texto, quando: Date.now() });
-  await nuvemJuntar("suporte/" + idJogador + "/info", { novasJogador: true });
+  await nuvemJuntarC("suporte/" + idJogador + "/info", { novasJogador: true });
 }
 
 function admSupRender() {
@@ -8093,12 +8191,12 @@ async function admAbrirConversa(id) {
   admSupAberta = id;
   admSupMsgs = [];
   admSupRender();
-  const d = await nuvemReq("suporte/" + id + "/msgs");
+  const d = await nuvemReqC("suporte/" + id + "/msgs");
   const arr = [];
   for (const k in (d || {})) { const m = d[k]; if (m && m.txt) arr.push(m); }
   arr.sort((a, b) => (a.quando || 0) - (b.quando || 0));
   admSupMsgs = arr.slice(-60);
-  await nuvemJuntar("suporte/" + id + "/info", { novasAdm: false });
+  await nuvemJuntarC("suporte/" + id + "/info", { novasAdm: false });
   if (admSupConversas[id]) admSupConversas[id].nova = false;
   admSupRender();
   admLojaSelo();
@@ -10338,7 +10436,7 @@ function minhaTag() { return (save.tag && save.tag.trim()) || save.__name || "Pi
 async function amigosCarregar() {
   const eu = meuIdNuvem();
   if (!eu || !nuvemAtiva()) return;
-  const d = await nuvemReq("amigos/" + eu);
+  const d = await nuvemReqC("amigos/" + eu);
   AM.lista = (d && d.lista) || {};
   AM.pedidos = (d && d.pedidos) || {};
   AM.enviados = (d && d.enviados) || {};
@@ -10403,9 +10501,12 @@ async function amigoPedir(nome) {
   if (AM.enviados[id]) return { ok: false, msg: "Você já chamou essa pessoa. Espere ela aceitar." };
   if (AM.pedidos[id]) { await amigoAceitar(id); return { ok: true, msg: "Vocês já são amigos!" }; }
   const meuCartao = { nome: save.__name, tag: minhaTag(), quando: Date.now() };
-  const ok1 = await nuvemSoltar("amigos/" + id + "/pedidos/" + eu, meuCartao);
-  if (ok1 === null) return { ok: false, msg: "Não deu para mandar agora. Tente de novo." };
-  await nuvemSoltar("amigos/" + eu + "/enviados/" + id,
+  const ok1 = await nuvemSoltarC("amigos/" + id + "/pedidos/" + eu, meuCartao);
+  if (ok1 === null) {
+    return { ok: false, msg: "O Firebase recusou a gravação. Abra o painel → " +
+             "TESTE DA NUVEM e cole as regras (o botão copia prontas)." };
+  }
+  await nuvemSoltarC("amigos/" + eu + "/enviados/" + id,
                     { nome: p.nome || nome, tag: p.tag || p.nome || nome, quando: Date.now() });
   AM.enviados[id] = { nome: p.nome || nome };
   amigosRender();
@@ -10418,12 +10519,12 @@ async function amigoAceitar(id) {
   const ped = AM.pedidos[id];
   if (!ped) return;
   const agora = Date.now();
-  await nuvemSoltar("amigos/" + eu + "/lista/" + id,
+  await nuvemSoltarC("amigos/" + eu + "/lista/" + id,
                     { nome: ped.nome, tag: ped.tag || ped.nome, desde: agora });
-  await nuvemSoltar("amigos/" + id + "/lista/" + eu,
+  await nuvemSoltarC("amigos/" + id + "/lista/" + eu,
                     { nome: save.__name, tag: minhaTag(), desde: agora });
-  await nuvemSoltar("amigos/" + eu + "/pedidos/" + id, null, "DELETE");
-  await nuvemSoltar("amigos/" + id + "/enviados/" + eu, null, "DELETE");
+  await nuvemSoltarC("amigos/" + eu + "/pedidos/" + id, null, "DELETE");
+  await nuvemSoltarC("amigos/" + id + "/enviados/" + eu, null, "DELETE");
   AM.lista[id] = { nome: ped.nome, tag: ped.tag || ped.nome, desde: agora };
   delete AM.pedidos[id];
   amigosRender();
@@ -10434,8 +10535,8 @@ async function amigoAceitar(id) {
 async function amigoRecusar(id) {
   const eu = meuIdNuvem();
   if (!eu) return;
-  await nuvemSoltar("amigos/" + eu + "/pedidos/" + id, null, "DELETE");
-  await nuvemSoltar("amigos/" + id + "/enviados/" + eu, null, "DELETE");
+  await nuvemSoltarC("amigos/" + eu + "/pedidos/" + id, null, "DELETE");
+  await nuvemSoltarC("amigos/" + id + "/enviados/" + eu, null, "DELETE");
   delete AM.pedidos[id];
   amigosRender();
   amigosSelo();
@@ -10444,8 +10545,8 @@ async function amigoRecusar(id) {
 async function amigoRemover(id) {
   const eu = meuIdNuvem();
   if (!eu) return;
-  await nuvemSoltar("amigos/" + eu + "/lista/" + id, null, "DELETE");
-  await nuvemSoltar("amigos/" + id + "/lista/" + eu, null, "DELETE");
+  await nuvemSoltarC("amigos/" + eu + "/lista/" + id, null, "DELETE");
+  await nuvemSoltarC("amigos/" + id + "/lista/" + eu, null, "DELETE");
   delete AM.lista[id];
   amigosRender();
 }
@@ -10461,16 +10562,23 @@ async function conversaAbrir(id) {
   const sala = salaDaConversa(eu, id);
   conversaDesligar();
   // primeiro o que já existe, depois fica ouvindo o que chegar
-  const d = await nuvemReq("conversas/" + sala);
-  conversaAplicar(d);
-  AM.fluxo = nuvemFluxo("conversas/" + sala, () => {
-    nuvemReq("conversas/" + sala).then(conversaAplicar);
-  }, () => {
-    AM.fluxo = setInterval(() => {
-      nuvemReq("conversas/" + sala).then(conversaAplicar);
-    }, 2500);
-  });
+  const ler = () => conversaLer(eu, sala).then(conversaAplicar);
+  conversaAplicar(await conversaLer(eu, sala));
+  /* um fluxo só: no modo compatível ele escuta a minha própria ficha,
+     que é onde as mensagens caem quando as regras são antigas       */
+  AM.fluxo = nuvemFluxo(
+    NUVEM_COMPAT ? "pilotos/" + eu + "/_cv/" + sala : "conversas/" + sala,
+    ler, () => { AM.fluxo = setInterval(ler, 2500); });
+
   chatRender();
+}
+/* junta o que está no galho novo com o que ficou na ficha do piloto */
+async function conversaLer(eu, sala) {
+  const a = await nuvemReq("conversas/" + sala);
+  const b = await nuvemReq("pilotos/" + eu + "/_cv/" + sala);
+  if (!b) return a;
+  if (!a) { compatLigar(); return b; }
+  return Object.assign({}, a, b);
 }
 function conversaAplicar(d) {
   const arr = [];
@@ -10496,15 +10604,26 @@ async function conversaEnviar(texto) {
   if (!eu || !alvo || !texto) return false;
   const sala = salaDaConversa(eu, alvo);
   const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  const ok = await nuvemSoltar("conversas/" + sala + "/" + chave,
-    { de: eu, nome: minhaTag(), txt: texto, quando: Date.now() });
+  const msg = { de: eu, nome: minhaTag(), txt: texto, quando: Date.now() };
+  let ok = NUVEM_COMPAT ? null : await nuvemSoltar("conversas/" + sala + "/" + chave, msg);
+  if (ok === null) {
+    /* regras antigas: a mensagem vai para a ficha dos DOIS pilotos, que
+       toda regra já libera. Cada um lê a própria cópia.               */
+    const a = await nuvemSoltar("pilotos/" + eu + "/_cv/" + sala + "/" + chave, msg);
+    const b = await nuvemSoltar("pilotos/" + alvo + "/_cv/" + sala + "/" + chave, msg);
+    ok = (a !== null || b !== null) ? a || b : null;
+    if (ok !== null) compatLigar();
+  }
   if (ok === null) return false;
   AM.mensagens.push({ k: chave, de: eu, nome: minhaTag(), txt: texto, quando: Date.now() });
   chatRender(true);
   // limpa conversa muito longa para não crescer sem fim
   if (AM.mensagens.length > 120) {
     const velha = AM.mensagens[0];
-    if (velha && velha.k) nuvemSoltar("conversas/" + sala + "/" + velha.k, null, "DELETE");
+    if (velha && velha.k) {
+      nuvemSoltar("conversas/" + sala + "/" + velha.k, null, "DELETE");
+      nuvemSoltar("pilotos/" + eu + "/_cv/" + sala + "/" + velha.k, null, "DELETE");
+    }
   }
   return true;
 }
@@ -10518,7 +10637,7 @@ try { AM.ultimaVista = JSON.parse(storageGet("nn_chat_visto", "{}")) || {}; } ca
 async function amigosChecarNovidades() {
   const eu = meuIdNuvem();
   if (!eu || !nuvemAtiva() || S.mode === "playing") return;
-  const d = await nuvemReq("amigos/" + eu);
+  const d = await nuvemReqC("amigos/" + eu);
   const pedidosAntes = Object.keys(AM.pedidos).length;
   AM.lista = (d && d.lista) || {};
   AM.pedidos = (d && d.pedidos) || {};
@@ -10527,7 +10646,7 @@ async function amigosChecarNovidades() {
   // conta mensagem não lida de cada amigo
   for (const id in AM.lista) {
     const sala = salaDaConversa(eu, id);
-    const c = await nuvemReq("conversas/" + sala);
+    const c = await conversaLer(eu, sala);
     let novas = 0, ultima = 0;
     for (const k in (c || {})) {
       const m = c[k];
@@ -10925,7 +11044,13 @@ async function pedirNaLoja(item, itemNome, preco, extra) {
     item: item, itemNome: itemNome, preco: preco,
     quando: Date.now(), estado: "esperando", versao: VERSAO
   }, extra || {});
-  const ok = await nuvemSoltar("loja_pedidos/" + chave, pacote);
+  /* pedido da loja também aguenta regra antiga: se o galho novo recusar,
+     ele fica na ficha do piloto e o painel junta os dois na hora de ler */
+  let ok = NUVEM_COMPAT ? null : await nuvemSoltar("loja_pedidos/" + chave, pacote);
+  if (ok === null) {
+    ok = await nuvemSoltar("pilotos/" + meuIdNuvem() + "/_loja/" + chave, pacote);
+    if (ok !== null) compatLigar();
+  }
   if (ok === null) return { ok: false, msg: "Não deu para enviar. Tente de novo." };
   save.pedidos = save.pedidos || [];
   save.pedidos.push({ chave: chave, itemNome: itemNome, preco: preco, quando: Date.now() });
@@ -10947,11 +11072,11 @@ async function suporteEnviar(texto, automatico) {
   texto = String(texto || "").trim().slice(0, 300);
   if (!c || !texto) return false;
   const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  const ok = await nuvemSoltar(c + "/msgs/" + chave, {
+  const ok = await nuvemSoltarC(c + "/msgs/" + chave, {
     de: "jogador", nome: minhaTag(), txt: texto, quando: Date.now(), auto: !!automatico
   });
   if (ok === null) return false;
-  await nuvemJuntar(c + "/info", {
+  await nuvemJuntarC(c + "/info", {
     nome: save.__name || "", tag: minhaTag(), visto: Date.now(), novasAdm: true
   });
   SUP.msgs.push({ de: "jogador", nome: minhaTag(), txt: texto, quando: Date.now() });
@@ -10975,14 +11100,14 @@ async function suporteAbrir() {
   showScreen("suporte");
   supRender();
   if (!nuvemAtiva()) return;
-  const d = await nuvemReq(c);
+  const d = await nuvemReqC(c);
   supAplicar(d);
-  nuvemJuntar(c + "/info", { novasJogador: false });
+  nuvemJuntarC(c + "/info", { novasJogador: false });
   SUP.naoLidas = 0;
   supSelo();
   suporteDesligar();
-  SUP.fluxo = nuvemFluxo(c, () => { nuvemReq(c).then(supAplicar); },
-    () => { SUP.fluxo = setInterval(() => nuvemReq(c).then(supAplicar), 3000); });
+  SUP.fluxo = nuvemFluxoC(c, () => { nuvemReqC(c).then(supAplicar); },
+    () => { SUP.fluxo = setInterval(() => nuvemReqC(c).then(supAplicar), 3000); });
 }
 function suporteDesligar() {
   if (SUP.fluxo) {
@@ -12836,6 +12961,13 @@ async function mpLerJogadores() {
         if (!MP.outros[id]) MP.outros[id] = {};
         Object.assign(MP.outros[id], d);
         mpGuardarPasso(MP.outros[id], d);
+        /* ESTE caminho é o que roda quando o fluxo do Firebase não está
+           disponível (rede que bloqueia streaming, por exemplo). Ele
+           esquecia de aplicar os abates e os poderes: no cooperativo o
+           inimigo que o parceiro matava simplesmente não morria aqui. */
+        for (const pd of (d.poderes || [])) mpPoderRecebido(MP.outros[id], pd);
+        if (d.abates && d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
+        if (MP.modo === "pvp") mpChecarFimDuelo();
       }
       MP.ticks = (MP.ticks || 0) + 1;
     }
@@ -12871,10 +13003,19 @@ function mpAplicarSala(sala) {
     if (!d) continue;
     vistos[id] = true;
     if (!MP.outros[id]) MP.outros[id] = {};
+    /* O pacote de posição fica parado no servidor quando a pessoa para de
+       jogar. Se ela JÁ perdeu (a ficha dela diz vivo:false), o pacote
+       velho não pode dizer que ela está viva de novo — era isto que
+       deixava o vencedor jogando para sempre no duelo.               */
+    const ficha = estaticos[id];
+    if (ficha && (ficha.vivo === false || ficha.hp === 0)) { d.vivo = false; d.hp = 0; }
     Object.assign(MP.outros[id], d);
     mpGuardarPasso(MP.outros[id], d);
     for (const pd of (d.poderes || [])) mpPoderRecebido(MP.outros[id], pd);
     if (d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
+    if (MP.modo === "pvp" && (d.vivo === false || d.hp <= 0) && S.mode === "playing") {
+      mpChecarFimDuelo();
+    }
   }
   for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
   MP.ticks = (MP.ticks || 0) + 1;
@@ -13296,6 +13437,8 @@ function p2pReceber(txt) {
     mpGuardarPasso(MP.outros[id], d);
     for (const pd of (d.poderes || [])) mpPoderRecebido(MP.outros[id], pd);
     if (d.abates && d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
+    // se o pacote diz que ele caiu, o duelo termina na hora
+    if (MP.modo === "pvp" && (d.vivo === false || d.hp <= 0)) mpChecarFimDuelo();
     mpAtualizarPlacar();
   } else if (tipo === "x") {                // poder do outro (ult/habilidade)
     const id = P2P.parceiro || "p2p";
@@ -13324,6 +13467,8 @@ function p2pReceber(txt) {
     if (!MP.outros[id]) MP.outros[id] = {};
     MP.outros[id].vivo = false;
     MP.outros[id].hp = 0;
+    // não espera o próximo tique: o duelo acaba agora nos dois lados
+    if (MP.modo === "pvp") mpChecarFimDuelo();
   }
 }
 function p2pMedirPing() {
@@ -13587,6 +13732,11 @@ async function mpChecarFimDuelo() {
 function finalizarDuelo(resultado, oponente) {
   // pela ligação direta o adversário sabe na hora, sem esperar a nuvem
   if (resultado !== "vitoria") p2pEnviar("f" + resultado, true);
+  /* e pela nuvem: grava o pacote de posição já com a nave caída, senão o
+     último pacote (ainda vivo) seguiria valendo para o outro lado */
+  if (MP.sala && resultado !== "vitoria") {
+    try { nuvemSoltar(mpCaminho() + "/p/" + MP.eu, mpEmpacotar()); } catch (e) {}
+  }
   // grava o meu estado final para o adversário conseguir ler o desfecho
   if (MP.sala) {
     const fim = mpMeuResumo(false);
@@ -19693,6 +19843,16 @@ function loopInterno(now) {
       MP.ultimoEnvio = now;
       mpEnviarPosicao();
     }
+    /* derrubei alguém no cooperativo: o aviso não espera o passo normal
+       da rede. Sem a ligação direta era isto que fazia o inimigo morrer
+       aqui e continuar vivo na tela do parceiro por meio segundo.    */
+    if (MP.sala && !p2pAberto() && MP.modo !== "pvp" &&
+        mpMeusAbates.length !== (MP.abatesEnviadosConta || 0) &&
+        now - (MP.ultimoEnvio || 0) > 60) {
+      MP.ultimoEnvio = now;
+      MP.abatesEnviadosConta = mpMeusAbates.length;
+      mpEnviarPosicao();
+    }
     cenaPublicar();
   }
   requestAnimationFrame(loop);
@@ -20182,6 +20342,12 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.5", itens: [
+      "CORRIGIDO: adicionar amigo, o chat com os amigos e o chat comigo (o ⊙ da loja) não funcionavam para quem está com as regras antigas do Firebase — dava \"tente de novo\" e não enviava. Agora, se o Firebase recusar o galho novo, o jogo guarda a mesma coisa junto com a ficha do piloto, que toda regra antiga já libera. Funciona dos dois jeitos, sozinho",
+      "CORRIGIDO: no cooperativo o inimigo que o parceiro matava continuava vivo na sua tela. A leitura de reserva (usada quando a rede não deixa o fluxo do Firebase passar) simplesmente não aplicava os abates — agora aplica, e o abate ainda sai antes da hora, sem esperar o passo da rede (medido: 103 ms pela nuvem)",
+      "CORRIGIDO: no duelo e na ranqueada quem morria via a derrota e quem ganhava continuava jogando para sempre. O último pacote de posição do adversário (ainda vivo) ficava parado no servidor e ressuscitava ele a cada leitura. Agora a ficha de quem caiu vale mais que o pacote velho, e o fim chega na hora nos dois lados",
+      "O jogo abre menos conexões ao mesmo tempo com o Firebase: passar do limite do navegador deixava gravações presas na fila"
+    ] },
   { v: "5.4", itens: [
       "BOTÃO NOVO NO MENU: 🤝 JOGAR COM AMIGO. Não tinha botão nenhum para o multijogador — dava para chegar na jornada e no cooperativo só por dentro de outra tela",
       "MENU MUITO MAIS LEVE: fora da partida o jogo ficava rodando ATRÁS das telas, desenhando a fase inteira 60 vezes por segundo sem ninguém ver. Agora ele para de verdade — em celular fraco é a diferença entre menu travado e menu liso",
@@ -20428,7 +20594,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.4";
+const VERSAO = "5.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
