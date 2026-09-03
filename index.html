@@ -104,13 +104,23 @@
   #hud .hud-col:first-child{justify-self:start;align-items:flex-start}
   #hud .hud-col:nth-child(2){justify-self:center;align-items:center}
   #hud .hud-btns{justify-self:end}
+  /* O painel de cima é uma FAIXA BAIXA, não uma pilha: assim ele não
+     cobre o topo da tela, que é justo por onde os inimigos entram.
+     A vida saiu daqui e foi para baixo, perto da nave.                */
   .hud-col{
-    display:flex;flex-direction:column;gap:2px;min-width:0;max-width:100%;
+    display:flex;flex-direction:column;gap:0;min-width:0;max-width:100%;
     background:var(--vidro);border:1px solid rgba(120,200,255,.14);
-    border-radius:var(--r-md);padding:6px 11px;
+    border-radius:var(--r-md);padding:5px 10px;
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     box-shadow:var(--som-1);
   }
+  #hud .hud-col:first-child{
+    flex-direction:row;align-items:baseline;gap:10px;
+    width:max-content;max-width:44vw;
+  }
+  #hud .hud-col:first-child .hud-value{flex:none}
+  #hud-score{font-size:.92rem}
+  #hud-gems{font-size:.8rem;color:var(--amber)}
   .hud-label{
     font-size:.52rem;letter-spacing:.18em;color:var(--fraco);
     font-family:"Chakra Petch",sans-serif;font-weight:700;white-space:nowrap;
@@ -125,13 +135,21 @@
     .hud-col{padding:3px 7px}
   }
   @media (max-width:340px){ .hud-value{font-size:.8rem} }
-  .hud-centro{align-items:center;min-width:132px}
+  .hud-centro{
+    align-items:center;min-width:0;
+    flex-direction:row;gap:9px;flex-wrap:wrap;justify-content:center;
+    padding:5px 12px;
+  }
   #hud-fase{
     color:var(--amber);text-shadow:0 0 14px rgba(255,193,69,.5);
-    font-size:.94rem;letter-spacing:.06em;
+    font-size:.88rem;letter-spacing:.06em;
   }
+  #hud-fase-label{align-self:center}
   /* tracinhos que mostram em que onda da fase você está */
-  .hud-ondas{display:flex;gap:3px;margin:4px 0 2px;max-width:126px;flex-wrap:wrap;justify-content:center}
+  .hud-ondas{
+    display:flex;gap:3px;margin:0;flex:none;align-items:center;
+    max-width:86px;overflow:hidden;
+  }
   .hud-ondas i{
     width:11px;height:3px;border-radius:999px;display:block;
     background:rgba(237,243,255,.16);
@@ -142,9 +160,21 @@
   .hud-ondas i.chefe.feita{background:var(--magenta);box-shadow:0 0 7px rgba(255,77,143,.8)}
   #hud-lives{font-size:.85rem;color:var(--magenta);letter-spacing:.04em;text-shadow:0 0 10px rgba(255,77,143,.6)}
   #hud-gems{font-size:.78rem;color:var(--amber)}
+  /* faixa de vida embaixo, acima dos botões e colada na nave */
+  #hud-vida{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(var(--vida-base,200px) + env(safe-area-inset-bottom));
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    z-index:6;pointer-events:none;
+  }
+  #hud-vida.on{display:flex}
+  #hud-vida #hud-lives{
+    font-size:.82rem;color:var(--magenta);letter-spacing:.08em;
+    text-shadow:0 0 10px rgba(255,77,143,.7);line-height:1;
+  }
   #hud-hp{
-    width:108px;max-width:30vw;height:13px;border-radius:var(--r-full);
-    margin-top:4px;position:relative;
+    width:132px;max-width:44vw;height:11px;border-radius:var(--r-full);
+    margin-top:0;position:relative;
     background:rgba(3,6,16,.8);border:1px solid rgba(77,232,255,.3);overflow:hidden;
     box-shadow:inset 0 1px 3px rgba(0,0,0,.5);
   }
@@ -217,6 +247,31 @@
     pointer-events:none;z-index:6;
   }
   #hab-bar .hab-btn{pointer-events:auto}
+  /* a fila some com um toque: em tela pequena ela cobria muita coisa */
+  #hab-bar.fechada{display:none}
+  #hab-abrir{
+    position:fixed;right:14px;
+    bottom:calc(var(--abrir-base,96px) + env(safe-area-inset-bottom));
+    width:36px;height:36px;border-radius:11px;display:none;z-index:8;cursor:pointer;
+    align-items:center;justify-content:center;pointer-events:auto;
+    border:1px solid rgba(120,200,255,.22);background:var(--vidro);color:var(--ink2);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:var(--som-1);font-size:.85rem;line-height:1;
+    transition:transform .16s ease,border-color .18s ease;
+  }
+  #hab-abrir.on{display:flex}
+  #hab-abrir:active{transform:scale(.88)}
+  #hab-abrir span{display:block;transition:transform .2s ease}
+  #hab-abrir.guardada span{transform:rotate(180deg)}
+  #hab-abrir.guardada{border-color:var(--cyan);color:var(--cyan)}
+  /* quantas habilidades estão escondidas */
+  #hab-abrir i{
+    position:absolute;top:-6px;right:-6px;font-style:normal;display:none;
+    background:var(--cyan);color:#04121c;border-radius:999px;
+    font-family:"Chakra Petch",sans-serif;font-size:.55rem;font-weight:700;
+    padding:1px 5px;line-height:1.5;
+  }
+  #hab-abrir.guardada i{display:block}
   .hab-btn{
     width:var(--hab-tam,44px);height:var(--hab-tam,44px);
     border-radius:calc(var(--hab-tam,44px) * .32);flex:none;cursor:pointer;
@@ -2482,16 +2537,13 @@
 
 <div id="hud">
   <div class="hud-col">
-    <span class="hud-label">PONTOS</span>
     <span class="hud-value" id="hud-score">0</span>
     <span class="hud-value" id="hud-gems">◆ 0</span>
   </div>
   <div class="hud-col hud-centro">
     <span class="hud-value" id="hud-fase">FASE 1</span>
+    <span class="hud-label" id="hud-fase-label">ONDA 1/3</span>
     <div class="hud-ondas" id="hud-ondas"></div>
-    <span class="hud-label" id="hud-fase-label">ONDA</span>
-    <span class="hud-value" id="hud-lives">♥♥♥</span>
-    <div id="hud-hp"><i id="hud-hp-fill"></i><b id="hud-hp-txt"></b></div>
   </div>
   <div class="hud-btns">
     <button class="hud-btn" id="btn-musica" aria-label="Música ligada/desligada">🎵</button>
@@ -2500,6 +2552,12 @@
   </div>
   <button id="ult-btn">ULT</button>
   <button id="cloak-btn">CAPA</button>
+  <!-- vida: fica embaixo, perto da nave, onde o olho já está -->
+  <div id="hud-vida">
+    <span id="hud-lives">♥♥♥</span>
+    <div id="hud-hp"><i id="hud-hp-fill"></i><b id="hud-hp-txt"></b></div>
+  </div>
+  <button id="hab-abrir" aria-label="Mostrar ou esconder as habilidades"><span>▾</span><i></i></button>
   <div id="hab-bar"></div>
   <div id="pc-dica">
     <b>MOUSE</b> a nave segue o cursor
@@ -12592,6 +12650,7 @@ function goMenu() {
 }
 $("btn-resume").addEventListener("click", () => togglePause());
 $("btn-pause").addEventListener("click", () => togglePause());
+$("hab-abrir").addEventListener("click", e => { e.stopPropagation(); habAlternar(); });
 $("btn-quit").addEventListener("click", () => {
   bankRunGems(0.5);
   if (arenaModo()) arenaSair();
@@ -13058,11 +13117,20 @@ function usarHabilidade(h) {
    atrás de botão nem sai da tela, em qualquer celular.                   */
 let habAltura = 0;       // altura em px de tela da fila de habilidades
 const CONSOLE_BASE = 94; // ult/capa embaixo (66px + folga)
+/* a fila pode ficar guardada: em tela pequena ela cobria meia partida */
+let habGuardada = storageGet("nn_hab_guardada", "0") === "1";
+function habAlternar() {
+  habGuardada = !habGuardada;
+  storageSet("nn_hab_guardada", habGuardada ? "1" : "0");
+  renderHabBar(true);
+  AudioSys.tone(habGuardada ? 420 : 620, 0.05, "sine", 0.1);
+}
 
 function ajustarBarraHab(quantas) {
   const bar = $("hab-bar");
   if (!bar) return;
   if (!quantas) { habAltura = 0; return; }
+  if (habGuardada) { habAltura = 0; return; }
   const larg = Math.max(200, window.innerWidth - 16);
   const alt = window.innerHeight;
   let gap = alt < 620 ? 5 : 6;
@@ -13083,10 +13151,28 @@ function ajustarBarraHab(quantas) {
   bar.style.setProperty("--console-base", CONSOLE_BASE + "px");
   habAltura = linhas * (tam + gap) + 6;
 }
-/* altura, em pixels de tela, tomada pelos controles de baixo */
+/* posiciona a vida e o botão de guardar conforme o espaço em uso */
+function ajustarRodape(quantas) {
+  const raiz = document.documentElement;
+  raiz.style.setProperty("--vida-base", (CONSOLE_BASE + habAltura + 6) + "px");
+  raiz.style.setProperty("--abrir-base", (CONSOLE_BASE + habAltura + 4) + "px");
+  const bt = $("hab-abrir");
+  if (bt) {
+    bt.classList.toggle("on", quantas > 0 && S.mode === "playing");
+    bt.classList.toggle("guardada", habGuardada);
+    const n = bt.querySelector("i");
+    if (n) n.textContent = String(quantas);
+  }
+  const vd = $("hud-vida");
+  if (vd) vd.classList.toggle("on", S.mode === "playing" || S.mode === "paused");
+}
+/* altura, em pixels de tela, tomada pelos controles de baixo.
+   Inclui a faixa de vida, que fica entre a nave e os botões — assim a
+   barrinha nunca cobre a nave. Com a fila guardada sobra a tela quase
+   inteira para jogar.                                                */
+const ALTURA_VIDA = 44;
 function alturaConsole() {
-  const seguro = 12;
-  return CONSOLE_BASE + habAltura + seguro;
+  return CONSOLE_BASE + habAltura + ALTURA_VIDA;
 }
 /* mesma coisa, já convertida para a medida da arena */
 function chaoDaArena() { return H - pxY(alturaConsole()); }
@@ -13102,10 +13188,14 @@ function renderHabBar(forcar) {
   if (!lista.length || S.mode !== "playing") {
     bar.style.display = "none";
     habAltura = 0;
+    ajustarRodape(0);
     return;
   }
-  bar.style.display = "flex";
+  bar.style.display = habGuardada ? "none" : "flex";
+  bar.classList.toggle("fechada", habGuardada);
   ajustarBarraHab(lista.length);
+  ajustarRodape(lista.length);
+  if (habGuardada) return;
   const marca = save.ship + "|" + (modoPC ? "pc" : "t");
   if (forcar || bar.dataset.nave !== marca) {
     bar.dataset.nave = marca;
@@ -13484,8 +13574,8 @@ function setupWave() {
     // a onda engorda até o fim do jogo e não empaca no meio: 9 inimigos na
     // primeira fase, ~100 lá na 270 — e no difícil passa bem disso. A arena
     // maior comporta: quanto mais larga a tela, mais gente cabe sem amontoar.
-    const espaco = clamp((W * H) / (430 * 800), 0.9, 1.5);
-    const base = (8 + Math.round(Math.pow(dl, 0.78) * 1.18)) * espaco;
+    const espaco = clamp((W * H) / (430 * 800), 0.9, 1.4);
+    const base = (7 + Math.round(Math.pow(dl, 0.76) * 0.95)) * espaco;
     S.toSpawn = Math.max(3, Math.round(base * A.quantidade * D.qtd *
                 (mundoAtivo("chuvisco") ? 2.4 : 1)));
     S.spawnTimer = 0.5;
@@ -14595,7 +14685,7 @@ function update(dt) {
     S.spawnTimer -= dt;
     // teto de gente ao mesmo tempo: a onda continua enorme, mas eles entram
     // conforme os da frente caem — ninguem trava e a tela nao vira sopa
-    const TETO = 170;
+    const TETO = 130;
     if (S.spawnTimer <= 0 && S.toSpawn > 0 && enemies.length < TETO) {
       // com onda grande eles entram em grupinhos, senao a fila nao acabava
       const lote = Math.min(S.toSpawn, TETO - enemies.length,
@@ -16807,7 +16897,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.3";
+const VERSAO = "4.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
