@@ -1,1 +1,1 @@
-window.NN_CONFIG = { NUVEM_URL: "https://realtime-datase-default-rtdb.firebaseio.com" };
+window.NN_CONFIG = { NUVEM_URL: "http://127.0.0.1:8099" };
