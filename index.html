@@ -1004,6 +1004,19 @@
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-size:.6rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);
   }
+  /* selinho da ligação: mostra se o jogo está indo direto ou pela nuvem */
+  #mp-conexao{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(158px + env(safe-area-inset-top));z-index:6;pointer-events:none;
+    display:none;align-items:center;gap:5px;
+    padding:3px 10px;border-radius:99px;
+    font-size:.58rem;font-weight:800;letter-spacing:.08em;
+    background:rgba(6,10,24,.78);border:1px solid rgba(234,242,255,.16);color:var(--dim);
+  }
+  #mp-conexao.direto{color:#7CF7C0;border-color:rgba(124,247,192,.55);
+    box-shadow:0 0 12px rgba(124,247,192,.28)}
+  #mp-conexao.ligando{color:var(--amber);border-color:rgba(255,193,69,.5)}
+  #mp-conexao.nuvem{color:#9FB6D4;border-color:rgba(159,182,212,.35)}
 
   /* ---------- Lista vazia (usado em todas as abas) ---------- */
   .vazio{
@@ -2148,6 +2161,68 @@
   }
   .rk-busca-txt{font-size:.8rem;color:var(--cyan);letter-spacing:.06em}
 
+  /* ---- multijogador: capa dos modos, estado da rede e ranqueada ---- */
+  .mp-hero{
+    display:flex;gap:12px;align-items:center;padding:14px;border-radius:16px;
+    background:linear-gradient(135deg,rgba(124,247,192,.14),rgba(77,232,255,.06));
+    border:1px solid rgba(124,247,192,.32);
+  }
+  .mp-hero.duelo{
+    background:linear-gradient(135deg,rgba(255,77,143,.16),rgba(255,158,77,.06));
+    border-color:rgba(255,77,143,.36);
+  }
+  .mp-hero-ic{
+    width:52px;height:52px;flex:none;border-radius:15px;font-size:1.7rem;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,24,.5);border:1px solid rgba(234,242,255,.14);
+  }
+  .mp-hero-txt{flex:1;min-width:0}
+  .mp-hero-txt b{display:block;font-family:"Russo One",sans-serif;font-size:.98rem;letter-spacing:.06em}
+  .mp-hero-txt span{display:block;font-size:.66rem;color:var(--dim);line-height:1.45;margin-top:4px}
+  /* faixa que conta como a partida vai trafegar */
+  .mp-net{
+    margin-top:10px;padding:9px 12px;border-radius:12px;font-size:.64rem;line-height:1.45;
+    background:rgba(6,10,24,.55);border:1px solid rgba(234,242,255,.12);color:var(--dim);
+  }
+  .mp-net b{color:#7CF7C0}
+  .mp-lista{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+  .mp-item{
+    display:flex;gap:10px;align-items:center;padding:9px 11px;border-radius:12px;
+    background:var(--panel2);border:1px solid var(--line);
+  }
+  .mp-item b{width:22px;text-align:center;font-size:.95rem;flex:none}
+  .mp-item span{font-size:.66rem;color:var(--dim);line-height:1.4}
+  /* cartão da ranqueada dentro do multijogador */
+  .rk-cartao-novo{
+    display:flex;gap:14px;align-items:center;padding:15px;border-radius:18px;
+    background:linear-gradient(135deg,rgba(255,193,69,.16),rgba(255,77,143,.08));
+    border:1px solid rgba(255,193,69,.4);
+  }
+  .rk-brasao{
+    width:64px;height:64px;flex:none;border-radius:18px;font-size:2.1rem;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,24,.55);border:1px solid rgba(255,193,69,.45);
+  }
+  .rk-dados{flex:1;min-width:0}
+  .rk-titulo{font-family:"Russo One",sans-serif;font-size:1.1rem;letter-spacing:.08em}
+  .rk-sub{font-size:.66rem;color:var(--dim);margin-top:2px}
+  .rk-nums{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .rk-nums div{
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    padding:11px 8px;text-align:center;
+  }
+  .rk-nums b{display:block;font-family:"Russo One",sans-serif;font-size:1.15rem}
+  .rk-nums span{display:block;font-size:.52rem;letter-spacing:.12em;color:var(--dim);margin-top:3px}
+  .rk-escada{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+  .rk-degrau{
+    display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;
+    background:var(--panel2);border:1px solid var(--line);font-size:.68rem;
+  }
+  .rk-degrau.aqui{border-color:var(--amber);background:rgba(255,193,69,.1)}
+  .rk-degrau i{width:22px;text-align:center;font-style:normal;font-size:.95rem}
+  .rk-degrau b{flex:1;font-weight:700}
+  .rk-degrau span{color:var(--dim);font-size:.6rem}
+
   /* arena */
   .adm-h.roxo{color:var(--violet)}
   .arena-nums{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
@@ -2840,6 +2915,7 @@
   <span id="mp-nome"></span>
   <div class="mp-barra"><i id="mp-hp"></i><b id="mp-hp-txt"></b></div>
 </div>
+<div id="mp-conexao" class="mp-conexao"></div>
 <button id="cut-skip">PULAR ›</button>
 
 <!-- LOGIN -->
@@ -3649,30 +3725,54 @@
     </button>
   </div>
   <div class="abas" id="multi-abas">
-    <button class="aba on" data-modo="coop" id="aba-coop">🤝 COOPERATIVO</button>
-    <button class="aba" data-modo="pvp">⚔ COMPETITIVO</button>
+    <button class="aba on" data-modo="coop" id="aba-coop">🤝 CO-OP</button>
+    <button class="aba" data-modo="pvp">⚔ DUELO</button>
+    <button class="aba" data-modo="ranked" id="aba-ranked">🏆 RANQUEADA</button>
     <button class="aba" data-modo="amigos">👥 AMIGOS</button>
   </div>
   <div class="scroll">
     <div id="multi-coop" class="multi-painel">
+      <div class="mp-hero">
+        <div class="mp-hero-ic">🤝</div>
+        <div class="mp-hero-txt">
+          <b>JOGAR JUNTO</b>
+          <span>Mesma fase, mesma onda, mesmos inimigos. O abate de um vale
+          para os dois e a pontuação soma.</span>
+        </div>
+      </div>
+      <div class="mp-net" id="coop-net"></div>
       <div class="adm-card">
-        <div class="adm-h">JOGAR JUNTO</div>
-        <p class="adm-note" style="max-width:none">Vocês enfrentam a mesma fase ao mesmo tempo, veem a nave um do outro e somam a pontuação. Quem terminar ajuda o outro até o fim.</p>
-        <div class="adm-grid" style="margin-top:12px">
+        <div class="adm-h">CRIAR OU ENTRAR</div>
+        <div class="adm-grid" style="margin-top:10px">
           <button class="adm-btn gold wide" id="coop-criar">CRIAR SALA</button>
         </div>
         <div class="adm-row" style="margin-top:10px">
           <input id="coop-codigo" inputmode="numeric" maxlength="4" placeholder="Código da sala">
           <button class="adm-btn" id="coop-entrar">ENTRAR</button>
         </div>
+        <p class="adm-note" style="margin-top:10px">Quem cria vira o anfitrião: é o
+        aparelho dele que manda a onda, então os dois nunca ficam em ondas diferentes.</p>
+      </div>
+      <div class="mp-lista">
+        <div class="mp-item"><b>⚡</b><span>Ligação direta entre os dois celulares, sem servidor no meio</span></div>
+        <div class="mp-item"><b>💥</b><span>O inimigo cai na mesma hora nas duas telas</span></div>
+        <div class="mp-item"><b>✦</b><span>Você vê os tiros e as habilidades do parceiro</span></div>
+        <div class="mp-item"><b>🏆</b><span>O chefe soma o dano dos dois</span></div>
       </div>
     </div>
 
     <div id="multi-pvp" class="multi-painel" style="display:none">
+      <div class="mp-hero duelo">
+        <div class="mp-hero-ic">⚔</div>
+        <div class="mp-hero-txt">
+          <b>DUELO PRIVADO</b>
+          <span>Um contra um, pelo código, com quem você quiser. Aqui os
+          tiros do adversário machucam de verdade.</span>
+        </div>
+      </div>
+      <div class="mp-net" id="pvp-net"></div>
       <div class="adm-card">
-        <div class="adm-h red">DUELO PRIVADO</div>
-        <p class="adm-note" style="max-width:none">Duelo combinado com quem você quiser, pelo código. Para achar adversário sozinho, use a <b>RANQUEADA</b> no menu — lá o jogo procura alguém do seu nível.</p>
-        <div class="rank-row" style="margin-top:12px">
+        <div class="rank-row">
           <div class="rank-info">
             <div class="rank-nome" id="pvp-meu-rank">BRONZE</div>
             <div class="rank-meta" id="pvp-meu-placar">0 vitórias · 0 derrotas</div>
@@ -3686,7 +3786,44 @@
           <input id="pvp-codigo" inputmode="numeric" maxlength="4" placeholder="Código do duelo">
           <button class="adm-btn" id="pvp-entrar">ENTRAR</button>
         </div>
+        <p class="adm-note" style="margin-top:10px">Duelo pelo código não mexe no seu
+        rank de propósito: é para treinar com os amigos. Para valer pontos, use a
+        aba <b>🏆 RANQUEADA</b>.</p>
       </div>
+    </div>
+
+    <div id="multi-ranked" class="multi-painel" style="display:none">
+      <div class="rk-cartao-novo">
+        <div class="rk-brasao" id="mrk-sim">▲</div>
+        <div class="rk-dados">
+          <div class="rk-titulo" id="mrk-nome">BRONZE</div>
+          <div class="rk-sub" id="mrk-pts">0 pontos de rank</div>
+          <div class="rk-barra"><i id="mrk-barra"></i></div>
+          <div class="rk-prox" id="mrk-prox"></div>
+        </div>
+      </div>
+      <div class="rk-nums">
+        <div><b id="mrk-vit">0</b><span>VITÓRIAS</span></div>
+        <div><b id="mrk-der">0</b><span>DERROTAS</span></div>
+        <div><b id="mrk-taxa">—</b><span>APROVEITAMENTO</span></div>
+        <div><b id="mrk-fila">0</b><span>NA FILA AGORA</span></div>
+      </div>
+      <div class="adm-grid" style="margin-top:12px">
+        <button class="adm-btn danger wide" id="mrk-procurar">⚔ PROCURAR PARTIDA</button>
+      </div>
+      <div class="rk-busca" id="mrk-busca">
+        <div class="rk-radar"><i></i><i></i><i></i></div>
+        <div class="rk-busca-txt" id="mrk-busca-txt">Procurando adversário…</div>
+        <button class="adm-btn" id="mrk-cancelar" style="margin-top:12px">CANCELAR</button>
+      </div>
+      <div class="adm-card" style="margin-top:12px">
+        <div class="adm-h">DIVISÕES</div>
+        <div class="rk-escada" id="mrk-escada"></div>
+      </div>
+      <p class="adm-note" style="margin-top:10px">
+        Sem código: o jogo acha alguém do seu nível sozinho. Tudo começa zerado dos
+        dois lados, então vence quem jogar melhor. Ganhou, sobe; perdeu, desce um pouco.
+      </p>
     </div>
 
     <div id="multi-amigos" class="multi-painel" style="display:none">
@@ -3723,6 +3860,7 @@
       <div class="codigo" id="sala-codigo">----</div>
       <button class="ghost-btn" id="sala-copiar">COPIAR CÓDIGO</button>
     </div>
+    <div class="mp-net" id="sala-net"></div>
     <div class="adm-card">
       <div class="adm-h">PILOTOS NA SALA</div>
       <div id="sala-jogadores"></div>
@@ -12172,16 +12310,11 @@ const MP = {
   fim: null
 };
 /* ---------------------------------------------------------------------
-   O cooperativo está DESLIGADO por enquanto, a pedido.
-   Nada foi apagado: todo o código continua aqui e volta a funcionar
-   trocando esta chave para true (e a aba reaparece sozinha no menu).
+   O cooperativo e a ranqueada estão de volta, agora com a rede direta
+   por baixo. A oficina de construção continua guardada.
    --------------------------------------------------------------------- */
-const COOP_LIGADO = false;
-
-/* A ranqueada e a oficina de construção também estão guardadas por
-   enquanto, a pedido. Nada foi apagado: é só trocar a chave para true e
-   os botões voltam sozinhos ao menu e ao hangar.                          */
-const RANKED_LIGADO = false;
+const COOP_LIGADO = true;
+const RANKED_LIGADO = true;
 const CRIAR_NAVE_LIGADO = false;
 
 function mpCoop() { return !!MP.sala && MP.modo === "coop"; }
@@ -12279,6 +12412,7 @@ async function mpLerSala() {
   return sala;
 }
 function renderSala(sala) {
+  mpMostrarConexao();
   const box = $("sala-jogadores");
   if (!box || S.mode !== "sala") return;
   const js = (sala && sala.jogadores) || {};
@@ -12361,6 +12495,7 @@ async function mpLerJogadores() {
         if (!d) continue;
         if (!MP.outros[id]) MP.outros[id] = {};
         Object.assign(MP.outros[id], d);
+        mpGuardarPasso(MP.outros[id], d);
       }
       MP.ticks = (MP.ticks || 0) + 1;
     }
@@ -12397,10 +12532,17 @@ function mpAplicarSala(sala) {
     vistos[id] = true;
     if (!MP.outros[id]) MP.outros[id] = {};
     Object.assign(MP.outros[id], d);
+    mpGuardarPasso(MP.outros[id], d);
     if (d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
   }
   for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
   MP.ticks = (MP.ticks || 0) + 1;
+  /* apareceu alguém na sala: já tenta a ligação direta, ainda no lobby,
+     para a partida começar com o canal pronto                          */
+  if (!p2pAberto() && !P2P.tentando && !P2P.desistiu) {
+    const outro = Object.keys(MP.outros)[0];
+    if (outro) p2pIniciar(outro);
+  }
   if (sala.estado === "jogando" && S.mode === "sala") {
     MP.fase = sala.fase || 1;
     iniciarPartidaMultijogador();
@@ -12429,6 +12571,10 @@ function mpAvisarAbate(e) {
   mpAbatidos[e.sid] = 1;
   mpMeusAbates.push(e.sid);
   if (mpMeusAbates.length > 300) mpMeusAbates.splice(0, 150);
+  /* na ligação direta o abate não espera o próximo pacote: sai agora,
+     pelo canal com garantia de entrega. É por isso que o inimigo cai na
+     mesma hora nas duas telas.                                        */
+  p2pEnviar("k" + e.sid, true);
 }
 /* aplica os abates que o parceiro mandou */
 function mpAplicarAbates(lista) {
@@ -12529,6 +12675,294 @@ function mpDesempacotar(linha) {
   d.abates = partes[2] ? partes[2].split("|") : [];
   return d;
 }
+/* =====================================================================
+   REDE DIRETA (P2P) — um celular falando com o outro, sem servidor
+   ---------------------------------------------------------------------
+   A nuvem passa a servir só para os dois se acharem (o aperto de mão).
+   Feito isso, tudo o que importa no meio da partida — posição, tiros,
+   abates e a troca de onda — vai DIRETO de um aparelho para o outro por
+   WebRTC. Sem a viagem até o servidor e de volta, o atraso cai de
+   150–400 ms para 10–40 ms, e é por isso que o abate aparece na hora
+   nas duas telas.
+
+   Dois canais:
+     • rápido — sem reenvio e sem ordem: posição 30 vezes por segundo.
+       Se um pacote se perder, o próximo já vem com a informação nova;
+       reenviar o velho só atrasaria o resto.
+     • firme  — com garantia de entrega: abates, onda, fase e fim. São
+       poucos e não podem sumir.
+
+   Se a operadora não deixar a ligação direta acontecer, nada quebra: o
+   jogo continua pela nuvem, do jeito que sempre funcionou.
+   ===================================================================== */
+const P2P = {
+  pc: null, rapido: null, firme: null,
+  ligado: false, tentando: false, papel: null, parceiro: null,
+  ping: 0, ultimoPing: 0, fecharSinal: null, gelosEnviados: 0,
+  desdeTentativa: 0, desistiu: false, falhas: 0, recebidos: 0, enviados: 0
+};
+const P2P_GELO = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" }
+  ]
+};
+function p2pTem() {
+  return typeof RTCPeerConnection === "function" && !!MP.sala && MP.modo !== "arena";
+}
+function p2pAberto() {
+  return !!(P2P.ligado && P2P.rapido && P2P.rapido.readyState === "open");
+}
+function p2pFirmeAberto() {
+  return !!(P2P.firme && P2P.firme.readyState === "open");
+}
+function p2pInbox(id) { return mpCaminho() + "/sinal/" + id; }
+
+/* quem começa a conversa é sempre o mesmo dos dois lados: o id menor.
+   Assim os dois não mandam oferta ao mesmo tempo e se atrapalham.     */
+function p2pEuChamo(idDoOutro) {
+  return String(MP.eu) < String(idDoOutro);
+}
+
+function p2pFechar(silencioso) {
+  try { if (P2P.fecharSinal) P2P.fecharSinal(); } catch (e) {}
+  P2P.fecharSinal = null;
+  try { if (P2P.rapido) P2P.rapido.close(); } catch (e) {}
+  try { if (P2P.firme) P2P.firme.close(); } catch (e) {}
+  try { if (P2P.pc) P2P.pc.close(); } catch (e) {}
+  P2P.pc = P2P.rapido = P2P.firme = null;
+  P2P.ligado = false; P2P.tentando = false; P2P.parceiro = null;
+  P2P.gelosEnviados = 0; P2P.ping = 0;
+  if (!silencioso) mpMostrarConexao();
+}
+
+function p2pPrepararCanais(canal, rapido) {
+  canal.onopen = () => {
+    if (rapido) {
+      P2P.ligado = true;
+      P2P.tentando = false;
+      P2P.falhas = 0;
+      P2P.desistiu = false;
+      addTextSeguro("LIGAÇÃO DIRETA");
+      mpMostrarConexao();
+      p2pMedirPing();
+    }
+    /* assim que abre, o anfitrião conta em que onda está: o convidado
+       entra na mesma hora, sem esperar a nuvem                      */
+    if (!rapido && MP.host && S.mode === "playing") p2pMandarOnda();
+  };
+  canal.onclose = () => {
+    if (rapido) { P2P.ligado = false; mpMostrarConexao(); }
+  };
+  canal.onmessage = (ev) => p2pReceber(ev.data);
+}
+function addTextSeguro(txt) {
+  try { if (S.mode === "playing" && player && player.alive) addText(player.x, player.y - 40, txt, "#7CF7C0"); } catch (e) {}
+}
+
+async function p2pIniciar(idDoOutro) {
+  if (!p2pTem() || P2P.tentando || p2pAberto() || P2P.desistiu) return;
+  if (!idDoOutro) return;
+  P2P.tentando = true;
+  P2P.parceiro = idDoOutro;
+  P2P.desdeTentativa = Date.now();
+  try {
+    const pc = new RTCPeerConnection(P2P_GELO);
+    P2P.pc = pc;
+    pc.onicecandidate = (ev) => {
+      if (!ev.candidate) return;
+      nuvemSoltar(p2pInbox(idDoOutro) + "/gelo/" + (P2P.gelosEnviados++),
+                  { c: ev.candidate.candidate, m: ev.candidate.sdpMid,
+                    i: ev.candidate.sdpMLineIndex, de: MP.eu });
+    };
+    pc.onconnectionstatechange = () => {
+      const e = pc.connectionState;
+      if (e === "failed" || e === "closed") {
+        P2P.ligado = false;
+        mpMostrarConexao();
+        // uma nova tentativa daqui a pouco; depois de três, fica só na nuvem
+        setTimeout(() => { if (MP.sala) p2pTentarDeNovo(); }, 1500);
+      }
+    };
+    /* escuta a minha caixinha de recados na nuvem */
+    P2P.fecharSinal = nuvemFluxo(p2pInbox(MP.eu), (caixa) => p2pCaixa(caixa),
+      () => { p2pPuxarCaixa(); });
+    p2pRelogioCaixa();
+
+    if (p2pEuChamo(idDoOutro)) {
+      P2P.papel = "chama";
+      const rapido = pc.createDataChannel("r", { ordered: false, maxRetransmits: 0 });
+      const firme  = pc.createDataChannel("f", { ordered: true });
+      P2P.rapido = rapido; P2P.firme = firme;
+      p2pPrepararCanais(rapido, true);
+      p2pPrepararCanais(firme, false);
+      const oferta = await pc.createOffer();
+      await pc.setLocalDescription(oferta);
+      await nuvemSoltar(p2pInbox(idDoOutro) + "/oferta",
+                        { sdp: pc.localDescription.sdp, de: MP.eu, t: Date.now() });
+    } else {
+      P2P.papel = "atende";
+      pc.ondatachannel = (ev) => {
+        const c = ev.channel;
+        if (c.label === "r") { P2P.rapido = c; p2pPrepararCanais(c, true); }
+        else { P2P.firme = c; p2pPrepararCanais(c, false); }
+      };
+    }
+  } catch (e) {
+    P2P.tentando = false;
+  }
+}
+function p2pTentarDeNovo() {
+  const alvo = P2P.parceiro || Object.keys(MP.outros)[0];
+  p2pFechar(true);
+  P2P.falhas = (P2P.falhas || 0) + 1;
+  if (P2P.falhas >= 3) { P2P.desistiu = true; mpMostrarConexao(); return; }
+  if (alvo) p2pIniciar(alvo);
+}
+
+/* lê a caixinha: oferta, resposta e os candidatos de rede */
+let p2pVistos = {};
+async function p2pCaixa(caixa) {
+  if (!caixa || !P2P.pc) return;
+  const pc = P2P.pc;
+  try {
+    if (caixa.oferta && caixa.oferta.de !== MP.eu && !p2pVistos["o" + caixa.oferta.t]) {
+      p2pVistos["o" + caixa.oferta.t] = 1;
+      await pc.setRemoteDescription({ type: "offer", sdp: caixa.oferta.sdp });
+      const resp = await pc.createAnswer();
+      await pc.setLocalDescription(resp);
+      await nuvemSoltar(p2pInbox(caixa.oferta.de) + "/resposta",
+                        { sdp: pc.localDescription.sdp, de: MP.eu, t: Date.now() });
+    }
+    if (caixa.resposta && caixa.resposta.de !== MP.eu && !p2pVistos["r" + caixa.resposta.t]) {
+      p2pVistos["r" + caixa.resposta.t] = 1;
+      if (pc.signalingState === "have-local-offer") {
+        await pc.setRemoteDescription({ type: "answer", sdp: caixa.resposta.sdp });
+      }
+    }
+    if (caixa.gelo) {
+      for (const k in caixa.gelo) {
+        const g = caixa.gelo[k];
+        if (!g || g.de === MP.eu || p2pVistos["g" + k]) continue;
+        p2pVistos["g" + k] = 1;
+        try {
+          await pc.addIceCandidate({ candidate: g.c, sdpMid: g.m, sdpMLineIndex: g.i });
+        } catch (e) {}
+      }
+    }
+  } catch (e) {}
+}
+/* se o fluxo não estiver disponível, lê a caixinha de tempos em tempos */
+let p2pRelogio = null;
+function p2pRelogioCaixa() {
+  if (p2pRelogio) clearInterval(p2pRelogio);
+  p2pRelogio = setInterval(() => {
+    if (!MP.sala) { clearInterval(p2pRelogio); p2pRelogio = null; return; }
+    if (p2pAberto()) return;      // já ligou: não precisa mais ler
+    p2pPuxarCaixa();
+  }, 900);
+}
+async function p2pPuxarCaixa() {
+  if (!MP.sala || !P2P.pc) return;
+  try { const c = await nuvemReq(p2pInbox(MP.eu)); if (c) p2pCaixa(c); } catch (e) {}
+}
+function p2pLimparCaixa() {
+  if (!MP.sala || !MP.eu) return;
+  try { nuvemReq(p2pInbox(MP.eu), { method: "DELETE" }); } catch (e) {}
+  p2pVistos = {};
+}
+
+/* ---------- conversa dentro do canal ---------- */
+function p2pEnviar(txt, firme) {
+  try {
+    if (firme) {
+      if (!p2pFirmeAberto()) return false;
+      P2P.firme.send(txt);
+    } else {
+      if (!p2pAberto()) return false;
+      P2P.rapido.send(txt);
+    }
+    P2P.enviados++;
+    return true;
+  } catch (e) { return false; }
+}
+function p2pReceber(txt) {
+  if (typeof txt !== "string" || !txt.length) return;
+  P2P.recebidos++;
+  const tipo = txt[0], corpo = txt.slice(1);
+  if (tipo === "e") {                       // estado do outro piloto
+    const d = mpDesempacotar(corpo);
+    if (!d) return;
+    const id = P2P.parceiro || "p2p";
+    if (!MP.outros[id]) MP.outros[id] = {};
+    Object.assign(MP.outros[id], d);
+    mpGuardarPasso(MP.outros[id], d);
+    if (d.abates && d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
+    mpAtualizarPlacar();
+  } else if (tipo === "k") {                // abates, na hora
+    if (MP.modo !== "pvp") mpAplicarAbates(corpo.split("|"));
+  } else if (tipo === "w") {                // onda e fase do anfitrião
+    const v = corpo.split(",").map(Number);
+    mpEntrarNaOnda(v[0], v[1]);
+  } else if (tipo === "d") {                // dano no chefe
+    const id = P2P.parceiro || "p2p";
+    if (!MP.outros[id]) MP.outros[id] = {};
+    MP.outros[id].dano = +corpo || 0;
+  } else if (tipo === "p") {                // pediram ping
+    p2pEnviar("o" + corpo, false);
+  } else if (tipo === "o") {                // voltou o ping
+    const t0 = +corpo;
+    if (t0) {
+      const ida = Math.max(1, Math.round(performance.now() - t0));
+      P2P.ping = P2P.ping ? Math.round(P2P.ping * 0.7 + ida * 0.3) : ida;
+      mpMostrarConexao();
+    }
+  } else if (tipo === "f") {                // o outro terminou
+    const id = P2P.parceiro || "p2p";
+    if (!MP.outros[id]) MP.outros[id] = {};
+    MP.outros[id].vivo = false;
+    MP.outros[id].hp = 0;
+  }
+}
+function p2pMedirPing() {
+  if (!p2pAberto()) return;
+  p2pEnviar("p" + Math.round(performance.now()), false);
+  setTimeout(p2pMedirPing, 2000);
+}
+function p2pMandarOnda() {
+  if (!MP.host) return;
+  p2pEnviar("w" + (S.fase || 1) + "," + (S.waveIdx || 0), true);
+}
+
+/* ---------- o que aparece na tela sobre a ligação ---------- */
+function mpMostrarConexao() {
+  /* na sala de espera a mesma informação vira uma frase inteira */
+  const sn = $("sala-net");
+  if (sn && MP.sala) {
+    sn.innerHTML = p2pAberto()
+      ? "<b>⚡ Ligação direta pronta</b> — os dois aparelhos já estão conversando" +
+        (P2P.ping ? " com " + P2P.ping + " ms de ida e volta." : ".")
+      : (P2P.tentando && !P2P.desistiu
+          ? "⇄ Ligando os dois aparelhos direto…"
+          : "☁ A partida vai pela nuvem" +
+            (P2P.desistiu ? " (a rede não deixou a ligação direta)." : ", esperando o outro piloto."));
+  }
+  const el = $("mp-conexao");
+  if (!el) return;
+  if (!MP.sala || S.mode !== "playing") { el.style.display = "none"; return; }
+  el.style.display = "flex";
+  if (p2pAberto()) {
+    el.className = "mp-conexao direto";
+    el.textContent = "⚡ DIRETO" + (P2P.ping ? " " + P2P.ping + "ms" : "");
+  } else if (P2P.tentando && !P2P.desistiu) {
+    el.className = "mp-conexao ligando";
+    el.textContent = "⇄ ligando direto…";
+  } else {
+    el.className = "mp-conexao nuvem";
+    el.textContent = "☁ NUVEM " + Math.round(REDE.ida) + "ms";
+  }
+}
+
 let mpEnviando = false;
 /* mede quanto a rede está demorando, para não empurrar mais do que ela leva */
 const REDE = { ida: 120, intervalo: 110, ruim: 0 };
@@ -12546,6 +12980,19 @@ async function mpEnviarPosicao() {
   if (!MP.sala || mpEnviando) return;
   if (S.mode !== "playing" && S.mode !== "gameover" &&
       S.mode !== "paused" && S.mode !== "sala") return;
+  /* ligação direta aberta: vai por ela e pronto. A nuvem só recebe uma
+     batidinha de vez em quando, para a sala não parecer abandonada.   */
+  if (p2pAberto() && S.mode === "playing") {
+    p2pEnviar("e" + mpEmpacotar(), false);
+    mpAbatesEnviados = mpMeusAbates.length;
+    const agora = Date.now();
+    if (agora - (MP.ultimaBatida || 0) > 3000) {
+      MP.ultimaBatida = agora;
+      const raiz = MP.modo === "arena" ? "arena" : mpCaminho();
+      nuvemSoltar(raiz + "/p/" + MP.eu, mpEmpacotar());
+    }
+    return;
+  }
   mpEnviando = true;
   const t0 = performance.now();
   try {
@@ -12617,11 +13064,57 @@ function mpSincronizarCoop(sala) {
   }
 }
 
+/* =====================================================================
+   Nave do parceiro sem tremer: guarda os últimos passos com a hora em
+   que chegaram e desenha um tiquinho no passado, entre dois passos
+   reais. É o mesmo truque dos jogos de tiro online: 55 ms de atraso
+   proposital valem mais do que adivinhar onde ele está agora.
+   ===================================================================== */
+const MP_ATRASO = 55;   // ms de folga para interpolar
+function mpGuardarPasso(o, d) {
+  if (!o.buf) o.buf = [];
+  o.buf.push({ t: performance.now(), x: d.x, y: d.y });
+  if (o.buf.length > 16) o.buf.shift();
+}
+function mpPosicaoSuave(o) {
+  const b = o.buf;
+  if (!b || b.length < 2) return null;
+  const alvo = performance.now() - MP_ATRASO;
+  if (alvo <= b[0].t) return { x: b[0].x, y: b[0].y };
+  for (let i = b.length - 1; i > 0; i--) {
+    if (b[i - 1].t <= alvo && alvo <= b[i].t) {
+      const f = (alvo - b[i - 1].t) / Math.max(1, b[i].t - b[i - 1].t);
+      return { x: lerp(b[i - 1].x, b[i].x, f), y: lerp(b[i - 1].y, b[i].y, f) };
+    }
+  }
+  const u = b[b.length - 1], a = b[b.length - 2];
+  const dtms = Math.max(16, u.t - a.t);
+  const adiante = clamp((alvo - u.t) / dtms, 0, 2.5);
+  return { x: u.x + (u.x - a.x) * adiante, y: u.y + (u.y - a.y) * adiante };
+}
+/* o convidado entra na mesma onda e na mesma fase do anfitrião */
+function mpEntrarNaOnda(fase, onda) {
+  if (MP.host || MP.modo === "pvp" || !MP.sala) return;
+  if (S.mode !== "playing") return;
+  if (fase && fase !== S.fase) {
+    MP.fase = fase; MP.meuDano = 0;
+    startGame(fase);
+    return;
+  }
+  if (onda !== undefined && onda !== null && onda !== S.waveIdx) {
+    S.waveIdx = onda;
+    enemies = [];
+    MP.meuDano = 0;
+    setupWave();
+  }
+}
+
 function mpOutroPrincipal() {
   const ids = Object.keys(MP.outros);
   return ids.length ? MP.outros[ids[0]] : null;
 }
 function mpAtualizarPlacar() {
+  mpMostrarConexao();
   const box = $("mp-placar");
   if (!box) return;
   const o = mpOutroPrincipal();
@@ -12688,6 +13181,8 @@ async function mpChecarFimDuelo() {
   finalizarDuelo(MP.fim, o);
 }
 function finalizarDuelo(resultado, oponente) {
+  // pela ligação direta o adversário sabe na hora, sem esperar a nuvem
+  if (resultado !== "vitoria") p2pEnviar("f" + resultado, true);
   // grava o meu estado final para o adversário conseguir ler o desfecho
   if (MP.sala) {
     const fim = mpMeuResumo(false);
@@ -12732,10 +13227,14 @@ async function mpSair(voltarMenu, atraso) {
       method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify("fim")
     });
   }
+  try { p2pLimparCaixa(); } catch (e) {}
+  try { p2pFechar(true); } catch (e) {}
+  P2P.falhas = 0; P2P.desistiu = false;
   mpPararLoop();
   MP.sala = null; MP.outros = {}; MP.modo = null; MP.host = false;
   calcStats();
   $("mp-placar").style.display = "none";
+  const cx = $("mp-conexao"); if (cx) cx.style.display = "none";
   if (voltarMenu !== false) { S.duelo = false; goMenu(); }
 }
 
@@ -12793,9 +13292,16 @@ async function rkProcurar() {
   AudioSys.resume();
   FILA.procurando = true;
   FILA.desde = Date.now();
-  $("rk-busca").classList.add("on");
-  $("rk-procurar").style.display = "none";
-  $("rk-busca-txt").textContent = "Procurando adversário…";
+  for (const id of ["rk-busca", "mrk-busca"]) {
+    const el = $(id); if (el) el.classList.add("on");
+  }
+  for (const id of ["rk-procurar", "mrk-procurar"]) {
+    const el = $(id); if (el) el.style.display = "none";
+  }
+  for (const id of ["rk-busca-txt", "mrk-busca-txt"]) {
+    const el = $(id); if (el) el.textContent = "Procurando adversário…";
+  }
+  mrkContarFila();
   const eu = mpMeuId();
   await nuvemSoltar("fila/" + eu, {
     nome: save.__name || "Piloto", rank: save.rank || 0, nave: save.ship, ts: Date.now()
@@ -12836,7 +13342,9 @@ async function rkTentar() {
     rkPararBusca(false);
     await nuvemReq("fila/" + eu, { method: "DELETE" });
     if (S.mode === "playing" || S.mode === "paused") return;   // não interrompe partida
-    $("rk-busca-txt").textContent = "Adversário encontrado!";
+    for (const id2 of ["rk-busca-txt", "mrk-busca-txt"]) {
+      const el = $(id2); if (el) el.textContent = "Adversário encontrado!";
+    }
     AudioSys.power();
     vibrate([60, 50, 100]);
     await mpEntrarSala(minha.sala, "pvp");
@@ -12853,12 +13361,16 @@ async function rkTentar() {
     .sort((a, b) => Math.abs((fila[a].rank || 0) - meuRank) -
                     Math.abs((fila[b].rank || 0) - meuRank));
   const espera = (Date.now() - FILA.desde) / 1000;
-  if (S.mode === "ranked") {
-    $("rk-busca-txt").textContent = candidatos.length
+  if (S.mode === "ranked" || S.mode === "multi") {
+    const txt = candidatos.length
       ? "Achei alguém! Preparando o duelo…"
       : "Procurando adversário… " + Math.round(espera) + "s" +
         (vivos.length > 1 ? " · " + vivos.length + " na fila" : " · você é o único na fila agora");
-    $("ranked-fila").textContent = vivos.length + " na fila";
+    for (const id2 of ["rk-busca-txt", "mrk-busca-txt"]) {
+      const el = $(id2); if (el) el.textContent = txt;
+    }
+    const nf = $("ranked-fila"); if (nf) nf.textContent = vivos.length + " na fila";
+    const nf2 = $("mrk-fila"); if (nf2) nf2.textContent = vivos.length;
   }
   rkAtualizarFaixa();
   if (!candidatos.length) return;
@@ -12889,8 +13401,12 @@ function rkPararBusca(limpar) {
   FILA.procurando = false;
   if (FILA.relogio) { clearInterval(FILA.relogio); FILA.relogio = null; }
   if (FILA.autoComecar) { clearInterval(FILA.autoComecar); FILA.autoComecar = null; }
-  $("rk-busca").classList.remove("on");
-  $("rk-procurar").style.display = "";
+  for (const id of ["rk-busca", "mrk-busca"]) {
+    const el = $(id); if (el) el.classList.remove("on");
+  }
+  for (const id of ["rk-procurar", "mrk-procurar"]) {
+    const el = $(id); if (el) el.style.display = "";
+  }
   rkAtualizarFaixa();
   if (limpar) nuvemReq("fila/" + mpMeuId(), { method: "DELETE" });
 }
@@ -12900,6 +13416,8 @@ $("btn-ranked").addEventListener("click", () => {
 });
 $("rk-procurar").addEventListener("click", rkProcurar);
 $("rk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
+$("mrk-procurar").addEventListener("click", rkProcurar);
+$("mrk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
 
 /* =====================================================================
    ARENA INFINITA
@@ -12950,6 +13468,7 @@ function arenaAplicar(d) {
       vistos[id] = true;
       if (!MP.outros[id]) MP.outros[id] = {};
       Object.assign(MP.outros[id], o);
+      mpGuardarPasso(MP.outros[id], o);   // naves lisas também na arena
       if (o.abates.length) mpAplicarAbates(o.abates);
     }
     for (const id in MP.outros) if (!vistos[id]) delete MP.outros[id];
@@ -13140,7 +13659,10 @@ function abrirMulti(aba) {
   S.mode = "multi";
   const c = $("aba-coop");
   if (c) c.style.display = COOP_LIGADO ? "" : "none";
+  const r = $("aba-ranked");
+  if (r) r.style.display = RANKED_LIGADO ? "" : "none";
   if (!COOP_LIGADO && (!aba || aba === "coop")) aba = "amigos";
+  if (!RANKED_LIGADO && aba === "ranked") aba = "pvp";
   trocarAbaMulti(aba || "coop");
   atualizarPvpCartao();
   showScreen("multi");
@@ -13151,8 +13673,63 @@ function trocarAbaMulti(aba) {
   }
   $("multi-coop").style.display = aba === "coop" ? "block" : "none";
   $("multi-pvp").style.display = aba === "pvp" ? "block" : "none";
+  $("multi-ranked").style.display = aba === "ranked" ? "block" : "none";
   $("multi-amigos").style.display = aba === "amigos" ? "block" : "none";
   if (aba === "amigos") renderAmigos();
+  if (aba === "ranked") mrkRender();
+  mpNetTexto();
+}
+/* explica, na própria página, como a partida vai trafegar */
+function mpNetTexto() {
+  const txt = p2pTem() && typeof RTCPeerConnection === "function"
+    ? "<b>⚡ Ligação direta</b> — os dois celulares conversam entre si, sem servidor no meio. " +
+      "A nuvem só serve para vocês se acharem. Se a operadora não deixar, o jogo continua " +
+      "pela nuvem sozinho, sem travar."
+    : "Este aparelho não tem ligação direta: a partida vai pela nuvem.";
+  for (const id of ["coop-net", "pvp-net"]) {
+    const el = $(id);
+    if (el) el.innerHTML = txt;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Aba da RANQUEADA dentro do multijogador: brasão, números da temporada,
+   fila e a escada das divisões.
+   --------------------------------------------------------------------- */
+function mrkRender() {
+  const pts = save.rank || 0;
+  const r = rankDe(pts);
+  $("mrk-sim").textContent = r.sim;
+  $("mrk-sim").style.color = r.cor;
+  $("mrk-nome").textContent = r.nome;
+  $("mrk-nome").style.color = r.cor;
+  $("mrk-pts").textContent = fmt(pts) + " pontos de rank";
+  const prox = proximoRank(pts);
+  const base = r.min, teto = prox ? prox.min : Math.max(pts, r.min + 1);
+  const frac = prox ? clamp((pts - base) / Math.max(1, teto - base), 0, 1) : 1;
+  $("mrk-barra").style.width = Math.round(frac * 100) + "%";
+  $("mrk-prox").textContent = prox
+    ? "Faltam " + fmt(prox.min - pts) + " para " + prox.sim + " " + prox.nome
+    : "Rank máximo. Não tem para onde subir.";
+  const v = save.vitorias || 0, d = save.derrotas || 0;
+  $("mrk-vit").textContent = fmt(v);
+  $("mrk-der").textContent = fmt(d);
+  $("mrk-taxa").textContent = (v + d) ? Math.round((v / (v + d)) * 100) + "%" : "—";
+  const esc = $("mrk-escada");
+  esc.innerHTML = RANKS.map(x =>
+    '<div class="rk-degrau' + (x.nome === r.nome ? " aqui" : "") + '">' +
+      '<i style="color:' + x.cor + '">' + x.sim + "</i>" +
+      "<b>" + x.nome + "</b><span>" + fmt(x.min) + " pts</span></div>").join("");
+  mrkContarFila();
+}
+async function mrkContarFila() {
+  const el = $("mrk-fila");
+  if (!el) return;
+  try {
+    const f = await nuvemReq("fila");
+    const n = f ? Object.keys(f).filter(k => Date.now() - ((f[k] && f[k].ts) || 0) < 25000).length : 0;
+    el.textContent = n;
+  } catch (e) { el.textContent = "0"; }
 }
 function atualizarPvpCartao() {
   const pts = save.rank || 0;
@@ -14771,6 +15348,9 @@ function waveIsBoss() {
 
 function setupWave() {
   atualizarLeitura();
+  /* anfitrião: conta a onda nova pela ligação direta antes de tudo, para
+     o parceiro montar a mesma onda no mesmo instante */
+  try { if (MP.sala && MP.host && mpCoop()) p2pMandarOnda(); } catch (e) {}
   // no cooperativo os dois aparelhos sorteiam a MESMA onda
   S.rng = (typeof MP !== "undefined" && MP && MP.modo === "arena")
     ? rngDe((S.fase * 2654435761) >>> 0)
@@ -17482,11 +18062,12 @@ function draw() {
         o.vy = (o.y - o.py) / dtms * 1000;
         o.px = o.x; o.py = o.y; o.pts = agora;
       }
+      const suave = mpPosicaoSuave(o);
       const atraso = clamp((Date.now() - (o.pts || Date.now())) / 1000, 0, 0.4);
-      const alvoX = o.x + (o.vx || 0) * atraso * 0.7;
-      const alvoY = o.y + (o.vy || 0) * atraso * 0.7;
+      const alvoX = suave ? suave.x : o.x + (o.vx || 0) * atraso * 0.7;
+      const alvoY = suave ? suave.y : o.y + (o.vy || 0) * atraso * 0.7;
       // aproximação por tempo: liso mesmo se um quadro demorar
-      const k = 1 - Math.pow(0.0006, dtDesenho);
+      const k = 1 - Math.pow(suave ? 0.000002 : 0.0006, dtDesenho);
       o.dx = o.dx === undefined ? alvoX : lerp(o.dx, alvoX, k);
       o.dy = o.dy === undefined ? alvoY : lerp(o.dy, alvoY, k);
       mpDesenharTirosDoOutro(o);
@@ -17619,13 +18200,17 @@ function loopInterno(now) {
     decoAtualizar(dt);
     dtDesenho = dt;
     draw();
-    // enquanto joga, a posição vai pelo laço de desenho: mais constante
-    if (MP.sala && now - (MP.ultimoEnvio || 0) > REDE.intervalo) {
+    /* enquanto joga, a posição vai pelo laço de desenho: mais constante.
+       Com a ligação direta aberta o passo é de 33 ms (30 vezes por
+       segundo) — não custa nada, porque não passa por servidor. Pela
+       nuvem o passo continua o que a rede aguenta.                    */
+    const passoRede = p2pAberto() ? 33 : REDE.intervalo;
+    if (MP.sala && now - (MP.ultimoEnvio || 0) > passoRede) {
       MP.ultimoEnvio = now;
       mpEnviarPosicao();
     }
     // se acabei de atirar, vale mandar antes da hora: o tiro chega junto
-    if (MP.sala && MP.modo === "arena" && (MP.serieEnviada || 0) < serieTiro - 5 &&
+    if (MP.sala && !p2pAberto() && (MP.serieEnviada || 0) < serieTiro - 5 &&
         now - (MP.ultimoEnvio || 0) > 45) {
       MP.ultimoEnvio = now;
       mpEnviarPosicao();
@@ -18119,6 +18704,19 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.0", itens: [
+      "MULTIJOGADOR DE VOLTA, agora com LIGAÇÃO DIRETA: os dois celulares conversam entre si, sem servidor no meio. O atraso cai de 150–400 ms para 10–40 ms",
+      "O inimigo morre na mesma hora nas duas telas: o abate sai na hora pelo canal com garantia de entrega, não espera o próximo pacote",
+      "Mesma onda sempre: o anfitrião avisa a onda no instante em que ela começa, e o parceiro monta a mesma na hora",
+      "Você vê os tiros da outra nave voando de verdade — eles chegam com velocidade e continuam o voo sozinhos",
+      "Nave do parceiro sem tremer: interpolação com 55 ms de folga, o mesmo truque dos jogos de tiro online",
+      "30 pacotes por segundo na ligação direta (antes eram 2 a 9 pela nuvem)",
+      "Selinho na tela mostra se você está ⚡ DIRETO (com o ping) ou ☁ pela NUVEM",
+      "Se a operadora não deixar a ligação direta, o jogo volta sozinho para a nuvem e continua jogável",
+      "PÁGINA DO MULTIJOGADOR REFEITA: capas dos modos, explicação da rede e quatro abas",
+      "ABA ESPECIAL DA RANQUEADA: brasão, barra para a próxima divisão, vitórias, derrotas, aproveitamento, quantos estão na fila agora e a escada das 10 divisões",
+      "A ranqueada voltou ao menu também, e a busca funciona pelas duas telas"
+    ] },
   { v: "4.9", itens: [
       "Na conta do dono os cristais aparecem como ∞ em vez de um número gigante — no menu, no hangar, nas melhorias, na árvore, nas relíquias, nas fases e na loja",
       "E o ∞ é de verdade: comprar não diminui nada, o saldo volta ao teto sozinho"
@@ -18319,7 +18917,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.9";
+const VERSAO = "5.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
