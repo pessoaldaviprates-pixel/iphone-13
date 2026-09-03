@@ -2306,6 +2306,8 @@
   }
   /* sem número não aparece pílula vazia no cabeçalho */
   .page-gems:empty{display:none}
+  /* o sinal de infinito da conta do dono: um tico maior que um número */
+  .infinito{font-size:1.15em;line-height:1;letter-spacing:.02em}
   .scroll{
     flex:1;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
     padding:16px 14px calc(24px + env(safe-area-inset-bottom)) 14px;
@@ -4275,6 +4277,13 @@ try {
 } catch (e) {}
 
 function persist() {
+  /* dono: o saldo volta ao teto a cada gravação, então comprar nunca
+     diminui nada — é o que o sinal de infinito promete na tela */
+  try {
+    if (typeof cristaisInfinitos === "function" && cristaisInfinitos()) {
+      save.crystals = CRISTAIS_DONO;
+    }
+  } catch (e) {}
   save.savedAt = Date.now();
   ROOT.savedAt = save.savedAt;
   storageSet(ROOT_KEY, JSON.stringify(ROOT));
@@ -6661,7 +6670,7 @@ function refreshMenu() {
   $("menu-online-h").style.display = online ? "block" : "none";
   $("btn-ranked").style.display = RANKED_LIGADO ? "" : "none";
   nuvemMostrarStatus();
-  $("menu-gems").textContent = fmt(save.crystals);
+  porCristais("menu-gems");
   $("menu-progress").textContent = save.best + "/" + TOTAL_FASES;
   $("menu-hi").textContent = fmt(save.hi);
 
@@ -10658,7 +10667,7 @@ const LOJA_ABAS = [
 ];
 
 function renderLoja() {
-  $("loja-gems").textContent = fmt(save.crystals);
+  porCristais("loja-gems");
   const abas = $("loja-abas");
   abas.innerHTML = "";
   for (const a of LOJA_ABAS) {
@@ -11002,7 +11011,7 @@ function renderDificuldade() {
   }
 }
 function renderLevels() {
-  $("levels-gems").textContent = fmt(save.crystals);
+  porCristais("levels-gems");
   renderDificuldade();
   const grid = $("fase-grid");
   grid.innerHTML = "";
@@ -11080,7 +11089,7 @@ function renderLevels() {
 
 /* ---------- Loja ---------- */
 function renderShop() {
-  $("shop-gems").textContent = fmt(save.crystals);
+  porCristais("shop-gems");
   const list = $("shop-list");
   list.innerHTML = "";
   for (const u of UPGRADES) {
@@ -11185,7 +11194,7 @@ function renderHangarFiltros() {
   }
 }
 function renderHangar(scrollToSel) {
-  $("hangar-gems").textContent = fmt(save.crystals);
+  porCristais("hangar-gems");
   document.querySelector(".hangar-topo").style.display = CRIAR_NAVE_LIGADO ? "" : "none";
   renderHangarAtual();
   renderHangarFiltros();
@@ -11358,6 +11367,23 @@ function renderHangar(scrollToSel) {
    É idempotente: entrar de novo não duplica nada.
    ===================================================================== */
 const DONO_BRINDE = 1;      // sobe quando entrar coisa nova para o dono
+const CRISTAIS_DONO = 999999999;
+/* Na conta do dono os cristais não acabam nunca, então em vez de um
+   número gigante o jogo mostra o sinal de infinito. */
+function cristaisInfinitos() {
+  try { return contaDeDono(save && save.__name); } catch (e) { return false; }
+}
+function cristaisTexto(n) {
+  return cristaisInfinitos() ? "∞" : fmt(n);
+}
+/* escreve o saldo numa pílula da tela e marca quando é o infinito, para
+   o símbolo aparecer no tamanho certo em vez de virar um risquinho */
+function porCristais(id) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = cristaisTexto(save.crystals);
+  el.classList.toggle("infinito", cristaisInfinitos());
+}
 function contaDeDono(nome) {
   try { return ehDono(String(nome == null ? "" : nome).trim()); } catch (e) { return false; }
 }
@@ -11368,7 +11394,7 @@ function darTudoAoDono(nome) {
   if (!p) return false;
 
   /* cristais, fases e pontos */
-  p.crystals = Math.max(p.crystals || 0, 999999999);
+  p.crystals = CRISTAIS_DONO;
   p.best = TOTAL_FASES;
   p.pts = Math.max(p.pts || 0, TOTAL_FASES);
   p.hi = Math.max(p.hi || 0, 100000);
@@ -11550,7 +11576,7 @@ function abrirConstrutor(editar) {
   cnRender();
 }
 function cnRender() {
-  $("cn-gems").textContent = fmt(save.crystals);
+  porCristais("cn-gems");
   // trilha dos passos
   const nomes = ["1 · FORMATO", "2 · PEÇAS", "3 · ACABAMENTO"];
   $("cn-passos").innerHTML = nomes.map((n, i) =>
@@ -11709,8 +11735,8 @@ function cnFinal() {
                    : (custo < 0 ? "Você recebe de volta: <b>◆ " + fmt(-custo) + "</b>"
                                 : "Sem custo: a nave ficou do mesmo valor."))
       : "Custo total: <b>◆ " + fmt(custo) + "</b>") +
-    " — você tem ◆ " + fmt(save.crystals) +
-    (save.crystals < custo
+    " — você tem ◆ " + cristaisTexto(save.crystals) +
+    (save.crystals < custo && !cristaisInfinitos()
       ? '<br><span style="color:var(--danger)">Faltam ◆ ' + fmt(custo - save.crystals) + "</span>" : "");
 }
 $("cn-nome").addEventListener("input", e => { CN.def.nome = e.target.value.slice(0, 18); });
@@ -11878,7 +11904,7 @@ function render3D(g, shipIdx, cx, cy, scale, theta, cw, ch) {
 function renderOficina() {
   const i = save.ship;
   const sh = SHIPS[i];
-  $("of-gems").textContent = fmt(save.crystals);
+  porCristais("of-gems");
   $("of-title").textContent = "OFICINA — " + sh.name.toUpperCase();
   $("of-power").textContent = "PODER: " + sh.powerName + " — " + sh.powerDesc;
   const ult = ULTS[sh.power] || ULTS.dmg;
@@ -11992,7 +12018,7 @@ $("btn-of-cut").addEventListener("click", () => { AudioSys.resume(); playCutscen
 
 /* ---------- Relíquias (amuletos) ---------- */
 function renderReliquias() {
-  $("rel-gems").textContent = fmt(save.crystals);
+  porCristais("rel-gems");
   const bc = $("btn-chest");
   if (bc) bc.textContent = "ABRIR BAÚ ESTELAR — ◆ " + fmt(precoDoBau());
   const tit = $("rel-espacos");
@@ -13322,7 +13348,7 @@ function nodeState(branch, tier) {
   return "locked";
 }
 function renderTree() {
-  $("tree-gems").textContent = fmt(save.crystals);
+  porCristais("tree-gems");
   const avail = ptsAvailable();
   $("tree-pts").textContent = avail + (avail === 1 ? " PONTO DISPONÍVEL" : " PONTOS DISPONÍVEIS") +
     " · " + ptsSpent() + "/120 HABILIDADES";
@@ -18093,6 +18119,10 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "4.9", itens: [
+      "Na conta do dono os cristais aparecem como ∞ em vez de um número gigante — no menu, no hangar, nas melhorias, na árvore, nas relíquias, nas fases e na loja",
+      "E o ∞ é de verdade: comprar não diminui nada, o saldo volta ao teto sozinho"
+    ] },
   { v: "4.8", itens: [
       "A LISTA DE NOVIDADES estava parada na 3.9: agora tem tudo o que entrou da 4.0 até aqui",
       "A conta do dono (Cr1cket) entra com TUDO liberado sozinha: as 120 naves, as exclusivas, as da loja, peças e pinturas no máximo, todas as fases, a árvore inteira, os amuletos, VIP e os oito passes — e as habilidades de cada nave já no nível 10",
@@ -18289,7 +18319,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.8";
+const VERSAO = "4.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
