@@ -111,10 +111,41 @@ No Firebase, aba **Regras** do Realtime Database, cole isto e publique:
     "equipe": {
       ".read": true,
       ".write": true
+    },
+    "conversas": {
+      "$id": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "amigos": {
+      ".read": true,
+      ".write": true
+    },
+    "loja_pedidos": {
+      ".read": true,
+      ".write": true
+    },
+    "suporte": {
+      ".read": true,
+      ".write": true
+    },
+    "vivo": {
+      ".read": true,
+      ".write": true
     }
   }
 }
 ```
+
+> **Se o jogo disser "sem conexão com a nuvem — as regras do banco estão
+> bloqueando"**, é uma destas duas coisas: as regras de teste do Firebase
+> venceram (elas duram 30 dias e depois fecham tudo sozinhas), ou falta
+> algum galho novo na lista acima. Nos dois casos a solução é a mesma:
+> cole estas regras por cima das que estão lá e publique. O próprio jogo
+> tem o botão **📋 COPIAR AS REGRAS CERTAS** no aviso vermelho do menu, e
+> o painel tem o **TESTE DA NUVEM**, que diz galho por galho qual está
+> bloqueado.
 
 > A leitura de `contas`, `salas` e `cenas` fica **dentro de cada item** (`$id`), e não na lista inteira: assim ninguém consegue baixar a lista de todas as contas — é preciso saber o nome exato.
 
@@ -133,6 +164,11 @@ No Firebase, aba **Regras** do Realtime Database, cole isto e publique:
 | `sugestoes` | O que os jogadores escreveram na caixa de sugestão, no fim das fases. Você lê tudo no painel. |
 | `mundo` | O que o administrador ligou para todo mundo: o recado na tela, os boosts, as travessuras e o evento com música e decoração. Cada um com hora para acabar. |
 | `cenas` | O resumo da tela de quem está jogando (posições da nave, dos inimigos e do chefe), para os amigos poderem assistir. Quem não quiser aparecer desliga em **👁 TRANSMISSÃO** no menu. |
+| `amigos` | Os pedidos de amizade esperando resposta. |
+| `conversas` | As conversas entre amigos, uma sala por dupla. |
+| `loja_pedidos` | O que alguém pediu na loja e ainda não foi entregue pelo administrador. |
+| `suporte` | A conversa direta com o administrador, aberta pelo botão redondo da loja. |
+| `salas/<código>/sinal` | O aperto de mão do multijogador direto: oferta, resposta e os candidatos de rede. Some sozinho quando a sala acaba. Fica dentro de `salas`, então já está liberado pela regra de cima. |
 
 Isso limita o que pode ser gravado e evita que o banco vire depósito de
 lixo. **Não deixe no "modo de teste" para sempre** — ele expira em 30 dias e,
