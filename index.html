@@ -1462,6 +1462,16 @@
     overflow:hidden;margin:0 auto 14px;max-width:300px;display:none;
   }
   #update-gate.indo .ug-barra{display:block}
+  /* saída de emergência: só aparece quando a atualização já falhou duas
+     vezes seguidas (servidor ainda servindo a versão velha, por
+     exemplo). Sem isso o portão viraria uma porta trancada.            */
+  .ug-pular{
+    display:none;margin-top:10px;width:100%;padding:11px;border-radius:12px;
+    background:transparent;border:1px solid rgba(234,242,255,.24);
+    color:var(--dim);font-size:.72rem;letter-spacing:.08em;font-weight:700;cursor:pointer;
+  }
+  #update-gate.travado .ug-pular{display:block}
+  #update-gate.indo .ug-pular{display:none}
   .ug-barra i{
     display:block;height:100%;width:38%;border-radius:999px;background:var(--cyan);
     animation:ugAnda 1.1s ease-in-out infinite;
@@ -2776,6 +2786,7 @@
     </div>
     <div class="ug-barra"><i></i></div>
     <button id="ug-btn">ATUALIZAR AGORA</button>
+    <button id="ug-pular" class="ug-pular">ENTRAR ASSIM MESMO</button>
     <div class="ug-rodape">Seu progresso está salvo — nada se perde na atualização.</div>
   </div>
 </div>
@@ -4279,6 +4290,8 @@ function loginAs(name) {
   try { aplicarLimpezaDeNaves(); } catch (e) {}
   // as naves que este piloto montou entram no fim da lista
   try { reconstruirNavesCriadas(); } catch (e) {}
+  // a conta do dono já entra com tudo liberado
+  try { darTudoAoDono(name); } catch (e) {}
   persist();
   calcStats();
 }
@@ -11335,6 +11348,83 @@ function renderHangar(scrollToSel) {
 }
 
 /* =====================================================================
+   O DONO JÁ ENTRA COM TUDO
+   ---------------------------------------------------------------------
+   A conta do dono (a mesma lista do painel: Cr1cket) não precisa comprar
+   nada nem esperar presente. Toda vez que ela entra, o jogo confere e
+   deixa tudo liberado: as 120 naves, as exclusivas, as da loja, as peças
+   e pinturas no máximo, todas as habilidades da árvore, as habilidades
+   de cada nave no nível 10, todas as fases, VIP e os oito passes.
+   É idempotente: entrar de novo não duplica nada.
+   ===================================================================== */
+const DONO_BRINDE = 1;      // sobe quando entrar coisa nova para o dono
+function contaDeDono(nome) {
+  try { return ehDono(String(nome == null ? "" : nome).trim()); } catch (e) { return false; }
+}
+function darTudoAoDono(nome) {
+  const alvo = nome === undefined ? (save && save.__name) : nome;
+  if (!contaDeDono(alvo)) return false;
+  const p = save;
+  if (!p) return false;
+
+  /* cristais, fases e pontos */
+  p.crystals = Math.max(p.crystals || 0, 999999999);
+  p.best = TOTAL_FASES;
+  p.pts = Math.max(p.pts || 0, TOTAL_FASES);
+  p.hi = Math.max(p.hi || 0, 100000);
+
+  /* todas as naves da lista, exclusivas e da loja no meio */
+  const tem = {};
+  for (const i of (p.ships || [])) tem[i] = 1;
+  const todas = [];
+  for (let i = 0; i < NAVES_BASE; i++) { todas.push(i); tem[i] = 1; }
+  p.ships = todas;
+
+  /* árvore de habilidades inteira */
+  p.skills = p.skills || {};
+  for (const b of ["atk", "def", "res"]) for (let t = 1; t <= 40; t++) p.skills[b + t] = true;
+
+  /* melhorias da loja no máximo */
+  p.upgrades = p.upgrades || {};
+  for (const u of UPGRADES) p.upgrades[u.id] = u.max;
+
+  /* peças, armas, pinturas e brilhos de todas as naves */
+  p.parts = p.parts || {}; p.weapons = p.weapons || {};
+  p.paints = p.paints || {}; p.glows = p.glows || {};
+  for (let i = 0; i < NAVES_BASE; i++) {
+    p.parts[i] = p.parts[i] || {};
+    for (const part of PARTS) p.parts[i][part.id] = PART_MAX;
+    p.weapons[i] = WEAPONS.map(w => w.id);
+    p.paints[i] = PAINT_HUES.slice();
+    p.glows[i] = PAINT_HUES.slice();
+  }
+
+  /* as habilidades de cada nave já no nível máximo */
+  p.habNv = p.habNv || {};
+  for (let i = 0; i < NAVES_BASE; i++) {
+    for (const h of habsUpgrade(i)) p.habNv[chaveHab(i, h.id)] = HAB_MAX;
+  }
+
+  /* VIP e os passes, sem prazo */
+  p.vipAte = Math.max(p.vipAte || 0, Date.now() + 36500 * 86400000);
+  p.passes = p.passes || {};
+  for (const pa of PASSES) p.passes[pa.id] = true;
+
+  /* amuletos: uma vez só, para não encher o inventário a cada login */
+  if (p.donoBrinde !== DONO_BRINDE) {
+    try {
+      for (const sp of AMULET_SPECIALS) admDarAmuleto(p, sp.id, 3);
+      for (const t of AMULET_TYPES) admDarAmuleto(p, t.id, 3);
+      if (!p.equipped || !p.equipped.length) {
+        p.equipped = (p.amulets || []).slice(0, 3).map(a => a.uid);
+      }
+    } catch (e) {}
+    p.donoBrinde = DONO_BRINDE;
+  }
+  return true;
+}
+
+/* =====================================================================
    PAINEL DE HABILIDADES — subir de nível gastando cristais
    ---------------------------------------------------------------------
    Vale para todas as naves. Mostra o que cada nível já rendeu e o que
@@ -18003,6 +18093,54 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "4.8", itens: [
+      "A LISTA DE NOVIDADES estava parada na 3.9: agora tem tudo o que entrou da 4.0 até aqui",
+      "A conta do dono (Cr1cket) entra com TUDO liberado sozinha: as 120 naves, as exclusivas, as da loja, peças e pinturas no máximo, todas as fases, a árvore inteira, os amuletos, VIP e os oito passes — e as habilidades de cada nave já no nível 10",
+      "O portão de atualização deixou de poder prender alguém: se a versão nova não chegar depois de duas tentativas, aparece ENTRAR ASSIM MESMO"
+    ] },
+  { v: "4.7", itens: [
+      "TRONO REAL: a privada voadora do administrador, com o homem sentado dentro, de coroa e jornal — e 8 habilidades de cocô, da bomba fedorenta à EXPLOSÃO INTESTINAL",
+      "Todas as naves agora sobem as habilidades de nível com cristais: 10 níveis, +15% de força, −5% de recarga e +1% de dano por nível, com painel próprio no hangar",
+      "ARENA EM TEMPO REAL: os tiros do outro jogador aparecem de verdade (vão com velocidade, não só com a posição) e a troca de dados ficou quase três vezes mais rápida",
+      "No painel: botão para esconder qualquer jogador do placar, e para entregar a Ômega-9 e o Trono Real",
+      "CORRIGIDO: as abas não deslizavam para o lado em nenhuma tela"
+    ] },
+  { v: "4.6", itens: [
+      "A conta 7anoS entra sem senha nenhuma"
+    ] },
+  { v: "4.5", itens: [
+      "A loja passou a ser em dinheiro de verdade, com planos a partir de R$ 0,50",
+      "VIP por dias: 10, 30 ou para sempre, cada um com o seu preço",
+      "Botão redondo dentro da loja para chamar o administrador e conversar na hora"
+    ] },
+  { v: "4.4", itens: [
+      "O número da onda saiu de cima dos pontos e ganhou lugar próprio",
+      "As habilidades podem ser guardadas com um toque: a tela fica livre para jogar",
+      "Menos inimigos por onda, para as fases não virarem parede"
+    ] },
+  { v: "4.3", itens: [
+      "14 SETORES com cara própria: cada área tem cor, clima e enfeites do tema dela",
+      "Naves redesenhadas: casco com degradê, quilha, chapas, cabine de vidro e luzes de navegação",
+      "Cada ultimate ganhou o efeito visual dela — onda, aura, domo, raios, fantasmas, gelo, garras e colmeia",
+      "ABA AMIGOS: pedido de amizade, aceitar, recusar e conversa com cada um",
+      "GAMETAG: o nome que os amigos veem, que dá para trocar uma vez por dia",
+      "LOJA com VIP, passes e naves especiais — nenhuma mais forte que a Ômega-9"
+    ] },
+  { v: "4.2", itens: [
+      "Otimização pesada para celular fraco, sem tirar nada do jogo: figuras desenhadas uma vez e reaproveitadas, grade de colisão e qualidade que se ajusta sozinha",
+      "O jogo mede o próprio desempenho e baixa ou sobe os detalhes conforme o aparelho aguenta"
+    ] },
+  { v: "4.1", itens: [
+      "As habilidades não saem mais da tela em nenhum celular: a fila se ajusta ao tamanho do aparelho",
+      "A barra de vida ficou entre a nave e os botões, sem cobrir a nave",
+      "INTERFACE INTEIRA REFEITA: senha, login, menu, todas as abas, as fases, o que aparece dentro da fase e os recados do administrador"
+    ] },
+  { v: "4.0", itens: [
+      "PORTÃO DE ATUALIZAÇÃO: quando sai versão nova, dá para atualizar antes de entrar — e é obrigatório",
+      "Mais inimigos por fase e arena maior, com mais espaço para jogar",
+      "17 relíquias novas, 4 peças novas e 8 melhorias novas",
+      "APOCALIPSE ÔMEGA: a habilidade infinita da nave nuclear, que liga o arsenal inteiro no automático até a fase acabar"
+    ] },
   { v: "3.9", itens: [
       "Painel do administrador reorganizado em abas: Jogadores, Ações, Mundo, Sugestões, Equipe e Sistema — em vez de treze cartões numa rolagem só",
       "Dentro de AÇÕES tem abinhas próprias: DAR, TIRAR, INVENTÁRIO e CAIXA, com contador do que já está no pacote",
@@ -18151,7 +18289,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "4.7";
+const VERSAO = "4.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
@@ -18177,14 +18315,32 @@ function mostrarPortaoAtualizacao() {
   const g = $("update-gate");
   if (!g) return;
   if (S && S.mode === "playing") return;   // termina a fase primeiro
+  if (portaoLiberado === versaoNova.versao) return;   // ele escolheu entrar assim mesmo
   $("ug-ver").textContent = "VERSÃO " + versaoNova.versao;
   if (versaoNova.nota) $("ug-nota").textContent = versaoNova.nota;
+  /* se já tentou duas vezes e voltou na mesma versão, o servidor ainda
+     está entregando a antiga: abre a saída para não prender ninguém */
+  if (tentativasDeAtualizar(versaoNova.versao) >= 2) {
+    g.classList.add("travado");
+    $("ug-nota").textContent =
+      "A versão nova ainda não chegou neste aparelho. Tente atualizar de novo " +
+      "ou entre assim mesmo e atualize mais tarde.";
+  }
   g.classList.add("on");
 }
+/* conta quantas vezes já tentamos atualizar para uma mesma versão */
+function tentativasDeAtualizar(v) {
+  return parseInt(storageGet("nn_upd_tent_" + v, "0"), 10) || 0;
+}
+function anotarTentativa(v) {
+  storageSet("nn_upd_tent_" + v, String(tentativasDeAtualizar(v) + 1));
+}
+let portaoLiberado = null;
 
 async function limparTudoERecarregar() {
   if (jaAtualizando) return;
   jaAtualizando = true;
+  if (versaoNova && versaoNova.versao) anotarTentativa(versaoNova.versao);
   const gate = $("update-gate");
   if (gate) {
     gate.classList.add("on", "indo");
@@ -18217,6 +18373,9 @@ async function checarVersao(automatico) {
     const r = await fetch("versao.json?t=" + Date.now(), { cache: "no-store" });
     if (!r.ok) return;
     const d = await r.json();
+    if (d && d.versao === VERSAO) {
+      try { storageSet("nn_upd_tent_" + d.versao, "0"); } catch (e) {}
+    }
     if (d && d.versao && d.versao !== VERSAO) {
       versaoNova = d;
       $("atualiza-txt").textContent = "Versão " + d.versao + " disponível" +
@@ -18229,6 +18388,12 @@ async function checarVersao(automatico) {
 }
 $("atualiza-btn").addEventListener("click", limparTudoERecarregar);
 $("ug-btn").addEventListener("click", limparTudoERecarregar);
+$("ug-pular").addEventListener("click", () => {
+  portaoLiberado = versaoNova ? versaoNova.versao : null;
+  const g = $("update-gate");
+  if (g) g.classList.remove("on", "travado");
+  $("atualiza-box").classList.add("on");   // fica o avisinho discreto
+});
 /* se a versao nova chegou durante a partida, o portao aparece assim que
    o jogador voltar para o menu, a vitoria ou a derrota                  */
 setInterval(() => {
@@ -18279,6 +18444,9 @@ if (podeUsarSW) {
 }
 
 /* ---------- Início ---------- */
+/* se o piloto aberto agora é o dono, confere o brinde antes de tudo:
+   pode ser um save antigo, de antes desta regra existir                */
+try { if (save && darTudoAoDono(save.__name)) { persist(); calcStats(); } } catch (e) {}
 renderLogin();
 showScreen("login");
 
