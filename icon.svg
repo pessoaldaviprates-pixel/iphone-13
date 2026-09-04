@@ -1,26 +1,103 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <radialGradient id="bg" cx="50%" cy="35%" r="80%">
-      <stop offset="0%" stop-color="#12224E"/>
-      <stop offset="100%" stop-color="#060A18"/>
+    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B1436"/>
+      <stop offset="46%" stop-color="#05091A"/>
+      <stop offset="100%" stop-color="#03060F"/>
+    </linearGradient>
+    <radialGradient id="nebA" cx="30%" cy="30%" r="62%">
+      <stop offset="0%" stop-color="#5EE6FF" stop-opacity=".42"/>
+      <stop offset="100%" stop-color="#5EE6FF" stop-opacity="0"/>
     </radialGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="14" result="b"/>
+    <radialGradient id="nebB" cx="76%" cy="34%" r="58%">
+      <stop offset="0%" stop-color="#B57BFF" stop-opacity=".38"/>
+      <stop offset="100%" stop-color="#B57BFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebC" cx="52%" cy="88%" r="60%">
+      <stop offset="0%" stop-color="#FF5C9D" stop-opacity=".32"/>
+      <stop offset="100%" stop-color="#FF5C9D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="casco" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EAFBFF"/>
+      <stop offset="38%" stop-color="#7FE9FF"/>
+      <stop offset="100%" stop-color="#22A9D8"/>
+    </linearGradient>
+    <linearGradient id="chama" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFC861" stop-opacity=".95"/>
+      <stop offset="55%" stop-color="#FF5C9D" stop-opacity=".75"/>
+      <stop offset="100%" stop-color="#FF5C9D" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="anel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5EE6FF"/>
+      <stop offset="52%" stop-color="#B57BFF"/>
+      <stop offset="100%" stop-color="#FF5C9D"/>
+    </linearGradient>
+    <filter id="brilho" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="16" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <filter id="brilhoP" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="corte"><rect width="512" height="512" rx="112"/></clipPath>
   </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <circle cx="120" cy="110" r="4" fill="#EAF2FF" opacity="0.8"/>
-  <circle cx="400" cy="90" r="3" fill="#EAF2FF" opacity="0.6"/>
-  <circle cx="440" cy="200" r="5" fill="#EAF2FF" opacity="0.7"/>
-  <circle cx="80" cy="300" r="3" fill="#EAF2FF" opacity="0.5"/>
-  <circle cx="150" cy="430" r="4" fill="#EAF2FF" opacity="0.6"/>
-  <circle cx="390" cy="400" r="3" fill="#EAF2FF" opacity="0.7"/>
-  <g filter="url(#glow)">
-    <path d="M256 96 L344 320 L288 288 L256 336 L224 288 L168 320 Z" fill="#4DE8FF"/>
-  </g>
-  <ellipse cx="256" cy="200" rx="26" ry="48" fill="#062033"/>
-  <g filter="url(#glow)">
-    <rect x="244" y="352" width="24" height="64" rx="10" fill="#FF4D8F"/>
+
+  <g clip-path="url(#corte)">
+    <rect width="512" height="512" fill="url(#fundo)"/>
+    <!-- nebulosa em três cores -->
+    <rect width="512" height="512" fill="url(#nebA)"/>
+    <rect width="512" height="512" fill="url(#nebB)"/>
+    <rect width="512" height="512" fill="url(#nebC)"/>
+
+    <!-- vinheta: segura a nebulosa e faz a nave saltar -->
+    <radialGradient id="vinh" cx="50%" cy="46%" r="72%">
+      <stop offset="40%" stop-color="#03060F" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#03060F" stop-opacity=".92"/>
+    </radialGradient>
+    <rect width="512" height="512" fill="url(#vinh)"/>
+
+    <!-- estrelas -->
+    <g fill="#FFFFFF">
+      <circle cx="86" cy="96" r="4.5" opacity=".9"/>
+      <circle cx="146" cy="58" r="2.6" opacity=".6"/>
+      <circle cx="424" cy="86" r="3.6" opacity=".8"/>
+      <circle cx="462" cy="176" r="2.4" opacity=".55"/>
+      <circle cx="60" cy="228" r="3" opacity=".6"/>
+      <circle cx="96" cy="392" r="4" opacity=".75"/>
+      <circle cx="404" cy="356" r="2.8" opacity=".6"/>
+      <circle cx="452" cy="446" r="3.4" opacity=".7"/>
+      <circle cx="196" cy="452" r="2.4" opacity=".5"/>
+      <circle cx="330" cy="470" r="3" opacity=".6"/>
+    </g>
+
+    <!-- anel de órbita atrás da nave -->
+    <ellipse cx="256" cy="268" rx="176" ry="64" fill="none"
+             stroke="url(#anel)" stroke-width="11" opacity=".9"
+             filter="url(#brilhoP)"
+             transform="rotate(-18 256 268)"/>
+
+    <!-- rastro do motor -->
+    <path d="M256 500 L226 372 L286 372 Z" fill="url(#chama)" filter="url(#brilhoP)"/>
+
+    <!-- casco da nave -->
+    <g filter="url(#brilho)">
+      <path d="M256 54
+               C 288 116, 314 194, 320 264
+               L 372 322 L 372 358 L 300 322
+               L 292 380 L 256 356 L 220 380 L 212 322
+               L 140 358 L 140 322 L 192 264
+               C 198 194, 224 116, 256 54 Z"
+            fill="url(#casco)" stroke="#04121C" stroke-width="8" stroke-linejoin="round"/>
+    </g>
+    <!-- cabine -->
+    <ellipse cx="256" cy="188" rx="29" ry="52" fill="#08243C"/>
+    <ellipse cx="256" cy="188" rx="29" ry="52" fill="none" stroke="#9FF0FF" stroke-width="5" opacity=".9"/>
+    <ellipse cx="245" cy="164" rx="10" ry="19" fill="#FFFFFF" opacity=".55"/>
+    <!-- quilha -->
+    <path d="M256 96 L256 336" stroke="#FFFFFF" stroke-width="6" opacity=".35" stroke-linecap="round"/>
+    <!-- luzes das pontas -->
+    <circle cx="150" cy="330" r="12" fill="#FF5C9D" filter="url(#brilhoP)"/>
+    <circle cx="362" cy="330" r="12" fill="#63F5B5" filter="url(#brilhoP)"/>
   </g>
 </svg>

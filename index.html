@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#060A18">
+<meta name="theme-color" content="#03060F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2886,6 +2886,546 @@
     background:rgba(10,18,40,.7);border:1px solid var(--line);
     font-weight:700;font-size:.78rem;letter-spacing:.1em;color:var(--ink);
   }
+
+  /* ===================================================================
+     ██  PELE NOVA — "AURORA"  ██
+     -------------------------------------------------------------------
+     Tudo daqui para baixo é só APARÊNCIA: nenhuma regra muda o que os
+     botões fazem, só como eles se parecem. Está no fim da folha de
+     propósito — assim ela vence a pele antiga sem precisar apagar nada,
+     e dá para comparar as duas lado a lado.
+
+     A ideia: vidro escuro sobre uma aurora que respira, um único acento
+     (ciano -> violeta) que atravessa o jogo inteiro, e o dourado
+     reservado para o que é valioso (cristais, VIP, chefe).
+     =================================================================== */
+  :root{
+    /* fundo em camadas, agora mais profundo e menos azulado */
+    --bg:#03060F;
+    --bg2:#060A18;
+    --sup1:rgba(255,255,255,.045);
+    --sup2:rgba(255,255,255,.07);
+    --sup3:rgba(255,255,255,.1);
+    --vidro:rgba(8,13,30,.66);
+
+    --ink:#F2F6FF;
+    --ink2:rgba(242,246,255,.76);
+    --dim:rgba(242,246,255,.54);
+    --fraco:rgba(242,246,255,.32);
+
+    --cyan:#5EE6FF;
+    --magenta:#FF5C9D;
+    --amber:#FFC861;
+    --violet:#B57BFF;
+    --verde:#63F5B5;
+    --danger:#FF6B6B;
+
+    --line:rgba(255,255,255,.1);
+    --line2:rgba(255,255,255,.2);
+
+    /* cantos maiores: o jogo inteiro fica mais macio */
+    --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-full:999px;
+    --som-1:0 1px 2px rgba(0,0,0,.4);
+    --som-2:0 10px 30px rgba(0,0,0,.45);
+    --som-3:0 24px 60px rgba(0,0,0,.6);
+    /* brilho de vidro: risquinho claro no topo de cada superfície */
+    --luz:inset 0 1px 0 rgba(255,255,255,.14);
+    --luz2:inset 0 1px 0 rgba(255,255,255,.22);
+    --panel:var(--sup1);
+    --panel2:var(--sup2);
+  }
+  body{background:var(--bg);color:var(--ink)}
+
+  /* ---------- fundo das telas: aurora + malha fina + vinheta ---------- */
+  .screen{background:var(--bg2);padding:20px 16px;gap:12px}
+  .screen::before{
+    inset:-30%;
+    background:
+      radial-gradient(38% 30% at 18% 12%,rgba(94,230,255,.20),transparent 70%),
+      radial-gradient(42% 32% at 84% 22%,rgba(181,123,255,.18),transparent 70%),
+      radial-gradient(46% 34% at 50% 96%,rgba(255,92,157,.14),transparent 72%);
+    filter:blur(10px);
+  }
+  .screen::after{
+    background:
+      linear-gradient(rgba(150,200,255,.03) 1px,transparent 1px) 0 0/100% 42px,
+      linear-gradient(90deg,rgba(150,200,255,.03) 1px,transparent 1px) 0 0/42px 100%,
+      radial-gradient(130% 90% at 50% 34%,transparent 40%,rgba(2,4,12,.9) 100%);
+  }
+  .page{
+    background:
+      radial-gradient(90% 44% at 50% 0%,rgba(94,230,255,.10),transparent 66%),
+      radial-gradient(70% 40% at 100% 100%,rgba(181,123,255,.08),transparent 70%),
+      linear-gradient(180deg,#070C1C,#04060F);
+  }
+
+  /* ---------- marca ---------- */
+  .brand{
+    font-size:clamp(1.9rem,8.6vw,3.1rem);letter-spacing:.02em;line-height:.92;
+    text-shadow:0 0 18px rgba(94,230,255,.55),0 0 60px rgba(181,123,255,.35);
+  }
+  .brand em{
+    background:linear-gradient(96deg,var(--cyan),var(--violet) 62%,var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    -webkit-text-fill-color:transparent;
+  }
+  .tagline{
+    font-size:.55rem;letter-spacing:.36em;color:var(--ink2);
+    background:rgba(255,255,255,.05);border:1px solid var(--line);
+    box-shadow:var(--luz);text-shadow:none;padding:6px 15px;
+  }
+
+  /* ---------- botões grandes ---------- */
+  .big-btn{
+    font-size:1rem;letter-spacing:.14em;padding:17px 34px;
+    border-radius:var(--r-lg);color:#04121c;
+    background:linear-gradient(180deg,#8DF0FF 0%,#3FD3F5 52%,#26B8DE 100%);
+    box-shadow:
+      0 10px 28px rgba(63,211,245,.34),
+      inset 0 1px 0 rgba(255,255,255,.75),
+      inset 0 -2px 0 rgba(4,40,56,.45);
+    transition:transform .12s cubic-bezier(.2,1.1,.4,1),box-shadow .18s ease,filter .18s ease;
+  }
+  .big-btn:active{transform:translateY(2px) scale(.985);filter:brightness(1.06);
+    box-shadow:0 4px 14px rgba(63,211,245,.3),inset 0 1px 0 rgba(255,255,255,.6)}
+  .big-btn.amber{background:linear-gradient(180deg,#FFDF95,#F7B437 55%,#E09A18);
+    box-shadow:0 10px 28px rgba(247,180,55,.32),inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 0 rgba(80,50,4,.4)}
+  .big-btn.rosa{background:linear-gradient(180deg,#FF9AC2,#FF5C9D 55%,#E63C81);color:#20040f;
+    box-shadow:0 10px 28px rgba(255,92,157,.32),inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 0 rgba(90,10,40,.4)}
+  .ghost-btn{
+    font-size:.8rem;letter-spacing:.1em;padding:13px 22px;border-radius:var(--r-md);
+    color:var(--ink2);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);box-shadow:var(--luz);
+  }
+  .ghost-btn:active{background:rgba(94,230,255,.16);border-color:rgba(94,230,255,.5);color:#fff}
+
+  /* ---------- cartão do piloto ---------- */
+  .piloto-cartao{
+    gap:13px;padding:13px;border-radius:var(--r-lg);
+    background:linear-gradient(150deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+    border:1px solid var(--line);box-shadow:var(--som-2),var(--luz);
+  }
+  .piloto-cartao::before{
+    left:-26px;width:150px;height:150px;
+    background:radial-gradient(circle,rgba(94,230,255,.22),transparent 68%);
+  }
+  .piloto-nave{width:60px;height:60px;filter:drop-shadow(0 4px 14px rgba(0,0,0,.5))}
+  .piloto-nome{font-size:1rem;letter-spacing:.05em}
+  .piloto-rank{font-size:.58rem;letter-spacing:.18em}
+  .piloto-barra{height:5px;border-radius:99px;background:rgba(255,255,255,.09);margin:8px 0 5px}
+  .piloto-barra i{background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 12px rgba(94,230,255,.6)}
+  .piloto-meta{font-size:.62rem;color:var(--dim);letter-spacing:.03em}
+  .piloto-trocar{
+    width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,.06);
+    border:1px solid var(--line);color:var(--ink2);box-shadow:var(--luz);
+  }
+
+  /* ---------- faixa de números do menu ---------- */
+  .stat-panel{
+    display:flex;width:min(92vw,360px);gap:0;padding:11px 4px;
+    background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+    border:1px solid var(--line);border-radius:var(--r-lg);
+    box-shadow:var(--som-1),var(--luz);
+  }
+  .stat-panel .hud-col{flex:1;position:relative;background:none;border:none;padding:2px 4px;box-shadow:none}
+  .stat-panel .hud-col + .hud-col::before{
+    content:"";position:absolute;left:0;top:14%;bottom:14%;width:1px;background:var(--line);
+  }
+  .stat-panel .hud-label{font-size:.5rem;letter-spacing:.2em;color:var(--fraco)}
+  .stat-panel .hud-value{
+    font-size:1.02rem;font-variant-numeric:tabular-nums;letter-spacing:.01em;margin-top:3px;
+  }
+
+  /* ---------- ladrilhos do menu ---------- */
+  .menu-grade{gap:10px}
+  .menu-secao{
+    display:flex;align-items:center;gap:10px;
+    font-size:.56rem;letter-spacing:.28em;color:var(--fraco);margin:16px 0 2px;
+  }
+  .menu-secao::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  .tile{
+    flex-direction:row;align-items:center;gap:11px;text-align:left;
+    padding:12px 13px;border-radius:var(--r-lg);
+    background:linear-gradient(150deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
+    transition:transform .12s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  .tile b{
+    width:38px;height:38px;flex:none;border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.15rem;color:var(--cyan);text-shadow:none;
+    background:rgba(94,230,255,.14);border:1px solid rgba(94,230,255,.3);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .tile span{
+    flex:1;min-width:0;font-size:.72rem;letter-spacing:.08em;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .tile i{
+    position:absolute;right:13px;bottom:9px;font-size:.55rem;color:var(--fraco);
+    max-width:52%;text-align:right;
+  }
+  .tile.wide i{position:static;text-align:left;max-width:none;font-size:.58rem;display:block;margin-top:2px}
+  .tile.wide span{flex:none}
+  .tile.wide{flex-direction:row}
+  .tile.wide > span{display:block}
+  .tile:active{transform:scale(.97);border-color:var(--line2)}
+  .tile.amber b{color:var(--amber);background:rgba(255,200,97,.14);border-color:rgba(255,200,97,.32)}
+  .tile.amber{border-color:rgba(255,200,97,.24)}
+  .tile.ouro b{color:var(--amber);background:rgba(255,200,97,.16);border-color:rgba(255,200,97,.4)}
+  .tile.ouro{border-color:rgba(255,200,97,.3);background:linear-gradient(150deg,rgba(255,200,97,.12),rgba(255,255,255,.02))}
+  .tile.roxo b{color:var(--violet);background:rgba(181,123,255,.16);border-color:rgba(181,123,255,.34)}
+  .tile.roxo{border-color:rgba(181,123,255,.26)}
+  .tile.magenta b{color:var(--magenta);background:rgba(255,92,157,.16);border-color:rgba(255,92,157,.34)}
+  .tile.magenta{border-color:rgba(255,92,157,.26)}
+  .tile.verde b{color:var(--verde);background:rgba(99,245,181,.16);border-color:rgba(99,245,181,.34)}
+  .tile.verde{border-color:rgba(99,245,181,.3);background:linear-gradient(150deg,rgba(99,245,181,.1),rgba(255,255,255,.02))}
+  .tile.tem::before{top:11px;right:12px;width:8px;height:8px}
+  .menu-chips{gap:8px}
+  .chip{
+    border-radius:var(--r-full);padding:9px 15px;font-size:.64rem;letter-spacing:.1em;
+    background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink2);
+    box-shadow:var(--luz);
+  }
+  .chip:active{background:rgba(94,230,255,.14);color:#fff}
+
+  /* ---------- páginas: topo de vidro ---------- */
+  .page-head{
+    padding:12px 14px;gap:10px;
+    background:linear-gradient(180deg,rgba(8,13,30,.92),rgba(8,13,30,.6));
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+  .page-title{font-size:.86rem;letter-spacing:.2em}
+  .back-btn{
+    width:38px;height:38px;border-radius:13px;font-size:1.2rem;
+    background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink);
+    box-shadow:var(--luz);
+  }
+  .back-btn:active{background:rgba(94,230,255,.16)}
+  .page-gems{
+    font-size:.76rem;padding:7px 14px;border-radius:var(--r-full);
+    background:rgba(255,200,97,.12);border:1px solid rgba(255,200,97,.34);
+    color:var(--amber);box-shadow:var(--luz);font-variant-numeric:tabular-nums;
+  }
+  .scroll{padding:14px 14px calc(28px + env(safe-area-inset-bottom)) 14px}
+
+  /* ---------- cartões ---------- */
+  .adm-card{
+    background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid var(--line);border-radius:var(--r-lg);
+    box-shadow:var(--som-1),var(--luz);padding:14px;
+  }
+  .adm-h{font-size:.62rem;letter-spacing:.22em;color:var(--cyan)}
+  .adm-h.gold{color:var(--amber)} .adm-h.red{color:var(--magenta)} .adm-h.roxo{color:var(--violet)}
+  .adm-note{font-size:.68rem;line-height:1.55;color:var(--dim)}
+
+  /* ---------- botões de cartão ---------- */
+  .adm-btn{
+    border-radius:var(--r-md);padding:12px 10px;font-size:.7rem;letter-spacing:.08em;
+    background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink2);
+    box-shadow:var(--luz);transition:transform .1s ease,background .16s ease,border-color .16s ease;
+  }
+  .adm-btn:active{transform:scale(.97);background:rgba(94,230,255,.16);color:#fff}
+  .adm-btn.gold{color:#2a1a00;background:linear-gradient(180deg,#FFDF95,#F5B23A);border-color:transparent;
+    box-shadow:0 6px 18px rgba(245,178,58,.28),inset 0 1px 0 rgba(255,255,255,.6)}
+  .adm-btn.danger{color:#fff;background:linear-gradient(180deg,rgba(255,107,107,.3),rgba(255,107,107,.14));
+    border-color:rgba(255,107,107,.45)}
+  .buy-btn{
+    border-radius:var(--r-md);font-size:.72rem;letter-spacing:.04em;padding:10px 12px;
+    background:linear-gradient(180deg,#8DF0FF,#3FD3F5);color:#04121c;border:none;
+    box-shadow:0 6px 16px rgba(63,211,245,.28),inset 0 1px 0 rgba(255,255,255,.65);
+    font-variant-numeric:tabular-nums;
+  }
+  .buy-btn:disabled{background:rgba(255,255,255,.06);color:var(--fraco);box-shadow:none;border:1px solid var(--line)}
+  .buy-btn.max{background:rgba(99,245,181,.16);color:var(--verde);box-shadow:none;border:1px solid rgba(99,245,181,.4)}
+
+  /* ---------- abas ---------- */
+  .abas,.adm-abas,.hangar-filtros{
+    gap:6px;padding:5px;border-radius:var(--r-full);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .aba,.adm-aba,.filtro{
+    border-radius:var(--r-full);padding:9px 14px;font-size:.64rem;letter-spacing:.08em;
+    background:transparent;border:none;color:var(--dim);white-space:nowrap;
+    transition:color .16s ease,background .16s ease;
+  }
+  .aba.on,.adm-aba.on,.filtro.on{
+    color:#04121c;background:linear-gradient(180deg,#8DF0FF,#3FD3F5);
+    box-shadow:0 4px 12px rgba(63,211,245,.3),inset 0 1px 0 rgba(255,255,255,.6);
+  }
+
+  /* ---------- campos ---------- */
+  input,select,textarea,.adm-ta{
+    border-radius:var(--r-md);padding:13px 14px;font-size:.82rem;
+    background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--ink);
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
+    transition:border-color .16s ease,box-shadow .16s ease;
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:rgba(94,230,255,.6);
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.4),0 0 0 3px rgba(94,230,255,.16);
+  }
+  input::placeholder,textarea::placeholder{color:var(--fraco)}
+
+  /* ---------- listas e vazios ---------- */
+  .vazio{
+    border-radius:var(--r-lg);padding:26px 18px;
+    background:rgba(255,255,255,.03);border:1px dashed var(--line2);
+  }
+  .vazio b{font-size:2rem;opacity:.8}
+  .vazio strong{font-size:.74rem;letter-spacing:.16em;color:var(--ink2)}
+  .vazio span{font-size:.66rem;color:var(--dim);line-height:1.55}
+  .profile-btn{
+    border-radius:var(--r-md);padding:12px 13px;
+    background:rgba(255,255,255,.045);border:1px solid var(--line);
+    box-shadow:var(--luz);
+  }
+  .profile-btn:active{background:rgba(94,230,255,.12);border-color:rgba(94,230,255,.4)}
+  .profile-name{font-size:.82rem;letter-spacing:.02em}
+  .profile-meta{font-size:.62rem;color:var(--dim)}
+
+  /* ---------- ladrilho: bolha à esquerda, título e legenda empilhados ---------- */
+  .tile{
+    display:grid;grid-template-columns:auto 1fr;column-gap:11px;row-gap:1px;
+    align-items:center;min-height:66px;
+  }
+  .tile b{grid-row:1 / span 2;grid-column:1;align-self:center}
+  .tile span{grid-column:2;align-self:end;line-height:1.25}
+  .tile i{
+    position:static;grid-column:2;align-self:start;
+    text-align:left;max-width:none;min-height:0;font-size:.56rem;letter-spacing:.02em;
+  }
+  .tile i:empty{display:none}
+  /* o ladrilho ímpar (que ocupa a linha inteira) mantinha a legenda no
+     canto de baixo; com a grade nova ela volta para baixo do título */
+  .menu-grade.impar > .tile:last-of-type i{position:static;right:auto;bottom:auto}
+  .menu-grade.impar > .tile:last-of-type{justify-content:flex-start}
+  .tile.wide{min-height:62px}
+  .menu-grade.online .tile span{font-size:.68rem}
+
+  /* ---------- HUD do jogo ---------- */
+  .hud-col{
+    background:rgba(6,11,26,.62);border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;padding:6px 11px;box-shadow:var(--som-1),var(--luz);
+  }
+  .hud-label{font-size:.48rem;letter-spacing:.2em;color:var(--fraco)}
+  .hud-value{text-shadow:none;letter-spacing:.02em}
+  #hud-score{color:var(--ink)}
+  #hud-gems{color:var(--amber)}
+  #hud-fase{color:var(--amber);text-shadow:none;font-size:.82rem;letter-spacing:.1em}
+  .hud-centro{padding:6px 13px;gap:10px}
+  .hud-ondas i{height:4px;border-radius:99px;background:rgba(255,255,255,.14)}
+  .hud-ondas i.feita{background:var(--cyan);box-shadow:0 0 8px rgba(94,230,255,.6)}
+  .hud-ondas i.agora{background:var(--amber);box-shadow:0 0 8px rgba(255,200,97,.8)}
+  .hud-btn{
+    width:40px;height:40px;border-radius:14px;
+    background:rgba(6,11,26,.62);border:1px solid rgba(255,255,255,.1);
+    box-shadow:var(--som-1),var(--luz);color:var(--ink2);
+  }
+  .hud-btn:active{background:rgba(94,230,255,.24);transform:scale(.92)}
+  #hud-hp{
+    width:150px;height:13px;border:1px solid rgba(255,255,255,.16);
+    background:rgba(2,5,14,.85);box-shadow:inset 0 2px 5px rgba(0,0,0,.6);
+  }
+  #hud-hp i{background:linear-gradient(90deg,#5EE6FF,#63F5B5);box-shadow:0 0 14px rgba(99,245,181,.45)}
+  #hud-hp b{font-size:.56rem;letter-spacing:.06em}
+  #hud-vida #hud-lives{font-size:.86rem;letter-spacing:.14em}
+  #ult-btn{
+    width:72px;height:72px;border:2px solid rgba(255,255,255,.14);
+    background:
+      radial-gradient(circle at 50% 30%,rgba(255,255,255,.1),transparent 60%),
+      radial-gradient(circle at 50% 50%,rgba(20,34,72,.92),rgba(5,9,22,.94));
+    box-shadow:var(--som-2),var(--luz);color:var(--ink2);font-size:.7rem;
+  }
+  #ult-btn.ready{
+    color:#04121c;border-color:rgba(255,255,255,.5);
+    background:radial-gradient(circle at 50% 30%,#A6F5FF,#2FD4F0 70%);
+    box-shadow:0 0 30px rgba(94,230,255,.6),inset 0 2px 0 rgba(255,255,255,.6);
+  }
+  .hab-btn{
+    border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+    box-shadow:var(--som-1),var(--luz);color:var(--ink2);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .hab-btn.pronta{
+    border-color:rgba(94,230,255,.75);color:var(--cyan);
+    box-shadow:0 0 16px rgba(94,230,255,.35),var(--luz2);
+  }
+  #hab-abrir{
+    border-radius:13px;background:rgba(6,11,26,.7);
+    border:1px solid rgba(255,255,255,.12);box-shadow:var(--som-1),var(--luz);
+  }
+
+  /* ---------- fases ---------- */
+  .fase-resumo{gap:9px}
+  .fase-res-cx{
+    border-radius:var(--r-lg);padding:13px 8px;
+    background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
+  }
+  .fase-res-cx b{font-size:1.3rem;font-variant-numeric:tabular-nums}
+  .fase-res-cx span{font-size:.5rem;letter-spacing:.18em;color:var(--fraco)}
+  .setor-bloco{
+    border-radius:var(--r-lg);padding:12px;margin-top:12px;
+    background:rgba(255,255,255,.028);border:1px solid var(--line);
+  }
+  .setor-cab{gap:9px;margin-bottom:10px}
+  .setor-nome{font-size:.62rem;letter-spacing:.18em;color:var(--ink2)}
+  .setor-barra{height:4px;border-radius:99px;background:rgba(255,255,255,.1)}
+  .setor-barra i{background:linear-gradient(90deg,var(--cyan),var(--violet))}
+  .setor-cont{font-size:.58rem;color:var(--fraco);font-variant-numeric:tabular-nums}
+  .fase-grid{gap:8px}
+  .fase-btn{
+    border-radius:14px;font-size:.86rem;font-variant-numeric:tabular-nums;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+    color:var(--dim);box-shadow:var(--luz);
+    transition:transform .1s ease,border-color .16s ease,background .16s ease;
+  }
+  .fase-btn:active{transform:scale(.94)}
+  .fase-btn small{font-size:.42rem;letter-spacing:.1em}
+  .fase-btn.done{
+    background:linear-gradient(160deg,rgba(99,245,181,.2),rgba(99,245,181,.06));
+    border-color:rgba(99,245,181,.42);color:#CFFFEB;
+  }
+  .fase-btn.next{
+    background:linear-gradient(180deg,#8DF0FF,#3FD3F5);color:#04121c;border-color:transparent;
+    box-shadow:0 6px 18px rgba(63,211,245,.4),inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .fase-btn.locked{opacity:.42}
+  .fase-btn.boss{border-color:rgba(255,92,157,.5)}
+  .fase-btn.boss.done{background:linear-gradient(160deg,rgba(255,92,157,.24),rgba(255,92,157,.06));color:#FFD5E4}
+
+  /* ---------- naves ---------- */
+  .ship-card{
+    border-radius:var(--r-lg);padding:13px;
+    background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
+  }
+  .ship-card.sel{border-color:rgba(94,230,255,.5);box-shadow:var(--som-2),0 0 0 1px rgba(94,230,255,.2),var(--luz)}
+  .ship-card.tranc{opacity:.72}
+  .ship-name{font-size:.84rem;letter-spacing:.02em}
+  .ship-power{font-size:.66rem}
+  .ship-ult{font-size:.63rem}
+  .ship-tag{font-size:.55rem;letter-spacing:.16em}
+  .ship-mini i{background:rgba(255,255,255,.09)}
+  .parts,.hab-up{border-top:1px solid var(--line);gap:9px}
+  .part-row{
+    padding:9px;border-radius:14px;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);
+  }
+  .part-icon{
+    width:36px;height:36px;border-radius:12px;font-size:1rem;
+    background:rgba(94,230,255,.12);border:1px solid rgba(94,230,255,.26);color:var(--cyan);
+  }
+  .part-name{font-size:.74rem}
+  .part-desc{font-size:.62rem;color:var(--dim)}
+  .pip{background:rgba(255,255,255,.12)}
+  .pip.on{background:var(--cyan);box-shadow:0 0 7px rgba(94,230,255,.7)}
+
+  /* ---------- fim de fase, derrota e pausa ---------- */
+  .fim-cartao{
+    border-radius:var(--r-xl);padding:26px 20px;
+    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+    border:1px solid var(--line2);box-shadow:var(--som-3),var(--luz2);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  }
+  .fim-ic{
+    width:74px;height:74px;border-radius:24px;font-size:2.1rem;
+    background:rgba(255,255,255,.06);border:1px solid var(--line2);box-shadow:var(--luz);
+  }
+  .fim-premio{
+    border-radius:var(--r-md);padding:11px 14px;font-size:.76rem;
+    background:rgba(255,200,97,.1);border:1px solid rgba(255,200,97,.28);
+  }
+  .fim-nums div{
+    border-radius:var(--r-md);padding:11px 8px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+
+  /* ---------- senha ---------- */
+  .senha-cartao{
+    border-radius:var(--r-xl);
+    background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-2),var(--luz);
+  }
+  .senha-pt{background:rgba(255,255,255,.1);border:1px solid var(--line)}
+  .senha-pt.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(94,230,255,.8)}
+
+  /* ---------- sala, jornada e código ---------- */
+  .codigo-box{
+    border-radius:var(--r-xl);
+    background:linear-gradient(160deg,rgba(94,230,255,.12),rgba(255,255,255,.02));
+    border:1px solid rgba(94,230,255,.3);box-shadow:var(--som-2),var(--luz);
+  }
+  .codigo{letter-spacing:.3em;font-variant-numeric:tabular-nums}
+  .jor-cartao,.rk-cartao-novo,.mp-hero,.jor-capa{
+    border-radius:var(--r-lg);box-shadow:var(--som-1),var(--luz);
+  }
+  .mp-item,.rk-degrau,.rk-nums div,.rk-placar div{
+    border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+
+  /* ---------- conversas ---------- */
+  .chat-bolha,.msg-eu,.msg-ele{border-radius:16px}
+  .am-cartao{
+    border-radius:var(--r-lg);
+    background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
+  }
+
+  /* ---------- painel do administrador ---------- */
+  .adm-aba{border-radius:var(--r-full)}
+  .sub-aba{
+    border-radius:var(--r-full);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);color:var(--dim);font-size:.62rem;
+  }
+  .sub-aba.on{background:linear-gradient(180deg,#FFDF95,#F5B23A);color:#2a1a00;border-color:transparent}
+  .diag-item{border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+
+  /* ---------- portão de atualização ---------- */
+  .ug-caixa{
+    border-radius:var(--r-xl);
+    background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    border:1px solid var(--line2);box-shadow:var(--som-3),var(--luz2);
+  }
+  #ug-btn{
+    border-radius:var(--r-lg);
+    background:linear-gradient(180deg,#8DF0FF,#3FD3F5);color:#04121c;
+    box-shadow:0 10px 26px rgba(63,211,245,.32),inset 0 1px 0 rgba(255,255,255,.65);
+  }
+
+  /* ---------- novidades ---------- */
+  .nov-item{
+    border-radius:var(--r-lg);padding:13px;
+    background:rgba(255,255,255,.035);border:1px solid var(--line);
+  }
+  .nov-item.novo{border-color:rgba(255,200,97,.4);background:rgba(255,200,97,.07)}
+  .nov-selo{background:var(--amber);color:#2a1a00;border-radius:99px}
+
+  /* ---------- dificuldade: fita fina em vez de três caixões ---------- */
+  .dif-linha{gap:6px;padding:5px;border-radius:var(--r-full);
+    background:rgba(255,255,255,.04);border:1px solid var(--line)}
+  .dif-btn{
+    padding:8px 4px;border-radius:var(--r-full);border:none;background:transparent;
+  }
+  .dif-btn b{font-size:.8rem}
+  .dif-btn span{font-size:.54rem;letter-spacing:.14em;margin-top:1px}
+  .dif-btn.on{
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+    box-shadow:var(--luz);
+  }
+  .dif-nota{font-size:.62rem;color:var(--dim);margin-top:8px}
+
+  /* ---------- barras de rolagem discretas ---------- */
+  .scroll::-webkit-scrollbar{width:0;height:0}
+
+  /* ---------- em celular fraco, o vidro sai de cena ---------- */
+  body.leve .page-head,body.leve .fim-cartao,body.leve .hab-btn{
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+  }
+  body.leve .screen::before{filter:none}
   @media (prefers-reduced-motion:no-preference){
     .brand{animation:pulse 2.6s ease-in-out infinite}
     @keyframes pulse{
@@ -4845,10 +5385,31 @@ function nuvemJuntar(caminho, obj) { return nuvemSoltar(caminho, obj, "PATCH"); 
    funcionando sozinhos quando as regras novas forem coladas.
    ===================================================================== */
 let NUVEM_COMPAT = storageGet("nn_compat", "0") === "1";
+let compatProximoTeste = 0;
 function compatLigar() {
   if (NUVEM_COMPAT) return;
   NUVEM_COMPAT = true;
   storageSet("nn_compat", "1");
+}
+function compatDesligar() {
+  if (!NUVEM_COMPAT) return;
+  NUVEM_COMPAT = false;
+  storageSet("nn_compat", "0");
+  try { nuvemMostrarStatus(); } catch (e) {}
+}
+/* Colou as regras novas? O jogo precisa PERCEBER isso sozinho.
+   De tempos em tempos ele tenta escrever uma marquinha no galho novo; se
+   passar, o modo compatível se desliga e tudo volta ao lugar certo.   */
+async function compatConferir(forcar) {
+  if (!nuvemAtiva()) return false;
+  if (!forcar && Date.now() < compatProximoTeste) return false;
+  compatProximoTeste = Date.now() + 5 * 60000;
+  const alvo = "amigos/__teste/" + (meuIdNuvem() || "x");
+  const ok = await nuvemSoltar(alvo, { t: Date.now() });
+  if (ok === null) return false;
+  nuvemReq(alvo, { method: "DELETE" });
+  compatDesligar();
+  return true;
 }
 /* traduz um caminho novo para o lugar equivalente dentro de pilotos/ */
 function compatDe(caminho) {
@@ -4864,6 +5425,8 @@ function compatDe(caminho) {
 /* escreve tentando o galho certo e caindo para o compatível */
 async function nuvemSoltarC(caminho, valor, metodo) {
   const alt = compatDe(caminho);
+  // no modo compatível, de vez em quando testa se as regras novas chegaram
+  if (NUVEM_COMPAT) { try { await compatConferir(false); } catch (e) {} }
   if (!NUVEM_COMPAT) {
     const r = await nuvemSoltar(caminho, valor, metodo);
     if (r !== null) return r;
@@ -4904,6 +5467,20 @@ function nuvemMostrarStatus() {
   const el = $("nuvem-status");
   if (!el) return;
   if (!nuvemAtiva()) { el.style.display = "none"; return; }
+  /* Recado técnico é assunto do dono. Para os outros jogadores o menu
+     fica limpo: eles não têm o que fazer com regra de Firebase.      */
+  let souDono = false;
+  try { souDono = contaDeDono(save && save.__name); } catch (e) {}
+  if (!souDono) {
+    if (nuvemStatus === "erro") {
+      el.style.display = "block";
+      el.className = "nuvem-erro";
+      el.textContent = "☁ Sem conexão com a nuvem agora — o online volta sozinho.";
+    } else {
+      el.style.display = "none";
+    }
+    return;
+  }
   el.style.display = "block";
   if (nuvemStatus === "ok" && NUVEM_COMPAT) {
     /* está funcionando, mas pelo caminho de compatibilidade: vale avisar
@@ -4914,7 +5491,16 @@ function nuvemMostrarStatus() {
       "versão 5.1, então amizades e conversas ficam guardadas junto com a " +
       "ficha do piloto. Funciona assim mesmo — mas colando as regras novas " +
       "fica mais organizado.</div>" +
-      "<button class='nuvem-btn' id='nuvem-copiar'>📋 COPIAR AS REGRAS NOVAS</button>";
+      "<button class='nuvem-btn' id='nuvem-copiar'>📋 COPIAR AS REGRAS NOVAS</button>" +
+      "<button class='nuvem-btn' id='nuvem-reconferir'>✓ JÁ COLEI — CONFERIR AGORA</button>";
+    const br = $("nuvem-reconferir");
+    if (br) br.addEventListener("click", async () => {
+      br.textContent = "Conferindo…";
+      const ok = await compatConferir(true);
+      br.textContent = ok ? "✓ Pronto! As regras novas estão valendo."
+                          : "Ainda recusando. Confira se publicou no Firebase.";
+      if (ok) setTimeout(nuvemMostrarStatus, 1500);
+    });
     const bt2 = $("nuvem-copiar");
     if (bt2) bt2.addEventListener("click", async () => {
       try {
@@ -20531,6 +21117,16 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.8", itens: [
+      "INTERFACE NOVA EM TUDO: vidro escuro sobre uma aurora que respira, um acento só (ciano → violeta) no jogo inteiro e o dourado guardado para o que vale dinheiro. Nada mudou no jogo — só a aparência",
+      "Menu refeito: cada atalho virou uma linha com bolha de ícone, título e legenda; os números do piloto viraram uma faixa única; o nome do jogo ganhou degradê",
+      "Botões com relevo de verdade (luz em cima, sombra colorida embaixo), campos com anel de foco, abas viraram pílulas deslizantes",
+      "Fases, hangar, loja, ranqueada, sala, conversas, pausa e fim de fase: todos no mesmo material de vidro, com cantos mais macios",
+      "HUD do jogo mais limpo: números alinhados, botões iguais, barra de vida com contorno",
+      "ÍCONE NOVO do jogo: nave neon com o anel da nebulosa, legível até pequenininho",
+      "Os recados técnicos (regras do Firebase, modo compatível) agora aparecem SÓ para a conta do dono; os outros jogadores veem o menu limpo",
+      "CORRIGIDO: depois de colar as regras novas no Firebase, o jogo continuava no modo compatível. Agora ele reconfere sozinho de tempos em tempos, e tem o botão JÁ COLEI — CONFERIR AGORA"
+    ] },
   { v: "5.7", itens: [
       "CORRIGIDO (grave): o modo online sumiu na 5.5 e na 5.6. O arquivo de configuração foi publicado com o endereço de TESTE em vez do endereço do banco de verdade — sem ele nada online aparece: nem ranking, nem arena, nem amigos, nem multijogador. O endereço certo está de volta",
       "Para não acontecer de novo: os testes não mexem mais no arquivo de configuração (agora eles apontam para o servidor de teste pela barra de endereço, e só endereço local é aceito), e tanto a conferência quanto o empacotador recusam publicar com o endereço de teste"
@@ -20794,7 +21390,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.7";
+const VERSAO = "5.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
