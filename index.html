@@ -50,12 +50,20 @@
     --som-1:0 2px 10px rgba(0,0,0,.3);
     --som-2:0 8px 26px rgba(0,0,0,.42);
     --som-3:0 18px 48px rgba(0,0,0,.55);
-    --topo:calc(env(safe-area-inset-top));
-    --base:calc(env(safe-area-inset-bottom));
+    /* Espaço do topo e do rodapé do celular. Em muitos aparelhos (e no
+       app instalado) o env() vem 0 mesmo com o relógio por cima, então
+       o max() garante um mínimo para nada encostar na barra de status. */
+    --safe-top:max(env(safe-area-inset-top), 12px);
+    --safe-bot:max(env(safe-area-inset-bottom), 8px);
+    --topo:var(--safe-top);
+    --base:var(--safe-bot);
 
     /* compatibilidade com o que já existia (painel ADM inclusive) */
     --panel:var(--sup1);
     --panel2:var(--sup2);
+  }
+  @media (display-mode:standalone),(display-mode:fullscreen){
+    :root{ --safe-top:max(env(safe-area-inset-top), 26px) }
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   /* a página inteira fica presa: nada de arrastar, esticar ou balançar.
@@ -110,7 +118,7 @@
     position:fixed;top:0;left:0;right:0;
     display:none;grid-template-columns:1fr auto 1fr;align-items:start;
     gap:6px;
-    padding:calc(8px + env(safe-area-inset-top)) 10px 0 10px;
+    padding:calc(8px + var(--safe-top)) 10px 0 10px;
     pointer-events:none;z-index:5;
     font-family:"Russo One","Chakra Petch",sans-serif;
   }
@@ -176,7 +184,7 @@
   /* faixa de vida embaixo, acima dos botões e colada na nave */
   #hud-vida{
     position:fixed;left:50%;transform:translateX(-50%);
-    bottom:calc(var(--vida-base,200px) + env(safe-area-inset-bottom));
+    bottom:calc(var(--vida-base,200px) + var(--safe-bot));
     display:none;flex-direction:column;align-items:center;gap:3px;
     z-index:6;pointer-events:none;
   }
@@ -220,7 +228,7 @@
   }
   .hud-btn:active{background:rgba(77,232,255,.22);transform:scale(.9)}
   #ult-btn{
-    position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom));
+    position:fixed;right:14px;bottom:calc(20px + var(--safe-bot));
     width:68px;height:68px;border-radius:50%;
     border:2px solid rgba(120,200,255,.26);
     background:radial-gradient(circle at 50% 34%,rgba(30,52,104,.9),rgba(8,14,34,.9));
@@ -238,7 +246,7 @@
   }
   @keyframes ultPulse{0%,100%{box-shadow:0 0 10px rgba(77,232,255,.5)}50%{box-shadow:0 0 26px rgba(77,232,255,.95)}}
   #cloak-btn{
-    position:fixed;left:14px;bottom:calc(20px + env(safe-area-inset-bottom));
+    position:fixed;left:14px;bottom:calc(20px + var(--safe-bot));
     width:60px;height:60px;border-radius:50%;
     border:2px solid rgba(195,77,255,.45);
     background:radial-gradient(circle at 50% 34%,rgba(46,20,74,.9),rgba(10,6,24,.9));
@@ -253,7 +261,7 @@
      quantas a nave tem e o tamanho da tela — nunca sai da tela.          */
   #hab-bar{
     position:fixed;left:8px;right:8px;
-    bottom:calc(var(--console-base,94px) + env(safe-area-inset-bottom));
+    bottom:calc(var(--console-base,94px) + var(--safe-bot));
     display:none;flex-direction:row;flex-wrap:wrap;
     align-items:center;justify-content:center;align-content:flex-end;
     gap:var(--hab-gap,6px);
@@ -264,7 +272,7 @@
   #hab-bar.fechada{display:none}
   #hab-abrir{
     position:fixed;right:14px;
-    bottom:calc(var(--abrir-base,96px) + env(safe-area-inset-bottom));
+    bottom:calc(var(--abrir-base,96px) + var(--safe-bot));
     width:36px;height:36px;border-radius:11px;display:none;z-index:8;cursor:pointer;
     align-items:center;justify-content:center;pointer-events:auto;
     border:1px solid rgba(120,200,255,.22);background:var(--vidro);color:var(--ink2);
@@ -345,7 +353,7 @@
   .hab-btn.pronta .hab-tecla{color:var(--cyan);border-color:var(--cyan)}
   #pc-dica{
     position:fixed;left:50%;transform:translateX(-50%);
-    bottom:calc(6px + env(safe-area-inset-bottom));
+    bottom:calc(6px + var(--safe-bot));
     display:none;z-index:6;pointer-events:none;
     font-size:.6rem;letter-spacing:.06em;color:rgba(234,242,255,.45);
     background:rgba(6,10,24,.55);border-radius:10px;padding:5px 12px;
@@ -634,12 +642,12 @@
     font-size:.48rem;font-weight:700;padding:1px 5px;display:none;
   }
   .chip i.on{display:block}
-  #screen-menu.show{justify-content:flex-start;padding-top:calc(24px + env(safe-area-inset-top));overflow-y:auto}
+  #screen-menu.show{justify-content:flex-start;padding-top:calc(10px + var(--safe-top));overflow-y:auto}
   #screen-menu.show > *{flex:none}
   #screen-menu.show::after{content:"";display:block;height:25vh;flex:none}
   .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
-  #screen-menu.show{gap:11px}
-  #screen-menu .brand{font-size:clamp(1.7rem,8vw,2.6rem);margin-bottom:2px}
+  #screen-menu.show{gap:9px}
+  #screen-menu .brand{font-size:clamp(1.5rem,6.8vw,2.2rem);margin-bottom:0}
   .gem{color:var(--amber);font-weight:700}
   .gem::before{content:"◆ "}
   .stat-panel{
@@ -739,7 +747,7 @@
   .fim-linha{display:flex;gap:9px;width:100%}
   .fim-linha .ghost-btn{flex:1;padding:12px 6px;font-size:.8rem}
   .reward-line{font-size:1rem;font-weight:600}
-  .credit{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:.62rem;letter-spacing:.14em;color:var(--fraco)}
+  .credit{position:absolute;bottom:calc(12px + var(--safe-bot));font-size:.62rem;letter-spacing:.14em;color:var(--fraco)}
 
   /* ---------- Login ---------- */
   #screen-login{justify-content:flex-start;padding:0;overflow:hidden}
@@ -758,7 +766,7 @@
   }
   .login-rolagem{
     width:100%;max-height:100%;overflow-y:auto;position:relative;z-index:1;
-    padding:calc(26px + env(safe-area-inset-top)) 20px calc(26px + env(safe-area-inset-bottom));
+    padding:calc(26px + var(--safe-top)) 20px calc(26px + var(--safe-bot));
     display:flex;flex-direction:column;align-items:center;gap:14px;
   }
   #screen-login .brand{
@@ -1027,7 +1035,7 @@
   /* placar do multijogador dentro do jogo */
   #mp-placar{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(118px + env(safe-area-inset-top));z-index:6;pointer-events:none;
+    top:calc(118px + var(--safe-top));z-index:6;pointer-events:none;
     display:none;flex-direction:column;gap:5px;align-items:center;
     font-size:.68rem;font-weight:700;
   }
@@ -1045,7 +1053,7 @@
   /* selinho da ligação: mostra se o jogo está indo direto ou pela nuvem */
   #mp-conexao{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(158px + env(safe-area-inset-top));z-index:6;pointer-events:none;
+    top:calc(158px + var(--safe-top));z-index:6;pointer-events:none;
     display:none;align-items:center;gap:5px;
     padding:3px 10px;border-radius:99px;
     font-size:.58rem;font-weight:800;letter-spacing:.08em;
@@ -1133,7 +1141,7 @@
   /* aviso que sobe depois de pedir */
   .loja-aviso{
     position:absolute;left:14px;right:76px;
-    bottom:calc(16px + env(safe-area-inset-bottom));
+    bottom:calc(16px + var(--safe-bot));
     z-index:12;opacity:0;pointer-events:none;transform:translateY(10px);
     background:rgba(9,15,36,.97);border:1px solid var(--line);border-radius:var(--r-md);
     padding:11px 14px;font-size:.78rem;line-height:1.45;box-shadow:var(--som-2);
@@ -1145,7 +1153,7 @@
   /* botão redondo de chamar o administrador */
   #loja-adm{
     position:absolute;right:16px;
-    bottom:calc(16px + env(safe-area-inset-bottom));
+    bottom:calc(16px + var(--safe-bot));
     width:58px;height:58px;border-radius:50%;cursor:pointer;z-index:13;
     display:flex;align-items:center;justify-content:center;
     border:2px solid var(--amber);color:#2a1c00;
@@ -1365,7 +1373,7 @@
   }
   .chat-barra{
     flex:none;display:flex;gap:8px;align-items:center;
-    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    padding:10px 12px calc(10px + var(--safe-bot));
     background:linear-gradient(180deg,rgba(9,15,36,.9),rgba(6,10,24,.98));
     border-top:1px solid var(--line);
   }
@@ -1455,7 +1463,7 @@
   }
   #atualiza-box{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(10px + env(safe-area-inset-top));z-index:41;
+    top:calc(10px + var(--safe-top));z-index:41;
     display:none;align-items:center;gap:10px;justify-content:space-between;
     background:var(--cyan);color:#04121c;border-radius:13px;
     padding:9px 10px 9px 14px;box-shadow:0 8px 26px rgba(0,0,0,.45);
@@ -1553,7 +1561,7 @@
   .cp-conteudo{
     position:absolute;inset:0;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:16px;text-align:center;
-    padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+    padding:calc(24px + var(--safe-top)) 20px calc(24px + var(--safe-bot));
     overflow-y:auto;
   }
   .cp-de{
@@ -1634,7 +1642,7 @@
   .cp-item b{font-size:1.15rem;flex:none;width:26px;text-align:center}
   .cp-item span{font-size:.8rem;font-weight:600;line-height:1.35}
   #erro-box{
-    position:fixed;inset:auto 12px calc(12px + env(safe-area-inset-bottom)) 12px;
+    position:fixed;inset:auto 12px calc(12px + var(--safe-bot)) 12px;
     z-index:40;display:none;flex-direction:column;gap:10px;
     background:rgba(28,8,12,.97);border:1px solid var(--danger);border-radius:16px;
     padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.6);
@@ -1650,7 +1658,7 @@
   .erro-acoes .ghost-btn{flex:1;min-width:110px;padding:10px 8px;font-size:.72rem}
   #presente-jogo{
     position:fixed;left:50%;transform:translateX(-50%) translateY(-20px);
-    top:calc(120px + env(safe-area-inset-top));z-index:9;pointer-events:none;
+    top:calc(120px + var(--safe-top));z-index:9;pointer-events:none;
     max-width:min(90vw,420px);text-align:center;
     font-size:.8rem;font-weight:700;line-height:1.35;
     color:#04121c;background:var(--amber);border-radius:13px;padding:11px 15px;
@@ -1660,7 +1668,7 @@
   #presente-jogo.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .god-badge{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(96px + env(safe-area-inset-top));z-index:6;pointer-events:none;
+    top:calc(96px + var(--safe-top));z-index:6;pointer-events:none;
     font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--danger);
     text-shadow:0 0 12px rgba(255,82,82,.8);display:none;
   }
@@ -1734,7 +1742,7 @@
   .cn-resumo{margin-top:14px;font-size:.72rem;line-height:1.6;color:rgba(234,242,255,.85)}
   .cn-resumo b{color:var(--amber)}
   .cn-rodape{
-    flex:none;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    flex:none;display:flex;gap:8px;padding:10px 12px calc(10px + var(--safe-bot));
     max-width:520px;width:100%;margin:0 auto;border-top:1px solid var(--line);
   }
   .cn-rodape .adm-btn{flex:1}
@@ -2103,7 +2111,7 @@
      megafone, some sozinha e muda de cor conforme o tipo do recado      */
   #aviso-global{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(84px + env(safe-area-inset-top));z-index:46;display:none;
+    top:calc(84px + var(--safe-top));z-index:46;display:none;
     width:min(94vw,440px);text-align:left;
     background:linear-gradient(135deg,rgba(16,28,64,.97),rgba(9,15,36,.97));
     border:1px solid var(--cyan);border-radius:var(--r-lg);
@@ -2115,8 +2123,8 @@
     to{opacity:1;transform:translate(-50%,0) scale(1)}
   }
   /* com recado no ar, as telas cheias descem para não ficar por baixo */
-  body.tem-aviso .screen{padding-top:150px}
-  body.tem-aviso .page-head{padding-top:calc(11px + env(safe-area-inset-top))}
+  body.tem-aviso .screen{padding-top:calc(140px + var(--safe-top))}
+  body.tem-aviso .page-head{padding-top:calc(11px + var(--safe-top))}
   /* selo redondo do lado esquerdo */
   #aviso-global::before{
     content:"📢";position:absolute;left:11px;top:50%;transform:translateY(-50%);
@@ -2150,7 +2158,7 @@
   /* selo do evento que está rolando */
   #evento-selo{
     position:fixed;left:50%;transform:translateX(-50%);
-    bottom:calc(4px + env(safe-area-inset-bottom));
+    bottom:calc(4px + var(--safe-bot));
     z-index:12;display:none;align-items:center;gap:7px;
     background:var(--vidro);border:1px solid var(--line);border-radius:var(--r-full);
     padding:5px 13px;font-size:.6rem;letter-spacing:.05em;pointer-events:none;
@@ -2165,7 +2173,7 @@
   /* faixa da fila da ranqueada, que fica visível fora da tela dela */
   #fila-faixa{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(8px + env(safe-area-inset-top));z-index:44;display:none;
+    top:calc(8px + var(--safe-top));z-index:44;display:none;
     background:rgba(28,10,22,.95);border:1px solid var(--magenta);border-radius:12px;
     padding:7px 14px;font-size:.68rem;letter-spacing:.04em;white-space:nowrap;
     box-shadow:0 4px 20px rgba(0,0,0,.5);
@@ -2340,7 +2348,7 @@
   .arena-p .v{font-size:.62rem;color:var(--cyan)}
   #arena-hud{
     position:fixed;left:50%;transform:translateX(-50%);
-    top:calc(58px + env(safe-area-inset-top));z-index:6;display:none;
+    top:calc(58px + var(--safe-top));z-index:6;display:none;
     background:rgba(10,18,40,.82);border:1px solid rgba(195,77,255,.4);border-radius:12px;
     padding:5px 12px;font-size:.62rem;letter-spacing:.05em;white-space:nowrap;
   }
@@ -2358,7 +2366,7 @@
   #assistir.on{display:flex}
   .as-topo{
     display:flex;align-items:center;gap:10px;flex:none;
-    padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+    padding:calc(8px + var(--safe-top)) 12px 8px;
     border-bottom:1px solid var(--line);background:rgba(10,18,40,.9);
   }
   .as-fechar{
@@ -2380,7 +2388,7 @@
   #as-tela{flex:1;width:100%;min-height:0;display:block;background:#060A18}
   .as-hud{
     flex:none;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
-    padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+    padding:9px 12px calc(9px + var(--safe-bot));
     border-top:1px solid var(--line);background:rgba(10,18,40,.9);
   }
   .as-chip{
@@ -2444,7 +2452,7 @@
   .page-head{
     position:relative;flex:none;
     display:flex;align-items:center;gap:12px;
-    padding:calc(11px + env(safe-area-inset-top)) 14px 11px 14px;
+    padding:calc(11px + var(--safe-top)) 14px 11px 14px;
     background:linear-gradient(180deg,rgba(16,26,58,.96),rgba(9,15,36,.92));
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     box-shadow:var(--som-1);
@@ -2478,7 +2486,7 @@
   .infinito{font-size:1.15em;line-height:1;letter-spacing:.02em}
   .scroll{
     flex:1;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
-    padding:16px 14px calc(24px + env(safe-area-inset-bottom)) 14px;
+    padding:16px 14px calc(24px + var(--safe-bot)) 14px;
   }
 
   /* fases */
@@ -2667,7 +2675,7 @@
   @media (prefers-reduced-motion:reduce){.node.avail{animation:none}}
   .tree-detail{
     border-top:1px solid var(--line);background:var(--panel);
-    padding:12px 16px calc(14px + env(safe-area-inset-bottom)) 16px;
+    padding:12px 16px calc(14px + var(--safe-bot)) 16px;
     display:flex;align-items:center;gap:12px;min-height:76px;text-align:left;
   }
   .tree-detail-info{flex:1;min-width:0}
@@ -2881,7 +2889,7 @@
 
   /* cutscene */
   #cut-skip{
-    position:fixed;right:16px;top:calc(16px + env(safe-area-inset-top));z-index:20;
+    position:fixed;right:16px;top:calc(16px + var(--safe-top));z-index:20;
     display:none;padding:10px 18px;border-radius:12px;cursor:pointer;
     background:rgba(10,18,40,.7);border:1px solid var(--line);
     font-weight:700;font-size:.78rem;letter-spacing:.1em;color:var(--ink);
@@ -2937,7 +2945,7 @@
   body{background:var(--bg);color:var(--ink)}
 
   /* ---------- fundo das telas: aurora + malha fina + vinheta ---------- */
-  .screen{background:var(--bg2);padding:20px 16px;gap:12px}
+  .screen{background:var(--bg2);padding:calc(16px + var(--safe-top)) 16px calc(16px + var(--safe-bot));gap:12px}
   .screen::before{
     inset:-30%;
     background:
@@ -2961,7 +2969,7 @@
 
   /* ---------- marca ---------- */
   .brand{
-    font-size:clamp(1.9rem,8.6vw,3.1rem);letter-spacing:.02em;line-height:.92;
+    font-size:clamp(1.65rem,7.4vw,2.6rem);letter-spacing:.02em;line-height:.92;
     text-shadow:0 0 18px rgba(94,230,255,.55),0 0 60px rgba(181,123,255,.35);
   }
   .brand em{
@@ -2972,12 +2980,12 @@
   .tagline{
     font-size:.55rem;letter-spacing:.36em;color:var(--ink2);
     background:rgba(255,255,255,.05);border:1px solid var(--line);
-    box-shadow:var(--luz);text-shadow:none;padding:6px 15px;
+    box-shadow:var(--luz);text-shadow:none;padding:5px 13px;
   }
 
   /* ---------- botões grandes ---------- */
   .big-btn{
-    font-size:1rem;letter-spacing:.14em;padding:17px 34px;
+    font-size:.95rem;letter-spacing:.14em;padding:14px 30px;
     border-radius:var(--r-lg);color:#04121c;
     background:linear-gradient(180deg,#8DF0FF 0%,#3FD3F5 52%,#26B8DE 100%);
     box-shadow:
@@ -3001,7 +3009,7 @@
 
   /* ---------- cartão do piloto ---------- */
   .piloto-cartao{
-    gap:13px;padding:13px;border-radius:var(--r-lg);
+    gap:11px;padding:11px;border-radius:var(--r-lg);
     background:linear-gradient(150deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
     border:1px solid var(--line);box-shadow:var(--som-2),var(--luz);
   }
@@ -3022,7 +3030,7 @@
 
   /* ---------- faixa de números do menu ---------- */
   .stat-panel{
-    display:flex;width:min(92vw,360px);gap:0;padding:11px 4px;
+    display:flex;width:min(92vw,360px);gap:0;padding:9px 4px;
     background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
     border:1px solid var(--line);border-radius:var(--r-lg);
     box-shadow:var(--som-1),var(--luz);
@@ -3033,32 +3041,32 @@
   }
   .stat-panel .hud-label{font-size:.5rem;letter-spacing:.2em;color:var(--fraco)}
   .stat-panel .hud-value{
-    font-size:1.02rem;font-variant-numeric:tabular-nums;letter-spacing:.01em;margin-top:3px;
+    font-size:.94rem;font-variant-numeric:tabular-nums;letter-spacing:.01em;margin-top:2px;
   }
 
   /* ---------- ladrilhos do menu ---------- */
-  .menu-grade{gap:10px}
+  .menu-grade{gap:8px}
   .menu-secao{
     display:flex;align-items:center;gap:10px;
-    font-size:.56rem;letter-spacing:.28em;color:var(--fraco);margin:16px 0 2px;
+    font-size:.54rem;letter-spacing:.28em;color:var(--fraco);margin:11px 0 2px;
   }
   .menu-secao::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
   .tile{
-    flex-direction:row;align-items:center;gap:11px;text-align:left;
-    padding:12px 13px;border-radius:var(--r-lg);
+    flex-direction:row;align-items:center;gap:10px;text-align:left;
+    padding:10px 12px;border-radius:var(--r-lg);
     background:linear-gradient(150deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
     border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
     transition:transform .12s ease,border-color .18s ease,box-shadow .18s ease;
   }
   .tile b{
-    width:38px;height:38px;flex:none;border-radius:13px;
+    width:34px;height:34px;flex:none;border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    font-size:1.15rem;color:var(--cyan);text-shadow:none;
+    font-size:1.05rem;color:var(--cyan);text-shadow:none;
     background:rgba(94,230,255,.14);border:1px solid rgba(94,230,255,.3);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
   }
   .tile span{
-    flex:1;min-width:0;font-size:.72rem;letter-spacing:.08em;color:var(--ink);
+    flex:1;min-width:0;font-size:.69rem;letter-spacing:.07em;color:var(--ink);
     overflow:hidden;text-overflow:ellipsis;
   }
   .tile i{
@@ -3083,7 +3091,7 @@
   .tile.tem::before{top:11px;right:12px;width:8px;height:8px}
   .menu-chips{gap:8px}
   .chip{
-    border-radius:var(--r-full);padding:9px 15px;font-size:.64rem;letter-spacing:.1em;
+    border-radius:var(--r-full);padding:8px 13px;font-size:.62rem;letter-spacing:.1em;
     background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink2);
     box-shadow:var(--luz);
   }
@@ -3091,7 +3099,7 @@
 
   /* ---------- páginas: topo de vidro ---------- */
   .page-head{
-    padding:12px 14px;gap:10px;
+    padding:calc(10px + var(--safe-top)) 14px 10px;gap:10px;
     background:linear-gradient(180deg,rgba(8,13,30,.92),rgba(8,13,30,.6));
     border-bottom:1px solid var(--line);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
@@ -3108,7 +3116,7 @@
     background:rgba(255,200,97,.12);border:1px solid rgba(255,200,97,.34);
     color:var(--amber);box-shadow:var(--luz);font-variant-numeric:tabular-nums;
   }
-  .scroll{padding:14px 14px calc(28px + env(safe-area-inset-bottom)) 14px}
+  .scroll{padding:14px 14px calc(28px + var(--safe-bot)) 14px}
 
   /* ---------- cartões ---------- */
   .adm-card{
@@ -21634,6 +21642,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.9.1", itens: [
+      "CORRIGIDO: o cabeçalho das telas (loja, hangar, ranking, painel, novidades…) estava por baixo do relógio e da bateria do celular, e a setinha de voltar ficava meio escondida. A pele nova da 5.8 tinha apagado o espaço da barra de status — agora todas as telas descem o quanto o aparelho pede",
+      "Mesmo em celular que não avisa o tamanho do recorte (e no jogo instalado na tela inicial), agora sempre sobra um espaço mínimo em cima, então nada mais encosta na barra do sistema",
+      "Menu um pouco menor: título, cartão do piloto, ladrilhos e botões mais compactos — cabe mais coisa na tela sem precisar rolar tanto"
+    ] },
   { v: "5.9", itens: [
       "COMPRAR AGORA É PELO PIX: ao clicar em COMPRAR abre uma tela com a chave Pix (CPF), o nome do destinatário, o valor e o código copia-e-cola já pronto com o valor certo",
       "Botões de copiar a chave e copiar o código, para não errar digitando",
@@ -21917,7 +21930,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.9";
+const VERSAO = "5.9.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
