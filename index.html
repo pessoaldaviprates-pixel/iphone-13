@@ -3479,6 +3479,11 @@
     color:var(--verde);font-family:"Chakra Petch",sans-serif;
     font-size:.66rem;font-weight:700;letter-spacing:.1em;
   }
+  .pag-chave-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .aviso-cpf{color:var(--amber)}
+  .pag-copiar.fraco{
+    background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink2);
+  }
   .pag-linha{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
     padding:11px 2px;border-bottom:1px solid var(--line);font-size:.72rem;
@@ -9038,19 +9043,32 @@ $("env-cristais-ok").addEventListener("click", ev => {
 /* ---------- dados do Pix, editáveis pelo painel ---------- */
 function pagAdmRender() {
   $("pag-chave-adm").value = PAG.chave || "";
-  $("pag-tipo-adm").value = PAG.tipo || "CPF";
+  $("pag-tipo-adm").value = PAG.tipo || "";
   $("pag-nome-adm").value = PAG.nome || "";
   $("pag-cidade-adm").value = PAG.cidade || "";
   const el = $("pag-previa");
-  if (el) el.innerHTML = "Assim aparece para quem compra: <b>" + escaparTexto(PAG.chave) +
-    "</b> · " + escaparTexto(PAG.nome) + " · " + escaparTexto(PAG.cidade);
+  if (!el) return;
+  if (!PAG.chave) {
+    el.innerHTML = "<b>O Pix ainda não está ligado.</b> Enquanto não tiver chave aqui, " +
+      "quem tocar em COMPRAR vê um aviso e é mandado para o chat com você.";
+    return;
+  }
+  el.innerHTML = "Na tela de quem compra aparece assim, escondido: <b>" +
+    escaparTexto(pagEsconder(PAG.chave, PAG.tipo)) + "</b> · " +
+    escaparTexto(pagEsconder(PAG.nome, "NOME")) +
+    " — só quem for pagar toca em MOSTRAR ou copia direto." +
+    (String(PAG.tipo || "").toUpperCase().indexOf("CPF") >= 0
+      ? "<br><b class='aviso-cpf'>Dica:</b> com CPF, quem for pagar vê o seu número. " +
+        "No app do seu banco dá para criar uma <b>chave aleatória</b> só para o jogo — " +
+        "ela recebe igual e não conta nada sobre você."
+      : "");
 }
 $("pag-salvar").addEventListener("click", async ev => {
   const b = ev.currentTarget;
   b.disabled = true; b.textContent = "SALVANDO…";
   const novo = {
     chave: ($("pag-chave-adm").value || "").trim(),
-    tipo: ($("pag-tipo-adm").value || "CPF").trim(),
+    tipo: ($("pag-tipo-adm").value || "CHAVE PIX").trim(),
     nome: ($("pag-nome-adm").value || "").trim(),
     cidade: ($("pag-cidade-adm").value || "").trim()
   };
@@ -12141,16 +12159,51 @@ async function pedirNaLoja(item, itemNome, preco, extra) {
 
    Só a conferência do dinheiro na conta é olho humano.
    ===================================================================== */
+/* Os dados do Pix NÃO ficam no código do jogo: o dono põe pelo painel
+   (LOJA → DADOS DO PIX) e eles ficam só na nuvem. Assim a chave não vai
+   junto no arquivo, no repositório nem em quem baixa o jogo.           */
 const PAG_PADRAO = {
-  chave: "CPF-REMOVIDO",     // a chave Pix (CPF do dono)
-  tipo: "CPF",
-  nome: "Davi Prates",         // quem aparece como destinatário
+  chave: "",
+  tipo: "CHAVE PIX",
+  nome: "",
   cidade: "SAO PAULO"
 };
 let PAG = Object.assign({}, PAG_PADRAO);
+let pagMostrarChave = false;   /* a chave começa escondida na tela */
+/* deixa só as pontas à mostra: 561.***.***-75, ma***@email, ...9821 */
+function pagEsconder(chave, tipo) {
+  const c = String(chave || "");
+  if (!c) return "";
+  const t = String(tipo || "").toUpperCase();
+  if (t === "NOME") {
+    /* como o banco faz: primeiro nome inteiro, o resto só a inicial */
+    const p = c.trim().split(/\s+/);
+    return p.map((x, i) => i === 0 ? x : (x.charAt(0).toUpperCase() + ".")).join(" ");
+  }
+  if (t.indexOf("MAIL") >= 0 || c.indexOf("@") > 0) {
+    const i = c.indexOf("@");
+    return c.slice(0, Math.min(2, i)) + "•••" + c.slice(i);
+  }
+  const so = c.replace(/[^0-9A-Za-z]/g, "");
+  if (so.length <= 6) return c.slice(0, 2) + "•••";
+  /* mantém o formato (pontos e traço) e troca o miolo por bolinhas */
+  let n = 0;
+  const total = so.length;
+  return c.split("").map(ch => {
+    if (!/[0-9A-Za-z]/.test(ch)) return ch;
+    n++;
+    return (n <= 3 || n > total - 2) ? ch : "•";
+  }).join("");
+}
 function pagAplicar(d) {
   if (!d) return;
   PAG = Object.assign({}, PAG_PADRAO, d);
+}
+/* o copia e cola também carrega a chave dentro: mostra só as pontas */
+function pagCodigoTapado(codigo) {
+  const c = String(codigo || "");
+  if (c.length < 40) return c;
+  return c.slice(0, 20) + " •••••••••••••••••••••• " + c.slice(-12);
 }
 /* ---- código Pix copia e cola (BR Code / EMV do Banco Central) ---- */
 function pixCampo(id, valor) {
@@ -12204,6 +12257,7 @@ function abrirPagamento(item, nome, preco, extra) {
   pagRender();
 }
 function pagFechar() {
+  pagMostrarChave = false;
   if (COMPRA.fluxo) { try { COMPRA.fluxo(); } catch (e) {} COMPRA.fluxo = null; }
   S.mode = "loja";
   showScreen("loja");
@@ -12244,18 +12298,43 @@ function pagRender() {
     return;
   }
 
+  /* sem chave configurada não dá para pagar: manda falar comigo */
+  if (!PAG.chave) {
+    cx.innerHTML =
+      '<div class="pag-espera">' +
+        '<div class="pag-relogio">🔒</div>' +
+        "<b>Pagamento indisponível agora</b>" +
+        "<span>O desenvolvedor ainda não ligou o Pix" + (contaDeDono(save && save.__name) ?
+          " — ligue no <b>Painel → LOJA → DADOS DO PIX</b>" : "") +
+        ". Fale comigo pelo chat que eu resolvo na hora.</span>" +
+      "</div>" +
+      '<button class="big-btn" id="pag-falar2" style="width:100%;margin-top:12px">⊙ FALAR COM O DESENVOLVEDOR</button>' +
+      '<button class="ghost-btn" id="pag-cancelar" style="width:100%;margin-top:9px">VOLTAR</button>';
+    const f2 = $("pag-falar2");
+    if (f2) f2.addEventListener("click", () => { pagFechar(); suporteAbrir(); });
+    $("pag-cancelar").addEventListener("click", pagFechar);
+    return;
+  }
+
   cx.innerHTML =
     '<div class="pag-chave">' +
-      '<span class="pag-rot">CHAVE PIX (' + escaparTexto(PAG.tipo || "CPF") + ")</span>" +
-      '<b id="pag-chave-txt">' + escaparTexto(PAG.chave) + "</b>" +
-      '<button class="pag-copiar" id="pag-copiar-chave">COPIAR CHAVE</button>' +
+      '<span class="pag-rot">CHAVE PIX (' + escaparTexto(PAG.tipo || "CHAVE PIX") + ")</span>" +
+      '<b id="pag-chave-txt">' +
+        escaparTexto(pagMostrarChave ? PAG.chave : pagEsconder(PAG.chave, PAG.tipo)) + "</b>" +
+      '<div class="pag-chave-btns">' +
+        '<button class="pag-copiar" id="pag-copiar-chave">COPIAR CHAVE</button>' +
+        '<button class="pag-copiar fraco" id="pag-ver-chave">' +
+          (pagMostrarChave ? "🙈 ESCONDER" : "👁 MOSTRAR") + "</button>" +
+      "</div>" +
     "</div>" +
-    '<div class="pag-linha"><span>Nome do destinatário</span><b>' + escaparTexto(PAG.nome) + "</b></div>" +
+    '<div class="pag-linha"><span>Nome do destinatário</span><b>' +
+      escaparTexto(pagMostrarChave ? PAG.nome : pagEsconder(PAG.nome, "NOME")) + "</b></div>" +
     '<div class="pag-linha"><span>Valor</span><b class="pag-preco">' + reais(COMPRA.preco) + "</b></div>" +
     '<div class="pag-linha"><span>Item</span><b>' + escaparLongo(COMPRA.nome) + "</b></div>" +
     '<div class="pag-copiacola">' +
       '<span class="pag-rot">PIX COPIA E COLA — já vem com o valor</span>' +
-      '<textarea readonly id="pag-codigo" rows="3">' + escaparHtml(codigo) + "</textarea>" +
+      '<textarea readonly id="pag-codigo" rows="3">' +
+        escaparHtml(pagMostrarChave ? codigo : pagCodigoTapado(codigo)) + "</textarea>" +
       '<button class="adm-btn gold wide" id="pag-copiar-codigo">📋 COPIAR CÓDIGO PIX</button>' +
     "</div>" +
     '<p class="adm-note" style="margin-top:12px">Abra o app do banco, escolha <b>Pix copia e cola</b>, ' +
@@ -12269,6 +12348,7 @@ function pagRender() {
   };
   $("pag-copiar-chave").addEventListener("click", ev =>
     copiar(PAG.chave, ev.currentTarget, "✓ CHAVE COPIADA"));
+  $("pag-ver-chave").addEventListener("click", () => { pagMostrarChave = !pagMostrarChave; pagRender(); });
   $("pag-copiar-codigo").addEventListener("click", ev =>
     copiar(codigo, ev.currentTarget, "✓ CÓDIGO COPIADO — cole no banco"));
   $("pag-cancelar").addEventListener("click", pagFechar);
@@ -21642,13 +21722,21 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.9.2", itens: [
+      "PRIVACIDADE DO PIX: a chave não fica mais dentro do jogo. Ela vive só no painel (LOJA → DADOS DO PIX) e na nuvem — quem baixa o arquivo do jogo não encontra nada",
+      "Na tela de pagamento a chave aparece tapada (123.•••.•••-09) e o nome como no banco (Teste D. J.). Quem for pagar toca em COPIAR CHAVE (copia inteira) ou em MOSTRAR quando quiser conferir",
+      "O código copia e cola também aparece tapado, e o COPIAR CÓDIGO PIX continua copiando ele inteirinho e certo",
+      "Ao fechar a tela a chave volta a ficar escondida, então print e gravação de tela não vazam nada sem querer",
+      "Se o Pix ainda não estiver ligado, quem tocar em COMPRAR vê um aviso e vai direto para o chat com o desenvolvedor, em vez de ver uma tela quebrada",
+      "Dica no painel: dá para usar uma CHAVE ALEATÓRIA do banco em vez do CPF — recebe igual e não mostra nada sobre você"
+    ] },
   { v: "5.9.1", itens: [
       "CORRIGIDO: o cabeçalho das telas (loja, hangar, ranking, painel, novidades…) estava por baixo do relógio e da bateria do celular, e a setinha de voltar ficava meio escondida. A pele nova da 5.8 tinha apagado o espaço da barra de status — agora todas as telas descem o quanto o aparelho pede",
       "Mesmo em celular que não avisa o tamanho do recorte (e no jogo instalado na tela inicial), agora sempre sobra um espaço mínimo em cima, então nada mais encosta na barra do sistema",
       "Menu um pouco menor: título, cartão do piloto, ladrilhos e botões mais compactos — cabe mais coisa na tela sem precisar rolar tanto"
     ] },
   { v: "5.9", itens: [
-      "COMPRAR AGORA É PELO PIX: ao clicar em COMPRAR abre uma tela com a chave Pix (CPF), o nome do destinatário, o valor e o código copia-e-cola já pronto com o valor certo",
+      "COMPRAR AGORA É PELO PIX: ao clicar em COMPRAR abre uma tela com a chave Pix, o nome do destinatário, o valor e o código copia-e-cola já pronto com o valor certo",
       "Botões de copiar a chave e copiar o código, para não errar digitando",
       "Depois de pagar é só tocar em JÁ PAGUEI: aparece \"Esperando o desenvolvedor te responder — leva em torno de 30 minutos a 1 hora\", e o pedido some da espera sozinho assim que for entregue (na hora, sem recarregar)",
       "ENVIAR PASS: aba nova no painel (LOJA) para procurar qualquer conta pelo nome e mandar VIP, passe, nave ou cristais na hora, sem depender de pedido",
@@ -21930,7 +22018,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.9.1";
+const VERSAO = "5.9.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
