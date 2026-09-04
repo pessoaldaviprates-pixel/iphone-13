@@ -3418,6 +3418,88 @@
   }
   .dif-nota{font-size:.62rem;color:var(--dim);margin-top:8px}
 
+  /* ---------- enviar pass / pedidos ---------- */
+  .env-grupo{margin-top:14px}
+  .env-rot{
+    font-size:.54rem;letter-spacing:.2em;color:var(--fraco);margin-bottom:7px;
+  }
+  .pd-linha.pago{border-color:rgba(99,245,181,.45);background:rgba(99,245,181,.07)}
+  .pedido-linha{font-size:.62rem;color:var(--dim);margin-top:4px;line-height:1.45}
+  .loja-card.pedido-pago{border-color:rgba(255,200,97,.42);background:rgba(255,200,97,.06)}
+  .loja-card.pedido-pago .pedido-linha{color:var(--amber)}
+  .loja-card.pedido-entregue{border-color:rgba(99,245,181,.42)}
+  .loja-card.pedido-entregue .pedido-linha{color:var(--verde)}
+  .pedido-estado{
+    font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 9px;border-radius:99px;background:rgba(255,255,255,.06);
+    border:1px solid var(--line);color:var(--dim);flex:none;
+  }
+  .pedido-estado.pago{background:rgba(255,200,97,.16);border-color:rgba(255,200,97,.45);color:var(--amber)}
+  .pedido-estado.entregue{background:rgba(99,245,181,.16);border-color:rgba(99,245,181,.45);color:var(--verde)}
+  .pd-selo{
+    font-style:normal;font-size:.5rem;letter-spacing:.12em;font-weight:800;
+    color:#04201a;background:var(--verde);border-radius:99px;padding:2px 7px;margin-left:6px;
+  }
+
+  /* ---------- tela de pagamento ---------- */
+  .pag-capa{
+    display:flex;gap:12px;align-items:center;padding:14px;border-radius:var(--r-lg);
+    background:linear-gradient(135deg,rgba(99,245,181,.14),rgba(255,255,255,.02));
+    border:1px solid rgba(99,245,181,.3);box-shadow:var(--som-1),var(--luz);margin-bottom:12px;
+  }
+  .pag-ic{
+    width:48px;height:48px;flex:none;border-radius:15px;font-size:1.5rem;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,24,.5);border:1px solid rgba(99,245,181,.4);
+  }
+  .pag-capa-txt b{display:block;font-family:"Russo One",sans-serif;font-size:.95rem}
+  .pag-capa-txt span{display:block;font-size:.64rem;color:var(--dim);margin-top:3px}
+  .pag-capa-txt span b{display:inline;font-family:inherit;color:var(--verde)}
+  .pag-chave{
+    text-align:center;padding:15px;border-radius:var(--r-lg);
+    background:rgba(99,245,181,.08);border:1px dashed rgba(99,245,181,.45);
+  }
+  .pag-rot{display:block;font-size:.54rem;letter-spacing:.2em;color:var(--dim)}
+  .pag-chave b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.32rem;
+    letter-spacing:.04em;margin:7px 0 10px;color:var(--verde);
+    font-variant-numeric:tabular-nums;
+  }
+  .pag-copiar{
+    padding:9px 18px;border-radius:var(--r-full);cursor:pointer;
+    background:rgba(99,245,181,.16);border:1px solid rgba(99,245,181,.5);
+    color:var(--verde);font-family:"Chakra Petch",sans-serif;
+    font-size:.66rem;font-weight:700;letter-spacing:.1em;
+  }
+  .pag-linha{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:11px 2px;border-bottom:1px solid var(--line);font-size:.72rem;
+  }
+  .pag-linha:last-of-type{border-bottom:none}
+  .pag-linha span{color:var(--dim);font-size:.66rem}
+  .pag-linha b{text-align:right;max-width:62%}
+  .pag-preco{color:var(--amber);font-size:.95rem;font-variant-numeric:tabular-nums}
+  .pag-copiacola{margin-top:12px}
+  .pag-copiacola textarea{
+    width:100%;margin-top:6px;font-family:ui-monospace,Menlo,monospace;
+    font-size:.6rem;line-height:1.45;resize:none;color:var(--ink2);
+  }
+  .pag-espera{text-align:center;padding:10px 4px}
+  .pag-relogio{font-size:2.6rem;line-height:1}
+  .pag-espera b{display:block;font-family:"Russo One",sans-serif;font-size:1rem;margin:10px 0 6px}
+  .pag-espera > span{display:block;font-size:.7rem;color:var(--dim);line-height:1.6}
+  .pag-espera > span b{display:inline;font-family:inherit;font-size:inherit;color:var(--amber)}
+  .pag-espera.pronto b{color:var(--verde)}
+  .pag-passos{display:flex;flex-direction:column;gap:6px;margin:14px 0 4px;text-align:left}
+  .pag-passos i{
+    font-style:normal;font-size:.66rem;color:var(--fraco);
+    padding:8px 11px;border-radius:11px;background:rgba(255,255,255,.03);
+    border:1px solid var(--line);
+  }
+  .pag-passos i.ok{color:var(--verde);border-color:rgba(99,245,181,.35)}
+  .pag-passos i.agora{color:var(--amber);border-color:rgba(255,200,97,.4);background:rgba(255,200,97,.07)}
+  .pag-tempo{font-size:.6rem;color:var(--fraco);margin-top:10px;letter-spacing:.06em}
+
   /* ---------- barras de rolagem discretas ---------- */
   .scroll::-webkit-scrollbar{width:0;height:0}
 
@@ -3639,6 +3721,58 @@
     <div class="adm-abas" id="adm-abas"></div>
 
     <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-enviar" style="display:none">
+        <div class="adm-h gold">🎁 ENVIAR PASS</div>
+        <p class="adm-note" style="max-width:none">
+          Manda qualquer coisa da loja para quem comprou, sem depender de pedido:
+          escolha a pessoa, escolha o item e pronto — cai na conta dela na hora.
+        </p>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="env-quem" maxlength="20" placeholder="Nick da conta (ex.: Maverick)" autocomplete="off">
+          <button class="adm-btn" id="env-achar">PROCURAR</button>
+        </div>
+        <div class="adm-note" id="env-quem-nota" style="margin-top:6px"></div>
+        <div class="env-grupo">
+          <div class="env-rot">VIP</div>
+          <div class="adm-grid" id="env-vip"></div>
+        </div>
+        <div class="env-grupo">
+          <div class="env-rot">PASSES</div>
+          <div class="adm-grid" id="env-passes"></div>
+        </div>
+        <div class="env-grupo">
+          <div class="env-rot">NAVES DA LOJA</div>
+          <div class="adm-grid" id="env-naves"></div>
+        </div>
+        <div class="env-grupo">
+          <div class="env-rot">CRISTAIS</div>
+          <div class="adm-row">
+            <input id="env-cristais" type="number" inputmode="numeric" placeholder="quantos cristais" value="1000">
+            <button class="adm-btn gold" id="env-cristais-ok">ENVIAR</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-pagamento" style="display:none">
+        <div class="adm-h gold">💳 DADOS DO PIX</div>
+        <p class="adm-note" style="max-width:none">
+          É isto que aparece para quem vai pagar. A chave e o nome ficam na nuvem,
+          então valem para todo mundo assim que você salvar.
+        </p>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="pag-chave-adm" maxlength="60" placeholder="Chave Pix (CPF, telefone, e-mail…)" autocomplete="off">
+          <input id="pag-tipo-adm" maxlength="12" placeholder="CPF" style="max-width:90px" autocomplete="off">
+        </div>
+        <div class="adm-row" style="margin-top:8px">
+          <input id="pag-nome-adm" maxlength="25" placeholder="Nome do destinatário" autocomplete="off">
+          <input id="pag-cidade-adm" maxlength="15" placeholder="Cidade" autocomplete="off">
+        </div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="pag-salvar">SALVAR DADOS DO PIX</button>
+        </div>
+        <div class="adm-note" id="pag-previa" style="margin-top:10px"></div>
+      </div>
 
       <div class="adm-card" id="adm-loja" style="display:none">
         <div class="adm-h gold">🛒 PEDIDOS DA LOJA</div>
@@ -4163,6 +4297,25 @@
 </div>
 
 <!-- LOJA VIP -->
+<!-- PAGAMENTO POR PIX -->
+<div class="page" id="screen-pagar">
+  <div class="page-head">
+    <button class="back-btn" id="pagar-voltar" aria-label="Voltar">‹</button>
+    <div class="page-title">PAGAMENTO</div>
+    <div class="page-gems gem" id="pagar-valor">R$ 0,00</div>
+  </div>
+  <div class="scroll">
+    <div class="pag-capa">
+      <div class="pag-ic">⚡</div>
+      <div class="pag-capa-txt">
+        <b id="pagar-item">Item</b>
+        <span>Pagamento por <b>Pix</b> · entrega assim que eu confirmar</span>
+      </div>
+    </div>
+    <div class="adm-card" id="pagar-corpo"></div>
+  </div>
+</div>
+
 <div class="page" id="screen-loja">
   <div class="page-head">
     <button class="back-btn" data-back aria-label="Voltar">‹</button>
@@ -6180,6 +6333,7 @@ function obedecerOrdemDeAtualizar(att) {
 
 function mundoAplicar(d) {
   try { obedecerOrdemDeAtualizar(d && d.att); } catch (e) {}
+  try { pagAplicar(d && d.pagamento); } catch (e) {}
   try { checarPresenteGeral(d); } catch (e) {}
   MUNDO.geral = (d && d.geral) || null;
   MUNDO.aviso = (d && d.aviso) || null;
@@ -7647,6 +7801,7 @@ const SCREENS = {
   suporte: $("screen-suporte"),
   tree: $("screen-tree"), rank: $("screen-rank"), senha: $("screen-senha"),
   multi: $("screen-multi"), sala: $("screen-sala"), jornada: $("screen-jornada"),
+  pagar: $("screen-pagar"),
   novidades: $("screen-novidades"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
@@ -8750,24 +8905,32 @@ function admLojaSelo() {
 function admLojaRender() {
   const cx = $("adm-loja-lista");
   if (!cx) return;
+  const abertos = { esperando: 1, pago: 1 };
   const todos = Object.entries(admLojaPedidos)
-    .filter(([, p2]) => p2 && (admLojaMostrarTudo || p2.estado === "esperando"))
-    .sort((a, b) => (b[1].quando || 0) - (a[1].quando || 0));
+    .filter(([, p2]) => p2 && (admLojaMostrarTudo || abertos[p2.estado]))
+    /* quem já avisou que pagou sobe para o topo: é o que precisa de você */
+    .sort((a, b) => ((b[1].estado === "pago") - (a[1].estado === "pago")) ||
+                    ((b[1].pagoEm || b[1].quando || 0) - (a[1].pagoEm || a[1].quando || 0)));
   cx.innerHTML = "";
   if (!todos.length) {
     cx.innerHTML = '<div class="vazio"><b>🧾</b><strong>NENHUM PEDIDO ESPERANDO</strong>' +
       "<span>Quando alguém pedir alguma coisa na loja, aparece aqui.</span></div>";
   }
   for (const [chave, pd] of todos) {
-    const feito = pd.estado !== "esperando";
+    const pago = pd.estado === "pago";
+    const feito = !abertos[pd.estado];
     const el = document.createElement("div");
-    el.className = "pd-linha" + (feito ? " feito" : "");
+    el.className = "pd-linha" + (feito ? " feito" : "") + (pago ? " pago" : "");
+    /* o nome da CONTA vem primeiro: é por ele que você acha o Pix */
     el.innerHTML =
-      '<span class="pd-ic">' + (feito ? "✓" : "🧾") + "</span>" +
-      '<span class="pd-txt"><span class="pd-item">' + escaparTexto(pd.itemNome) + "</span>" +
-      '<span class="pd-quem">' + escaparTexto(pd.tag || pd.nome) +
-        " · " + quandoTexto(pd.quando || Date.now()) + " atrás" +
-        (feito ? " · " + pd.estado : "") + "</span></span>" +
+      '<span class="pd-ic">' + (feito ? "✓" : pago ? "💰" : "🧾") + "</span>" +
+      '<span class="pd-txt">' +
+        '<span class="pd-item">' + escaparTexto(pd.nome || pd.tag || "?") +
+          (pago ? ' <em class="pd-selo">JÁ PAGOU</em>' : "") + "</span>" +
+        '<span class="pd-quem">' + escaparTexto(pd.itemNome) +
+          (pd.tag && pd.tag !== pd.nome ? " · " + escaparTexto(pd.tag) : "") +
+          " · " + quandoTexto(pd.pagoEm || pd.quando || Date.now()) + " atrás" +
+          (feito ? " · " + pd.estado : "") + "</span></span>" +
       '<span class="pd-preco">' + reais(pd.preco || 0) + "</span>";
     if (!feito && pode("lojaDar")) {
       const acoes = document.createElement("span");
@@ -8780,7 +8943,7 @@ function admLojaRender() {
       bNo.className = "adm-btn danger";
       bNo.textContent = "✕";
       bNo.addEventListener("click", async () => {
-        await nuvemJuntar("loja_pedidos/" + chave, { estado: "recusado" });
+        await admPedidoJuntar(chave, pd, { estado: "recusado" });
         await admAvisarNaConversa(pd.de, "O pedido de " + pd.itemNome + " foi cancelado.");
         admLojaCarregar();
       });
@@ -8790,6 +8953,113 @@ function admLojaRender() {
     cx.appendChild(el);
   }
   admSupRender();
+}
+
+/* =====================================================================
+   ENVIAR PASS — manda qualquer item da loja para uma conta
+   ---------------------------------------------------------------------
+   Não depende de pedido nenhum: escolhe a pessoa pelo nick, escolhe o
+   item e ele cai na conta dela pela mesma caixa de presente de sempre.
+   ===================================================================== */
+let envAlvo = null;
+function envMostrarAlvo(txt, bom) {
+  const el = $("env-quem-nota");
+  if (el) { el.textContent = txt; el.style.color = bom ? "var(--verde)" : "var(--danger)"; }
+}
+async function envProcurar() {
+  const nome = ($("env-quem").value || "").trim();
+  envAlvo = null;
+  if (!nome) { envMostrarAlvo("Escreva o nick da conta.", false); return; }
+  envMostrarAlvo("Procurando…", true);
+  const achado = await acharPiloto(nome);
+  if (!achado) { envMostrarAlvo("Não achei ninguém com esse nick.", false); return; }
+  envAlvo = { id: achado.id, nome: achado.p.nome || nome };
+  envMostrarAlvo("✓ " + envAlvo.nome + " — escolha o que mandar aqui embaixo.", true);
+  AudioSys.buy();
+}
+async function envMandar(presente, texto, botao) {
+  if (!envAlvo) { envMostrarAlvo("Escolha a conta primeiro (PROCURAR).", false); AudioSys.deny(); return; }
+  if (botao) { botao.disabled = true; botao.dataset.txt = botao.textContent; botao.textContent = "ENVIANDO…"; }
+  const ok = await entregarCompra(envAlvo.id, presente, texto);
+  if (botao) { botao.disabled = false; botao.textContent = botao.dataset.txt || "ENVIAR"; }
+  if (ok) {
+    admMsg("Enviado para " + envAlvo.nome + ": " + texto);
+    await admAvisarNaConversa(envAlvo.id, "Enviei para você: " + texto + ". Aproveite!");
+    AudioSys.buy();
+  } else {
+    admMsg("Não deu para enviar agora.");
+    AudioSys.deny();
+  }
+}
+function envRender() {
+  const vip = $("env-vip"), pas = $("env-passes"), nav = $("env-naves");
+  if (!vip || vip.dataset.pronto) return;
+  vip.dataset.pronto = "1";
+  for (const pl of VIP_PLANOS) {
+    const b = document.createElement("button");
+    b.className = "adm-btn gold";
+    b.textContent = pl.nome;
+    b.addEventListener("click", () => envMandar({ vipDias: pl.dias }, "VIP " + pl.nome, b));
+    vip.appendChild(b);
+  }
+  for (const ps of PASSES) {
+    const b = document.createElement("button");
+    b.className = "adm-btn";
+    b.textContent = ps.icone + " " + ps.nome.replace("Passe do ", "").replace("Passe da ", "");
+    b.addEventListener("click", () => envMandar(
+      { passes: ps.pacote ? PASSES.filter(x => !x.pacote).map(x => x.id) : [ps.id] },
+      ps.nome, b));
+    pas.appendChild(b);
+  }
+  for (let i = 0; i < NAVES_LOJA.length; i++) {
+    const sh = NAVES_LOJA[i];
+    const b = document.createElement("button");
+    b.className = "adm-btn";
+    b.textContent = "✈ " + sh.name;
+    b.addEventListener("click", () => envMandar({ naves: [NAVES_LOJA_DE + i] }, "Nave " + sh.name, b));
+    nav.appendChild(b);
+  }
+}
+$("env-achar").addEventListener("click", envProcurar);
+$("env-quem").addEventListener("keydown", e => { if (e.key === "Enter") envProcurar(); });
+$("env-cristais-ok").addEventListener("click", ev => {
+  const n = Math.max(1, parseInt($("env-cristais").value, 10) || 0);
+  envMandar({ cristais: n }, fmt(n) + " cristais", ev.currentTarget);
+});
+
+/* ---------- dados do Pix, editáveis pelo painel ---------- */
+function pagAdmRender() {
+  $("pag-chave-adm").value = PAG.chave || "";
+  $("pag-tipo-adm").value = PAG.tipo || "CPF";
+  $("pag-nome-adm").value = PAG.nome || "";
+  $("pag-cidade-adm").value = PAG.cidade || "";
+  const el = $("pag-previa");
+  if (el) el.innerHTML = "Assim aparece para quem compra: <b>" + escaparTexto(PAG.chave) +
+    "</b> · " + escaparTexto(PAG.nome) + " · " + escaparTexto(PAG.cidade);
+}
+$("pag-salvar").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "SALVANDO…";
+  const novo = {
+    chave: ($("pag-chave-adm").value || "").trim(),
+    tipo: ($("pag-tipo-adm").value || "CPF").trim(),
+    nome: ($("pag-nome-adm").value || "").trim(),
+    cidade: ($("pag-cidade-adm").value || "").trim()
+  };
+  const ok = await nuvemSoltar("mundo/pagamento", novo);
+  b.disabled = false; b.textContent = "SALVAR DADOS DO PIX";
+  if (ok === null) { admMsg("O Firebase recusou a gravação."); return; }
+  pagAplicar(novo);
+  pagAdmRender();
+  admMsg("Dados do Pix salvos. Já vale para todo mundo.");
+  AudioSys.buy();
+});
+
+/* escreve no pedido esteja ele no galho novo ou dentro da ficha do piloto */
+async function admPedidoJuntar(chave, pd, obj) {
+  const r = await nuvemJuntar("loja_pedidos/" + chave, obj);
+  if (r !== null) return r;
+  return await nuvemJuntar("pilotos/" + (pd && pd.de) + "/_loja/" + chave, obj);
 }
 
 /* entrega usando a caixa de presente que já existe */
@@ -8808,7 +9078,7 @@ async function admEntregarPedido(chave, pd, botao) {
   }
   const ok = await entregarCompra(pd.de, presente, texto);
   if (ok) {
-    await nuvemJuntar("loja_pedidos/" + chave, { estado: "entregue", entregueEm: Date.now() });
+    await admPedidoJuntar(chave, pd, { estado: "entregue", entregueEm: Date.now() });
     await admAvisarNaConversa(pd.de, "Entregue! " + texto + " já está na sua conta. Obrigado 🙏");
     admMsg("Entregue: " + texto);
   } else {
@@ -8939,7 +9209,7 @@ const ABAS_ADM = [
   { id: "sugestoes", nome: "💡 SUGESTÕES", perms: ["sugVer"],
     cartoes: ["adm-sug"] },
   { id: "loja",      nome: "🛒 LOJA",      perms: ["lojaVer", "lojaDar"],
-    cartoes: ["adm-loja"] },
+    cartoes: ["adm-loja", "adm-enviar", "adm-pagamento"] },
   { id: "equipe",    nome: "👥 EQUIPE",    perms: ["equipe"],
     cartoes: ["adm-equipe"] },
   { id: "sistema",   nome: "🔧 SISTEMA",   perms: ["diag", "backup"],
@@ -8985,7 +9255,10 @@ function sugNovas() {
 /* mostra só os cartões da aba escolhida */
 let agoraNoTopo = false;
 function mostrarAba() {
-  if (abaAdm === "loja") { try { admLojaCarregar(); } catch (e) {} }
+  if (abaAdm === "loja") {
+    try { admLojaCarregar(); } catch (e) {}
+    try { envRender(); pagAdmRender(); } catch (e) {}
+  }
   if (abaAdm === "mundo") { try { attRender(); } catch (e) {} }
   // o resumo do que está no ar vem ANTES dos botões, não depois
   if (!agoraNoTopo) {
@@ -9060,6 +9333,8 @@ const CARTOES_PERM = {
   "adm-sug":     "sugVer",
   "adm-equipe":  "equipe",
   "adm-diag":    "diag",
+  "adm-enviar":  "lojaDar",
+  "adm-pagamento": "lojaDar",
   "adm-atualiza": "recados",
   "adm-mundo":   "recados",
   "adm-eventos": "eventos",
@@ -11828,12 +12103,226 @@ async function pedirNaLoja(item, itemNome, preco, extra) {
   }
   if (ok === null) return { ok: false, msg: "Não deu para enviar. Tente de novo." };
   save.pedidos = save.pedidos || [];
-  save.pedidos.push({ chave: chave, itemNome: itemNome, preco: preco, quando: Date.now() });
+  pacote.chave = chave;
+  save.pedidos.push({ chave: chave, itemNome: itemNome, preco: preco,
+                      quando: Date.now(), estado: "esperando" });
   if (save.pedidos.length > 30) save.pedidos.shift();
   persist();
   // avisa você na conversa, para não passar batido
   await suporteEnviar("Pedi na loja: " + itemNome + " — " + reais(preco), true);
-  return { ok: true, msg: "Pedido enviado! Agora é só falar comigo no ⊙ aqui embaixo." };
+  return { ok: true, chave: chave,
+           msg: "Pedido enviado! Agora é só falar comigo no ⊙ aqui embaixo." };
+}
+
+/* =====================================================================
+   PAGAMENTO POR PIX — tela de compra, código copia-e-cola e acompanhamento
+   ---------------------------------------------------------------------
+   O jogo não fala com banco nenhum (para isso seria preciso contratar um
+   provedor de pagamento e guardar chaves secretas, o que um arquivo HTML
+   solto não pode fazer com segurança). O que dá para automatizar de
+   verdade, e está aqui, é TODO o resto:
+
+     1. o jogador toca no preço e cai numa tela com a chave Pix, o nome de
+        quem recebe e o valor certinho;
+     2. o jogo monta o código Pix "copia e cola" (o padrão do Banco
+        Central) já com o valor e um número de pedido — um toque copia;
+     3. ele aperta JÁ PAGUEI e o pedido muda de estado sozinho;
+     4. o painel recebe o pedido marcado como PAGO, com o nome da conta;
+     5. um toque em ENTREGAR manda o item pela caixa de presente, o
+        jogador recebe na hora e o pedido vira ENTREGUE sozinho.
+
+   Só a conferência do dinheiro na conta é olho humano.
+   ===================================================================== */
+const PAG_PADRAO = {
+  chave: "561.821.938-75",     // a chave Pix (CPF do dono)
+  tipo: "CPF",
+  nome: "Davi Prates",         // quem aparece como destinatário
+  cidade: "SAO PAULO"
+};
+let PAG = Object.assign({}, PAG_PADRAO);
+function pagAplicar(d) {
+  if (!d) return;
+  PAG = Object.assign({}, PAG_PADRAO, d);
+}
+/* ---- código Pix copia e cola (BR Code / EMV do Banco Central) ---- */
+function pixCampo(id, valor) {
+  const v = String(valor);
+  return id + String(v.length).padStart(2, "0") + v;
+}
+/* CRC-16/CCITT-FALSE, que é o que o padrão do Pix pede */
+function pixCRC(txt) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < txt.length; i++) {
+    crc ^= (txt.charCodeAt(i) & 0xFF) << 8;
+    for (let b = 0; b < 8; b++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+/* tira acento e o que o padrão não aceita */
+function pixTexto(t, max) {
+  let x = String(t || "");
+  try { x = x.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
+  return x.replace(/[^A-Za-z0-9 .-]/g, "").trim().slice(0, max).toUpperCase();
+}
+function pixCodigo(valor, txid) {
+  const chave = String(PAG.chave || "").replace(/[^0-9A-Za-z@.\-+]/g, "");
+  const conta = pixCampo("00", "br.gov.bcb.pix") + pixCampo("01", chave);
+  const id = pixTexto(txid || "NEON", 25).replace(/[^A-Z0-9]/g, "") || "NEON";
+  let p =
+    pixCampo("00", "01") +
+    pixCampo("26", conta) +
+    pixCampo("52", "0000") +
+    pixCampo("53", "986") +
+    pixCampo("54", Number(valor).toFixed(2)) +
+    pixCampo("58", "BR") +
+    pixCampo("59", pixTexto(PAG.nome, 25) || "RECEBEDOR") +
+    pixCampo("60", pixTexto(PAG.cidade, 15) || "BRASIL") +
+    pixCampo("62", pixCampo("05", id));
+  p += "6304";
+  return p + pixCRC(p);
+}
+
+/* ---------- estado da compra que está acontecendo agora ---------- */
+const COMPRA = { item: null, nome: "", preco: 0, extra: null, chave: null, estado: null, fluxo: null };
+
+function abrirPagamento(item, nome, preco, extra) {
+  COMPRA.item = item; COMPRA.nome = nome; COMPRA.preco = preco; COMPRA.extra = extra || null;
+  COMPRA.chave = null; COMPRA.estado = null;
+  S.mode = "pagar";
+  showScreen("pagar");
+  pagRender();
+}
+function pagFechar() {
+  if (COMPRA.fluxo) { try { COMPRA.fluxo(); } catch (e) {} COMPRA.fluxo = null; }
+  S.mode = "loja";
+  showScreen("loja");
+  renderLoja();
+}
+function pagRender() {
+  const cx = $("pagar-corpo");
+  if (!cx) return;
+  const codigo = pixCodigo(COMPRA.preco, "NEON" + (COMPRA.chave || "").replace(/[^0-9a-z]/gi, "").slice(-12));
+  $("pagar-item").textContent = COMPRA.nome || "";
+  $("pagar-valor").textContent = reais(COMPRA.preco || 0);
+
+  if (COMPRA.estado === "pago") {
+    cx.innerHTML =
+      '<div class="pag-espera">' +
+        '<div class="pag-relogio">⏳</div>' +
+        "<b>Esperando o desenvolvedor te responder</b>" +
+        "<span>Leva em torno de <b>30 minutos a 1 hora</b>. Assim que eu confirmar o " +
+        "pagamento, o item cai na sua conta sozinho — pode fechar o jogo, não perde nada.</span>" +
+        '<div class="pag-passos">' +
+          '<i class="ok">✓ pedido feito</i><i class="ok">✓ você avisou que pagou</i>' +
+          '<i class="agora">⏳ conferindo o pagamento</i><i>◻ entrega automática</i>' +
+        "</div>" +
+        '<div class="pag-tempo" id="pag-tempo"></div>' +
+      "</div>" +
+      '<button class="ghost-btn" id="pag-falar" style="width:100%;margin-top:12px">⊙ FALAR COM O DESENVOLVEDOR</button>';
+    const bf = $("pag-falar");
+    if (bf) bf.addEventListener("click", () => { pagFechar(); suporteAbrir(); });
+    pagTempo();
+    return;
+  }
+  if (COMPRA.estado === "entregue") {
+    cx.innerHTML =
+      '<div class="pag-espera pronto">' +
+        '<div class="pag-relogio">🎁</div>' +
+        "<b>Entregue!</b><span>" + escaparLongo(COMPRA.nome) +
+        " já está na sua conta. Obrigado!</span></div>";
+    return;
+  }
+
+  cx.innerHTML =
+    '<div class="pag-chave">' +
+      '<span class="pag-rot">CHAVE PIX (' + escaparTexto(PAG.tipo || "CPF") + ")</span>" +
+      '<b id="pag-chave-txt">' + escaparTexto(PAG.chave) + "</b>" +
+      '<button class="pag-copiar" id="pag-copiar-chave">COPIAR CHAVE</button>' +
+    "</div>" +
+    '<div class="pag-linha"><span>Nome do destinatário</span><b>' + escaparTexto(PAG.nome) + "</b></div>" +
+    '<div class="pag-linha"><span>Valor</span><b class="pag-preco">' + reais(COMPRA.preco) + "</b></div>" +
+    '<div class="pag-linha"><span>Item</span><b>' + escaparLongo(COMPRA.nome) + "</b></div>" +
+    '<div class="pag-copiacola">' +
+      '<span class="pag-rot">PIX COPIA E COLA — já vem com o valor</span>' +
+      '<textarea readonly id="pag-codigo" rows="3">' + escaparHtml(codigo) + "</textarea>" +
+      '<button class="adm-btn gold wide" id="pag-copiar-codigo">📋 COPIAR CÓDIGO PIX</button>' +
+    "</div>" +
+    '<p class="adm-note" style="margin-top:12px">Abra o app do banco, escolha <b>Pix copia e cola</b>, ' +
+    "cole o código e confirme. Depois volte aqui e toque em <b>JÁ PAGUEI</b>.</p>" +
+    '<button class="big-btn" id="pag-paguei" style="width:100%;margin-top:12px">JÁ PAGUEI</button>' +
+    '<button class="ghost-btn" id="pag-cancelar" style="width:100%;margin-top:9px">CANCELAR</button>';
+
+  const copiar = async (txt, btn, certo) => {
+    try { await navigator.clipboard.writeText(txt); btn.textContent = certo; AudioSys.buy(); }
+    catch (e) { btn.textContent = "Selecione e copie na mão"; }
+  };
+  $("pag-copiar-chave").addEventListener("click", ev =>
+    copiar(PAG.chave, ev.currentTarget, "✓ CHAVE COPIADA"));
+  $("pag-copiar-codigo").addEventListener("click", ev =>
+    copiar(codigo, ev.currentTarget, "✓ CÓDIGO COPIADO — cole no banco"));
+  $("pag-cancelar").addEventListener("click", pagFechar);
+  $("pag-paguei").addEventListener("click", async ev => {
+    const b = ev.currentTarget;
+    b.disabled = true; b.textContent = "AVISANDO…";
+    const r = await pagConfirmarPagamento();
+    b.disabled = false; b.textContent = "JÁ PAGUEI";
+    if (!r.ok) { lojaAviso(r.msg, false); AudioSys.deny(); return; }
+    AudioSys.buy(); vibrate([40, 60, 40]);
+    COMPRA.estado = "pago";
+    pagRender();
+    pagOuvirPedido();
+  });
+}
+function pagTempo() {
+  const el = $("pag-tempo");
+  if (!el || COMPRA.estado !== "pago") return;
+  const desde = COMPRA.quando || Date.now();
+  const min = Math.floor((Date.now() - desde) / 60000);
+  el.textContent = min < 1 ? "avisado agora mesmo"
+    : "avisado há " + (min < 60 ? min + " min" : Math.floor(min / 60) + "h" + (min % 60) + "min");
+  clearTimeout(pagTempo._t);
+  pagTempo._t = setTimeout(pagTempo, 20000);
+}
+/* manda o pedido e já marca que a pessoa avisou o pagamento */
+async function pagConfirmarPagamento() {
+  if (!COMPRA.chave) {
+    const r = await pedirNaLoja(COMPRA.item, COMPRA.nome, COMPRA.preco, COMPRA.extra);
+    if (!r.ok) return r;
+    COMPRA.chave = r.chave;
+  }
+  COMPRA.quando = Date.now();
+  await pedidoJuntar(COMPRA.chave, { estado: "pago", pagoEm: Date.now() });
+  await suporteEnviar("Paguei o Pix de " + COMPRA.nome + " — " + reais(COMPRA.preco) +
+                      ". Pode conferir?", true);
+  return { ok: true };
+}
+/* escreve num pedido, no galho certo ou no compatível */
+async function pedidoJuntar(chave, obj) {
+  const eu = meuIdNuvem();
+  let ok = NUVEM_COMPAT ? null : await nuvemJuntar("loja_pedidos/" + chave, obj);
+  if (ok === null) ok = await nuvemJuntar("pilotos/" + eu + "/_loja/" + chave, obj);
+  return ok;
+}
+/* fica de olho: quando o painel entregar, a tela muda sozinha */
+function pagOuvirPedido() {
+  if (COMPRA.fluxo) { try { COMPRA.fluxo(); } catch (e) {} }
+  const eu = meuIdNuvem();
+  const caminho = (NUVEM_COMPAT ? "pilotos/" + eu + "/_loja/" : "loja_pedidos/") + COMPRA.chave;
+  const olhar = async () => {
+    const d = await nuvemReq(caminho);
+    if (d && d.estado === "entregue" && COMPRA.estado !== "entregue") {
+      COMPRA.estado = "entregue";
+      AudioSys.power(); vibrate([60, 50, 120]);
+      pagRender();
+    }
+  };
+  COMPRA.fluxo = nuvemFluxo(caminho, olhar, () => {
+    const t = setInterval(olhar, 8000);
+    COMPRA.fluxo = () => clearInterval(t);
+  });
 }
 
 /* ---------- conversa do jogador com o administrador ---------- */
@@ -11966,9 +12455,9 @@ function renderLoja() {
   if (lojaAba !== "trocas") {
     const av = document.createElement("div");
     av.className = "loja-como";
-    av.innerHTML = "<b>Como comprar:</b> toque no preço para me mandar o pedido, " +
-      "depois fale comigo no botão <b>⊙</b> aqui do lado para combinar o pagamento. " +
-      "Assim que pagar, eu entrego na hora.";
+    av.innerHTML = "<b>Como comprar:</b> toque no preço e abre a tela do <b>Pix</b> " +
+      "com a chave, o nome de quem recebe e o código copia e cola. Pague no seu banco, " +
+      "volte e toque em <b>JÁ PAGUEI</b> — a entrega chega sozinha na sua conta.";
     cx.appendChild(av);
   }
   if (lojaAba === "vip") return lojaVip(cx);
@@ -11983,15 +12472,11 @@ function botaoPedir(item, nome, preco, extra, classe) {
   const b = document.createElement("button");
   b.className = classe || "buy-btn";
   b.innerHTML = '<span class="bp-preco">' + reais(preco) + "</span>";
-  b.addEventListener("click", async () => {
-    b.disabled = true;
-    b.textContent = "ENVIANDO…";
-    const r = await pedirNaLoja(item, nome, preco, extra);
-    AudioSys[r.ok ? "buy" : "deny"]();
-    b.textContent = r.ok ? "PEDIDO ENVIADO ✓" : "TENTE DE NOVO";
-    lojaAviso(r.msg, r.ok);
-    if (r.ok) vibrate(30);
-    setTimeout(() => { b.disabled = false; renderLoja(); }, 2400);
+  /* agora o preço abre a TELA DE PAGAMENTO: chave Pix, nome de quem
+     recebe, valor e o código copia e cola já prontos */
+  b.addEventListener("click", () => {
+    AudioSys.resume(); AudioSys.buy(); vibrate(20);
+    abrirPagamento(item, nome, preco, extra);
   });
   return b;
 }
@@ -12111,9 +12596,11 @@ function lojaNaves(cx) {
 function lojaMeusPedidos(cx) {
   const nota = document.createElement("p");
   nota.className = "loja-nota";
-  nota.textContent = "Tudo que você já pediu. Depois de combinar o pagamento comigo, eu entrego na hora.";
+  nota.textContent = "Tudo que você já pediu, com o andamento de cada um.";
   cx.appendChild(nota);
   const meus = (save.pedidos || []).slice().reverse();
+  // busca o estado de cada pedido na nuvem, para o cartão ficar certo
+  lojaEstadosDosPedidos(meus);
   if (!meus.length) {
     cx.innerHTML += '<div class="vazio"><b>🧾</b><strong>NENHUM PEDIDO AINDA</strong>' +
       "<span>Escolha o que quiser nas outras abas e toque no preço.</span></div>";
@@ -12122,13 +12609,22 @@ function lojaMeusPedidos(cx) {
   const lista = document.createElement("div");
   lista.className = "loja-lista";
   for (const pd of meus) {
+    const est = pd.estado || "esperando";
     const c = document.createElement("div");
-    c.className = "loja-card";
+    c.className = "loja-card pedido-" + est;
+    c.dataset.chave = pd.chave || "";
+    const explica =
+      est === "entregue" ? "entregue — já está na sua conta"
+      : est === "recusado" ? "cancelado"
+      : est === "pago" ? "Esperando o desenvolvedor te responder — leva em torno de 30 min a 1h"
+      : "esperando o pagamento";
     c.innerHTML =
-      '<div class="loja-ic">🧾</div><div class="loja-info">' +
+      '<div class="loja-ic">' + (est === "entregue" ? "🎁" : est === "pago" ? "⏳" : "🧾") + "</div>" +
+      '<div class="loja-info">' +
       '<div class="loja-nome">' + escaparTexto(pd.itemNome) + "</div>" +
-      '<div class="loja-desc">' + reais(pd.preco) + " · pedido " + quandoTexto(pd.quando) + " atrás</div></div>" +
-      '<span class="pedido-estado">esperando</span>';
+      '<div class="loja-desc">' + reais(pd.preco) + " · " + quandoTexto(pd.quando) + " atrás</div>" +
+      '<div class="pedido-linha">' + explica + "</div></div>" +
+      '<span class="pedido-estado ' + est + '">' + est + "</span>";
     lista.appendChild(c);
   }
   cx.appendChild(lista);
@@ -12138,6 +12634,26 @@ function lojaMeusPedidos(cx) {
   b.textContent = "⊙ FALAR COM O ADMINISTRADOR";
   b.addEventListener("click", suporteAbrir);
   cx.appendChild(b);
+}
+
+/* pergunta à nuvem como está cada pedido e redesenha quando muda */
+let lojaEstadosLendo = false;
+async function lojaEstadosDosPedidos(meus) {
+  if (lojaEstadosLendo || !nuvemAtiva() || !meus.length) return;
+  lojaEstadosLendo = true;
+  try {
+    const eu = meuIdNuvem();
+    const novos = NUVEM_COMPAT
+      ? (await nuvemReq("pilotos/" + eu + "/_loja")) || {}
+      : (await nuvemReq("loja_pedidos")) || {};
+    let mudou = false;
+    for (const pd of (save.pedidos || [])) {
+      const d = novos[pd.chave];
+      if (d && d.estado && d.estado !== pd.estado) { pd.estado = d.estado; mudou = true; }
+    }
+    if (mudou) { persist(); if (S.mode === "loja" && lojaAba === "pedidos") renderLoja(); }
+  } catch (e) {}
+  lojaEstadosLendo = false;
 }
 
 function lojaTrocas(cx) {
@@ -14746,6 +15262,7 @@ $("btn-ranked").addEventListener("click", () => {
 });
 $("rk-procurar").addEventListener("click", rkProcurar);
 $("rk-cancelar").addEventListener("click", () => { rkPararBusca(true); AudioSys.deny(); });
+$("pagar-voltar").addEventListener("click", () => { AudioSys.resume(); pagFechar(); });
 $("jor-voltar").addEventListener("click", () => { AudioSys.resume(); abrirMulti("jornada"); });
 $("jor-jogar").addEventListener("click", () => { AudioSys.resume(); jornadaJogar(); });
 for (const b of document.querySelectorAll("#jor-abas .aba")) {
@@ -21117,6 +21634,16 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "5.9", itens: [
+      "COMPRAR AGORA É PELO PIX: ao clicar em COMPRAR abre uma tela com a chave Pix (CPF), o nome do destinatário, o valor e o código copia-e-cola já pronto com o valor certo",
+      "Botões de copiar a chave e copiar o código, para não errar digitando",
+      "Depois de pagar é só tocar em JÁ PAGUEI: aparece \"Esperando o desenvolvedor te responder — leva em torno de 30 minutos a 1 hora\", e o pedido some da espera sozinho assim que for entregue (na hora, sem recarregar)",
+      "ENVIAR PASS: aba nova no painel (LOJA) para procurar qualquer conta pelo nome e mandar VIP, passe, nave ou cristais na hora, sem depender de pedido",
+      "Na aba PEDIDOS quem já pagou fica em cima, com o selo JÁ PAGOU e o nome da conta que comprou — um toque em ENTREGAR já solta o item e avisa o jogador",
+      "DADOS DO PIX no painel: dá para trocar a chave, o tipo, o nome e a cidade do destinatário sem mexer no jogo — vale para todo mundo na hora",
+      "MEUS PEDIDOS mostra em que pé está cada compra: esperando o pagamento, pago (aguardando entrega) ou entregue",
+      "Aviso honesto: o jogo não consegue conferir o Pix sozinho (isso exige um servidor de pagamento). Tudo o que dá para automatizar está automatizado — o pedido, o aviso, a fila e a entrega em um toque; só a confirmação do dinheiro passa por mim"
+    ] },
   { v: "5.8", itens: [
       "INTERFACE NOVA EM TUDO: vidro escuro sobre uma aurora que respira, um acento só (ciano → violeta) no jogo inteiro e o dourado guardado para o que vale dinheiro. Nada mudou no jogo — só a aparência",
       "Menu refeito: cada atalho virou uma linha com bolha de ícone, título e legenda; os números do piloto viraram uma faixa única; o nome do jogo ganhou degradê",
@@ -21390,7 +21917,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.8";
+const VERSAO = "5.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
