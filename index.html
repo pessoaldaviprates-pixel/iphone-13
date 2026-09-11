@@ -3528,6 +3528,140 @@
       50%{text-shadow:0 0 12px rgba(77,232,255,1),0 0 48px rgba(77,232,255,.6),0 0 110px rgba(255,77,143,.5)}
     }
   }
+  /* ---------- v6.0: ajustes, presente do dia, missões e combo ---------- */
+  #fps-conta{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(4px + var(--safe-top));z-index:30;pointer-events:none;
+    font-size:.58rem;letter-spacing:.1em;color:var(--verde);
+    background:rgba(4,8,20,.6);border-radius:8px;padding:2px 8px;
+  }
+  #fps-conta.meio{color:var(--amber)}
+  #fps-conta.ruim{color:var(--danger)}
+  #combo-hud{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(96px + var(--safe-top));z-index:8;pointer-events:none;
+    font-family:"Russo One",sans-serif;font-size:1.05rem;letter-spacing:.06em;
+    color:var(--amber);text-shadow:0 0 14px rgba(255,193,69,.6);
+    opacity:0;transition:opacity .18s ease,transform .18s ease;
+  }
+  #combo-hud.on{opacity:1}
+  #combo-hud.quente{color:#FF7A4D;text-shadow:0 0 20px rgba(255,122,77,.75);transform:translateX(-50%) scale(1.12)}
+  body.menos-luz #combo-hud{text-shadow:none}
+
+  /* chaves e barrinhas dos ajustes */
+  .aj-grupo{margin-bottom:12px}
+  .aj-titulo{
+    font-size:.6rem;letter-spacing:.22em;color:var(--dim);margin-bottom:10px;
+  }
+  .aj-linha{margin-bottom:14px}
+  .aj-rot{display:flex;justify-content:space-between;align-items:baseline;font-size:.72rem;margin-bottom:7px}
+  .aj-rot b{color:var(--cyan);font-variant-numeric:tabular-nums;font-size:.8rem}
+  .aj-range{
+    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));outline:none;
+  }
+  .aj-range::-webkit-slider-thumb{
+    -webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+    background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;
+  }
+  .aj-range::-moz-range-thumb{
+    width:24px;height:24px;border:none;border-radius:50%;background:#fff;cursor:pointer;
+  }
+  .aj-chave{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:11px 13px;margin-bottom:8px;border-radius:var(--r-md);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.74rem;text-align:left;
+  }
+  .aj-chave span{display:block}
+  .aj-chave i{display:block;font-style:normal;font-size:.58rem;color:var(--fraco);margin-top:3px}
+  .aj-bolha{
+    flex:none;width:44px;height:25px;border-radius:99px;position:relative;
+    background:rgba(255,255,255,.1);border:1px solid var(--line);transition:background .16s ease;
+  }
+  .aj-bolha::after{
+    content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;
+    background:var(--ink2);transition:transform .16s ease,background .16s ease;
+  }
+  .aj-chave.on{border-color:rgba(94,230,255,.45);background:rgba(94,230,255,.09)}
+  .aj-chave.on .aj-bolha{background:rgba(94,230,255,.3)}
+  .aj-chave.on .aj-bolha::after{transform:translateX(19px);background:var(--cyan)}
+  /* canhoto: o que fica na direita vai para a esquerda */
+  body.canhoto #ult-btn{right:auto;left:14px}
+  body.canhoto #cloak-btn{left:auto;right:14px}
+
+  /* presente do dia */
+  .diaria{
+    width:min(92vw,360px);padding:13px;border-radius:var(--r-lg);
+    background:linear-gradient(150deg,rgba(255,200,97,.16),rgba(255,255,255,.02));
+    border:1px solid rgba(255,200,97,.4);box-shadow:var(--som-1),var(--luz);
+    display:flex;flex-direction:column;gap:9px;
+  }
+  .diaria.pego{
+    background:linear-gradient(150deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    border-color:var(--line);
+  }
+  .diaria-txt b{display:block;font-size:.74rem;letter-spacing:.1em;color:var(--amber)}
+  .diaria.pego .diaria-txt b{color:var(--ink2)}
+  .diaria-txt span{display:block;font-size:.62rem;color:var(--dim);margin-top:3px}
+  .diaria-bolhas{display:flex;gap:5px}
+  .diaria-bolhas i{
+    flex:1;font-style:normal;text-align:center;font-size:.56rem;padding:4px 0;
+    border-radius:7px;background:rgba(255,255,255,.05);color:var(--fraco);
+    border:1px solid var(--line);
+  }
+  .diaria-bolhas i.ok{background:rgba(99,245,181,.16);color:var(--verde);border-color:rgba(99,245,181,.4)}
+  .diaria-bolhas i.agora{background:rgba(255,200,97,.2);color:var(--amber);border-color:rgba(255,200,97,.5)}
+  .diaria-ok{font-size:.64rem;color:var(--verde);text-align:center}
+  .diaria .big-btn{padding:11px;font-size:.8rem}
+
+  /* resumo das missões no menu */
+  .mis-resumo{
+    width:min(92vw,360px);padding:11px 13px;border-radius:var(--r-lg);cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .mis-resumo.tem{border-color:rgba(99,245,181,.45);background:rgba(99,245,181,.09)}
+  .mis-resumo b{font-size:.66rem;letter-spacing:.1em;color:var(--ink)}
+  .mis-resumo span{font-size:.6rem;color:var(--dim);text-align:right}
+  .mis-resumo.tem span{color:var(--verde)}
+
+  /* lista das missões */
+  .mis-linha{
+    padding:13px;border-radius:var(--r-lg);margin-bottom:10px;
+    background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid var(--line);
+  }
+  .mis-linha.pronto{border-color:rgba(99,245,181,.5);background:linear-gradient(150deg,rgba(99,245,181,.12),rgba(255,255,255,.02))}
+  .mis-linha.pego{opacity:.55}
+  .mis-topo{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .mis-topo b{font-size:.74rem;letter-spacing:.02em}
+  .mis-topo em{font-style:normal;font-size:.68rem;white-space:nowrap}
+  .mis-barra{height:7px;border-radius:99px;background:rgba(255,255,255,.08);margin:10px 0 7px;overflow:hidden}
+  .mis-barra i{
+    display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .3s ease;
+  }
+  .mis-linha.pronto .mis-barra i{background:linear-gradient(90deg,var(--verde),var(--cyan))}
+  .mis-pe{display:flex;justify-content:space-between;align-items:center;font-size:.6rem;color:var(--dim)}
+  .mis-pe em{font-style:normal}
+  .mis-btn{
+    padding:8px 14px;border-radius:99px;border:1px solid rgba(99,245,181,.5);
+    background:rgba(99,245,181,.16);color:var(--verde);
+    font-family:"Chakra Petch",sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;
+  }
+  .fase-est{letter-spacing:-1px;font-size:.52rem;color:var(--amber)}
+  .fase-est em{font-style:normal;color:rgba(255,255,255,.22)}
+  /* estrelas da fase */
+  .fase-estrelas{display:flex;gap:2px;justify-content:center;margin-top:3px}
+  .fase-estrelas i{font-style:normal;font-size:.6rem;color:var(--fraco)}
+  .fase-estrelas i.on{color:var(--amber);text-shadow:0 0 8px rgba(255,193,69,.6)}
+  #vic-estrelas{
+    display:flex;gap:8px;justify-content:center;margin:10px 0;font-size:1.6rem;
+  }
+  #vic-estrelas i{font-style:normal;color:rgba(255,255,255,.16);transition:color .3s ease,transform .3s ease}
+  #vic-estrelas i.on{color:var(--amber);text-shadow:0 0 18px rgba(255,193,69,.7);transform:scale(1.12)}
+
 </style>
 </head>
 <body>
@@ -3552,6 +3686,8 @@
     <button class="hud-btn" id="btn-mute" aria-label="Som ligado/desligado">♪</button>
     <button class="hud-btn" id="btn-pause" aria-label="Pausar">❚❚</button>
   </div>
+  <div id="fps-conta" style="display:none">60 fps</div>
+  <div id="combo-hud"></div>
   <button id="ult-btn">ULT</button>
   <button id="cloak-btn">CAPA</button>
   <!-- vida: fica embaixo, perto da nave, onde o olho já está -->
@@ -4301,7 +4437,11 @@
 
     <div id="nuvem-status" style="display:none"></div>
     <div id="presente-aviso"></div>
+    <div id="diaria-cartao" style="display:none"></div>
+    <div id="missoes-resumo" style="display:none"></div>
     <div class="menu-chips">
+      <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
+      <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
       <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     </div>
@@ -4814,6 +4954,25 @@
   </div>
 </div>
 
+<!-- AJUSTES -->
+<div class="page" id="screen-ajustes">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">AJUSTES</div>
+  </div>
+  <div class="scroll"><div id="aj-corpo"></div></div>
+</div>
+
+<!-- MISSÕES DO DIA -->
+<div class="page" id="screen-missoes">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">MISSÕES</div>
+    <div class="page-gems gem" id="mis-gems">0</div>
+  </div>
+  <div class="scroll"><div id="mis-corpo"></div></div>
+</div>
+
 <!-- NOVIDADES -->
 <div class="page" id="screen-novidades">
   <div class="page-head">
@@ -4869,6 +5028,8 @@
     <div class="tagline">Setor limpo</div>
     <div class="fim-ic vitoria">★</div>
     <h1 class="fim-titulo cyan" id="vic-title">FASE CONCLUÍDA</h1>
+    <div id="vic-estrelas"></div>
+    <div id="vic-estrelas-nota" class="adm-note" style="text-align:center;margin:-4px 0 8px"></div>
     <div class="fim-premios">
       <div class="fim-premio gem" id="vic-gems">+0 cristais</div>
       <div class="fim-premio extra" id="vic-skill">✦ +1 PONTO DE HABILIDADE</div>
@@ -5158,6 +5319,7 @@ function storageSet(key, value) {
   try { localStorage.setItem(key, value); } catch (e) {}
 }
 function vibrate(ms) {
+  try { if (typeof AJ !== "undefined" && AJ && AJ.vibrar === false) return; } catch (e) {}
   try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
 }
 function fmt(n) { try { return n.toLocaleString("pt-BR"); } catch (e) { return String(n); } }
@@ -5209,6 +5371,9 @@ function defaultSave() {
     controle: "auto",        // auto | pc | toque
     amigos: [],              // apelidos dos amigos
     habNv: {},               // nível das habilidades: "nave:habilidade" -> nível
+    estrelas: {},            // fase -> quantas estrelas (1 passou, 2 sem dano, 3 rápido)
+    diaria: { dia: "", seq: 0 },   // presente do dia e a sequência de dias
+    missoes: { dia: "", itens: [] },  // as três missões do dia
     jornadas: {}             // campanha em dupla: "nick|nick" -> {fase, up, ...}
   };
 }
@@ -5221,6 +5386,9 @@ function mergeSave(parsed) {
   s.ships = (parsed && Array.isArray(parsed.ships) && parsed.ships.length) ? parsed.ships : [0];
   s.parts = (parsed && parsed.parts) || {};
   s.habNv = (parsed && parsed.habNv) || {};
+  s.estrelas = (parsed && parsed.estrelas) || {};
+  s.diaria = (parsed && parsed.diaria) || { dia: "", seq: 0 };
+  s.missoes = (parsed && parsed.missoes) || { dia: "", itens: [] };
   s.jornadas = (parsed && parsed.jornadas) || {};
   s.custom = (parsed && parsed.custom) || {};
   s.paints = (parsed && parsed.paints) || {};
@@ -7485,7 +7653,7 @@ const AudioSys = {
     try {
       this.ctx = new AC();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.5;
+      this.master.gain.value = this.muted ? 0 : 0.5 * ajVol("volEfe");
       this.master.connect(this.ctx.destination);
     } catch (e) { this.ctx = null; }
   },
@@ -7496,7 +7664,7 @@ const AudioSys = {
   setMuted(m) {
     this.muted = m;
     storageSet("nn_muted", m ? "1" : "0");
-    if (this.master) this.master.gain.value = m ? 0 : 0.5;
+    if (this.master) this.master.gain.value = m ? 0 : 0.5 * ajVol("volEfe");
   },
   tone(freq, dur, type, vol, slideTo) {
     if (!this.ctx || this.muted) return;
@@ -7587,7 +7755,7 @@ const Musica = {
     if (!AudioSys.ctx || this.ganho) return;
     try {
       this.ganho = AudioSys.ctx.createGain();
-      this.ganho.gain.value = 0.16;
+      this.ganho.gain.value = 0.16 * ajVol("volMus");
       this.ganho.connect(AudioSys.master);
     } catch (e) { this.ganho = null; }
   },
@@ -7816,6 +7984,7 @@ const SCREENS = {
   multi: $("screen-multi"), sala: $("screen-sala"), jornada: $("screen-jornada"),
   pagar: $("screen-pagar"),
   novidades: $("screen-novidades"),
+  ajustes: $("screen-ajustes"), missoes: $("screen-missoes"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
@@ -7906,6 +8075,7 @@ function checarPresentesPeriodicamente() {
 setInterval(checarPresentesPeriodicamente, 6000);
 
 function refreshMenu() {
+  try { diariaRender(); misBadge(); } catch (e) {}
   const h = $("menu-hello");
   h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
   document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
@@ -12917,7 +13087,8 @@ function renderLevels() {
   resumo.innerHTML =
     '<div class="fase-res-cx ouro"><b>' + proxima + '</b><span>PRÓXIMA</span></div>' +
     '<div class="fase-res-cx"><b>' + Math.round(feitas / TOTAL_FASES * 100) + '%</b><span>COMPLETO</span></div>' +
-    '<div class="fase-res-cx rosa"><b>' + chefesFeitos + '/' + chefesTotal + '</b><span>CHEFES</span></div>';
+    '<div class="fase-res-cx rosa"><b>' + chefesFeitos + '/' + chefesTotal + '</b><span>CHEFES</span></div>' +
+    '<div class="fase-res-cx ouro"><b>' + estrelasTotal() + '</b><span>ESTRELAS</span></div>';
   grid.appendChild(resumo);
 
   const nota = document.createElement("div");
@@ -12955,7 +13126,10 @@ function renderLevels() {
       if (isBossFase(f)) b.classList.add("boss");
       if (f <= save.best) {
         b.classList.add("done");
-        b.innerHTML = f + "<small>★</small>";
+        /* mostra as estrelas conquistadas na fase, não um ★ fixo */
+        const est = (save.estrelas && save.estrelas[f]) || 1;
+        b.innerHTML = f + '<small class="fase-est">' +
+          "★★★".slice(0, est) + '<em>' + "★★★".slice(est) + "</em></small>";
       } else if (f === save.best + 1) {
         b.classList.add("next");
         b.innerHTML = f + "<small>" + (isBossFase(f) ? "CHEFE" : "AQUI") + "</small>";
@@ -16318,7 +16492,7 @@ canvas.addEventListener("pointermove", e => {
   }
   if (!dragging || e.pointerId !== dragId) return;
   e.preventDefault();
-  const k = ST.speedK * mundoSinalControle();
+  const k = ST.speedK * mundoSinalControle() * ajVol("sens");
   player.tx = clamp(shipStartX + pxX(e.clientX - dragStartX) * k, player.r, W - player.r);
   player.ty = clamp(shipStartY + pxY(e.clientY - dragStartY) * k, player.r, limiteBaixo());
 });
@@ -16518,6 +16692,468 @@ function escaparHtml(t) {
 }
 function escaparTexto(t) { return escaparHtml(t).slice(0, 40); }
 function escaparLongo(t) { return escaparHtml(String(t == null ? "" : t).slice(0, 500)); }
+/* =====================================================================
+   v6.0 — AJUSTES, PRESENTE DO DIA, MISSÕES, COMBO E ESTRELAS
+   Tudo o que está aqui é do jogador: nada depende da nuvem para
+   funcionar (a nuvem só recebe o save depois, como sempre).
+   ===================================================================== */
+
+/* ---------------------- ajustes do jogador ---------------------- */
+const AJ_PADRAO = {
+  volMus: 60,        // volume da música, 0 a 100
+  volEfe: 70,        // volume dos efeitos
+  vibrar: true,      // vibração do celular
+  sens: 100,         // sensibilidade do arrasto, 50 a 200
+  fps: false,        // mostrar os quadros por segundo
+  daltonico: false,  // cor alternativa nos tiros inimigos
+  menosLuz: false,   // menos flashes e brilhos
+  canhoto: false     // botões grandes do lado esquerdo
+};
+let AJ = Object.assign({}, AJ_PADRAO);
+/* devolve o multiplicador (0 a 2) de um ajuste numérico */
+function ajVol(qual) {
+  try {
+    const v = AJ && AJ[qual];
+    if (typeof v !== "number") return 1;
+    return Math.max(0, Math.min(200, v)) / 100;
+  } catch (e) { return 1; }
+}
+function ajCarregar() {
+  try {
+    const t = storageGet("nn_ajustes", "");
+    if (t) AJ = Object.assign({}, AJ_PADRAO, JSON.parse(t));
+  } catch (e) { AJ = Object.assign({}, AJ_PADRAO); }
+}
+function ajSalvar() {
+  try { storageSet("nn_ajustes", JSON.stringify(AJ)); } catch (e) {}
+}
+function ajAplicar() {
+  try {
+    if (AudioSys.master) AudioSys.master.gain.value = AudioSys.muted ? 0 : 0.5 * ajVol("volEfe");
+  } catch (e) {}
+  try { if (Musica.ganho) Musica.ganho.gain.value = 0.16 * ajVol("volMus"); } catch (e) {}
+  document.body.classList.toggle("daltonico", !!AJ.daltonico);
+  document.body.classList.toggle("menos-luz", !!AJ.menosLuz);
+  document.body.classList.toggle("canhoto", !!AJ.canhoto);
+  const f = $("fps-conta");
+  if (f) f.style.display = AJ.fps ? "block" : "none";
+}
+/* cor dos tiros do inimigo: no modo daltônico eles ficam âmbar/branco,
+   que não se confunde com o azul dos seus tiros nem com o roxo do fundo */
+function corTiroInimigo(b) {
+  if (AJ && AJ.daltonico) return b.homing ? "#FFE14D" : "#FFFFFF";
+  return b.homing ? "#FF5252" : "#FF87B3";
+}
+
+/* uma linha de ajuste com barrinha */
+function ajBarra(id, rot, val, min, max, sufixo) {
+  return '<div class="aj-linha">' +
+    '<div class="aj-rot"><span>' + rot + "</span><b id=\"" + id + "-v\">" +
+      val + (sufixo || "") + "</b></div>" +
+    '<input type="range" class="aj-range" id="' + id + '" min="' + min +
+      '" max="' + max + '" value="' + val + '">' +
+  "</div>";
+}
+/* uma linha de ajuste com chavinha liga/desliga */
+function ajChave(id, rot, ligado, nota) {
+  return '<button class="aj-chave' + (ligado ? " on" : "") + '" id="' + id + '">' +
+    "<span>" + rot + (nota ? '<i>' + nota + "</i>" : "") + "</span>" +
+    '<em class="aj-bolha"></em></button>';
+}
+function ajRender() {
+  const cx = $("aj-corpo");
+  if (!cx) return;
+  cx.innerHTML =
+    '<div class="card aj-grupo"><div class="aj-titulo">🔊 SOM</div>' +
+      ajBarra("aj-mus", "Música", AJ.volMus, 0, 100, "%") +
+      ajBarra("aj-efe", "Efeitos (tiros, explosões)", AJ.volEfe, 0, 100, "%") +
+    "</div>" +
+    '<div class="card aj-grupo"><div class="aj-titulo">🎮 CONTROLE</div>' +
+      ajBarra("aj-sens", "Sensibilidade do dedo", AJ.sens, 50, 200, "%") +
+      ajChave("aj-vibrar", "Vibração", AJ.vibrar, "no acerto e no chefe") +
+      ajChave("aj-canhoto", "Modo canhoto", AJ.canhoto, "botões grandes à esquerda") +
+    "</div>" +
+    '<div class="card aj-grupo"><div class="aj-titulo">👁 VER MELHOR</div>' +
+      ajChave("aj-dalt", "Modo daltônico", AJ.daltonico, "tiro inimigo em âmbar e branco") +
+      ajChave("aj-luz", "Menos flashes", AJ.menosLuz, "para quem se incomoda com luz piscando") +
+      ajChave("aj-fps", "Mostrar quadros por segundo", AJ.fps, "para saber se o celular aguenta") +
+    "</div>" +
+    '<div class="card aj-grupo"><div class="aj-titulo">📱 DESEMPENHO</div>' +
+      '<p class="adm-note">A qualidade do gráfico continua no botão da tela de fases ' +
+      "(automático, leve ou bonito). Se o jogo travar, ligue os quadros por segundo aqui " +
+      "em cima e veja quanto dá durante a partida.</p>" +
+    "</div>" +
+    '<button class="ghost-btn" id="aj-padrao" style="width:100%;margin-top:6px">VOLTAR AO PADRÃO</button>';
+
+  const barra = (id, campo, sufixo) => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener("input", () => {
+      AJ[campo] = parseInt(el.value, 10);
+      const v = $(id + "-v");
+      if (v) v.textContent = AJ[campo] + (sufixo || "");
+      ajAplicar();
+    });
+    el.addEventListener("change", () => { ajSalvar(); AudioSys.gem(); });
+  };
+  barra("aj-mus", "volMus", "%");
+  barra("aj-efe", "volEfe", "%");
+  barra("aj-sens", "sens", "%");
+
+  const chave = (id, campo) => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener("click", () => {
+      AJ[campo] = !AJ[campo];
+      ajSalvar(); ajAplicar(); ajRender();
+      AudioSys.gem(); vibrate(20);
+    });
+  };
+  chave("aj-vibrar", "vibrar");
+  chave("aj-canhoto", "canhoto");
+  chave("aj-dalt", "daltonico");
+  chave("aj-luz", "menosLuz");
+  chave("aj-fps", "fps");
+
+  $("aj-padrao").addEventListener("click", () => {
+    AJ = Object.assign({}, AJ_PADRAO);
+    ajSalvar(); ajAplicar(); ajRender();
+    AudioSys.buy();
+  });
+}
+function ajAbrir() {
+  S.mode = "ajustes";
+  showScreen("ajustes");
+  ajRender();
+}
+
+/* ---------------------- contador de quadros ---------------------- */
+let fpsQuadros = 0, fpsMarca = 0;
+function fpsContar() {
+  if (!AJ.fps) return;
+  fpsQuadros++;
+  const agora = Date.now();
+  if (!fpsMarca) fpsMarca = agora;
+  if (agora - fpsMarca >= 500) {
+    const v = Math.round(fpsQuadros * 1000 / (agora - fpsMarca));
+    const el = $("fps-conta");
+    if (el) {
+      el.textContent = v + " fps";
+      el.className = v >= 50 ? "bom" : v >= 30 ? "meio" : "ruim";
+    }
+    fpsQuadros = 0; fpsMarca = agora;
+  }
+}
+
+/* ---------------------- combo de abates ---------------------- */
+function comboMais() {
+  S.combo = (S.combo || 0) + 1;
+  S.comboT = 2.6;
+  if (S.combo > (S.comboMax || 0)) S.comboMax = S.combo;
+  if (S.combo === 10 || S.combo === 25 || S.combo === 50 || S.combo === 100) {
+    AudioSys.power();
+    addText(player.x, player.y - 44, "COMBO x" + S.combo + "!", "#FFC145");
+    vibrate(25);
+  }
+  comboMostrar();
+}
+function comboZera() {
+  if ((S.combo || 0) >= 10) addText(player.x, player.y - 30, "combo perdido", "#FF87B3");
+  S.combo = 0; S.comboT = 0;
+  comboMostrar();
+}
+/* de 1.00 até 2.00: cada abate seguido vale 2% a mais, até 50 */
+function comboMult() {
+  return 1 + Math.min(S.combo || 0, 50) * 0.02;
+}
+function comboPassar(dt) {
+  if (!S.comboT) return;
+  S.comboT -= dt;
+  if (S.comboT <= 0) { S.combo = 0; S.comboT = 0; comboMostrar(); }
+}
+function comboMostrar() {
+  const el = $("combo-hud");
+  if (!el) return;
+  const c = S.combo || 0;
+  if (c < 3) { el.className = ""; el.textContent = ""; return; }
+  el.textContent = "x" + c + "  ·  " + Math.round(comboMult() * 100) + "%";
+  el.className = "on" + (c >= 25 ? " quente" : "");
+}
+
+/* ---------------------- estrelas de cada fase ----------------------
+   1ª estrela: passou. 2ª: passou sem levar dano. 3ª: passou rápido
+   (abaixo do tempo alvo, que cresce com a fase).                     */
+function tempoAlvo(fase) { return 55 + Math.floor(fase / 10) * 5; }
+function estrelasDaFase(fase, dur, semDano) {
+  let e = 1;
+  if (semDano) e++;
+  if (dur > 0 && dur <= tempoAlvo(fase)) e++;
+  save.estrelas = save.estrelas || {};
+  const antes = save.estrelas[fase] || 0;
+  if (e > antes) {
+    save.estrelas[fase] = e;
+    const ganhou = e - antes;
+    save.crystals += ganhou * 40;
+    S.estrelasAgora = { fase: fase, estrelas: e, novas: ganhou };
+  } else {
+    S.estrelasAgora = { fase: fase, estrelas: antes, novas: 0 };
+  }
+  return e;
+}
+/* mostra as estrelas na tela de vitória, uma aparecendo depois da outra */
+function vitoriaEstrelas() {
+  const cx = $("vic-estrelas");
+  const nota = $("vic-estrelas-nota");
+  if (!cx) return;
+  const info = S.estrelasAgora || { estrelas: 1, novas: 0, fase: S.fase };
+  cx.innerHTML = "<i>★</i><i>★</i><i>★</i>";
+  const its = cx.querySelectorAll("i");
+  for (let i = 0; i < 3; i++) {
+    if (i < info.estrelas) {
+      setTimeout(() => {
+        its[i].className = "on";
+        try { AudioSys.gem(); } catch (e) {}
+      }, 260 + i * 260);
+    }
+  }
+  if (nota) {
+    const alvo = tempoAlvo(info.fase || S.fase);
+    nota.innerHTML = info.novas
+      ? "<b>+" + (info.novas * 40) + " cristais</b> pelas estrelas novas"
+      : info.estrelas >= 3
+        ? "As três estrelas desta fase são suas"
+        : "Sem levar dano = 2ª estrela · em menos de " + alvo + "s = 3ª";
+  }
+  if (info.novas) misProgresso("estrela", info.novas);
+}
+function estrelasTotal() {
+  let n = 0;
+  const m = save.estrelas || {};
+  for (const k in m) n += m[k] || 0;
+  return n;
+}
+
+/* ---------------------- presente do dia ---------------------- */
+function hojeTxt() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+         "-" + String(d.getDate()).padStart(2, "0");
+}
+function ontemTxt() {
+  const d = new Date(Date.now() - 86400000);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+         "-" + String(d.getDate()).padStart(2, "0");
+}
+const DIARIA_PREMIOS = [
+  { cristais: 120,  texto: "120 cristais" },
+  { cristais: 200,  texto: "200 cristais" },
+  { cristais: 320,  texto: "320 cristais" },
+  { cristais: 500,  texto: "500 cristais" },
+  { cristais: 700,  texto: "700 cristais" },
+  { cristais: 1000, texto: "1.000 cristais" },
+  { cristais: 1800, amuleto: true, texto: "1.800 cristais + um amuleto" }
+];
+function diariaEstado() {
+  save.diaria = save.diaria || { dia: "", seq: 0 };
+  return save.diaria;
+}
+function diariaPodePegar() { return diariaEstado().dia !== hojeTxt(); }
+function diariaDiaAtual() {
+  const d = diariaEstado();
+  /* se faltou ontem, a sequência recomeça */
+  const seguiu = d.dia === ontemTxt();
+  return seguiu ? Math.min(d.seq, 6) : 0;
+}
+function diariaPegar() {
+  if (!diariaPodePegar()) return null;
+  const d = diariaEstado();
+  const i = diariaDiaAtual();
+  const p = DIARIA_PREMIOS[i];
+  save.crystals += p.cristais;
+  let extra = "";
+  if (p.amuleto) {
+    try {
+      const a = rollAmulet();
+      extra = " e um " + amuletDef(a).name;
+    } catch (e) {}
+  }
+  d.dia = hojeTxt();
+  d.seq = (d.dia === hojeTxt() && i + 1 <= 7) ? i + 1 : 1;
+  if (d.seq > 7) d.seq = 0;
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  AudioSys.buy(); vibrate([30, 40, 60]);
+  diariaRender();
+  refreshMenu();
+  return p.texto + extra;
+}
+function diariaRender() {
+  const cx = $("diaria-cartao");
+  if (!cx) return;
+  if (!diariaPodePegar()) {
+    const i = Math.min(diariaEstado().seq, 7);
+    cx.style.display = "block";
+    cx.className = "diaria pego";
+    cx.innerHTML = '<div class="diaria-txt"><b>Presente de hoje pego ✓</b>' +
+      "<span>Volte amanhã: dia " + Math.min(i + 1, 7) + " de 7</span></div>";
+    return;
+  }
+  const i = diariaDiaAtual();
+  cx.style.display = "block";
+  cx.className = "diaria";
+  cx.innerHTML =
+    '<div class="diaria-txt"><b>🎁 PRESENTE DO DIA ' + (i + 1) + "</b>" +
+      "<span>" + DIARIA_PREMIOS[i].texto + "</span></div>" +
+    '<div class="diaria-bolhas">' +
+      DIARIA_PREMIOS.map((p, j) =>
+        '<i class="' + (j < i ? "ok" : j === i ? "agora" : "") + '">' + (j + 1) + "</i>"
+      ).join("") +
+    "</div>" +
+    '<button class="big-btn" id="diaria-pegar">PEGAR</button>';
+  const b = $("diaria-pegar");
+  if (b) b.addEventListener("click", () => {
+    const txt = diariaPegar();
+    if (txt) {
+      const c = $("diaria-cartao");
+      if (c) c.insertAdjacentHTML("beforeend",
+        '<div class="diaria-ok">Você ganhou ' + escaparTexto(txt) + "</div>");
+    }
+  });
+}
+
+/* ---------------------- missões do dia ----------------------
+   Três por dia, sorteadas a partir da data: todo mundo que joga no
+   mesmo dia pega as mesmas, e elas não mudam se você fechar o jogo. */
+const MISSOES_POSSIVEIS = [
+  { tipo: "matar",  rot: n => "Derrube " + n + " inimigos",         alvos: [150, 250, 400], premio: 260 },
+  { tipo: "fase",   rot: n => "Passe " + n + (n > 1 ? " fases" : " fase"), alvos: [2, 3, 5], premio: 320 },
+  { tipo: "chefe",  rot: n => "Derrote " + n + (n > 1 ? " chefes" : " chefe"), alvos: [1, 2], premio: 420 },
+  { tipo: "tanque", rot: n => "Destrua " + n + " naves pesadas",     alvos: [12, 20, 30], premio: 300 },
+  { tipo: "amigo",  rot: n => "Jogue " + n + (n > 1 ? " fases" : " fase") + " no cooperativo", alvos: [1, 2], premio: 500 },
+  { tipo: "combo",  rot: n => "Faça um combo de " + n + " abates",   alvos: [15, 25, 40], premio: 340 },
+  { tipo: "estrela", rot: n => "Ganhe " + n + (n > 1 ? " estrelas" : " estrela") + " nas fases", alvos: [2, 3], premio: 380 }
+];
+function misEstado() {
+  save.missoes = save.missoes || { dia: "", itens: [] };
+  if (save.missoes.dia !== hojeTxt()) misSortear();
+  return save.missoes;
+}
+function misSortear() {
+  const dia = hojeTxt();
+  /* semente a partir da data: mesma lista o dia todo */
+  let semente = 0;
+  for (let i = 0; i < dia.length; i++) semente = (semente * 31 + dia.charCodeAt(i)) >>> 0;
+  const r = rngDe(semente || 7);
+  const pool = MISSOES_POSSIVEIS.slice();
+  const itens = [];
+  for (let i = 0; i < 3 && pool.length; i++) {
+    const j = Math.floor(r() * pool.length);
+    const m = pool.splice(j, 1)[0];
+    const alvo = m.alvos[Math.floor(r() * m.alvos.length)];
+    itens.push({ tipo: m.tipo, alvo: alvo, feito: 0, pego: false, premio: m.premio });
+  }
+  save.missoes = { dia: dia, itens: itens };
+  persist();
+}
+function misRotulo(it) {
+  const def = MISSOES_POSSIVEIS.filter(m => m.tipo === it.tipo)[0];
+  return def ? def.rot(it.alvo) : it.tipo;
+}
+/* chamada pelo jogo quando alguma coisa acontece */
+function misProgresso(tipo, quanto) {
+  try {
+    const e = misEstado();
+    let mudou = false;
+    for (const it of e.itens) {
+      if (it.tipo !== tipo || it.feito >= it.alvo) continue;
+      it.feito = Math.min(it.alvo, it.feito + quanto);
+      mudou = true;
+      if (it.feito >= it.alvo) {
+        AudioSys.power();
+        try { addText(player.x, player.y - 58, "MISSÃO COMPLETA!", "#63F5B5"); } catch (er) {}
+      }
+    }
+    /* combo é "o maior que você fez", não uma soma */
+    if (tipo === "combo") {
+      for (const it of e.itens) {
+        if (it.tipo === "combo") it.feito = Math.max(it.feito, quanto);
+      }
+    }
+    if (mudou) misBadge();
+  } catch (er) {}
+}
+function misPegar(i) {
+  const e = misEstado();
+  const it = e.itens[i];
+  if (!it || it.pego || it.feito < it.alvo) return;
+  it.pego = true;
+  save.crystals += it.premio;
+  persist();
+  try { nuvemEnviar(true); } catch (er) {}
+  AudioSys.buy(); vibrate([30, 40, 60]);
+  misRender(); misBadge(); refreshMenu();
+}
+function misProntas() {
+  try {
+    return misEstado().itens.filter(it => it.feito >= it.alvo && !it.pego).length;
+  } catch (e) { return 0; }
+}
+function misBadge() {
+  const n = misProntas();
+  const b = $("mis-badge");
+  if (b) { b.textContent = n; b.className = n ? "on" : ""; }
+  misResumo();
+}
+function misResumo() {
+  const cx = $("missoes-resumo");
+  if (!cx) return;
+  let e;
+  try { e = misEstado(); } catch (er) { return; }
+  const feitas = e.itens.filter(it => it.feito >= it.alvo).length;
+  cx.style.display = "block";
+  cx.className = "mis-resumo" + (misProntas() ? " tem" : "");
+  cx.innerHTML = '<b>🎯 MISSÕES DO DIA</b><span>' + feitas + " de " + e.itens.length +
+    (misProntas() ? " — tem prêmio para pegar!" : " concluídas") + "</span>";
+  cx.onclick = () => misAbrir();
+}
+function misRender() {
+  const cx = $("mis-corpo");
+  if (!cx) return;
+  const e = misEstado();
+  $("mis-gems").textContent = fmt(save.crystals);
+  cx.innerHTML =
+    '<p class="adm-note" style="margin-bottom:12px">Trocam todo dia à meia-noite. ' +
+    "O que você já fez fica guardado mesmo se fechar o jogo.</p>" +
+    e.itens.map((it, i) => {
+      const pronto = it.feito >= it.alvo;
+      const pc = Math.min(100, Math.round(it.feito / it.alvo * 100));
+      return '<div class="mis-linha' + (it.pego ? " pego" : pronto ? " pronto" : "") + '">' +
+        '<div class="mis-topo"><b>' + escaparTexto(misRotulo(it)) + "</b>" +
+          '<em class="gem">' + fmt(it.premio) + "</em></div>" +
+        '<div class="mis-barra"><i style="width:' + pc + '%"></i></div>' +
+        '<div class="mis-pe"><span>' + it.feito + " / " + it.alvo + "</span>" +
+          (it.pego ? "<em>✓ pego</em>"
+           : pronto ? '<button class="mis-btn" data-mis="' + i + '">PEGAR ◆' + fmt(it.premio) + "</button>"
+           : "<em>em andamento</em>") +
+        "</div></div>";
+    }).join("");
+  cx.querySelectorAll("[data-mis]").forEach(b =>
+    b.addEventListener("click", () => misPegar(parseInt(b.getAttribute("data-mis"), 10))));
+}
+function misAbrir() {
+  S.mode = "missoes";
+  showScreen("missoes");
+  misRender();
+}
+
+/* ---------------------- ligação com o menu ---------------------- */
+$("btn-ajustes").addEventListener("click", () => { AudioSys.gem(); ajAbrir(); });
+$("btn-missoes").addEventListener("click", () => { AudioSys.gem(); misAbrir(); });
+
+ajCarregar();
+ajAplicar();
+
+
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   try { Musica.parar(); } catch (e) {}
@@ -17683,6 +18319,7 @@ function startGame(fase) {
   S.apocalipse = false; S.apocT = 0; S.apocPasso = 0; S.lentoT = 0; S.juizoPendente = false;
   EFX.length = 0;
   S.inicioFase = Date.now();
+  S.danoLevado = 0; S.combo = 0; S.comboT = 0; S.comboMax = 0;
   MP.meuDano = 0; MP.danoTotal = 0;
   player.lives = ST.maxLives;
   player.hp = ST.maxHp;
@@ -18504,7 +19141,10 @@ function damageEnemy(e, idx, dmg, crit) {
   return false;
 }
 function killEnemy(e) {
-  S.score += Math.round(e.score * mundoMult("pontos"));
+  comboMais();
+  misProgresso("matar", 1);
+  if (e.type === "tank") misProgresso("tanque", 1);
+  S.score += Math.round(e.score * mundoMult("pontos") * comboMult());
   arenaContar(false);
   mpAvisarAbate(e);
   explosion(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF4D8F", e.type === "tank" ? 26 : 14);
@@ -18539,6 +19179,8 @@ function novaBlast() {
 function hitPlayer() {
   if (player.invuln > 0 || !player.alive || player.invis > 0) return;
   if (save.godMode) { player.invuln = 0.3; return; }
+  S.danoLevado = (S.danoLevado || 0) + 1;
+  comboZera();
   if (ST.nova) novaBlast();
   if (player.shield > 0) {
     player.shield = 0;
@@ -18651,9 +19293,15 @@ function faseVictory() {
     const d = amuletDef(a);
     amuletMsg = "◈ AMULETO ENCONTRADO: " + d.name + " (" + RARS[a.rar].name + ")";
   }
+  misProgresso("fase", 1);
+  if (isBossFase(S.fase)) misProgresso("chefe", 1);
+  if (coop) misProgresso("amigo", 1);
+  estrelasDaFase(S.fase, dur, S.danoLevado === 0);
   persist();
   AudioSys.victory();
   vibrate([40, 60, 40, 60, 120]);
+  if ((S.comboMax || 0) > 0) misProgresso("combo", S.comboMax);
+  vitoriaEstrelas();
   $("vic-title").textContent = "FASE " + S.fase + " CONCLUÍDA";
   $("vic-fase").textContent = S.fase + "/" + totalFasesDoModo();
   $("vic-score").textContent = S.score;
@@ -18712,6 +19360,7 @@ function update(dt) {
 
   if (S.mode !== "playing") return;
 
+  comboPassar(dt);
   save.tempoJogado = (save.tempoJogado || 0) + dt;
 
   if (S.banner) { S.banner.t -= dt; if (S.banner.t <= 0) S.banner = null; }
@@ -21016,7 +21665,7 @@ function draw() {
   for (const b of enemyBullets) {
     if (!b) continue;
     if (b.y < -30 || b.y > H + 30 || b.x < -30 || b.x > W + 30) continue;
-    const fig = figuraTiroInimigo(b.r, b.homing ? "#FF5252" : "#FF87B3");
+    const fig = figuraTiroInimigo(b.r, corTiroInimigo(b));
     // a gota aponta para onde o tiro vai, então o rastro fica certo
     if (b.vx || b.vy) carimbarGirado(fig, b.x, b.y, Math.atan2(b.vy, b.vx) - Math.PI / 2);
     else carimbar(fig, b.x, b.y);
@@ -21178,6 +21827,7 @@ function menuOcioso(dt) {
   S.telaT = (S.telaT || 0) + dt;
 }
 function loopInterno(now) {
+  fpsContar();
   let dt = (now - last) / 1000;
   const bruto = now - last;
   last = now;
@@ -21722,6 +22372,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.0", itens: [
+      "PRESENTE DO DIA: entrou, ganhou. São 7 dias em sequência, de 120 até 1.800 cristais mais um amuleto no dia 7. Faltou um dia, a sequência recomeça",
+      "MISSÕES DO DIA: três por dia, iguais para todo mundo, trocando à meia-noite — derrubar inimigos, passar fases, matar chefe, fazer combo, jogar no cooperativo. Cada uma paga cristais",
+      "ESTRELAS EM CADA FASE: 1 por passar, 2 se não levar nenhum dano, 3 se for rápido. Aparecem na tela de vitória e na lista de fases, e cada estrela nova paga 40 cristais",
+      "COMBO: abates seguidos valem mais pontos, até +100%. O contador aparece no alto da tela e zera quando você toma dano",
+      "TELA DE AJUSTES (⚙ no menu): volume da música e dos efeitos separados, sensibilidade do dedo, vibração, modo canhoto, modo daltônico, menos flashes e contador de quadros por segundo",
+      "Tudo isso fica guardado no aparelho e vai junto para a nuvem"
+    ] },
   { v: "5.9.2", itens: [
       "PRIVACIDADE DO PIX: a chave não fica mais dentro do jogo. Ela vive só no painel (LOJA → DADOS DO PIX) e na nuvem — quem baixa o arquivo do jogo não encontra nada",
       "Na tela de pagamento a chave aparece tapada (123.•••.•••-09) e o nome como no banco (Teste D. J.). Quem for pagar toca em COPIAR CHAVE (copia inteira) ou em MOSTRAR quando quiser conferir",
@@ -22018,7 +22676,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "5.9.2";
+const VERSAO = "6.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
