@@ -1437,8 +1437,15 @@ async function checarPresenteGeral(d) {
    sozinho. Quem já está na versão nova nem percebe.
    ===================================================================== */
 function versaoNumero(v) {
+  /* Lê os TRÊS pedaços (7.1.2), não só dois. Enquanto lia dois, "7.0.1"
+     e "7.0" davam o mesmo número e um conserto pequeno nunca chegava a
+     ninguém: o jogo achava que já estava em dia. Por isso também as
+     versões que precisam alcançar aparelhos antigos sobem o segundo
+     número (7.0 → 7.1), que as cópias velhas sabem comparar. */
   const p2 = String(v || "0").split(".");
-  return (parseInt(p2[0], 10) || 0) * 1000 + (parseInt(p2[1], 10) || 0);
+  return (parseInt(p2[0], 10) || 0) * 1000000 +
+         (parseInt(p2[1], 10) || 0) * 1000 +
+         (parseInt(p2[2], 10) || 0);
 }
 function obedecerOrdemDeAtualizar(att) {
   if (!att || !att.versao) return;

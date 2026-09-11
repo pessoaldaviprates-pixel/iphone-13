@@ -575,6 +575,12 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.1", itens: [
+      "CORRIGIDO (grave): o jogo não avisava que tinha saído versão nova e ficava preso na cópia velha para sempre. O aviso só olhava um arquivo (versao.json) que existe no repositório mas NÃO existe no link do jogo — lá a busca falhava e o jogo desistia calado. Dava para ficar várias versões atrás sem nunca ser avisado",
+      "Agora o jogo pergunta para ele mesmo: pede o pedacinho final da própria página no servidor, lê o número da versão de lá e compara com a que está rodando. Não depende de arquivo nenhum, funciona em qualquer lugar, e são uns 40 KB em vez dos 3 MB da página inteira",
+      "Quando acha versão nova, ele mostra o portão de sempre: limpa o cache, desliga o service worker e recarrega furando o cache. Depois de duas tentativas sem sucesso ele destrava e deixa você entrar assim mesmo",
+      "O botão MANDAR TODO MUNDO ATUALIZAR, no painel, mandava a versão do próprio painel. Como o dono costuma ser o último a receber a atualização, a ordem nascia sem efeito (“atualize para a 6.5” para quem já estava na 6.5). Agora ela leva a versão que está no servidor"
+    ] },
   { v: "7.0", itens: [
       "CORRIGIDO (grave): na MARATONA DE CHEFES, derrotar um chefe deixava a tela preta e o jogo parecia ter travado. Ele não travava: a vitória já tinha posto o jogo no modo “fim de fase” antes de voltar para a luta, então o jogo ficava rodando atrás de uma tela que ninguém mandou aparecer. Agora a maratona volta direto para o combate, com o painel no lugar, e quando os 5 chefes caem aparece uma tela de vitória de verdade com os pontos e o prêmio",
       "Conferi também os chefes de fora da maratona (fases 10, 20, 40, 80 e 120, os quatro tipos): todos terminavam certo, o problema era só da maratona. Tem um teste novo que derrota chefe de verdade e confere isso",
@@ -981,7 +987,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.0";
+const VERSAO = "7.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
@@ -1059,8 +1065,84 @@ async function limparTudoERecarregar() {
   location.replace(u.toString());
 }
 
+/* ---------------------------------------------------------------------
+   DE ONDE O JOGO DESCOBRE QUE SAIU VERSAO NOVA
+   ---------------------------------------------------------------------
+   Isto aqui já custou caro: a checagem só olhava o versao.json, um
+   arquivo que existe no repositorio mas NAO existe no link do artifact.
+   Lá a busca dava 404, a função desistia calada, e o aparelho ficava
+   preso na cópia que baixou uma vez — sem aviso, sem botão, para
+   sempre. Um jogador ficou quatro versões atrás sem o jogo nunca
+   contar.
+
+   Agora a fonte principal é a própria página no servidor: o jogo pede o
+   PEDAÇO FINAL dela (onde mora o "const VERSAO") e compara com o número
+   que está rodando. Não precisa de arquivo nenhum do lado do servidor:
+   funciona no artifact, no GitHub Pages e em qualquer lugar que sirva o
+   arquivo. São uns 40 KB, não os 3 MB da página inteira.
+
+   Se o servidor não entender o pedido de pedaço (alguns comprimem a
+   resposta, e aí o pedaço não abre), uma vez por dia o jogo baixa a
+   página inteira para não ficar cego. O versao.json continua valendo
+   como segunda opinião para quem roda do repositório.
+   --------------------------------------------------------------------- */
+function versaoDoTexto(t) {
+  const m = /const VERSAO = "([0-9][0-9.]*)"/.exec(t || "");
+  return m ? m[1] : null;
+}
+
+async function versaoNoServidor() {
+  /* endereço da própria página, sem as perguntas da barra de endereço e
+     com um carimbo de hora para furar o cache do navegador */
+  const u = new URL(location.href);
+  u.search = "";
+  u.hash = "";
+  u.searchParams.set("_v", Date.now().toString(36));
+  const alvo = u.toString();
+
+  /* 1) só o fim do arquivo: barato o bastante para fazer sempre */
+  try {
+    const r = await fetch(alvo, { cache: "no-store", headers: { Range: "bytes=-40000" } });
+    if (r.ok || r.status === 206) {
+      const v = versaoDoTexto(await r.text());
+      if (v) return v;
+    }
+  } catch (e) {}
+
+  /* 2) o servidor não deu o pedaço. Baixa inteiro, mas só uma vez por dia */
+  const DIA = 24 * 60 * 60 * 1000;
+  const ultima = parseInt(storageGet("nn_ver_inteiro", "0"), 10) || 0;
+  if (Date.now() - ultima < DIA) return null;
+  try {
+    storageSet("nn_ver_inteiro", String(Date.now()));
+    const r2 = await fetch(alvo, { cache: "no-store" });
+    if (!r2.ok) return null;
+    return versaoDoTexto(await r2.text());
+  } catch (e) {}
+  return null;
+}
+
 async function checarVersao(automatico) {
   if (location.protocol === "file:") return;
+  if (jaAtualizando) return;
+  if (navigator.onLine === false) return;
+
+  /* a página no servidor manda mais do que qualquer arquivo solto */
+  try {
+    const vs = await versaoNoServidor();
+    if (vs && versaoNumero(vs) > versaoNumero(VERSAO)) {
+      versaoNova = { versao: vs, nota: "Saiu a versão " + vs + "." };
+      $("atualiza-txt").textContent = "Versão " + vs + " disponível";
+      mostrarPortaoAtualizacao();
+      if (S.mode === "playing") $("atualiza-box").classList.add("on");
+      return;
+    }
+    if (vs && versaoNumero(vs) === versaoNumero(VERSAO)) {
+      /* chegou: zera o contador de tentativas desta versão */
+      try { storageSet("nn_upd_tent_" + vs, "0"); } catch (e) {}
+    }
+  } catch (e) {}
+
   try {
     const r = await fetch("versao.json?t=" + Date.now(), { cache: "no-store" });
     if (!r.ok) return;
@@ -1068,7 +1150,7 @@ async function checarVersao(automatico) {
     if (d && d.versao === VERSAO) {
       try { storageSet("nn_upd_tent_" + d.versao, "0"); } catch (e) {}
     }
-    if (d && d.versao && d.versao !== VERSAO) {
+    if (d && d.versao && versaoNumero(d.versao) > versaoNumero(VERSAO)) {
       versaoNova = d;
       $("atualiza-txt").textContent = "Versão " + d.versao + " disponível" +
         (d.nota ? " — " + d.nota : "");

@@ -37,7 +37,10 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
 
 ## Publicar uma versão
 
-1. `const VERSAO` em `fonte/07-extras-2.js`
+1. `const VERSAO` em `fonte/07-extras-2.js`. **Suba o segundo número**
+   (7.0 → 7.1), não o terceiro: as cópias antigas comparam versão só até o
+   segundo pedaço, e um 7.0.1 ficaria igual a 7.0 para elas — ou seja, a
+   atualização nunca chegaria em quem mais precisa dela
 2. entrada nova no topo de `NOVIDADES` (mesmo arquivo), escrita para o jogador —
    o que mudou para ele, não o que mudou no código
 3. `versao.json`
@@ -45,6 +48,9 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
 5. `python3 testes/montar.py && ./testes/check.sh && cd testes && ./testar.sh`
 6. `python3 testes/build_artifact.py` gera o arquivo único
 7. `python3 testes/confere_privacidade.py` recusa publicar com dado pessoal dentro
+8. depois de publicar, **abra o jogo publicado e confira o número da versão na
+   tela**. Publicar não é o mesmo que chegar: o aparelho de quem já jogou tem a
+   página guardada
 
 ## Coisas que já custaram caro
 
@@ -61,6 +67,18 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
 - **Regras antigas do Firebase.** Existe um modo compatível
   (`NUVEM_COMPAT`): se o galho novo for recusado, o mesmo dado vai para dentro
   da ficha do piloto, que toda regra antiga libera.
+- **Aviso de versão que dependia de arquivo.** Até a v7.0 o jogo só descobria
+  que tinha saído versão nova buscando `versao.json` — que existe no
+  repositório mas **não existe no link do artifact**. Lá a busca dava 404 e a
+  função desistia calada: dava para ficar quatro versões atrás sem o jogo
+  nunca avisar, e foi o que aconteceu. Desde a v7.1 ele pede o pedaço final da
+  própria página no servidor e lê o `const VERSAO` de lá, sem depender de
+  arquivo nenhum. `testes/test_versao.js` prova isso servindo a página velha no
+  GET e o rabo da nova no pedido de pedaço.
+- **Ordem de atualizar nascia velha.** O botão do painel mandava a versão do
+  próprio painel, e o dono é justamente quem mais demora a receber a
+  atualização — a ordem saía "atualize para a 6.5" para quem já estava na 6.5.
+  Agora ela leva a versão que está no servidor.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

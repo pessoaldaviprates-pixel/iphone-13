@@ -293,13 +293,25 @@ async function attRender() {
 $("att-todos").addEventListener("click", async () => {
   const b = $("att-todos");
   b.disabled = true; b.textContent = "MANDANDO…";
+  /* A ordem tem que levar a versão que está NO SERVIDOR, não a que este
+     painel está rodando. O dono costuma ser quem mais demora a receber
+     a atualização (o celular dele guarda a página em cache), e mandar a
+     própria versão velha fazia a ordem nascer sem efeito: todo mundo
+     recebia "atualize para a 6.5" já estando na 6.5. */
+  let alvo = VERSAO;
+  try {
+    const vs = await versaoNoServidor();
+    if (vs && versaoNumero(vs) > versaoNumero(alvo)) alvo = vs;
+  } catch (e) {}
   const ok = await nuvemSoltar("mundo/att", {
-    versao: VERSAO, quando: Date.now(),
-    nota: "O administrador mandou atualizar para a versão " + VERSAO + "."
+    versao: alvo, quando: Date.now(),
+    nota: "O administrador mandou atualizar para a versão " + alvo + "."
   });
   b.disabled = false; b.textContent = "⬇ MANDAR TODO MUNDO ATUALIZAR";
   admMsg(ok === null ? "O Firebase recusou a gravação." :
-         "Pronto: quem estiver na versão antiga vai atualizar sozinho.");
+         "Pronto: quem estiver abaixo da v" + alvo + " vai atualizar sozinho." +
+         (alvo !== VERSAO ? " (Este aparelho também está atrasado: ele mesmo vai " +
+          "atualizar agora.)" : ""));
   attRender();
 });
 $("att-limpar").addEventListener("click", async () => {
