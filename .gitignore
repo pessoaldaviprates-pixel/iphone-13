@@ -1,0 +1,5 @@
+
+# link para as bibliotecas dos testes: aponta para uma pasta da maquina de
+# quem desenvolve. Commitado, ele vira um link quebrado no servidor e derruba
+# o empacotamento do GitHub Pages -- foi o que segurou 69 publicacoes.
+testes/node_modules
