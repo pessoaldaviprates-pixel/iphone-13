@@ -1,0 +1,25 @@
+const path = require('path');
+const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
+const { chromium } = require('playwright');
+(async()=>{
+  const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});
+  const p=await b.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  p.on('pageerror',e=>console.log('ERR '+e.message));
+  await p.goto(JOGO+'?nuvem=http://127.0.0.1:8099'); await p.waitForTimeout(1500);
+  await p.evaluate(()=>{ const el=document.getElementById('abertura'); if(el){el.className='';el.innerHTML='';} });
+  await p.evaluate(()=>{ ROOT.profiles['Davi']=defaultSave(); ROOT.current='Davi';
+    save=ROOT.profiles['Davi']; save.__name='Davi'; save.best=120; save.crystals=12000;
+    save.tutorialFeito=true; save.chefes=30; save.vitorias=30; save.estrelas={1:3,2:2,3:3};
+    save.ships=[0,1,2,3,4,5]; calcStats(); persist(); goMenu(); });
+  await p.waitForTimeout(1200);
+  await p.screenshot({path:'final-menu.png'});
+  await p.evaluate(()=>mapaAbrir()); await p.waitForTimeout(900);
+  await p.screenshot({path:'final-mapa.png'});
+  await p.evaluate(()=>{goMenu(); perfilAbrir();}); await p.waitForTimeout(900);
+  await p.screenshot({path:'final-perfil.png'});
+  await p.evaluate(()=>{goMenu(); ajAbrir();}); await p.waitForTimeout(900);
+  await p.screenshot({path:'final-ajustes.png'});
+  await p.evaluate(()=>{goMenu(); startGame(18);}); await p.waitForTimeout(3000);
+  await p.screenshot({path:'final-jogo.png'});
+  await b.close();
+})();

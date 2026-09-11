@@ -11476,6 +11476,13 @@ function admNuvemRender() {
   }
 }
 async function admNuvemSelecionar(p) {
+  /* a lista da nuvem muda embaixo do dedo: o piloto pode ter saído do
+     ar entre desenhar a linha e você tocar nela. Sem isto a tela
+     inteira do painel quebrava com "undefined". */
+  if (!p || !p.id) {
+    admMsg("Esse piloto saiu da lista. Atualize e tente de novo.");
+    return;
+  }
   if (admNuvemAlvo && admNuvemAlvo.id !== p.id) {
     caixaAdm = {};
     invConta = null;
@@ -27263,6 +27270,7 @@ const NOVIDADES = [
       "FIM DE SEMANA NA ARENA: sábado e domingo a arena muda de regra sozinha — dano em dobro, sem escudo, enxame ou chuva de cristal",
       "SALA DE ESPERA: agora mostra o que o outro está fazendo (escolhendo nave, comprando melhoria, pronto) em vez de só “esperando”",
       "REEMBOLSOS no painel, com motivo, valor e total",
+      "CORRIGIDO: tocar num piloto da lista da nuvem que tinha acabado de sair do ar quebrava a tela inteira do painel. Agora só avisa e segue",
       "CORRIGIDO (achado com dados): a 3ª estrela — passar a fase rápido — era IMPOSSÍVEL da fase 25 em diante. O alvo de tempo crescia devagar demais para o tamanho que a fase ganhava. Agora o alvo nasce do número de ondas da fase, então continua exigindo jogar rápido sem exigir o impossível. Tem um testes/curvas.py que põe a economia e a dificuldade numa tabela, e um teste que confere isso nas 270 fases"
     ] },
   { v: "6.8", itens: [

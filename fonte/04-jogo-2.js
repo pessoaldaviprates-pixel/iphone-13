@@ -789,6 +789,13 @@ function admNuvemRender() {
   }
 }
 async function admNuvemSelecionar(p) {
+  /* a lista da nuvem muda embaixo do dedo: o piloto pode ter saído do
+     ar entre desenhar a linha e você tocar nela. Sem isto a tela
+     inteira do painel quebrava com "undefined". */
+  if (!p || !p.id) {
+    admMsg("Esse piloto saiu da lista. Atualize e tente de novo.");
+    return;
+  }
   if (admNuvemAlvo && admNuvemAlvo.id !== p.id) {
     caixaAdm = {};
     invConta = null;
