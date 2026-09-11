@@ -276,6 +276,7 @@ function arenaDesligarFluxo() {
 }
 
 async function abrirArena() {
+  try { eventoArenaRender(); } catch (e) {}
   if (!nuvemAtiva()) return;
   S.mode = "arena";
   showScreen("arena");
@@ -300,6 +301,13 @@ function arenaRenderTela() {
     '<div class="arena-num"><b>' + fmt(ARENA.totais.c) + "</b><span>CHEFES DERRUBADOS</span></div>";
   const box = $("arena-gente");
   const ids = Object.keys(ARENA.gente).filter(id => ARENA.gente[id] && ARENA.gente[id].nome);
+  /* placar ao vivo dos três primeiros, que aparece DURANTE a partida */
+  try {
+    const meu = nuvemId(save.__name || "");
+    arenaPlacarRender(ids.map(id => ({
+      nome: ARENA.gente[id].nome, abates: ARENA.gente[id].abates || 0, eu: id === meu
+    })).sort((x, y) => y.abates - x.abates));
+  } catch (e) {}
   $("arena-online").textContent = ids.length + (ids.length === 1 ? " piloto" : " pilotos");
   box.innerHTML = "";
   if (!ids.length) {

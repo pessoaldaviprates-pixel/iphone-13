@@ -471,6 +471,257 @@ function filaTravada() {
 }
 
 
+/* =====================================================================
+   v6.9 — OS DOZE QUE FALTAVAM
+   abertura · fundo com profundidade · música por bioma · passiva de cada
+   nave · chefe de dupla · placar ao vivo da arena · evento de fim de
+   semana · sala de espera · reembolso
+   ===================================================================== */
+
+/* ---------------------- abertura de 4 segundos ----------------------
+   Só na primeiríssima vez que o jogo abre naquele aparelho. Depois
+   disso, ninguém quer esperar uma abertura.                           */
+function aberturaPrecisa() {
+  try { return storageGet("nn_abertura", "") !== "1"; } catch (e) { return false; }
+}
+function aberturaTocar(depois) {
+  const el = $("abertura");
+  if (!el || !aberturaPrecisa()) { if (depois) depois(); return; }
+  try { storageSet("nn_abertura", "1"); } catch (e) {}
+  el.innerHTML =
+    '<div class="ab-nave"><canvas id="ab-canvas" width="240" height="240"></canvas></div>' +
+    '<div class="ab-marca"><b>NEON</b><em>NEBULA</em></div>' +
+    '<div class="ab-linha"></div>' +
+    '<button class="ab-pular" id="ab-pular">PULAR</button>';
+  el.className = "on";
+  /* a nave atravessa a tela desenhada no canvas, sem imagem nenhuma */
+  try {
+    const c = $("ab-canvas").getContext("2d");
+    let t = 0;
+    const anda = () => {
+      t += 1 / 60;
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.clearRect(0, 0, 240, 240);
+      c.setTransform(2.4, 0, 0, 2.4, 120, 120);
+      c.rotate(Math.sin(t * 1.5) * 0.12);
+      try { drawShipSprite(c, naveValida(save && save.ship ? save.ship : 0), 18); } catch (e) {}
+      if (el.className.indexOf("on") >= 0 && t < 4) requestAnimationFrame(anda);
+    };
+    anda();
+  } catch (e) {}
+  const fim = () => {
+    el.className = "";
+    el.innerHTML = "";
+    if (depois) depois();
+  };
+  const b = $("ab-pular");
+  if (b) b.addEventListener("click", fim);
+  setTimeout(fim, 4000);
+}
+
+/* ---------------------- fundo com profundidade ----------------------
+   As estrelas já existiam, todas no mesmo plano. Agora são três planos
+   que andam em velocidades diferentes: o fundo parece ter fundo.      */
+const NEBULAS = [];
+function nebulasMontar() {
+  NEBULAS.length = 0;
+  const r = rngDe(20260911);
+  for (let i = 0; i < 5; i++) {
+    NEBULAS.push({
+      x: r() * W, y: r() * H,
+      raio: 120 + r() * 220,
+      cor: ["94,230,255", "181,123,255", "255,92,157"][Math.floor(r() * 3)],
+      z: 0.06 + r() * 0.1,
+      alfa: 0.05 + r() * 0.07
+    });
+  }
+}
+function nebulasPassar(dt) {
+  const k = S.mode === "playing" ? 1 : 0.3;
+  for (const n of NEBULAS) {
+    n.y += n.z * 26 * dt * k;
+    if (n.y - n.raio > H) { n.y = -n.raio; n.x = Math.random() * W; }
+  }
+}
+function drawNebulas() {
+  if (!NEBULAS.length) nebulasMontar();
+  if (typeof Q !== "undefined" && Q.nivel === 0) return;   /* no leve, nem desenha */
+  ctx.save();
+  for (const n of NEBULAS) {
+    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.raio);
+    g.addColorStop(0, "rgba(" + n.cor + "," + n.alfa + ")");
+    g.addColorStop(1, "rgba(" + n.cor + ",0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(n.x - n.raio, n.y - n.raio, n.raio * 2, n.raio * 2);
+  }
+  ctx.restore();
+}
+
+/* ---------------------- música por bioma ----------------------
+   A trilha já mudava de escala a cada 20 fases. Agora cada faixa de 45
+   fases tem um bioma com nome, cor e andamento próprios — dá para
+   sentir que você mudou de lugar.                                     */
+const BIOMAS = [
+  { ate: 45,  nome: "Nebulosa Azul",     escala: 0, andamento: 1.0,  timbre: "triangle" },
+  { ate: 90,  nome: "Campo de Asteroides", escala: 2, andamento: 1.12, timbre: "square" },
+  { ate: 135, nome: "Colmeia Alienígena", escala: 4, andamento: 0.92, timbre: "sawtooth" },
+  { ate: 180, nome: "Cinzas de Guerra",  escala: 1, andamento: 1.2,  timbre: "square" },
+  { ate: 225, nome: "Vazio Profundo",    escala: 6, andamento: 0.8,  timbre: "triangle" },
+  { ate: 999, nome: "Coração da Nebulosa", escala: 3, andamento: 1.3, timbre: "sawtooth" }
+];
+function biomaDaFase(f) {
+  for (const b of BIOMAS) if (f <= b.ate) return b;
+  return BIOMAS[BIOMAS.length - 1];
+}
+
+/* ---------------------- passiva de cada nave ----------------------
+   Cada nave ganha uma virtude que vale sem apertar nada. É o que dá
+   personalidade para as que ninguém escolhia.                         */
+const PASSIVAS = [
+  { id: "recupera", nome: "Casco Vivo",   desc: "recupera 1% de casco a cada onda" },
+  { id: "primeiro", nome: "Bote",         desc: "o primeiro tiro de cada onda dá o dobro de dano" },
+  { id: "cristal",  nome: "Garimpo",      desc: "+8% de cristais" },
+  { id: "escudo",   nome: "Anteparo",     desc: "começa cada fase com escudo" },
+  { id: "agil",     nome: "Leveza",       desc: "+10% de agilidade quando está com pouca vida" },
+  { id: "combo",    nome: "Ritmo",        desc: "o combo demora mais para esfriar" },
+  { id: "sorte",    nome: "Sorte",        desc: "+12% de chance de item cair" },
+  { id: "teimoso",  nome: "Teimosia",     desc: "sobrevive com 1 de casco uma vez por fase" }
+];
+function passivaDaNave(i) {
+  return PASSIVAS[i % PASSIVAS.length];
+}
+/* aplicada onde faz diferença, sem mexer no resto do jogo */
+function passivaVale(id) {
+  try { return passivaDaNave(naveValida(save.ship)).id === id; } catch (e) { return false; }
+}
+
+/* ---------------------- chefe que só cai em dupla ----------------------
+   Ele fecha uma casca que só abre quando os DOIS acertam ao mesmo
+   tempo. Sozinho dá para machucar, mas não dá para derrubar.          */
+function chefeDeDuplaPrecisa(fase) {
+  return mpCoop && mpCoop() && fase % 40 === 0;
+}
+function cascaDuplaPassar(dt) {
+  if (!boss || !boss.cascaDupla) return;
+  boss.cascaT = (boss.cascaT || 0) - dt;
+  if (boss.cascaT <= 0) {
+    boss.cascaT = 7;
+    boss.cascaAberta = false;
+    boss.cascaPedido = Date.now();
+    S.banner = { text: "CASCA FECHADA", sub: "os dois precisam acertar juntos", t: 2.4 };
+  }
+  /* abriu se os dois acertaram nos últimos 1,2 segundos */
+  const meu = (S.ultimoAcerto || 0) > Date.now() - 1200;
+  const dele = (MP.ultimoAcerteDele || 0) > Date.now() - 1200;
+  if (!boss.cascaAberta && meu && dele) {
+    boss.cascaAberta = true;
+    boss.cascaT = 6;
+    S.banner = { text: "CASCA ABERTA!", sub: "agora sim — mandem tudo", t: 2 };
+    try { AudioSys.power(); } catch (e) {}
+  }
+}
+
+/* ---------------------- placar ao vivo da arena ---------------------- */
+function arenaPlacarRender(lista) {
+  const el = $("arena-placar");
+  if (!el) return;
+  if (!lista || !lista.length || S.mode !== "playing") { el.className = ""; return; }
+  const tres = lista.slice(0, 3);
+  el.className = "on";
+  el.innerHTML = tres.map((p, i) =>
+    '<div class="ap-linha' + (p.eu ? " eu" : "") + '"><em>' + ["🥇", "🥈", "🥉"][i] + "</em>" +
+    "<b>" + escaparTexto(p.nome || "?") + "</b><span>" + fmt(p.abates || 0) + "</span></div>").join("");
+}
+
+/* ---------------------- evento de fim de semana na arena ----------------------
+   Sábado e domingo a arena muda de regra sozinha, sem ninguém apertar
+   nada. Dá motivo para voltar no fim de semana.                       */
+const EVENTOS_ARENA = [
+  { id: "dano2",   nome: "DANO EM DOBRO",   desc: "todo mundo bate o dobro", dano: 2, vida: 1 },
+  { id: "vidro",   nome: "SEM ESCUDO",      desc: "ninguém tem escudo, o dobro de cristais", dano: 1, vida: 1, gem: 2 },
+  { id: "enxame",  nome: "ENXAME",          desc: "o dobro de inimigos, com metade da vida", qtd: 2, vida: 0.5 },
+  { id: "cristal", nome: "CHUVA DE CRISTAL", desc: "cristais em dobro", gem: 2, dano: 1, vida: 1 }
+];
+function eventoDaArena() {
+  const d = new Date();
+  const dia = d.getDay();                   /* 0 domingo, 6 sábado */
+  if (dia !== 0 && dia !== 6) return null;
+  /* o mesmo evento o fim de semana inteiro, igual para todo mundo */
+  const semana = Math.floor(d.getTime() / (7 * 86400000));
+  return EVENTOS_ARENA[semana % EVENTOS_ARENA.length];
+}
+function eventoArenaRender() {
+  const cx = $("arena-evento");
+  if (!cx) return;
+  const e = eventoDaArena();
+  if (!e) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "card oferta";
+  cx.innerHTML = '<div class="of-selo">FIM DE SEMANA NA ARENA</div>' +
+    "<b>" + escaparTexto(e.nome) + "</b>" +
+    '<div class="adm-note" style="margin-top:4px">' + escaparTexto(e.desc) + "</div>";
+}
+
+/* ---------------------- sala de espera que mostra o que o outro faz ---------------------- */
+function salaEstadoTexto(o) {
+  if (!o) return "entrando…";
+  if (o.pronto) return "pronto!";
+  if (o.tela === "hangar") return "escolhendo nave";
+  if (o.tela === "shop" || o.tela === "loja") return "comprando melhoria";
+  if (o.tela === "levels") return "olhando as fases";
+  if (o.tela === "sala") return "esperando você";
+  return "no menu";
+}
+function salaEsperaRender() {
+  const cx = $("sala-estado");
+  if (!cx) return;
+  const ids = Object.keys(MP.outros || {});
+  if (!MP.sala || !ids.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.innerHTML = ids.map(id => {
+    const o = MP.outros[id] || {};
+    return '<div class="sala-linha"><b>' + escaparTexto(o.nome || "Piloto") + "</b>" +
+      "<span>" + escaparTexto(salaEstadoTexto(o)) + "</span></div>";
+  }).join("");
+}
+
+/* ---------------------- reembolso registrado ---------------------- */
+async function reembolsar(chave, pd, motivo) {
+  try {
+    await admPedidoJuntar(chave, pd, {
+      estado: "reembolsado", reembolsoEm: Date.now(), motivo: motivo || ""
+    });
+    await nuvemSoltar("reembolsos/" + chave, {
+      nome: pd.nome || "", item: pd.itemNome || "", preco: pd.preco || 0,
+      motivo: motivo || "", quando: Date.now(), por: (PERM && PERM.nick) || ""
+    });
+    await admAvisarNaConversa(pd.de, "Seu pedido de " + (pd.itemNome || "") +
+      " foi cancelado e o valor devolvido. " + (motivo ? "Motivo: " + motivo : ""));
+    admRegistrar("reembolsou " + (pd.itemNome || "") + " de " + (pd.nome || ""));
+    return true;
+  } catch (e) { return false; }
+}
+async function reembolsosRender() {
+  const cx = $("adm-reembolsos-lista");
+  if (!cx) return;
+  const r = (await nuvemReq("reembolsos")) || {};
+  const linhas = Object.keys(r).map(k => r[k]).sort((a, b) => (b.quando || 0) - (a.quando || 0));
+  const total = linhas.reduce((a, x) => a + (x.preco || 0), 0);
+  if (!linhas.length) {
+    cx.innerHTML = '<div class="adm-note">Nenhum reembolso até agora.</div>';
+    return;
+  }
+  cx.innerHTML =
+    '<div class="adm-note" style="margin-bottom:8px">' + linhas.length + " reembolso" +
+      (linhas.length === 1 ? "" : "s") + " · " + reais(total) + " no total</div>" +
+    linhas.slice(0, 20).map(l =>
+      '<div class="reg-linha"><b>' + escaparTexto(l.nome || "?") + "</b>" +
+      "<span>" + escaparTexto(l.item || "") + " · " + reais(l.preco || 0) +
+      (l.motivo ? " · " + escaparTexto(l.motivo) : "") + "</span>" +
+      "<em>" + quandoTexto(l.quando) + "</em></div>").join("");
+}
+
+
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   try { Musica.parar(); } catch (e) {}

@@ -575,6 +575,18 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.9", itens: [
+      "ABERTURA: na primeiríssima vez que o jogo abre, uma apresentação de 4 segundos com a nave e o nome. Depois disso nunca mais aparece",
+      "O FUNDO TEM FUNDO: manchas de nebulosa em três profundidades andando mais devagar que as estrelas. No modo leve elas nem são desenhadas",
+      "MÚSICA POR BIOMA: cada faixa de 45 fases tem escala, andamento e timbre próprios — Nebulosa Azul, Campo de Asteroides, Colmeia Alienígena, Cinzas de Guerra, Vazio Profundo e Coração da Nebulosa. O nome do bioma aparece no cartão da fase",
+      "CADA NAVE TEM UMA VIRTUDE que vale sem apertar nada: Casco Vivo, Bote, Garimpo, Anteparo, Leveza, Ritmo, Sorte e Teimosia. Aparece no hangar",
+      "CHEFE DE DUPLA: a cada 40 fases no cooperativo o chefe fecha uma casca que só abre quando os DOIS acertam ao mesmo tempo",
+      "PLACAR AO VIVO DA ARENA: os três primeiros aparecem no canto durante a partida, e o seu nome fica marcado",
+      "FIM DE SEMANA NA ARENA: sábado e domingo a arena muda de regra sozinha — dano em dobro, sem escudo, enxame ou chuva de cristal",
+      "SALA DE ESPERA: agora mostra o que o outro está fazendo (escolhendo nave, comprando melhoria, pronto) em vez de só “esperando”",
+      "REEMBOLSOS no painel, com motivo, valor e total",
+      "CORRIGIDO (achado com dados): a 3ª estrela — passar a fase rápido — era IMPOSSÍVEL da fase 25 em diante. O alvo de tempo crescia devagar demais para o tamanho que a fase ganhava. Agora o alvo nasce do número de ondas da fase, então continua exigindo jogar rápido sem exigir o impossível. Tem um testes/curvas.py que põe a economia e a dificuldade numa tabela, e um teste que confere isso nas 270 fases"
+    ] },
   { v: "6.8", itens: [
       "SALA DE TREINO (no hangar): alvos que voltam sozinhos, nada te machuca e o cronômetro corre — é onde se aprende a habilidade nova sem morrer tentando",
       "TESTAR A NAVE ANTES DE COMPRAR: a sala de treino aceita qualquer nave, e quando você sai a sua volta como estava",
@@ -960,7 +972,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.8";
+const VERSAO = "6.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

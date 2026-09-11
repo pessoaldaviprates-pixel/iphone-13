@@ -1581,6 +1581,8 @@ function draw() {
     ctx.fillRect(0, 0, W, H);
   }
 
+  drawNebulas();
+
   for (const st of stars) {
     ctx.globalAlpha = 0.25 + st.z * 0.75;
     ctx.fillStyle = "#EAF2FF";

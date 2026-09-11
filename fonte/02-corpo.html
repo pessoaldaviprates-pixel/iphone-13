@@ -27,6 +27,8 @@
   <div id="doeu"></div>
   <div id="lanterna"></div>
   <div id="manut-tela"></div>
+  <div id="abertura"></div>
+  <div id="arena-placar"></div>
   <div id="carregando"></div>
   <div id="pedido-faixa"></div>
   <div id="teste-faixa"></div>
@@ -651,6 +653,14 @@
         <div class="adm-note" id="manut-estado" style="margin-top:8px"></div>
       </div>
 
+      <div class="adm-card" id="adm-reembolsos">
+        <div class="adm-h">↩ REEMBOLSOS</div>
+        <div class="adm-note">Pedido cancelado com o dinheiro devolvido fica anotado aqui,
+          com o motivo e quanto foi.</div>
+        <button class="adm-btn wide" id="adm-reemb-ler" style="margin-top:10px">VER REEMBOLSOS</button>
+        <div id="adm-reembolsos-lista" style="margin-top:12px"></div>
+      </div>
+
       <div class="adm-card" id="adm-registro">
         <div class="adm-h">📋 O QUE A EQUIPE FEZ</div>
         <div class="adm-note">Cada ação importante do painel fica anotada com o nick de
@@ -1004,6 +1014,7 @@
   </div>
   <div class="card" id="hangar-conjuntos"></div>
   <div class="hangar-atual" id="hangar-atual"></div>
+  <div class="passiva-cx" id="hangar-passiva"></div>
   <div class="hangar-filtros" id="hangar-filtros"></div>
   <div class="scroll"><div class="ship-list" id="ship-list"></div></div>
 </div>
@@ -1311,6 +1322,7 @@
     <div class="adm-card" id="sala-acoes">
       <button class="big-btn" id="sala-comecar" style="width:100%">COMEÇAR</button>
       <p class="adm-note" style="margin-top:10px;text-align:center" id="sala-dica">Esperando o outro piloto entrar…</p>
+      <div id="sala-estado" style="display:none;margin-top:10px"></div>
     </div>
   </div>
 </div>
@@ -1372,6 +1384,7 @@
     <div class="page-gems" id="arena-online"></div>
   </div>
   <div class="scroll">
+    <div id="arena-evento" style="display:none"></div>
     <div class="adm-card">
       <div class="adm-h roxo">A ARENA NUNCA ZERA</div>
       <p class="adm-note" style="max-width:none">

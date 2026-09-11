@@ -1712,6 +1712,8 @@ function mpOutroPrincipal() {
   return ids.length ? MP.outros[ids[0]] : null;
 }
 function mpAtualizarPlacar() {
+  /* na sala de espera, mostra o que cada um está fazendo */
+  try { if (S.mode === "sala") salaEsperaRender(); } catch (e) {}
   mpMostrarConexao();
   const box = $("mp-placar");
   if (!box) return;

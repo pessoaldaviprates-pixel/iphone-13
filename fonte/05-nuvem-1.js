@@ -452,7 +452,18 @@ function comboMostrar() {
 /* ---------------------- estrelas de cada fase ----------------------
    1ª estrela: passou. 2ª: passou sem levar dano. 3ª: passou rápido
    (abaixo do tempo alvo, que cresce com a fase).                     */
-function tempoAlvo(fase) { return 55 + Math.floor(fase / 10) * 5; }
+/* Alvo da 3ª estrela.
+   A conta antiga (55s + 5s a cada 10 fases) não acompanhava o tamanho
+   da fase: da fase 25 em diante a fase já durava mais que o alvo, e a
+   terceira estrela virava impossível — não difícil, impossível. Foi o
+   testes/curvas.py que mostrou isso numa tabela.
+   Agora o alvo nasce do número de ondas: sobra exigir jogar rápido,
+   sem exigir o que não existe.                                       */
+function tempoAlvo(fase) {
+  let ondas = 3;
+  try { ondas = faseWaves(fase); } catch (e) {}
+  return Math.round(ondas * 16 + 20);
+}
 function estrelasDaFase(fase, dur, semDano) {
   let e = 1;
   if (semDano) e++;
@@ -784,7 +795,10 @@ function fasePerigo(fase) {
 function faseCartao(fase) {
   const el = $("fase-cartao");
   if (!el) return;
-  el.innerHTML = '<b>FASE ' + fase + "</b><span>" + escaparTexto(faseNome(fase)) + "</span>" +
+  let bioma = "";
+  try { bioma = biomaDaFase(fase).nome; } catch (e) {}
+  el.innerHTML = '<b>FASE ' + fase + (bioma ? " · " + escaparTexto(bioma) : "") + "</b>" +
+                 "<span>" + escaparTexto(faseNome(fase)) + "</span>" +
                  "<i>" + escaparTexto(fasePerigo(fase)) + "</i>";
   el.className = "on";
   clearTimeout(faseCartao._t);
@@ -1202,6 +1216,12 @@ $("adm-den-ler").addEventListener("click", async ev => {
   b.disabled = true; b.textContent = "LENDO…";
   await admDenunciasRender();
   b.disabled = false; b.textContent = "VER DENÚNCIAS";
+});
+$("adm-reemb-ler").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "LENDO…";
+  await reembolsosRender();
+  b.disabled = false; b.textContent = "VER REEMBOLSOS";
 });
 $("adm-reg-ler").addEventListener("click", async ev => {
   const b = ev.currentTarget;

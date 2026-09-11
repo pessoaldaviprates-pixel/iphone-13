@@ -1851,6 +1851,8 @@ function idiomaCarregar() {
 }
 /* o idioma é lido assim que a tabela existe — nunca antes */
 setTimeout(() => { try { idiomaCarregar(); } catch (e) {} }, 0);
+/* a abertura toca uma vez só, na primeiríssima abertura do jogo */
+setTimeout(() => { try { aberturaTocar(); } catch (e) {} }, 300);
 function idiomaRender() {
   const cx = $("aj-idioma");
   if (!cx) return;

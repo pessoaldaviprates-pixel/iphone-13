@@ -342,6 +342,7 @@ function updateBoss(dt) {
   if (boss.hitFlash > 0) boss.hitFlash -= dt;
   bossPoderes(dt);          // os oito golpes sorteados
   bossAvisarTiro();         // a linha vermelha meio segundo antes do tiro
+  cascaDuplaPassar(dt);     // o chefe que só cai em dupla
   if (boss.frozenT > 0) { boss.frozenT -= dt; return; }
   const targetY = Math.max(120, H * 0.17);
   if (boss.entering) {

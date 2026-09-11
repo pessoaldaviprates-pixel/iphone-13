@@ -20,6 +20,7 @@ function update(dt) {
   }
   S.time += dt;
 
+  nebulasPassar(dt);
   for (const st of stars) {
     st.y += (30 + st.z * 120) * dt * (S.mode === "playing" ? 1 : 0.4);
     if (st.y > H + 2) { st.y = -2; st.x = Math.random() * W; }
@@ -465,6 +466,7 @@ function update(dt) {
       if (ST.blast > 0) blastArea(b.x, b.y, ST.blast, dm.d * 0.5);
       particles.push({ x: b.x, y: b.y, vx: rand(-40, 40), vy: rand(-80, -20), t: 0.2, max: 0.2, color: "#EAF2FF", r: 2 });
       contar("acertos");
+      S.ultimoAcerto = Date.now();
       if (b.pierce > 0) { b.pierce--; }
       else { bullets.splice(i, 1); consumed = true; }
     }

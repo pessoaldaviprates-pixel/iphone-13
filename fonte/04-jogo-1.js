@@ -1550,7 +1550,8 @@ const ABAS_ADM = [
     cartoes: ["adm-equipe"] },
   { id: "sistema",   nome: "🔧 SISTEMA",   perms: ["diag", "backup"],
     cartoes: ["adm-numeros", "adm-erros", "adm-denuncias", "adm-teste", "adm-manutencao",
-              "adm-registro", "adm-diag", "adm-local", "adm-todos", "adm-backup"] }
+              "adm-registro", "adm-reembolsos", "adm-diag", "adm-local",
+              "adm-todos", "adm-backup"] }
 ];
 let abaAdm = "";
 
@@ -1673,6 +1674,7 @@ const CARTOES_PERM = {
   "adm-manutencao": "recados",
   "adm-teste":      "recados",
   "adm-registro":   "diag",
+  "adm-reembolsos": "lojaDar",
   "adm-sug":     "sugVer",
   "adm-equipe":  "equipe",
   "adm-diag":    "diag",

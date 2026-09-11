@@ -715,7 +715,8 @@ function calcStats() {
        escorregadia e dá para mirar melhor sem perder a agilidade   */
     speedK: 1.06 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) *
             (1 + A.motor / 100) * jm("motor"),
-    crystalMult: prestMult() * (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
+    crystalMult: (typeof passivaVale === "function" && passivaVale("cristal") ? 1.08 : 1) *
+                 prestMult() * (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
                  (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)) * (A.coroa ? 1.25 : 1) *
                  (justo ? 1 : (vipLigado() ? 1.25 : 1)) * jm("cristal") * mundoMult("cristais"),
@@ -879,7 +880,11 @@ const Musica = {
   /* monta a trilha da fase: sempre a mesma para a mesma fase */
   montar(fase, chefe) {
     const r = rngDe(((fase * 2654435761) ^ 0x9e37) >>> 0);
-    const setor = Math.floor((fase - 1) / 20) % ESCALAS.length;
+    /* cada bioma tem escala, andamento e timbre próprios: dá para
+       ouvir que você mudou de lugar, não só de fase */
+    let bioma = null;
+    try { bioma = biomaDaFase(fase); } catch (e) {}
+    const setor = bioma ? bioma.escala : Math.floor((fase - 1) / 20) % ESCALAS.length;
     // quando o administrador liga um evento, a trilha dele manda na fase
     let ev = null;
     try { ev = eventoAtual(); } catch (e) {}
@@ -887,8 +892,10 @@ const Musica = {
     const raiz = ev ? 98 * Math.pow(2, ((fase * 3) % 12) / 12) / 2
                     : 110 * Math.pow(2, ((fase * 5) % 12) / 12) / 2;
     const bpm = ev ? ev.bpm + (chefe ? 14 : 0)
-                   : (chefe ? 132 : 96) + Math.floor(r() * 26) + Math.min(28, Math.floor(fase / 12));
-    const timbre = ev ? ev.timbre : TIMBRES[Math.floor(r() * TIMBRES.length)];
+                   : Math.round(((chefe ? 132 : 96) + Math.floor(r() * 26) +
+                       Math.min(28, Math.floor(fase / 12))) * (bioma ? bioma.andamento : 1));
+    const timbre = ev ? ev.timbre
+                      : (bioma ? bioma.timbre : TIMBRES[Math.floor(r() * TIMBRES.length)]);
     const compasso = 16;
     const melodia = [], baixo = [], batida = [];
     for (let i = 0; i < compasso; i++) {

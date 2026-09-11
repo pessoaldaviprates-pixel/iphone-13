@@ -4150,3 +4150,67 @@
   .combo-linha b{display:block;font-size:.7rem;color:var(--fraco)}
   .combo-linha.achou b{color:var(--violet)}
   .combo-linha span{display:block;font-size:.56rem;color:var(--dim);margin-top:2px}
+
+  /* ---------- v6.9: abertura, passiva, placar da arena ---------- */
+  #abertura{
+    position:fixed;inset:0;z-index:95;display:none;
+    background:radial-gradient(circle at 50% 40%,#141B4A,#05070F 70%);
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  }
+  #abertura.on{display:flex;animation:abSai 4s ease forwards}
+  @keyframes abSai{0%,84%{opacity:1}100%{opacity:0;visibility:hidden}}
+  .ab-nave canvas{animation:abNave 4s cubic-bezier(.2,.8,.3,1) both}
+  @keyframes abNave{
+    0%{transform:translateY(120px) scale(.5);opacity:0}
+    35%{transform:translateY(0) scale(1);opacity:1}
+    100%{transform:translateY(-14px) scale(1.04);opacity:1}
+  }
+  .ab-marca{text-align:center;animation:abTexto 4s ease both}
+  @keyframes abTexto{0%,20%{opacity:0;letter-spacing:.6em}55%,100%{opacity:1;letter-spacing:.04em}}
+  .ab-marca b{
+    display:block;font-family:"Russo One",sans-serif;font-size:2.2rem;color:#fff;
+    text-shadow:0 0 24px rgba(94,230,255,.7);
+  }
+  .ab-marca em{
+    display:block;font-style:normal;font-family:"Russo One",sans-serif;font-size:2.2rem;
+    background:linear-gradient(96deg,#5EE6FF,#B57BFF 60%,#FF5C9D);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .ab-linha{
+    width:min(60vw,220px);height:2px;border-radius:99px;
+    background:linear-gradient(90deg,transparent,#5EE6FF,transparent);
+    animation:abLinha 4s ease both;
+  }
+  @keyframes abLinha{0%,40%{opacity:0;transform:scaleX(.2)}70%,100%{opacity:1;transform:scaleX(1)}}
+  .ab-pular{
+    position:absolute;right:16px;bottom:calc(20px + var(--safe-bot));
+    padding:8px 18px;border-radius:99px;font-size:.6rem;letter-spacing:.14em;
+    background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--ink2);
+  }
+
+  .passiva-cx{
+    width:min(92vw,360px);margin:0 auto 10px;padding:10px 13px;border-radius:var(--r-md);
+    background:rgba(181,123,255,.1);border:1px solid rgba(181,123,255,.35);
+  }
+  .passiva-cx b{display:block;font-size:.66rem;color:var(--violet)}
+  .passiva-cx span{display:block;font-size:.58rem;color:var(--dim);margin-top:2px}
+
+  #arena-placar{
+    position:fixed;left:12px;top:calc(96px + var(--safe-top));z-index:9;display:none;
+    pointer-events:none;
+  }
+  #arena-placar.on{display:block}
+  .ap-linha{
+    display:flex;align-items:center;gap:6px;font-size:.56rem;
+    background:rgba(4,8,20,.66);border-radius:8px;padding:3px 8px;margin-bottom:3px;
+  }
+  .ap-linha.eu{background:rgba(94,230,255,.2)}
+  .ap-linha em{font-style:normal}
+  .ap-linha b{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+  .ap-linha span{color:var(--amber);font-variant-numeric:tabular-nums}
+
+  .sala-linha{
+    display:flex;justify-content:space-between;gap:10px;padding:7px 10px;
+    border-radius:var(--r-sm);background:rgba(255,255,255,.05);margin-bottom:5px;font-size:.64rem;
+  }
+  .sala-linha span{color:var(--dim);font-size:.58rem}

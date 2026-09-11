@@ -1566,6 +1566,15 @@ function forcaDaNave(i) {
   };
 }
 function renderHangarAtual() {
+  /* mostra a virtude que a nave tem sem apertar nada */
+  try {
+    const pv = $("hangar-passiva");
+    if (pv) {
+      const pa = passivaDaNave(naveValida(save.ship));
+      pv.innerHTML = '<b>✦ ' + escaparTexto(pa.nome) + "</b><span>" +
+                     escaparTexto(pa.desc) + "</span>";
+    }
+  } catch (e) {}
   const cx = $("hangar-atual");
   if (!cx) return;
   const i = naveValida(save.ship);
