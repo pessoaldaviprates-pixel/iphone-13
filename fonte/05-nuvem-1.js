@@ -1836,16 +1836,7 @@ function bossRushProximo() {
   if (!S.bossRush) return false;
   S.bossRush.n++;
   S.bossRush.pontos += S.score;
-  if (S.bossRush.n >= S.bossRush.total) {
-    const premio = 800 + S.bossRush.pontos / 20;
-    save.crystals += Math.round(premio);
-    if ((S.bossRush.pontos || 0) > (save.bossRushRec || 0)) save.bossRushRec = S.bossRush.pontos;
-    persist();
-    S.bossRush = null; S.soChefe = false;
-    S.banner = { text: "MARATONA VENCIDA!", sub: "+" + fmt(Math.round(premio)) + " cristais", t: 3 };
-    setTimeout(() => { goMenu(); }, 2200);
-    return true;
-  }
+  if (S.bossRush.n >= S.bossRush.total) return bossRushTerminar();
   /* próximo chefe, sem sair da partida */
   const prox = S.bossRushFases[S.bossRush.n];
   S.fase = prox;
@@ -1853,9 +1844,58 @@ function bossRushProximo() {
   S.waveIdx = S.nWaves;
   boss = null;
   enemyBullets.length = 0;
+  bullets.length = 0;
+  ASTEROIDES.length = 0;
   player.hp = Math.min(ST.maxHp, player.hp + ST.maxHp * 0.35);
-  S.banner = { text: "CHEFE " + (S.bossRush.n + 1) + " DE 5", sub: "+35% de casco de volta", t: 2.2 };
+  player.alive = true;
+  player.invuln = 2;
+  /* =================================================================
+     ISTO AQUI É O QUE FALTAVA E DEIXAVA A TELA PRETA
+     -----------------------------------------------------------------
+     Quem chama esta função é o faseVictory, e a PRIMEIRA linha dele já
+     pôs o jogo em "victory". Como aqui a gente volta para a luta sem
+     passar pela tela de vitória, era preciso desfazer isso: sem o modo
+     "playing" de volta, o laço para de atualizar e de desenhar — o
+     jogo não travava, ele estava rodando atrás de uma tela que ninguém
+     mandou aparecer.
+     ================================================================= */
+  S.mode = "playing";
+  showScreen(null);
+  try { Musica.tocar(S.fase, true); } catch (e) {}
+  S.banner = { text: "CHEFE " + (S.bossRush.n + 1) + " DE " + S.bossRush.total,
+               sub: "+35% de casco de volta", t: 2.2 };
   setupWave();
+  updateHud();
+  return true;
+}
+/* fim da maratona: mostra a tela de vitória de verdade, com o resultado */
+function bossRushTerminar() {
+  const r = S.bossRush;
+  const premio = Math.round(800 + (r.pontos || 0) / 20);
+  save.crystals += premio;
+  if ((r.pontos || 0) > (save.bossRushRec || 0)) save.bossRushRec = r.pontos;
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  S.bossRush = null;
+  S.soChefe = false;
+  S.mode = "victory";
+  try { Musica.parar(); } catch (e) {}
+  try { AudioSys.victory(); vibrate([60, 60, 120]); } catch (e) {}
+  $("vic-title").textContent = "MARATONA VENCIDA";
+  $("vic-fase").textContent = r.total + "/" + r.total;
+  $("vic-score").textContent = fmt(r.pontos || 0);
+  $("vic-gems").textContent = "+" + fmt(premio) + " cristais";
+  $("vic-skill").style.display = "none";
+  const va = $("vic-amulet");
+  if (va) va.style.display = "none";
+  const est = $("vic-estrelas");
+  if (est) est.innerHTML = "";
+  const nota = $("vic-estrelas-nota");
+  if (nota) nota.textContent = r.total + " chefes seguidos, sem sair da partida";
+  const resumo = $("vic-resumo");
+  if (resumo) resumo.innerHTML = "";
+  $("btn-next").style.display = "none";
+  showScreen("victory");
   return true;
 }
 

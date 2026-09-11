@@ -722,6 +722,202 @@ async function reembolsosRender() {
 }
 
 
+/* =====================================================================
+   v7.0 — O MENU COMPRIMIDO
+   ---------------------------------------------------------------------
+   O menu tinha 19 botões numa tela só. Ninguém acha nada assim: o olho
+   passa por cima de tudo e não pousa em lugar nenhum.
+
+   Agora o menu tem JOGAR e QUATRO PORTAS. Cada porta abre uma lista de
+   linhas grandes, com ícone, nome e uma frase dizendo o que é. Nada
+   sumiu: as portas apertam os MESMOS botões de antes, que continuam no
+   HTML (escondidos). Quem já sabia onde as coisas ficavam não perde
+   nada; quem não sabia agora tem só quatro escolhas de cada vez.
+   ===================================================================== */
+
+const PORTAS = [
+  {
+    id: "nave", nome: "MINHA NAVE", icone: "▲", cor: "cyan",
+    nota: () => {
+      try {
+        const n = (SHIPS[naveValida(save.ship)] || {}).name || "";
+        const pts = ptsAvailable();
+        return n + (pts ? " · " + pts + " ponto" + (pts > 1 ? "s" : "") + " para gastar" : "");
+      } catch (e) { return "nave, melhorias e relíquias"; }
+    },
+    /* quantas coisas estão pedindo atenção aqui dentro */
+    pip: () => { try { return ptsAvailable(); } catch (e) { return 0; } },
+    itens: [
+      { botao: "btn-hangar",    icone: "▲", nome: "Hangar",       nota: "trocar de nave, pintar, armar" },
+      { botao: "btn-shop",      icone: "⬡", nome: "Melhorias",    nota: "dano, casco, escudo, sorte" },
+      { botao: "btn-tree",      icone: "✦", nome: "Habilidades",  nota: "a árvore de pontos" },
+      { botao: "btn-reliquias", icone: "◈", nome: "Relíquias",    nota: "amuletos e baús" },
+      { botao: "btn-comparar",  icone: "📊", nome: "Comparar naves", nota: "as 120 lado a lado", ondeEsta: "hangar" },
+      { botao: "btn-treino",    icone: "🎯", nome: "Sala de treino", nota: "alvos parados, nada machuca", ondeEsta: "hangar" }
+    ]
+  },
+  {
+    id: "online", nome: "COM AMIGOS", icone: "🤝", cor: "verde",
+    nota: () => {
+      try {
+        const n = Object.keys((typeof AM !== "undefined" && AM.lista) || {}).length;
+        return n ? n + (n === 1 ? " amigo" : " amigos") + " · dupla, duelo e arena"
+                 : "jogar junto, duelo e ranqueada";
+      } catch (e) { return "jogar junto, duelo e ranqueada"; }
+    },
+    pip: () => {
+      try { return Object.keys((AM && AM.pedidos) || {}).length; } catch (e) { return 0; }
+    },
+    itens: [
+      { botao: "btn-multi",    icone: "🤝", nome: "Jogar com amigo", nota: "jornada em dupla, duelo, sala" },
+      { botao: "btn-ranked",   icone: "⚔", nome: "Ranqueada",       nota: "o jogo acha alguém do seu nível" },
+      { botao: "btn-arena",    icone: "∞", nome: "Arena infinita",  nota: "uma arena para todo mundo" },
+      { botao: "btn-bossrush", icone: "☠", nome: "Maratona de chefes", nota: "5 chefes seguidos" },
+      { botao: "btn-amigos",   icone: "👥", nome: "Amigos",          nota: "conversar e adicionar" },
+      { botao: "btn-cla",      icone: "✦", nome: "Esquadrão",       nota: "o seu time, com ranking somado" },
+      { botao: "btn-convite",  icone: "🎟", nome: "Convidar",        nota: "cristais para os dois" },
+      { botao: "btn-rank",     icone: "🏆", nome: "Ranking",         nota: "quem está na frente" }
+    ]
+  },
+  {
+    id: "progresso", nome: "PROGRESSO", icone: "🗺", cor: "roxo",
+    nota: () => {
+      try { return (save.best || 0) + " de " + TOTAL_FASES + " fases · " + estrelasTotal() + " estrelas"; }
+      catch (e) { return "mapa, missões e conquistas"; }
+    },
+    pip: () => {
+      try { return misProntas() + conqProntas(); } catch (e) { return 0; }
+    },
+    itens: [
+      { botao: "btn-mapa",       icone: "🗺", nome: "Mapa da jornada", nota: "as 270 fases e o que tem nelas" },
+      { botao: "btn-missoes",    icone: "🎯", nome: "Missões do dia",  nota: "três por dia, com prêmio" },
+      { botao: "btn-conquistas", icone: "★", nome: "Conquistas",      nota: "25 medalhas" },
+      { botao: "btn-perfil",     icone: "👤", nome: "Meu perfil",      nota: "os seus números e molduras" },
+      { botao: "btn-novidades",  icone: "📋", nome: "Novidades",       nota: "o que mudou no jogo" }
+    ]
+  },
+  {
+    id: "loja", nome: "LOJA", icone: "👑", cor: "ouro",
+    nota: () => {
+      try {
+        return temVip() ? "VIP por mais " + vipDiasQueFaltam() + " dias" : "VIP, passes e naves exclusivas";
+      } catch (e) { return "VIP, passes e naves"; }
+    },
+    pip: () => 0,
+    /* a loja é uma porta de um item só: abre direto */
+    direto: "btn-loja"
+  }
+];
+
+let portaAberta = null;
+
+function portaRender() {
+  const cx = $("menu-portas");
+  if (!cx) return;
+  cx.innerHTML = PORTAS.map(p => {
+    let nota = "", pip = 0;
+    try { nota = p.nota(); } catch (e) {}
+    try { pip = p.pip ? p.pip() : 0; } catch (e) {}
+    return '<button class="porta ' + p.cor + '" data-porta="' + p.id + '">' +
+      '<b class="porta-ic">' + p.icone + "</b>" +
+      '<span class="porta-txt"><strong>' + escaparTexto(p.nome) + "</strong>" +
+      "<em>" + escaparTexto(nota) + "</em></span>" +
+      (pip > 0 ? '<i class="porta-pip">' + pip + "</i>" : "") +
+      "</button>";
+  }).join("");
+  cx.querySelectorAll("[data-porta]").forEach(b =>
+    b.addEventListener("click", () => portaAbrir(b.getAttribute("data-porta"))));
+}
+
+function portaAbrir(id) {
+  const p = PORTAS.filter(x => x.id === id)[0];
+  if (!p) return;
+  try { AudioSys.gem(); } catch (e) {}
+  /* porta de um item só não faz o jogador tocar duas vezes */
+  if (p.direto) {
+    const b = $(p.direto);
+    if (b) b.click();
+    return;
+  }
+  portaAberta = p;
+  S.mode = "porta";
+  showScreen("porta");
+  portaCorpoRender();
+}
+
+function portaCorpoRender() {
+  const p = portaAberta;
+  if (!p) return;
+  const tit = $("porta-titulo");
+  if (tit) tit.textContent = p.nome;
+  const cx = $("porta-corpo");
+  if (!cx) return;
+  const visivel = it => {
+    const b = $(it.botao);
+    if (!b) return false;
+    /* respeita quem o jogo já escondia (atalho travado, sem permissão) */
+    const estilo = b.getAttribute("style") || "";
+    if (estilo.indexOf("display: none") >= 0 || estilo.indexOf("display:none") >= 0) return false;
+    return true;
+  };
+  const itens = p.itens.filter(visivel);
+  cx.innerHTML = itens.map(it => {
+    const b = $(it.botao);
+    /* o selo que o jogo já escreve no botão antigo continua valendo */
+    let selo = "";
+    try {
+      const i = b.querySelector("i");
+      if (i && i.textContent && i.textContent.trim()) selo = i.textContent.trim();
+    } catch (e) {}
+    return '<button class="porta-linha" data-ir="' + it.botao + '">' +
+      '<b class="porta-ic pequeno">' + it.icone + "</b>" +
+      '<span class="porta-txt"><strong>' + escaparTexto(it.nome) + "</strong>" +
+      "<em>" + escaparTexto(it.nota) + "</em></span>" +
+      (selo ? '<i class="porta-selo">' + escaparTexto(selo) + "</i>" : "") +
+      '<span class="porta-seta">›</span></button>';
+  }).join("") +
+  (p.id === "nave" ? '<p class="adm-note" style="margin-top:12px">Tudo o que mexe na sua nave ' +
+    "está aqui dentro — era isso que enchia o menu de botão.</p>" : "");
+  cx.querySelectorAll("[data-ir]").forEach(b =>
+    b.addEventListener("click", () => {
+      const alvo = $(b.getAttribute("data-ir"));
+      if (alvo) alvo.click();
+    }));
+}
+
+/* o "hoje" junta o que era três cartões soltos no menu */
+function hojeRender() {
+  const cx = $("menu-hoje");
+  if (!cx) return;
+  const linhas = [];
+  try {
+    const m = misEstado();
+    const feitas = m.itens.filter(it => it.feito >= it.alvo).length;
+    linhas.push({
+      ic: "🎯", txt: feitas + " de " + m.itens.length + " missões do dia",
+      destaque: misProntas() > 0,
+      extra: misProntas() ? "tem prêmio para pegar" : "",
+      vai: () => misAbrir()
+    });
+  } catch (e) {}
+  try {
+    const f = faltaPouco();
+    if (f.length) linhas.push({ ic: "◆", txt: f[0].txt, extra: "", vai: null });
+  } catch (e) {}
+  if (!linhas.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "hoje";
+  cx.innerHTML = linhas.map((l, i) =>
+    '<div class="hoje-linha' + (l.destaque ? " tem" : "") + '" data-hoje="' + i + '">' +
+    "<b>" + l.ic + "</b><span>" + escaparTexto(l.txt) +
+    (l.extra ? " — <em>" + escaparTexto(l.extra) + "</em>" : "") + "</span></div>").join("");
+  cx.querySelectorAll("[data-hoje]").forEach(el => {
+    const l = linhas[parseInt(el.getAttribute("data-hoje"), 10)];
+    if (l && l.vai) el.addEventListener("click", l.vai);
+  });
+}
+
+
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   try { Musica.parar(); } catch (e) {}

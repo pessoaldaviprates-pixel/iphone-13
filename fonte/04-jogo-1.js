@@ -103,6 +103,7 @@ const SCREENS = {
   ajustes: $("screen-ajustes"), missoes: $("screen-missoes"),
   perfil: $("screen-perfil"), conquistas: $("screen-conquistas"), convite: $("screen-convite"),
   comparar: $("screen-comparar"), mapa: $("screen-mapa"), cla: $("screen-cla"),
+  porta: $("screen-porta"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
@@ -196,6 +197,8 @@ function refreshMenu() {
   try {
     diariaRender(); misBadge(); conqBadge(); faltaRender();
     vipAvisoRender();
+    portaRender();
+    hojeRender();
     const br = $("br-rec");
     if (br) { br.textContent = save.bossRushRec ? fmt(save.bossRushRec) : ""; br.className = save.bossRushRec ? "on" : ""; }
   } catch (e) {}

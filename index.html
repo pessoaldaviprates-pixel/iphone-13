@@ -4233,6 +4233,67 @@
   }
   .sala-linha span{color:var(--dim);font-size:.58rem}
 
+  /* ---------- v7.0: as quatro portas ---------- */
+  .escondida{display:none !important}
+
+  .portas{display:flex;flex-direction:column;gap:9px;width:100%}
+  .porta{
+    display:flex;align-items:center;gap:13px;text-align:left;position:relative;
+    padding:14px 15px;border-radius:var(--r-lg);width:100%;
+    background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
+    transition:transform .12s ease,border-color .18s ease;
+  }
+  .porta:active{transform:scale(.985);border-color:var(--line2)}
+  .porta-ic{
+    flex:none;width:46px;height:46px;border-radius:15px;
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+    background:rgba(94,230,255,.14);border:1px solid rgba(94,230,255,.32);color:var(--cyan);
+  }
+  .porta-ic.pequeno{width:38px;height:38px;font-size:1.1rem;border-radius:13px}
+  .porta.verde .porta-ic{background:rgba(99,245,181,.14);border-color:rgba(99,245,181,.34);color:var(--verde)}
+  .porta.roxo  .porta-ic{background:rgba(181,123,255,.16);border-color:rgba(181,123,255,.34);color:var(--violet)}
+  .porta.ouro  .porta-ic{background:rgba(255,200,97,.16);border-color:rgba(255,200,97,.4);color:var(--amber)}
+  .porta.ouro{border-color:rgba(255,200,97,.28);background:linear-gradient(150deg,rgba(255,200,97,.1),rgba(255,255,255,.02))}
+  .porta-txt{flex:1;min-width:0}
+  .porta-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-size:.8rem;
+    letter-spacing:.09em;font-weight:600;color:var(--ink);
+  }
+  .porta-txt em{
+    display:block;font-style:normal;font-size:.6rem;color:var(--dim);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .porta-pip{
+    position:absolute;top:10px;right:12px;font-style:normal;
+    min-width:20px;height:20px;border-radius:99px;padding:0 6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.58rem;font-weight:700;background:var(--danger);color:#fff;
+  }
+
+  .porta-linha{
+    display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+    padding:13px 14px;border-radius:var(--r-lg);margin-bottom:8px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .porta-linha:active{background:rgba(94,230,255,.1);border-color:var(--line2)}
+  .porta-selo{
+    font-style:normal;font-size:.56rem;color:var(--amber);flex:none;max-width:38%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;
+  }
+  .porta-seta{flex:none;color:var(--fraco);font-size:1.1rem}
+
+  .hoje{
+    width:min(92vw,360px);padding:10px 12px;border-radius:var(--r-lg);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:5px;
+  }
+  .hoje-linha{display:flex;align-items:center;gap:9px;font-size:.64rem;color:var(--ink2)}
+  .hoje-linha b{flex:none;color:var(--cyan);font-size:.72rem}
+  .hoje-linha em{font-style:normal;color:var(--verde)}
+  .hoje-linha.tem{cursor:pointer}
+  .hoje-linha.tem b{color:var(--verde)}
+
 </style>
 </head>
 <body>
@@ -5090,7 +5151,14 @@
 
   <div class="menu-btns">
     <button class="big-btn" id="btn-play">▶ JOGAR</button>
-    <div class="menu-grade">
+
+    <!-- as quatro portas: é o menu que o jogador vê -->
+    <div class="portas" id="menu-portas"></div>
+
+    <!-- os botões de antes continuam aqui, escondidos. As portas apertam
+         eles, então nada precisou ser reescrito e os selos que o jogo já
+         escrevia continuam valendo. -->
+    <div class="menu-grade escondida">
       <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
       <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
       <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
@@ -5098,8 +5166,8 @@
       <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
     </div>
 
-    <div class="menu-secao" id="menu-online-h">ONLINE</div>
-    <div class="menu-grade online" id="menu-online">
+    <div class="menu-secao escondida" id="menu-online-h">ONLINE</div>
+    <div class="menu-grade online escondida" id="menu-online">
       <button class="tile verde wide" id="btn-multi"><b>🤝</b><span>JOGAR COM AMIGO</span><i id="multi-badge">jornada em dupla · duelo · ranqueada</i></button>
       <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
       <button class="tile magenta" id="btn-bossrush"><b>☠</b><span>MARATONA DE CHEFES</span><i id="br-rec"></i></button>
@@ -5112,18 +5180,25 @@
     <div id="nuvem-status" style="display:none"></div>
     <div id="presente-aviso"></div>
     <div id="diaria-cartao" style="display:none"></div>
-    <div id="missoes-resumo" style="display:none"></div>
-    <div id="falta-pouco" style="display:none"></div>
+    <div id="menu-hoje" style="display:none"></div>
     <div id="vip-aviso" style="display:none"></div>
+
+    <!-- só o que é de todo dia fica solto aqui embaixo -->
     <div class="menu-chips">
+      <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
+      <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
+    </div>
+
+    <!-- escondidos: as portas apertam estes -->
+    <div class="menu-chips escondida">
       <button class="chip" id="btn-mapa">🗺 MAPA</button>
       <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
       <button class="chip" id="btn-conquistas">★ CONQUISTAS<i id="conq-badge"></i></button>
       <button class="chip" id="btn-convite">🎟 CONVIDAR</button>
-      <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
-      <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     </div>
+    <div id="missoes-resumo" style="display:none"></div>
+    <div id="falta-pouco" style="display:none"></div>
     <div id="cloud-status"></div>
   </div>
 </div>
@@ -5645,6 +5720,15 @@
 </div>
 
 <div id="foto-caixa"></div>
+
+<!-- UMA DAS QUATRO PORTAS -->
+<div class="page" id="screen-porta">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title" id="porta-titulo">MENU</div>
+  </div>
+  <div class="scroll"><div id="porta-corpo"></div></div>
+</div>
 
 <!-- MAPA DA JORNADA -->
 <div class="page" id="screen-mapa">
@@ -8790,6 +8874,7 @@ const SCREENS = {
   ajustes: $("screen-ajustes"), missoes: $("screen-missoes"),
   perfil: $("screen-perfil"), conquistas: $("screen-conquistas"), convite: $("screen-convite"),
   comparar: $("screen-comparar"), mapa: $("screen-mapa"), cla: $("screen-cla"),
+  porta: $("screen-porta"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
@@ -8883,6 +8968,8 @@ function refreshMenu() {
   try {
     diariaRender(); misBadge(); conqBadge(); faltaRender();
     vipAvisoRender();
+    portaRender();
+    hojeRender();
     const br = $("br-rec");
     if (br) { br.textContent = save.bossRushRec ? fmt(save.bossRushRec) : ""; br.className = save.bossRushRec ? "on" : ""; }
   } catch (e) {}
@@ -19197,16 +19284,7 @@ function bossRushProximo() {
   if (!S.bossRush) return false;
   S.bossRush.n++;
   S.bossRush.pontos += S.score;
-  if (S.bossRush.n >= S.bossRush.total) {
-    const premio = 800 + S.bossRush.pontos / 20;
-    save.crystals += Math.round(premio);
-    if ((S.bossRush.pontos || 0) > (save.bossRushRec || 0)) save.bossRushRec = S.bossRush.pontos;
-    persist();
-    S.bossRush = null; S.soChefe = false;
-    S.banner = { text: "MARATONA VENCIDA!", sub: "+" + fmt(Math.round(premio)) + " cristais", t: 3 };
-    setTimeout(() => { goMenu(); }, 2200);
-    return true;
-  }
+  if (S.bossRush.n >= S.bossRush.total) return bossRushTerminar();
   /* próximo chefe, sem sair da partida */
   const prox = S.bossRushFases[S.bossRush.n];
   S.fase = prox;
@@ -19214,9 +19292,58 @@ function bossRushProximo() {
   S.waveIdx = S.nWaves;
   boss = null;
   enemyBullets.length = 0;
+  bullets.length = 0;
+  ASTEROIDES.length = 0;
   player.hp = Math.min(ST.maxHp, player.hp + ST.maxHp * 0.35);
-  S.banner = { text: "CHEFE " + (S.bossRush.n + 1) + " DE 5", sub: "+35% de casco de volta", t: 2.2 };
+  player.alive = true;
+  player.invuln = 2;
+  /* =================================================================
+     ISTO AQUI É O QUE FALTAVA E DEIXAVA A TELA PRETA
+     -----------------------------------------------------------------
+     Quem chama esta função é o faseVictory, e a PRIMEIRA linha dele já
+     pôs o jogo em "victory". Como aqui a gente volta para a luta sem
+     passar pela tela de vitória, era preciso desfazer isso: sem o modo
+     "playing" de volta, o laço para de atualizar e de desenhar — o
+     jogo não travava, ele estava rodando atrás de uma tela que ninguém
+     mandou aparecer.
+     ================================================================= */
+  S.mode = "playing";
+  showScreen(null);
+  try { Musica.tocar(S.fase, true); } catch (e) {}
+  S.banner = { text: "CHEFE " + (S.bossRush.n + 1) + " DE " + S.bossRush.total,
+               sub: "+35% de casco de volta", t: 2.2 };
   setupWave();
+  updateHud();
+  return true;
+}
+/* fim da maratona: mostra a tela de vitória de verdade, com o resultado */
+function bossRushTerminar() {
+  const r = S.bossRush;
+  const premio = Math.round(800 + (r.pontos || 0) / 20);
+  save.crystals += premio;
+  if ((r.pontos || 0) > (save.bossRushRec || 0)) save.bossRushRec = r.pontos;
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  S.bossRush = null;
+  S.soChefe = false;
+  S.mode = "victory";
+  try { Musica.parar(); } catch (e) {}
+  try { AudioSys.victory(); vibrate([60, 60, 120]); } catch (e) {}
+  $("vic-title").textContent = "MARATONA VENCIDA";
+  $("vic-fase").textContent = r.total + "/" + r.total;
+  $("vic-score").textContent = fmt(r.pontos || 0);
+  $("vic-gems").textContent = "+" + fmt(premio) + " cristais";
+  $("vic-skill").style.display = "none";
+  const va = $("vic-amulet");
+  if (va) va.style.display = "none";
+  const est = $("vic-estrelas");
+  if (est) est.innerHTML = "";
+  const nota = $("vic-estrelas-nota");
+  if (nota) nota.textContent = r.total + " chefes seguidos, sem sair da partida";
+  const resumo = $("vic-resumo");
+  if (resumo) resumo.innerHTML = "";
+  $("btn-next").style.display = "none";
+  showScreen("victory");
   return true;
 }
 
@@ -21818,6 +21945,202 @@ async function reembolsosRender() {
       "<span>" + escaparTexto(l.item || "") + " · " + reais(l.preco || 0) +
       (l.motivo ? " · " + escaparTexto(l.motivo) : "") + "</span>" +
       "<em>" + quandoTexto(l.quando) + "</em></div>").join("");
+}
+
+
+/* =====================================================================
+   v7.0 — O MENU COMPRIMIDO
+   ---------------------------------------------------------------------
+   O menu tinha 19 botões numa tela só. Ninguém acha nada assim: o olho
+   passa por cima de tudo e não pousa em lugar nenhum.
+
+   Agora o menu tem JOGAR e QUATRO PORTAS. Cada porta abre uma lista de
+   linhas grandes, com ícone, nome e uma frase dizendo o que é. Nada
+   sumiu: as portas apertam os MESMOS botões de antes, que continuam no
+   HTML (escondidos). Quem já sabia onde as coisas ficavam não perde
+   nada; quem não sabia agora tem só quatro escolhas de cada vez.
+   ===================================================================== */
+
+const PORTAS = [
+  {
+    id: "nave", nome: "MINHA NAVE", icone: "▲", cor: "cyan",
+    nota: () => {
+      try {
+        const n = (SHIPS[naveValida(save.ship)] || {}).name || "";
+        const pts = ptsAvailable();
+        return n + (pts ? " · " + pts + " ponto" + (pts > 1 ? "s" : "") + " para gastar" : "");
+      } catch (e) { return "nave, melhorias e relíquias"; }
+    },
+    /* quantas coisas estão pedindo atenção aqui dentro */
+    pip: () => { try { return ptsAvailable(); } catch (e) { return 0; } },
+    itens: [
+      { botao: "btn-hangar",    icone: "▲", nome: "Hangar",       nota: "trocar de nave, pintar, armar" },
+      { botao: "btn-shop",      icone: "⬡", nome: "Melhorias",    nota: "dano, casco, escudo, sorte" },
+      { botao: "btn-tree",      icone: "✦", nome: "Habilidades",  nota: "a árvore de pontos" },
+      { botao: "btn-reliquias", icone: "◈", nome: "Relíquias",    nota: "amuletos e baús" },
+      { botao: "btn-comparar",  icone: "📊", nome: "Comparar naves", nota: "as 120 lado a lado", ondeEsta: "hangar" },
+      { botao: "btn-treino",    icone: "🎯", nome: "Sala de treino", nota: "alvos parados, nada machuca", ondeEsta: "hangar" }
+    ]
+  },
+  {
+    id: "online", nome: "COM AMIGOS", icone: "🤝", cor: "verde",
+    nota: () => {
+      try {
+        const n = Object.keys((typeof AM !== "undefined" && AM.lista) || {}).length;
+        return n ? n + (n === 1 ? " amigo" : " amigos") + " · dupla, duelo e arena"
+                 : "jogar junto, duelo e ranqueada";
+      } catch (e) { return "jogar junto, duelo e ranqueada"; }
+    },
+    pip: () => {
+      try { return Object.keys((AM && AM.pedidos) || {}).length; } catch (e) { return 0; }
+    },
+    itens: [
+      { botao: "btn-multi",    icone: "🤝", nome: "Jogar com amigo", nota: "jornada em dupla, duelo, sala" },
+      { botao: "btn-ranked",   icone: "⚔", nome: "Ranqueada",       nota: "o jogo acha alguém do seu nível" },
+      { botao: "btn-arena",    icone: "∞", nome: "Arena infinita",  nota: "uma arena para todo mundo" },
+      { botao: "btn-bossrush", icone: "☠", nome: "Maratona de chefes", nota: "5 chefes seguidos" },
+      { botao: "btn-amigos",   icone: "👥", nome: "Amigos",          nota: "conversar e adicionar" },
+      { botao: "btn-cla",      icone: "✦", nome: "Esquadrão",       nota: "o seu time, com ranking somado" },
+      { botao: "btn-convite",  icone: "🎟", nome: "Convidar",        nota: "cristais para os dois" },
+      { botao: "btn-rank",     icone: "🏆", nome: "Ranking",         nota: "quem está na frente" }
+    ]
+  },
+  {
+    id: "progresso", nome: "PROGRESSO", icone: "🗺", cor: "roxo",
+    nota: () => {
+      try { return (save.best || 0) + " de " + TOTAL_FASES + " fases · " + estrelasTotal() + " estrelas"; }
+      catch (e) { return "mapa, missões e conquistas"; }
+    },
+    pip: () => {
+      try { return misProntas() + conqProntas(); } catch (e) { return 0; }
+    },
+    itens: [
+      { botao: "btn-mapa",       icone: "🗺", nome: "Mapa da jornada", nota: "as 270 fases e o que tem nelas" },
+      { botao: "btn-missoes",    icone: "🎯", nome: "Missões do dia",  nota: "três por dia, com prêmio" },
+      { botao: "btn-conquistas", icone: "★", nome: "Conquistas",      nota: "25 medalhas" },
+      { botao: "btn-perfil",     icone: "👤", nome: "Meu perfil",      nota: "os seus números e molduras" },
+      { botao: "btn-novidades",  icone: "📋", nome: "Novidades",       nota: "o que mudou no jogo" }
+    ]
+  },
+  {
+    id: "loja", nome: "LOJA", icone: "👑", cor: "ouro",
+    nota: () => {
+      try {
+        return temVip() ? "VIP por mais " + vipDiasQueFaltam() + " dias" : "VIP, passes e naves exclusivas";
+      } catch (e) { return "VIP, passes e naves"; }
+    },
+    pip: () => 0,
+    /* a loja é uma porta de um item só: abre direto */
+    direto: "btn-loja"
+  }
+];
+
+let portaAberta = null;
+
+function portaRender() {
+  const cx = $("menu-portas");
+  if (!cx) return;
+  cx.innerHTML = PORTAS.map(p => {
+    let nota = "", pip = 0;
+    try { nota = p.nota(); } catch (e) {}
+    try { pip = p.pip ? p.pip() : 0; } catch (e) {}
+    return '<button class="porta ' + p.cor + '" data-porta="' + p.id + '">' +
+      '<b class="porta-ic">' + p.icone + "</b>" +
+      '<span class="porta-txt"><strong>' + escaparTexto(p.nome) + "</strong>" +
+      "<em>" + escaparTexto(nota) + "</em></span>" +
+      (pip > 0 ? '<i class="porta-pip">' + pip + "</i>" : "") +
+      "</button>";
+  }).join("");
+  cx.querySelectorAll("[data-porta]").forEach(b =>
+    b.addEventListener("click", () => portaAbrir(b.getAttribute("data-porta"))));
+}
+
+function portaAbrir(id) {
+  const p = PORTAS.filter(x => x.id === id)[0];
+  if (!p) return;
+  try { AudioSys.gem(); } catch (e) {}
+  /* porta de um item só não faz o jogador tocar duas vezes */
+  if (p.direto) {
+    const b = $(p.direto);
+    if (b) b.click();
+    return;
+  }
+  portaAberta = p;
+  S.mode = "porta";
+  showScreen("porta");
+  portaCorpoRender();
+}
+
+function portaCorpoRender() {
+  const p = portaAberta;
+  if (!p) return;
+  const tit = $("porta-titulo");
+  if (tit) tit.textContent = p.nome;
+  const cx = $("porta-corpo");
+  if (!cx) return;
+  const visivel = it => {
+    const b = $(it.botao);
+    if (!b) return false;
+    /* respeita quem o jogo já escondia (atalho travado, sem permissão) */
+    const estilo = b.getAttribute("style") || "";
+    if (estilo.indexOf("display: none") >= 0 || estilo.indexOf("display:none") >= 0) return false;
+    return true;
+  };
+  const itens = p.itens.filter(visivel);
+  cx.innerHTML = itens.map(it => {
+    const b = $(it.botao);
+    /* o selo que o jogo já escreve no botão antigo continua valendo */
+    let selo = "";
+    try {
+      const i = b.querySelector("i");
+      if (i && i.textContent && i.textContent.trim()) selo = i.textContent.trim();
+    } catch (e) {}
+    return '<button class="porta-linha" data-ir="' + it.botao + '">' +
+      '<b class="porta-ic pequeno">' + it.icone + "</b>" +
+      '<span class="porta-txt"><strong>' + escaparTexto(it.nome) + "</strong>" +
+      "<em>" + escaparTexto(it.nota) + "</em></span>" +
+      (selo ? '<i class="porta-selo">' + escaparTexto(selo) + "</i>" : "") +
+      '<span class="porta-seta">›</span></button>';
+  }).join("") +
+  (p.id === "nave" ? '<p class="adm-note" style="margin-top:12px">Tudo o que mexe na sua nave ' +
+    "está aqui dentro — era isso que enchia o menu de botão.</p>" : "");
+  cx.querySelectorAll("[data-ir]").forEach(b =>
+    b.addEventListener("click", () => {
+      const alvo = $(b.getAttribute("data-ir"));
+      if (alvo) alvo.click();
+    }));
+}
+
+/* o "hoje" junta o que era três cartões soltos no menu */
+function hojeRender() {
+  const cx = $("menu-hoje");
+  if (!cx) return;
+  const linhas = [];
+  try {
+    const m = misEstado();
+    const feitas = m.itens.filter(it => it.feito >= it.alvo).length;
+    linhas.push({
+      ic: "🎯", txt: feitas + " de " + m.itens.length + " missões do dia",
+      destaque: misProntas() > 0,
+      extra: misProntas() ? "tem prêmio para pegar" : "",
+      vai: () => misAbrir()
+    });
+  } catch (e) {}
+  try {
+    const f = faltaPouco();
+    if (f.length) linhas.push({ ic: "◆", txt: f[0].txt, extra: "", vai: null });
+  } catch (e) {}
+  if (!linhas.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "hoje";
+  cx.innerHTML = linhas.map((l, i) =>
+    '<div class="hoje-linha' + (l.destaque ? " tem" : "") + '" data-hoje="' + i + '">' +
+    "<b>" + l.ic + "</b><span>" + escaparTexto(l.txt) +
+    (l.extra ? " — <em>" + escaparTexto(l.extra) + "</em>" : "") + "</span></div>").join("");
+  cx.querySelectorAll("[data-hoje]").forEach(el => {
+    const l = linhas[parseInt(el.getAttribute("data-hoje"), 10)];
+    if (l && l.vai) el.addEventListener("click", l.vai);
+  });
 }
 
 
@@ -27260,6 +27583,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.0", itens: [
+      "CORRIGIDO (grave): na MARATONA DE CHEFES, derrotar um chefe deixava a tela preta e o jogo parecia ter travado. Ele não travava: a vitória já tinha posto o jogo no modo “fim de fase” antes de voltar para a luta, então o jogo ficava rodando atrás de uma tela que ninguém mandou aparecer. Agora a maratona volta direto para o combate, com o painel no lugar, e quando os 5 chefes caem aparece uma tela de vitória de verdade com os pontos e o prêmio",
+      "Conferi também os chefes de fora da maratona (fases 10, 20, 40, 80 e 120, os quatro tipos): todos terminavam certo, o problema era só da maratona. Tem um teste novo que derrota chefe de verdade e confere isso",
+      "MENU COMPRIMIDO: eram 19 botões numa tela só. Agora são JOGAR e quatro portas grandes — MINHA NAVE, COM AMIGOS, PROGRESSO e LOJA. Nada sumiu: cada porta abre uma lista de linhas grandes com ícone, nome e uma frase dizendo o que é",
+      "Cada porta mostra na hora o que está pedindo atenção: pontos de habilidade para gastar, pedido de amizade esperando, missão ou conquista pronta para pegar",
+      "O que era três cartõezinhos soltos no menu (missões, falta pouco) virou uma linha só de HOJE",
+      "A LOJA é a única porta que abre direto, porque tem uma coisa só dentro"
+    ] },
   { v: "6.9", itens: [
       "ABERTURA: na primeiríssima vez que o jogo abre, uma apresentação de 4 segundos com a nave e o nome. Depois disso nunca mais aparece",
       "O FUNDO TEM FUNDO: manchas de nebulosa em três profundidades andando mais devagar que as estrelas. No modo leve elas nem são desenhadas",
@@ -27658,7 +27989,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.9";
+const VERSAO = "7.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

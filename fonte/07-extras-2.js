@@ -575,6 +575,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.0", itens: [
+      "CORRIGIDO (grave): na MARATONA DE CHEFES, derrotar um chefe deixava a tela preta e o jogo parecia ter travado. Ele não travava: a vitória já tinha posto o jogo no modo “fim de fase” antes de voltar para a luta, então o jogo ficava rodando atrás de uma tela que ninguém mandou aparecer. Agora a maratona volta direto para o combate, com o painel no lugar, e quando os 5 chefes caem aparece uma tela de vitória de verdade com os pontos e o prêmio",
+      "Conferi também os chefes de fora da maratona (fases 10, 20, 40, 80 e 120, os quatro tipos): todos terminavam certo, o problema era só da maratona. Tem um teste novo que derrota chefe de verdade e confere isso",
+      "MENU COMPRIMIDO: eram 19 botões numa tela só. Agora são JOGAR e quatro portas grandes — MINHA NAVE, COM AMIGOS, PROGRESSO e LOJA. Nada sumiu: cada porta abre uma lista de linhas grandes com ícone, nome e uma frase dizendo o que é",
+      "Cada porta mostra na hora o que está pedindo atenção: pontos de habilidade para gastar, pedido de amizade esperando, missão ou conquista pronta para pegar",
+      "O que era três cartõezinhos soltos no menu (missões, falta pouco) virou uma linha só de HOJE",
+      "A LOJA é a única porta que abre direto, porque tem uma coisa só dentro"
+    ] },
   { v: "6.9", itens: [
       "ABERTURA: na primeiríssima vez que o jogo abre, uma apresentação de 4 segundos com a nave e o nome. Depois disso nunca mais aparece",
       "O FUNDO TEM FUNDO: manchas de nebulosa em três profundidades andando mais devagar que as estrelas. No modo leve elas nem são desenhadas",
@@ -973,7 +981,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.9";
+const VERSAO = "7.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

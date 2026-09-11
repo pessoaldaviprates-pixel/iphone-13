@@ -4214,3 +4214,64 @@
     border-radius:var(--r-sm);background:rgba(255,255,255,.05);margin-bottom:5px;font-size:.64rem;
   }
   .sala-linha span{color:var(--dim);font-size:.58rem}
+
+  /* ---------- v7.0: as quatro portas ---------- */
+  .escondida{display:none !important}
+
+  .portas{display:flex;flex-direction:column;gap:9px;width:100%}
+  .porta{
+    display:flex;align-items:center;gap:13px;text-align:left;position:relative;
+    padding:14px 15px;border-radius:var(--r-lg);width:100%;
+    background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    border:1px solid var(--line);box-shadow:var(--som-1),var(--luz);
+    transition:transform .12s ease,border-color .18s ease;
+  }
+  .porta:active{transform:scale(.985);border-color:var(--line2)}
+  .porta-ic{
+    flex:none;width:46px;height:46px;border-radius:15px;
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+    background:rgba(94,230,255,.14);border:1px solid rgba(94,230,255,.32);color:var(--cyan);
+  }
+  .porta-ic.pequeno{width:38px;height:38px;font-size:1.1rem;border-radius:13px}
+  .porta.verde .porta-ic{background:rgba(99,245,181,.14);border-color:rgba(99,245,181,.34);color:var(--verde)}
+  .porta.roxo  .porta-ic{background:rgba(181,123,255,.16);border-color:rgba(181,123,255,.34);color:var(--violet)}
+  .porta.ouro  .porta-ic{background:rgba(255,200,97,.16);border-color:rgba(255,200,97,.4);color:var(--amber)}
+  .porta.ouro{border-color:rgba(255,200,97,.28);background:linear-gradient(150deg,rgba(255,200,97,.1),rgba(255,255,255,.02))}
+  .porta-txt{flex:1;min-width:0}
+  .porta-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-size:.8rem;
+    letter-spacing:.09em;font-weight:600;color:var(--ink);
+  }
+  .porta-txt em{
+    display:block;font-style:normal;font-size:.6rem;color:var(--dim);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .porta-pip{
+    position:absolute;top:10px;right:12px;font-style:normal;
+    min-width:20px;height:20px;border-radius:99px;padding:0 6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.58rem;font-weight:700;background:var(--danger);color:#fff;
+  }
+
+  .porta-linha{
+    display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+    padding:13px 14px;border-radius:var(--r-lg);margin-bottom:8px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .porta-linha:active{background:rgba(94,230,255,.1);border-color:var(--line2)}
+  .porta-selo{
+    font-style:normal;font-size:.56rem;color:var(--amber);flex:none;max-width:38%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;
+  }
+  .porta-seta{flex:none;color:var(--fraco);font-size:1.1rem}
+
+  .hoje{
+    width:min(92vw,360px);padding:10px 12px;border-radius:var(--r-lg);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:5px;
+  }
+  .hoje-linha{display:flex;align-items:center;gap:9px;font-size:.64rem;color:var(--ink2)}
+  .hoje-linha b{flex:none;color:var(--cyan);font-size:.72rem}
+  .hoje-linha em{font-style:normal;color:var(--verde)}
+  .hoje-linha.tem{cursor:pointer}
+  .hoje-linha.tem b{color:var(--verde)}

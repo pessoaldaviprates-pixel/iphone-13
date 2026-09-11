@@ -856,7 +856,14 @@
 
   <div class="menu-btns">
     <button class="big-btn" id="btn-play">▶ JOGAR</button>
-    <div class="menu-grade">
+
+    <!-- as quatro portas: é o menu que o jogador vê -->
+    <div class="portas" id="menu-portas"></div>
+
+    <!-- os botões de antes continuam aqui, escondidos. As portas apertam
+         eles, então nada precisou ser reescrito e os selos que o jogo já
+         escrevia continuam valendo. -->
+    <div class="menu-grade escondida">
       <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
       <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
       <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
@@ -864,8 +871,8 @@
       <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
     </div>
 
-    <div class="menu-secao" id="menu-online-h">ONLINE</div>
-    <div class="menu-grade online" id="menu-online">
+    <div class="menu-secao escondida" id="menu-online-h">ONLINE</div>
+    <div class="menu-grade online escondida" id="menu-online">
       <button class="tile verde wide" id="btn-multi"><b>🤝</b><span>JOGAR COM AMIGO</span><i id="multi-badge">jornada em dupla · duelo · ranqueada</i></button>
       <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
       <button class="tile magenta" id="btn-bossrush"><b>☠</b><span>MARATONA DE CHEFES</span><i id="br-rec"></i></button>
@@ -878,18 +885,25 @@
     <div id="nuvem-status" style="display:none"></div>
     <div id="presente-aviso"></div>
     <div id="diaria-cartao" style="display:none"></div>
-    <div id="missoes-resumo" style="display:none"></div>
-    <div id="falta-pouco" style="display:none"></div>
+    <div id="menu-hoje" style="display:none"></div>
     <div id="vip-aviso" style="display:none"></div>
+
+    <!-- só o que é de todo dia fica solto aqui embaixo -->
     <div class="menu-chips">
+      <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
+      <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
+    </div>
+
+    <!-- escondidos: as portas apertam estes -->
+    <div class="menu-chips escondida">
       <button class="chip" id="btn-mapa">🗺 MAPA</button>
       <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
       <button class="chip" id="btn-conquistas">★ CONQUISTAS<i id="conq-badge"></i></button>
       <button class="chip" id="btn-convite">🎟 CONVIDAR</button>
-      <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
-      <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
     </div>
+    <div id="missoes-resumo" style="display:none"></div>
+    <div id="falta-pouco" style="display:none"></div>
     <div id="cloud-status"></div>
   </div>
 </div>
@@ -1411,6 +1425,15 @@
 </div>
 
 <div id="foto-caixa"></div>
+
+<!-- UMA DAS QUATRO PORTAS -->
+<div class="page" id="screen-porta">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title" id="porta-titulo">MENU</div>
+  </div>
+  <div class="scroll"><div id="porta-corpo"></div></div>
+</div>
 
 <!-- MAPA DA JORNADA -->
 <div class="page" id="screen-mapa">
