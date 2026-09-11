@@ -3977,6 +3977,88 @@
   .manut-dentro b{font-family:"Russo One",sans-serif;font-size:1.1rem;color:var(--amber)}
   .manut-dentro span{font-size:.76rem;color:var(--dim);line-height:1.5}
 
+  /* ---------- v6.5: apresentação e loja ---------- */
+  #carregando{
+    position:fixed;inset:0;z-index:60;display:none;
+    background:linear-gradient(160deg,#0A1030,#140B33 55%,#05070F);
+    align-items:center;justify-content:center;padding:24px;
+  }
+  #carregando.on{display:flex;animation:carrSai .9s ease forwards}
+  @keyframes carrSai{0%,70%{opacity:1}100%{opacity:0}}
+  .carr-dentro{text-align:center;max-width:340px;display:flex;flex-direction:column;gap:10px}
+  .carr-fase{font-size:.6rem;letter-spacing:.3em;color:var(--cyan)}
+  .carr-nome{font-family:"Russo One",sans-serif;font-size:1.5rem;color:var(--ink)}
+  .carr-barra{height:4px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+  .carr-barra i{
+    display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    animation:carrEnche .85s ease-out forwards;
+  }
+  @keyframes carrEnche{to{width:100%}}
+  .carr-dica{font-size:.68rem;color:var(--dim);line-height:1.5;margin-top:6px}
+
+  #vic-resumo{display:flex;flex-direction:column;gap:5px;margin:6px 0 10px}
+  .vres-linha{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    font-size:.66rem;color:var(--dim);padding:4px 2px;
+  }
+  .vres-linha b{color:var(--ink);font-size:.8rem;font-variant-numeric:tabular-nums}
+
+  .mold-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .mold-cx{
+    padding:9px 4px;border-radius:var(--r-md);text-align:center;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .mold-cx.travada{opacity:.35}
+  .mold-cx.on{border-color:var(--cyan);background:rgba(94,230,255,.12)}
+  .mold-cx span{
+    display:block;font-size:.58rem;font-family:"Russo One",sans-serif;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mold-cx em{display:block;font-style:normal;font-size:.48rem;color:var(--fraco);margin-top:3px}
+  .mold-bronze span{color:#C77B3F;text-shadow:0 0 8px rgba(199,123,63,.5)}
+  .mold-prata span{color:#C8D4E8;text-shadow:0 0 8px rgba(200,212,232,.5)}
+  .mold-ouro span{color:var(--amber);text-shadow:0 0 10px rgba(255,193,69,.6)}
+  .mold-chefe span{color:var(--magenta);text-shadow:0 0 10px rgba(255,77,143,.6)}
+  .mold-estrela span{color:var(--violet);text-shadow:0 0 10px rgba(181,123,255,.6)}
+  .mold-duelo span{color:var(--danger);text-shadow:0 0 10px rgba(255,92,92,.6)}
+  .mold-prest span{
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .mold-dono span{
+    background:linear-gradient(90deg,var(--amber),#fff,var(--amber));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  .oferta{border-color:rgba(255,200,97,.5);background:linear-gradient(150deg,rgba(255,200,97,.14),rgba(255,255,255,.02))}
+  .of-selo{font-size:.52rem;letter-spacing:.2em;color:var(--amber);margin-bottom:6px}
+  .oferta b{display:block;font-size:.82rem}
+  .of-precos{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+  .of-precos s{font-size:.7rem;color:var(--fraco)}
+  .of-precos b{font-family:"Russo One",sans-serif;font-size:1.3rem;color:var(--amber)}
+  .of-tempo{font-size:.58rem;color:var(--dim);margin-top:3px}
+  .falta.vip{border-color:rgba(255,200,97,.45);background:rgba(255,200,97,.1)}
+  .falta.vip b{color:var(--amber)}
+
+  /* ---------- v6.6: faixas de aviso ---------- */
+  #pedido-faixa,#teste-faixa{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(96px + var(--safe-top));z-index:47;display:none;
+    width:min(94vw,420px);padding:10px 14px;border-radius:var(--r-md);
+    font-size:.66rem;text-align:center;box-shadow:var(--som-2);
+  }
+  #pedido-faixa{background:rgba(10,32,22,.97);border:1px solid var(--verde);color:var(--verde)}
+  #teste-faixa{
+    top:calc(140px + var(--safe-top));
+    background:rgba(24,16,44,.97);border:1px solid var(--violet);color:var(--ink2);
+  }
+  #pedido-faixa.on,#teste-faixa.on{display:block}
+  #pedido-faixa i{
+    font-style:normal;margin-left:8px;padding:3px 10px;border-radius:99px;cursor:pointer;
+    background:rgba(99,245,181,.2);border:1px solid var(--verde);
+  }
+
 </style>
 </head>
 <body>
@@ -4005,6 +4087,9 @@
   <div id="doeu"></div>
   <div id="lanterna"></div>
   <div id="manut-tela"></div>
+  <div id="carregando"></div>
+  <div id="pedido-faixa"></div>
+  <div id="teste-faixa"></div>
   <div id="recon-faixa"></div>
   <div id="mp-ping"></div>
   <div id="reviver-aviso"></div>
@@ -4587,6 +4672,27 @@
         <div id="adm-denuncias-lista" style="margin-top:12px"></div>
       </div>
 
+      <div class="adm-card" id="adm-teste">
+        <div class="adm-h">🧪 TESTAR ANTES DE LIBERAR</div>
+        <div class="adm-note">Marca uma versão como "em teste" e diz quem pode ver.
+          Só você e essas contas recebem o aviso; o resto do mundo continua na versão
+          de sempre até você mandar atualizar.</div>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="teste-versao" maxlength="10" placeholder="Versão (ex: 6.7)" autocomplete="off">
+        </div>
+        <div class="adm-row" style="margin-top:6px">
+          <input id="teste-quem" maxlength="120" placeholder="Nicks separados por vírgula" autocomplete="off">
+        </div>
+        <div class="adm-row" style="margin-top:6px">
+          <input id="teste-nota" maxlength="80" placeholder="O que mudou" autocomplete="off">
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn gold" id="teste-ligar">COLOCAR EM TESTE</button>
+          <button class="adm-btn" id="teste-desligar">TIRAR DO TESTE</button>
+        </div>
+        <div class="adm-note" id="teste-estado" style="margin-top:8px"></div>
+      </div>
+
       <div class="adm-card" id="adm-manutencao">
         <div class="adm-h gold">🛠 MANUTENÇÃO</div>
         <div class="adm-note">Com a manutenção ligada, todo mundo vê um aviso e não
@@ -4819,6 +4925,7 @@
     <div id="diaria-cartao" style="display:none"></div>
     <div id="missoes-resumo" style="display:none"></div>
     <div id="falta-pouco" style="display:none"></div>
+    <div id="vip-aviso" style="display:none"></div>
     <div class="menu-chips">
       <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
       <button class="chip" id="btn-conquistas">★ CONQUISTAS<i id="conq-badge"></i></button>
@@ -4858,7 +4965,7 @@
     <div class="page-gems gem" id="loja-gems">0</div>
   </div>
   <div class="abas" id="loja-abas"></div>
-  <div class="scroll" id="loja-corpo"></div>
+  <div class="scroll"><div id="loja-oferta" style="display:none"></div><div class="card" id="loja-presente"></div><div id="loja-corpo"></div></div>
   <div class="loja-aviso" id="loja-aviso"></div>
   <button id="loja-adm" aria-label="Falar com o administrador">
     <span>⊙</span><i id="loja-adm-selo" style="display:none"></i>
@@ -5360,7 +5467,7 @@
     <button class="back-btn" data-back aria-label="Voltar">‹</button>
     <div class="page-title">PERFIL</div>
   </div>
-  <div class="scroll"><div id="perf-corpo"></div><div id="perf-prestigio" style="display:none"></div></div>
+  <div class="scroll"><div id="perf-corpo"></div><div class="card" id="perf-molduras"></div><div id="perf-prestigio" style="display:none"></div></div>
 </div>
 
 <!-- CONQUISTAS -->
@@ -5459,6 +5566,7 @@
     <div class="fim-ic vitoria">★</div>
     <h1 class="fim-titulo cyan" id="vic-title">FASE CONCLUÍDA</h1>
     <div id="vic-estrelas"></div>
+    <div id="vic-resumo"></div>
     <div id="vic-estrelas-nota" class="adm-note" style="text-align:center;margin:-4px 0 8px"></div>
     <div class="fim-premios">
       <div class="fim-premio gem" id="vic-gems">+0 cristais</div>
@@ -5817,6 +5925,8 @@ function defaultSave() {
     conviteUsado: null,      // de quem foi o convite que usei
     temporada: 0,            // temporada da ranqueada que está valendo
     resgate: null,           // código que devolve a conta se esquecer a senha
+    moldura: "nenhuma",      // moldura do apelido
+    ofertaUsada: false,      // já pegou a oferta do primeiro dia
     historico: [],           // últimas partidas da ranqueada
     historicoTemporadas: [], // como você terminou cada temporada
     bloqueados: {},          // quem você bloqueou
@@ -5940,7 +6050,12 @@ try {
   };
 } catch (e) {}
 
+let copiaMarca = 0;
 function persist() {
+  /* a cópia no banco do aparelho não precisa ser a cada gravação */
+  try {
+    if (Date.now() - copiaMarca > 20000) { copiaMarca = Date.now(); setTimeout(copiaSegura, 30); }
+  } catch (e) {}
   /* dono: o saldo volta ao teto a cada gravação, então comprar nunca
      diminui nada — é o que o sinal de infinito promete na tela */
   try {
@@ -6973,6 +7088,7 @@ function mundoAplicar(d) {
   try { obedecerOrdemDeAtualizar(d && d.att); } catch (e) {}
   try { pagAplicar(d && d.pagamento); } catch (e) {}
   try { manutencaoAplicar(d && d.manutencao); } catch (e) {}
+  try { testeAplicar(d && d.teste); } catch (e) {}
   try { checarPresenteGeral(d); } catch (e) {}
   MUNDO.geral = (d && d.geral) || null;
   MUNDO.aviso = (d && d.aviso) || null;
@@ -8542,6 +8658,7 @@ setInterval(checarPresentesPeriodicamente, 6000);
 function refreshMenu() {
   try {
     diariaRender(); misBadge(); conqBadge(); faltaRender();
+    vipAvisoRender();
     const br = $("br-rec");
     if (br) { br.textContent = save.bossRushRec ? fmt(save.bossRushRec) : ""; br.className = save.bossRushRec ? "on" : ""; }
   } catch (e) {}
@@ -9750,9 +9867,17 @@ async function admEntregarPedido(chave, pd, botao) {
   } else if (String(pd.item).indexOf("nave:") === 0) {
     presente.naves = [Number(String(pd.item).slice(5))];
   }
-  const ok = await entregarCompra(pd.de, presente, texto);
+  /* comprou para um amigo: quem recebe é o amigo, e os dois são avisados */
+  const paraQuem = pd.presentePara || pd.de;
+  const ok = await entregarCompra(paraQuem, presente, texto);
   if (ok) {
     await admPedidoJuntar(chave, pd, { estado: "entregue", entregueEm: Date.now() });
+    if (pd.presentePara && pd.presentePara !== pd.de) {
+      await admAvisarNaConversa(pd.presentePara,
+        "Presente! " + texto + " — mandado por " + (pd.nome || "um amigo") + " 🎁");
+      await admAvisarNaConversa(pd.de, "Entregue! " + texto + " foi para " +
+        (pd.presenteNome || "o seu amigo") + ". Obrigado 🙏");
+    } else
     await admAvisarNaConversa(pd.de, "Entregue! " + texto + " já está na sua conta. Obrigado 🙏");
     admMsg("Entregue: " + texto);
   } else {
@@ -9887,7 +10012,7 @@ const ABAS_ADM = [
   { id: "equipe",    nome: "👥 EQUIPE",    perms: ["equipe"],
     cartoes: ["adm-equipe"] },
   { id: "sistema",   nome: "🔧 SISTEMA",   perms: ["diag", "backup"],
-    cartoes: ["adm-numeros", "adm-erros", "adm-denuncias", "adm-manutencao",
+    cartoes: ["adm-numeros", "adm-erros", "adm-denuncias", "adm-teste", "adm-manutencao",
               "adm-registro", "adm-diag", "adm-local", "adm-todos", "adm-backup"] }
 ];
 let abaAdm = "";
@@ -10009,6 +10134,7 @@ const CARTOES_PERM = {
   "adm-erros":      "diag",
   "adm-denuncias":  "verLista",
   "adm-manutencao": "recados",
+  "adm-teste":      "recados",
   "adm-registro":   "diag",
   "adm-sug":     "sugVer",
   "adm-equipe":  "equipe",
@@ -12765,6 +12891,7 @@ function vipPresenteDoDia() {
      suporte/<idJogador>/info -> {nome, tag, visto, novasAdm, novasJogador}
    ===================================================================== */
 async function pedirNaLoja(item, itemNome, preco, extra) {
+  /* quando é presente, o pedido guarda para quem vai */
   const eu = meuIdNuvem();
   if (!eu) return { ok: false, msg: "Entre com um piloto primeiro." };
   if (!nuvemAtiva()) return { ok: false, msg: "Sem conexão com a nuvem agora." };
@@ -12905,6 +13032,8 @@ const COMPRA = { item: null, nome: "", preco: 0, extra: null, chave: null, estad
 
 function abrirPagamento(item, nome, preco, extra) {
   COMPRA.item = item; COMPRA.nome = nome; COMPRA.preco = preco; COMPRA.extra = extra || null;
+  COMPRA.presentePara = (extra && extra.presentePara) || null;
+  COMPRA.presenteNome = (extra && extra.presenteNome) || null;
   COMPRA.chave = null; COMPRA.estado = null;
   S.mode = "pagar";
   showScreen("pagar");
@@ -13182,6 +13311,7 @@ const LOJA_ABAS = [
 ];
 
 function renderLoja() {
+  try { ofertaRender(); presenteRender(); } catch (e) {}
   porCristais("loja-gems");
   const abas = $("loja-abas");
   abas.innerHTML = "";
@@ -17682,6 +17812,18 @@ $("btn-missoes").addEventListener("click", () => { AudioSys.gem(); misAbrir(); }
 
 ajCarregar();
 ajAplicar();
+/* --- coisas que rodam quando o jogo abre --- */
+setTimeout(() => {
+  try { conferirCopia(); } catch (e) {}
+  try { bateriaCuidar(); } catch (e) {}
+  try { entrarPeloLink(); } catch (e) {}
+  try {
+    const c = conviteDoLink();
+    if (c) alertaMenu("Você foi convidado com o código " + c + " — use em CONVIDAR.");
+  } catch (e) {}
+}, 1500);
+/* o dono é avisado quando alguém paga */
+setInterval(() => { try { pedidosOlhar(); } catch (e) {} }, 45000);
 
 
 /* =====================================================================
@@ -17945,6 +18087,7 @@ function perfilAbrir() {
   S.mode = "perfil";
   showScreen("perfil");
   perfilRender();
+  moldurasRender();
   prestigioRender();
 }
 
@@ -18150,6 +18293,22 @@ $("adm-reg-ler").addEventListener("click", async ev => {
   b.disabled = true; b.textContent = "LENDO…";
   await admRegistroRender();
   b.disabled = false; b.textContent = "VER REGISTRO";
+});
+$("teste-ligar").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "…";
+  const ok = await testeFechadoLigar(($("teste-versao") || {}).value,
+                                     ($("teste-nota") || {}).value,
+                                     ($("teste-quem") || {}).value);
+  b.disabled = false; b.textContent = "COLOCAR EM TESTE";
+  const el = $("teste-estado");
+  if (el) el.textContent = ok ? "Em teste. Só você e os nicks marcados veem o aviso." : "Não deu para gravar.";
+});
+$("teste-desligar").addEventListener("click", async () => {
+  await nuvemSoltar("mundo/teste", { versao: "" });
+  const el = $("teste-estado");
+  if (el) el.textContent = "Teste desligado.";
+  testeAplicar(null);
 });
 $("manut-ligar").addEventListener("click", async () => {
   const ok = await manutencaoLigar(true, ($("manut-recado") || {}).value);
@@ -19605,6 +19764,414 @@ async function admRegistroRender() {
 }
 
 
+/* =====================================================================
+   v6.5 — APRESENTAÇÃO, LOJA E ECONOMIA
+   trilha que reage · tela de carregamento com dica · resumo animado da
+   vitória · molduras de apelido · presentear amigo · oferta do primeiro
+   dia · aviso de VIP acabando · comprovante e cancelar pedido
+   ===================================================================== */
+
+/* ---------------------- trilha que reage ao jogo ----------------------
+   A música já existia; o que faltava era ela SENTIR o que acontece.
+   Agora o volume e o andamento sobem quando o chefe aparece e caem
+   quando você está quase morrendo.                                    */
+function musicaTensao() {
+  try {
+    if (!Musica.ganho || S.mode !== "playing") return;
+    let alvo = 1;
+    if (boss && !boss.entering) alvo = boss.furia ? 1.5 : 1.25;
+    const vidaFrac = ST && ST.maxHp ? player.hp / ST.maxHp : 1;
+    if (player.alive && vidaFrac < 0.3) alvo *= 0.65;    // quase morrendo: a trilha recua
+    if (S.naSecreta) alvo = 0.7;
+    const base = 0.16 * ajVol("volMus");
+    const atual = Musica.ganho.gain.value;
+    Musica.ganho.gain.value = atual + (base * alvo - atual) * 0.05;
+  } catch (e) {}
+}
+
+/* ---------------------- dica na troca de fase ---------------------- */
+const DICAS = [
+  "O Enxame ignora escudo: mate os drones primeiro.",
+  "Combo alto vale até o dobro de pontos — não pare de atirar.",
+  "Passar a fase sem levar dano dá a segunda estrela.",
+  "Na fase com APAGÃO, fique perto do centro: dá para ver mais.",
+  "Relíquia repetida não é lixo: três iguais viram uma melhor.",
+  "Guarde a ultimate para a segunda metade do chefe, quando ele fica em fúria.",
+  "Convide um amigo pelo código: vocês dois ganham cristais.",
+  "As naves pesadas soltam mais cristal. Mire nelas primeiro.",
+  "No cooperativo dá para reviver o parceiro: chegue perto e segure.",
+  "Se travar no celular, ligue o modo LEVE na tela de fases.",
+  "Terminou as 270? O prestígio dá +10% de dano para sempre.",
+  "A linha vermelha mostra onde o tiro do chefe vai passar."
+];
+function dicaDaVez() {
+  return DICAS[Math.floor(Math.random() * DICAS.length)];
+}
+function carregandoMostrar(fase) {
+  const el = $("carregando");
+  if (!el) return;
+  el.innerHTML =
+    '<div class="carr-dentro">' +
+      '<div class="carr-fase">FASE ' + fase + "</div>" +
+      '<div class="carr-nome">' + escaparTexto(faseNome(fase)) + "</div>" +
+      '<div class="carr-barra"><i></i></div>' +
+      '<div class="carr-dica">💡 ' + escaparTexto(dicaDaVez()) + "</div>" +
+    "</div>";
+  el.className = "on";
+  setTimeout(() => { el.className = ""; }, 900);
+}
+
+/* ---------------------- resumo animado da vitória ----------------------
+   Os números sobem um a um, em vez de aparecerem prontos.            */
+function contarAte(el, alvo, sufixo, ms) {
+  if (!el) return;
+  const t0 = performance.now();
+  const dur = ms || 700;
+  const passo = (agora) => {
+    const k = Math.min(1, (agora - t0) / dur);
+    const suave = 1 - Math.pow(1 - k, 3);
+    el.textContent = fmt(Math.round(alvo * suave)) + (sufixo || "");
+    if (k < 1) requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+}
+function vitoriaResumo(dados) {
+  const cx = $("vic-resumo");
+  if (!cx) return;
+  const pr = dados.tiros > 10 ? Math.round(dados.acertos / dados.tiros * 100) : null;
+  cx.innerHTML =
+    '<div class="vres-linha"><span>Tempo</span><b id="vres-tempo">0</b></div>' +
+    '<div class="vres-linha"><span>Maior combo</span><b id="vres-combo">0</b></div>' +
+    (pr === null ? "" : '<div class="vres-linha"><span>Precisão</span><b id="vres-prec">0</b></div>') +
+    '<div class="vres-linha"><span>Dano levado</span><b id="vres-dano">0</b></div>';
+  setTimeout(() => contarAte($("vres-tempo"), Math.round(dados.segundos), "s"), 120);
+  setTimeout(() => contarAte($("vres-combo"), dados.combo, "×"), 260);
+  if (pr !== null) setTimeout(() => contarAte($("vres-prec"), pr, "%"), 400);
+  setTimeout(() => contarAte($("vres-dano"), dados.dano, dados.dano === 1 ? " vez" : " vezes"), 540);
+}
+
+/* ---------------------- molduras de apelido ----------------------
+   Cosmético puro, ganho por conquista: é status sem mexer no jogo.   */
+const MOLDURAS = [
+  { id: "nenhuma", nome: "Sem moldura", req: () => true },
+  { id: "bronze",  nome: "Bronze",      req: () => (save.best || 0) >= 10 },
+  { id: "prata",   nome: "Prata",       req: () => (save.best || 0) >= 60 },
+  { id: "ouro",    nome: "Ouro",        req: () => (save.best || 0) >= 150 },
+  { id: "chefe",   nome: "Caçador",     req: () => (save.chefes || 0) >= 25 },
+  { id: "estrela", nome: "Constelação", req: () => estrelasTotal() >= 100 },
+  { id: "duelo",   nome: "Duelista",    req: () => (save.vitorias || 0) >= 25 },
+  { id: "prest",   nome: "Renascido",   req: () => (save.prestigio || 0) >= 1 },
+  { id: "dono",    nome: "Criador",     req: () => contaDeDono(save.__name) }
+];
+function molduraAtual() { return save.moldura || "nenhuma"; }
+function molduraUsar(id) {
+  const m = MOLDURAS.filter(x => x.id === id)[0];
+  if (!m || !m.req()) return false;
+  save.moldura = id;
+  persist();
+  try { nuvemEnviar(true); refreshMenu(); } catch (e) {}
+  return true;
+}
+function moldurasRender() {
+  const cx = $("perf-molduras");
+  if (!cx) return;
+  cx.innerHTML =
+    '<div class="aj-titulo">🖼 MOLDURA DO APELIDO</div>' +
+    '<div class="mold-grade">' +
+      MOLDURAS.map(m => {
+        const tem = m.req();
+        return '<button class="mold-cx mold-' + m.id + (molduraAtual() === m.id ? " on" : "") +
+          (tem ? "" : " travada") + '" data-mold="' + m.id + '"' + (tem ? "" : " disabled") + ">" +
+          "<span>" + escaparTexto(minhaTag()).slice(0, 8) + "</span>" +
+          "<em>" + escaparTexto(m.nome) + "</em></button>";
+      }).join("") +
+    "</div>";
+  cx.querySelectorAll("[data-mold]").forEach(b =>
+    b.addEventListener("click", () => { if (molduraUsar(b.getAttribute("data-mold"))) moldurasRender(); }));
+}
+
+/* ---------------------- presentear um amigo ----------------------
+   Comprar VIP ou passe para OUTRA conta. É o que mais vende em jogo
+   de amigos — e usa a entrega que o painel já tinha.                 */
+let PRESENTE_ALVO = null;
+async function presenteProcurar(nome) {
+  const achado = await acharPiloto(nome);
+  if (!achado) return { ok: false, msg: "Não achei esse piloto." };
+  PRESENTE_ALVO = { id: achado.id, nome: achado.p.nome || nome, tag: achado.p.tag };
+  return { ok: true, msg: "Achei: " + PRESENTE_ALVO.nome };
+}
+function presentearNaLoja(item, nome, preco, extra) {
+  if (!PRESENTE_ALVO) return false;
+  abrirPagamento(item, nome + " (presente para " + PRESENTE_ALVO.nome + ")", preco,
+                 Object.assign({}, extra, { presentePara: PRESENTE_ALVO.id,
+                                            presenteNome: PRESENTE_ALVO.nome }));
+  return true;
+}
+function presenteRender() {
+  const cx = $("loja-presente");
+  if (!cx) return;
+  cx.innerHTML =
+    '<div class="aj-titulo">🎁 COMPRAR PARA UM AMIGO</div>' +
+    '<p class="adm-note" style="margin-bottom:9px">Escreva o nick de quem vai receber. ' +
+    "Depois é só escolher o item de sempre: a entrega vai para a conta dele.</p>" +
+    '<div class="adm-row"><input id="pres-nome" maxlength="16" placeholder="Nick do amigo" autocomplete="off">' +
+    '<button class="adm-btn" id="pres-achar">PROCURAR</button></div>' +
+    '<div class="adm-note" id="pres-aviso" style="margin-top:8px">' +
+      (PRESENTE_ALVO ? "Comprando para <b>" + escaparTexto(PRESENTE_ALVO.nome) + "</b>" +
+        ' · <a href="#" id="pres-limpar">comprar para mim</a>' : "") + "</div>";
+  const b = $("pres-achar");
+  if (b) b.addEventListener("click", async ev => {
+    const bt = ev.currentTarget;
+    bt.disabled = true; bt.textContent = "…";
+    const r = await presenteProcurar(($("pres-nome") || {}).value);
+    bt.disabled = false; bt.textContent = "PROCURAR";
+    const av = $("pres-aviso");
+    if (av) { av.textContent = r.msg; av.style.color = r.ok ? "var(--verde)" : "var(--danger)"; }
+    if (r.ok) setTimeout(presenteRender, 900);
+  });
+  const l = $("pres-limpar");
+  if (l) l.addEventListener("click", ev => { ev.preventDefault(); PRESENTE_ALVO = null; presenteRender(); });
+}
+
+/* ---------------------- oferta do primeiro dia ---------------------- */
+function ofertaDoInicio() {
+  if (!save.desde) return null;
+  const horas = (Date.now() - save.desde) / 3600000;
+  if (horas > 24 || save.ofertaUsada) return null;
+  return { horasQueFaltam: Math.max(0, Math.round(24 - horas)),
+           item: "vip:7", nome: "VIP de 7 dias (oferta de estreia)", preco: 0.50, de: 1.00,
+           extra: { dias: 7 } };
+}
+function ofertaRender() {
+  const cx = $("loja-oferta");
+  if (!cx) return;
+  const o = ofertaDoInicio();
+  if (!o) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "card oferta";
+  cx.innerHTML =
+    '<div class="of-selo">SÓ NO PRIMEIRO DIA</div>' +
+    "<b>" + escaparTexto(o.nome) + "</b>" +
+    '<div class="of-precos"><s>' + reais(o.de) + "</s><b>" + reais(o.preco) + "</b></div>" +
+    '<div class="of-tempo">acaba em ' + o.horasQueFaltam + "h</div>" +
+    '<button class="big-btn amber" id="of-comprar" style="width:100%;margin-top:10px">QUERO</button>';
+  const b = $("of-comprar");
+  if (b) b.addEventListener("click", () => {
+    save.ofertaUsada = true; persist();
+    abrirPagamento(o.item, o.nome, o.preco, o.extra);
+  });
+}
+
+/* ---------------------- aviso de VIP acabando ---------------------- */
+function vipAvisoRender() {
+  const cx = $("vip-aviso");
+  if (!cx) return;
+  if (!temVip()) { cx.style.display = "none"; return; }
+  const dias = vipDiasQueFaltam();
+  if (dias > 3) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "falta vip";
+  cx.innerHTML = "<b>SEU VIP ESTÁ ACABANDO</b>" +
+    "<span>" + (dias <= 0 ? "acaba hoje" : "faltam " + dias + (dias === 1 ? " dia" : " dias")) +
+    " — renove para não perder os espaços de relíquia</span>" +
+    '<button class="mis-btn" id="vip-renovar" style="margin-top:8px">RENOVAR</button>';
+  const b = $("vip-renovar");
+  if (b) b.addEventListener("click", () => { try { abrirLojaVip(); } catch (e) { goLoja && goLoja(); } });
+}
+
+/* ---------------------- comprovante e cancelar pedido ---------------------- */
+function comprovante(pd) {
+  return [
+    "NEON NEBULA — COMPROVANTE",
+    "pedido: " + (pd.chave || "?"),
+    "item: " + (pd.itemNome || pd.item || "?"),
+    "valor: " + reais(pd.preco || 0),
+    "conta: " + (save.__name || "?"),
+    "quando: " + new Date(pd.quando || Date.now()).toLocaleString("pt-BR"),
+    "estado: " + (pd.estado || "esperando")
+  ].join("\n");
+}
+async function pedidoCancelar(chave) {
+  try {
+    save.pedidos = (save.pedidos || []).filter(x => x.chave !== chave);
+    persist();
+    await pedidoJuntar(chave, { estado: "cancelado", canceladoEm: Date.now() });
+    return true;
+  } catch (e) { return false; }
+}
+
+
+/* =====================================================================
+   v6.6 — O QUE SEGURA O JOGO DE PÉ
+   save em dois lugares com resolução de conflito · economia de bateria
+   · fila de pedidos que avisa · publicar em dois passos
+   ===================================================================== */
+
+/* ---------------------- save em dois lugares ----------------------
+   Antes o progresso vivia no armazenamento do site, que o celular
+   limpa sozinho quando quer. Agora ele também vai para o banco do
+   aparelho (IndexedDB) e para a nuvem, e na hora de ler os três são
+   comparados: vence quem tem mais progresso, não quem é mais novo —
+   porque relógio de celular erra.                                     */
+function pesoDoSave(p) {
+  if (!p) return -1;
+  return (p.best || 0) * 1000 +
+         (p.crystals || 0) / 100 +
+         (p.abates || 0) / 10 +
+         ((p.ships || []).length) * 50 +
+         (p.pts || 0) * 20;
+}
+function melhorSave(a, b) {
+  const pa = pesoDoSave(a), pb = pesoDoSave(b);
+  if (pa === pb) return (a && a.savedAt || 0) >= (b && b.savedAt || 0) ? a : b;
+  return pa > pb ? a : b;
+}
+/* guarda uma cópia no banco do aparelho, além do armazenamento do site */
+function copiaSegura() {
+  try {
+    if (!window.indexedDB || !ROOT) return;
+    const req = indexedDB.open("neon_nebula_backup", 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains("saves")) db.createObjectStore("saves");
+    };
+    req.onsuccess = () => {
+      try {
+        const db = req.result;
+        const tx = db.transaction("saves", "readwrite");
+        tx.objectStore("saves").put(JSON.stringify(ROOT), "root");
+        tx.oncomplete = () => db.close();
+      } catch (e) {}
+    };
+  } catch (e) {}
+}
+function lerCopiaSegura() {
+  return new Promise(resolve => {
+    try {
+      if (!window.indexedDB) return resolve(null);
+      const req = indexedDB.open("neon_nebula_backup", 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains("saves")) db.createObjectStore("saves");
+      };
+      req.onsuccess = () => {
+        try {
+          const db = req.result;
+          const tx = db.transaction("saves", "readonly");
+          const g = tx.objectStore("saves").get("root");
+          g.onsuccess = () => { db.close(); resolve(g.result ? JSON.parse(g.result) : null); };
+          g.onerror = () => { db.close(); resolve(null); };
+        } catch (e) { resolve(null); }
+      };
+      req.onerror = () => resolve(null);
+    } catch (e) { resolve(null); }
+  });
+}
+/* roda quando o jogo abre: se o armazenamento do site foi limpo, a
+   cópia do banco do aparelho devolve tudo                             */
+async function conferirCopia() {
+  try {
+    const copia = await lerCopiaSegura();
+    if (!copia || !copia.profiles) return { usou: false };
+    let mudou = false;
+    for (const nome in copia.profiles) {
+      const daCopia = copia.profiles[nome];
+      const atual = ROOT.profiles[nome];
+      const bom = melhorSave(atual, daCopia);
+      if (bom === daCopia && bom !== atual) { ROOT.profiles[nome] = daCopia; mudou = true; }
+    }
+    if (mudou) { persist(); return { usou: true }; }
+    return { usou: false };
+  } catch (e) { return { usou: false, erro: String(e && e.message) }; }
+}
+
+/* ---------------------- economia de bateria ----------------------
+   Com a bateria acabando, o jogo sozinho pisa no freio dos enfeites.  */
+const BATERIA = { ligada: false, nivel: 1, carregando: true };
+async function bateriaCuidar() {
+  try {
+    if (!navigator.getBattery) return;
+    const b = await navigator.getBattery();
+    const ver = () => {
+      BATERIA.nivel = b.level;
+      BATERIA.carregando = b.charging;
+      const precisa = !b.charging && b.level <= 0.2;
+      if (precisa !== BATERIA.ligada) {
+        BATERIA.ligada = precisa;
+        if (precisa) {
+          try { qAplicar(0, "bateria baixa"); } catch (e) {}
+          document.body.classList.add("leve");
+          const el = $("cloud-status");
+          if (el) el.textContent = "Bateria baixa: liguei o modo leve para durar mais.";
+        }
+      }
+    };
+    b.addEventListener("levelchange", ver);
+    b.addEventListener("chargingchange", ver);
+    ver();
+  } catch (e) {}
+}
+
+/* ---------------------- fila de pedidos que avisa ----------------------
+   O dono não fica olhando o painel o dia inteiro: quando alguém diz que
+   pagou, o jogo toca, vibra e mostra uma faixa.                       */
+let pedidosVistos = {};
+function pedidoAvisar(quantos) {
+  const el = $("pedido-faixa");
+  if (!el) return;
+  el.className = "on";
+  el.innerHTML = "💰 <b>" + quantos + (quantos === 1 ? " pedido pago" : " pedidos pagos") +
+    "</b> esperando entrega <i>ver</i>";
+  const ir = el.querySelector("i");
+  if (ir) ir.onclick = () => { el.className = ""; try { admIrPara("loja"); } catch (e) {} };
+  try { AudioSys.buy(); vibrate([50, 60, 50, 60, 120]); } catch (e) {}
+  setTimeout(() => { el.className = ""; }, 12000);
+}
+async function pedidosOlhar() {
+  try {
+    if (!contaDeDono(save && save.__name)) return;
+    const pedidos = (await nuvemReq("loja_pedidos")) || {};
+    let novos = 0;
+    for (const k in pedidos) {
+      const pd = pedidos[k];
+      if (!pd || pd.estado !== "pago") continue;
+      if (pedidosVistos[k]) continue;
+      pedidosVistos[k] = true;
+      novos++;
+    }
+    if (novos) pedidoAvisar(novos);
+  } catch (e) {}
+}
+
+/* ---------------------- publicar em dois passos ----------------------
+   A versão nova sai primeiro só para você e para quem você marcar como
+   testador; quando estiver de pé, um botão libera para todo mundo.    */
+async function testeFechadoLigar(versao, nota, testadores) {
+  const ok = await nuvemSoltar("mundo/teste", {
+    versao: versao, nota: nota || "",
+    quem: (testadores || "").split(",").map(x => nickSimples(x)).filter(Boolean),
+    quando: Date.now()
+  });
+  admRegistrar("ligou o teste fechado da versão " + versao);
+  return ok !== null;
+}
+function souTestador(t) {
+  try {
+    if (contaDeDono(save && save.__name)) return true;
+    const meu = nickSimples(save && save.__name);
+    return !!(t && (t.quem || []).some(x => x === meu));
+  } catch (e) { return false; }
+}
+function testeAplicar(t) {
+  const el = $("teste-faixa");
+  if (!el) return;
+  if (!t || !t.versao || !souTestador(t)) { el.className = ""; return; }
+  el.className = "on";
+  el.innerHTML = "🧪 Você está testando a <b>versão " + escaparTexto(t.versao) + "</b>" +
+    (t.nota ? " — " + escaparTexto(t.nota) : "");
+}
+
+
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
 function goMenu() {
   try { Musica.parar(); } catch (e) {}
@@ -20777,6 +21344,7 @@ function startGame(fase) {
   S.portal = null; S.naSecreta = false; S.astTimer = 0;
   if (!S.bossRush) { S.soChefe = false; }
   regraAplicar(S.fase);
+  carregandoMostrar(S.fase);
   faseCartao(S.fase);
   if (tutoPrecisa()) tutoComecar();
   MP.meuDano = 0; MP.danoTotal = 0;
@@ -21858,6 +22426,12 @@ function faseVictory() {
   vibrate([40, 60, 40, 60, 120]);
   if ((S.comboMax || 0) > 0) misProgresso("combo", S.comboMax);
   vitoriaEstrelas();
+  try {
+    vitoriaResumo({
+      segundos: dur, combo: S.comboMax || 0, dano: S.danoLevado || 0,
+      tiros: save.tiros || 0, acertos: save.acertos || 0
+    });
+  } catch (e) {}
   $("vic-title").textContent = "FASE " + S.fase + " CONCLUÍDA";
   $("vic-fase").textContent = S.fase + "/" + totalFasesDoModo();
   $("vic-score").textContent = S.score;
@@ -21929,6 +22503,7 @@ function update(dt) {
   asteroidesPassar(dt);
   lanternaSeguir();
   reconConferir();
+  musicaTensao();
   reviverPassar(dt);
   if ((S.pingT = (S.pingT || 0) + dt) > 0.5) { S.pingT = 0; pingRender(); }
   portalPassar(dt);
@@ -25013,6 +25588,21 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.5", itens: [
+      "A TRILHA SENTE O JOGO: a música cresce quando o chefe entra e em fúria, e recua quando você está quase morrendo",
+      "TELA DE TROCA DE FASE com o nome da fase e uma dica de quem já jogou muito — 12 dicas diferentes",
+      "RESUMO ANIMADO NA VITÓRIA: tempo, maior combo, precisão e quantas vezes você levou dano, subindo número por número",
+      "MOLDURAS DO APELIDO: 9 molduras que você desbloqueia jogando (Bronze, Prata, Ouro, Caçador, Constelação, Duelista, Renascido) e escolhe no perfil",
+      "COMPRAR PARA UM AMIGO: escreve o nick dele e o item vai para a conta dele, com aviso para os dois",
+      "OFERTA DE ESTREIA: nas primeiras 24 horas de conta, VIP de 7 dias pela metade do preço, uma vez só",
+      "AVISO DE VIP ACABANDO 3 dias antes, com o botão de renovar do lado",
+      "COMPROVANTE DO PEDIDO e possibilidade de cancelar o que você desistiu",
+      "SAVE EM DOIS LUGARES: além do armazenamento do site, o progresso vai para o banco do aparelho. Se o celular limpar os dados do site, o jogo devolve o save sozinho — e quando os dois brigam, vence o que tem MAIS progresso, não o mais recente (relógio de celular erra)",
+      "ECONOMIA DE BATERIA: abaixo de 20% e fora da tomada, o jogo liga o modo leve sozinho",
+      "AVISO DE PEDIDO PAGO para o dono: toca, vibra e mostra a faixa quando alguém diz que pagou",
+      "TESTAR ANTES DE LIBERAR: dá para marcar uma versão como em teste e dizer quais contas veem",
+      "TESTES AUTOMÁTICOS: o jogo agora tem uma pasta testes/ com 86 testes que abrem o jogo de verdade num navegador. Um comando só (./testar.sh) roda tudo e diz o que quebrou"
+    ] },
   { v: "6.4", itens: [
       "TEMPORADAS NA RANQUEADA: cada mês é uma temporada. No fim, quem passou de Prata leva prêmio em cristais (800, 2.000 ou 4.000) e o elo encolhe para 45% em vez de zerar. O histórico das temporadas fica guardado",
       "FILA QUE ALARGA: a ranqueada começa procurando gente do seu nível e vai aceitando cada vez mais longe (150 → 350 → 700 → 1400 → qualquer um depois de 70s), para ninguém ficar preso esperando",
@@ -25361,7 +25951,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.4";
+const VERSAO = "6.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

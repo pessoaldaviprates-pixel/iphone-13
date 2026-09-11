@@ -1,0 +1,14 @@
+{
+  "name": "neon-nebula-testes",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Testes do Neon Nebula: abrem o jogo num Chromium de verdade e conferem o que mudou.",
+  "scripts": {
+    "test": "./testar.sh",
+    "test:tudo": "./testar.sh tudo",
+    "check": "./check.sh"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}
