@@ -17,4 +17,12 @@ if grep -q "127.0.0.1" "$JOGO/config.js"; then
   echo "PERIGO: config.js está com o endereço de TESTE. Restaure antes de publicar."
   exit 1
 fi
+# fonte/ e index.html precisam contar a mesma história
+if [ -d "$JOGO/fonte" ]; then
+  python3 "$AQUI/montar.py" --olhar > /tmp/nn_montar.txt 2>&1 || {
+    cat /tmp/nn_montar.txt
+    exit 1
+  }
+  echo "FONTE OK"
+fi
 echo "CONFIG OK"

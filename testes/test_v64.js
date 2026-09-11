@@ -18,15 +18,15 @@ const { chromium } = require('playwright');
 
   /* ---- as regras são estáveis e só nas fases terminadas em 5 ---- */
   out.regras = await p.evaluate(() => ({
-    fase4: regraDaFase(4), fase5: (regraDaFase(5) || {}).id,
-    fase15: (regraDaFase(15) || {}).id, fase25: (regraDaFase(25) || {}).id,
-    estavel: (regraDaFase(35) || {}).id === (regraDaFase(35) || {}).id,
+    fase4: regraDaFase(4), fase5: regraDaFase(5),
+    fase18: (regraDaFase(18) || {}).id, fase28: (regraDaFase(28) || {}).id,
+    estavel: (regraDaFase(38) || {}).id === (regraDaFase(38) || {}).id,
     quantas: REGRAS.length,
-    variedade: new Set([5,15,25,35,45,55,65,75,85,95,105,115].map(f => (regraDaFase(f)||{}).id)).size
+    variedade: new Set([8,18,28,38,48,58,68,78,88,98,108,118].map(f => (regraDaFase(f)||{}).id)).size
   }));
 
   /* ---- entrar numa fase com regra aplica ela ---- */
-  await p.evaluate(() => startGame(15));
+  await p.evaluate(() => startGame(18));
   await p.waitForTimeout(1500);
   out.faseComRegra = await p.evaluate(() => ({
     regra: S.regra && S.regra.id, nome: S.regra && S.regra.nome,

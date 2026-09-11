@@ -1,0 +1,1602 @@
+
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<script src="config.js"></script>
+<script type="application/json" id="cloud-save">null</script>
+<script type="text/plain" id="page-src"></script>
+
+<div id="hud">
+  <div class="hud-col">
+    <span class="hud-value" id="hud-score">0</span>
+    <span class="hud-value" id="hud-gems">◆ 0</span>
+  </div>
+  <div class="hud-col hud-centro">
+    <span class="hud-value" id="hud-fase">FASE 1</span>
+    <span class="hud-label" id="hud-fase-label">ONDA 1/3</span>
+    <div class="hud-ondas" id="hud-ondas"></div>
+  </div>
+  <div class="hud-btns">
+    <button class="hud-btn" id="btn-musica" aria-label="Música ligada/desligada">🎵</button>
+    <button class="hud-btn" id="btn-mute" aria-label="Som ligado/desligado">♪</button>
+    <button class="hud-btn" id="btn-pause" aria-label="Pausar">❚❚</button>
+  </div>
+  <div id="fps-conta" style="display:none">60 fps</div>
+  <div id="doeu"></div>
+  <div id="lanterna"></div>
+  <div id="manut-tela"></div>
+  <div id="carregando"></div>
+  <div id="pedido-faixa"></div>
+  <div id="teste-faixa"></div>
+  <div id="fuga-barra"></div>
+  <div id="treino-barra"></div>
+  <div id="chefe-cartao"></div>
+  <div id="resgate-barra"></div>
+  <div id="recon-faixa"></div>
+  <div id="mp-ping"></div>
+  <div id="reviver-aviso"></div>
+  <div id="emote-bolhas"></div>
+  <div id="emote-caixa"><button id="emote-abrir">☺</button><div id="emote-btns"></div></div>
+  <div id="fase-cartao"></div>
+  <div id="tuto-caixa"></div>
+  <div id="combo-hud"></div>
+  <button id="ult-btn">ULT</button>
+  <button id="cloak-btn">CAPA</button>
+  <!-- vida: fica embaixo, perto da nave, onde o olho já está -->
+  <div id="hud-vida">
+    <span id="hud-lives">♥♥♥</span>
+    <div id="hud-hp"><i id="hud-hp-fill"></i><b id="hud-hp-txt"></b></div>
+  </div>
+  <button id="hab-abrir" aria-label="Mostrar ou esconder as habilidades"><span>▾</span><i></i></button>
+  <div id="hab-bar"></div>
+  <div id="pc-dica">
+    <b>MOUSE</b> a nave segue o cursor
+    <b>Q W E R T A S D F G</b> habilidades
+    <b>ESPAÇO</b> ultimate
+    <b>SHIFT</b> capa
+    <b>ESC</b> pausa
+  </div>
+</div>
+
+<div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
+<div id="presente-jogo"></div>
+<div id="atualiza-box">
+  <span id="atualiza-txt">Nova versão disponível</span>
+  <button id="atualiza-btn">ATUALIZAR</button>
+</div>
+
+<!-- PORTAO DE ATUALIZACAO OBRIGATORIA -->
+<div id="update-gate">
+  <div class="ug-caixa">
+    <div class="ug-ic">⬇</div>
+    <div class="ug-tit">ATUALIZAÇÃO OBRIGATÓRIA</div>
+    <div class="ug-ver" id="ug-ver">versão nova</div>
+    <p class="ug-nota" id="ug-nota">Saiu uma versão nova do Neon Nebula. Para jogar, atualize agora — leva alguns segundos.</p>
+    <div class="ug-passos" id="ug-passos">
+      <div class="ug-passo" id="ug-p1"><b>1</b><span>Limpar a versão antiga</span></div>
+      <div class="ug-passo" id="ug-p2"><b>2</b><span>Baixar a versão nova</span></div>
+      <div class="ug-passo" id="ug-p3"><b>3</b><span>Abrir o jogo atualizado</span></div>
+    </div>
+    <div class="ug-barra"><i></i></div>
+    <button id="ug-btn">ATUALIZAR AGORA</button>
+    <button id="ug-pular" class="ug-pular">ENTRAR ASSIM MESMO</button>
+    <div class="ug-rodape">Seu progresso está salvo — nada se perde na atualização.</div>
+  </div>
+</div>
+<div id="assistir">
+  <div class="as-topo">
+    <button class="as-fechar" id="as-fechar" aria-label="Fechar">‹</button>
+    <div class="as-quem">
+      <b id="as-nome">—</b>
+      <span id="as-onde">conectando…</span>
+    </div>
+    <span class="as-luz" id="as-luz"></span>
+  </div>
+  <canvas id="as-tela"></canvas>
+  <div class="as-hud" id="as-hud"></div>
+  <div class="as-aviso" id="as-aviso">Esperando a transmissão…</div>
+</div>
+
+<div id="caixa-presente">
+  <div class="cp-fundo"></div>
+  <div class="cp-conteudo">
+    <div class="cp-de">O ADMINISTRADOR ENVIOU</div>
+    <div class="cp-msg" id="cp-msg"></div>
+    <div class="cp-caixa" id="cp-caixa">
+      <div class="cp-raios"></div>
+      <div class="cp-tampa"></div>
+      <div class="cp-corpo"></div>
+      <div class="cp-fita"></div>
+      <div class="cp-laco">🎁</div>
+    </div>
+    <div class="cp-toque" id="cp-toque">toque para abrir</div>
+    <div class="cp-itens" id="cp-itens"></div>
+    <button class="big-btn" id="cp-ok" style="display:none">PEGAR TUDO</button>
+  </div>
+</div>
+<div id="erro-box">
+  <b>⚠ OCORREU UM ERRO</b>
+  <p id="erro-msg"></p>
+  <div class="erro-acoes">
+    <button class="ghost-btn" id="erro-copiar">COPIAR ERRO</button>
+    <button class="ghost-btn" id="erro-menu">VOLTAR AO MENU</button>
+    <button class="ghost-btn" id="erro-fechar">CONTINUAR MESMO ASSIM</button>
+  </div>
+</div>
+<div id="aviso-global"></div>
+<div id="evento-selo"></div>
+<div id="arena-hud"></div>
+<div id="fila-faixa"></div>
+<div id="mp-placar">
+  <span id="mp-nome"></span>
+  <div class="mp-barra"><i id="mp-hp"></i><b id="mp-hp-txt"></b></div>
+</div>
+<div id="mp-conexao" class="mp-conexao"></div>
+<button id="cut-skip">PULAR ›</button>
+
+<!-- LOGIN -->
+<div class="screen show" id="screen-login">
+  <div class="login-rolagem">
+    <div class="tagline">Defesa do setor 7</div>
+    <h1 class="brand">NEON<br><em>NEBULA</em></h1>
+
+    <div class="login-cartao">
+      <div class="login-h">ENTRAR NA SUA CONTA</div>
+      <input id="login-nome" maxlength="14" placeholder="Nome da conta" autocomplete="off" autocapitalize="off">
+      <button class="big-btn" id="btn-entrar" style="width:100%">ENTRAR</button>
+      <p class="login-aviso" id="login-aviso">Digite o nome e depois desenhe a sua senha.</p>
+    </div>
+
+    <div class="login-cartao" id="login-locais">
+      <div class="login-h">NESTE APARELHO</div>
+      <div class="profile-list" id="profile-list"></div>
+    </div>
+
+    <div class="login-cartao">
+      <div class="login-h">CRIAR UMA CONTA NOVA</div>
+      <div class="login-new">
+        <input id="new-name" maxlength="14" placeholder="Escolha um nome" autocomplete="off" autocapitalize="off">
+        <button class="ghost-btn" id="btn-new">CRIAR</button>
+      </div>
+      <div class="login-linha">
+        <button class="ghost-btn" id="btn-resgatar" style="width:100%;font-size:.62rem">
+          ESQUECI O DESENHO DA SENHA</button>
+      </div>
+      <div class="login-linha" id="login-resgate" style="display:none;flex-direction:column">
+      </div>
+    </div>
+
+    <button class="adm-link" id="btn-goto-adm">⚙ PAINEL ADM</button>
+    <div class="credit" style="position:static;margin-top:6px">
+      O PROGRESSO É SALVO POR CONTA · <span id="versao"></span>
+    </div>
+  </div>
+</div>
+
+<!-- SENHA DESENHO -->
+<div class="screen" id="screen-senha">
+  <div class="tagline" id="senha-tag">Segurança</div>
+  <div class="senha-cartao">
+    <div id="senha-titulo">DESENHE SUA SENHA</div>
+    <div class="senha-pontos" id="senha-pontos"></div>
+    <canvas id="senha-canvas" width="600" height="600"></canvas>
+    <p id="senha-dica">Ligue pelo menos 4 pontos sem soltar o dedo.</p>
+    <label class="lembrar" id="senha-lembrar-linha" style="width:100%">
+      <input type="checkbox" id="senha-lembrar" checked>
+      <span>Continuar conectado neste aparelho</span>
+    </label>
+  </div>
+  <div class="senha-linha">
+    <button class="ghost-btn" id="senha-voltar">‹ VOLTAR</button>
+    <button class="ghost-btn" id="senha-refazer">↻ REFAZER</button>
+  </div>
+</div>
+
+<!-- PAINEL ADM -->
+<div class="page" id="screen-adm">
+  <div class="page-head">
+    <button class="back-btn" id="btn-adm-back" aria-label="Voltar">‹</button>
+    <div class="page-title">PAINEL ADM</div>
+    <div class="page-gems" id="adm-count"></div>
+  </div>
+  <div class="scroll">
+
+    <div class="adm-card lock" id="adm-pass-row">
+      <div class="adm-h" style="text-align:center;width:100%">ACESSO RESTRITO</div>
+      <input id="adm-nick" maxlength="20" placeholder="Seu nick" autocomplete="off" autocapitalize="off">
+      <input id="adm-pass" type="password" maxlength="32" placeholder="Sua chave (ou senha do dono)" autocomplete="off">
+      <label class="lembrar"><input type="checkbox" id="adm-lembrar" checked><span>Continuar conectado neste aparelho</span></label>
+      <button class="big-btn" id="btn-adm-enter">ENTRAR</button>
+      <p class="adm-note" id="adm-pass-note">
+        O dono entra com o nick e a senha mestra. Quem está na equipe entra
+        com o nick e a chave que o dono passou.
+      </p>
+    </div>
+
+    <div class="adm-card" id="adm-quem" style="display:none">
+      <div class="quem-linha">
+        <div class="quem-ic" id="quem-ic">⚙</div>
+        <div class="quem-txt">
+          <div class="quem-nome" id="quem-nome">—</div>
+          <div class="quem-cargo" id="quem-cargo">—</div>
+        </div>
+        <button class="adm-btn" id="quem-sair" style="flex:none;padding:8px 12px">SAIR</button>
+      </div>
+      <div class="quem-perms" id="quem-perms"></div>
+    </div>
+
+    <div class="adm-abas" id="adm-abas"></div>
+
+    <div id="adm-panel" style="display:none">
+
+      <div class="adm-card" id="adm-enviar" style="display:none">
+        <div class="adm-h gold">🎁 ENVIAR PASS</div>
+        <p class="adm-note" style="max-width:none">
+          Manda qualquer coisa da loja para quem comprou, sem depender de pedido:
+          escolha a pessoa, escolha o item e pronto — cai na conta dela na hora.
+        </p>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="env-quem" maxlength="20" placeholder="Nick da conta (ex.: Maverick)" autocomplete="off">
+          <button class="adm-btn" id="env-achar">PROCURAR</button>
+        </div>
+        <div class="adm-note" id="env-quem-nota" style="margin-top:6px"></div>
+        <div class="env-grupo">
+          <div class="env-rot">VIP</div>
+          <div class="adm-grid" id="env-vip"></div>
+        </div>
+        <div class="env-grupo">
+          <div class="env-rot">PASSES</div>
+          <div class="adm-grid" id="env-passes"></div>
+        </div>
+        <div class="env-grupo">
+          <div class="env-rot">NAVES DA LOJA</div>
+          <div class="adm-grid" id="env-naves"></div>
+        </div>
+        <div class="env-grupo">
+          <div class="env-rot">CRISTAIS</div>
+          <div class="adm-row">
+            <input id="env-cristais" type="number" inputmode="numeric" placeholder="quantos cristais" value="1000">
+            <button class="adm-btn gold" id="env-cristais-ok">ENVIAR</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-pagamento" style="display:none">
+        <div class="adm-h gold">💳 DADOS DO PIX</div>
+        <p class="adm-note" style="max-width:none">
+          É isto que aparece para quem vai pagar. A chave e o nome ficam na nuvem,
+          então valem para todo mundo assim que você salvar.
+        </p>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="pag-chave-adm" maxlength="60" placeholder="Chave Pix (CPF, telefone, e-mail…)" autocomplete="off">
+          <input id="pag-tipo-adm" maxlength="12" placeholder="CPF" style="max-width:90px" autocomplete="off">
+        </div>
+        <div class="adm-row" style="margin-top:8px">
+          <input id="pag-nome-adm" maxlength="25" placeholder="Nome do destinatário" autocomplete="off">
+          <input id="pag-cidade-adm" maxlength="15" placeholder="Cidade" autocomplete="off">
+        </div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="pag-salvar">SALVAR DADOS DO PIX</button>
+        </div>
+        <div class="adm-note" id="pag-previa" style="margin-top:10px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-loja" style="display:none">
+        <div class="adm-h gold">🛒 PEDIDOS DA LOJA</div>
+        <p class="adm-note" style="max-width:none">
+          Quem pediu o quê e por quanto. Combine o pagamento na conversa e
+          toque em ENTREGAR — a compra cai na conta da pessoa na hora.
+        </p>
+        <div class="adm-linha-btn">
+          <button class="adm-btn" id="loja-atualizar">↻ ATUALIZAR</button>
+          <button class="adm-btn" id="loja-ver-tudo">MOSTRAR JÁ ENTREGUES</button>
+        </div>
+        <div id="adm-loja-lista"></div>
+        <div class="adm-h gold" style="margin-top:18px">💬 CONVERSAS</div>
+        <p class="adm-note" style="max-width:none">
+          Quem te chamou pelo botão ⊙ da loja. Toque para abrir e responder.
+        </p>
+        <div id="adm-sup-lista"></div>
+      </div>
+
+      <div class="adm-card" id="adm-equipe" style="display:none">
+        <div class="adm-h gold">👥 EQUIPE DO PAINEL</div>
+        <p class="adm-note" style="max-width:none">
+          Cada pessoa entra com o nick dela e uma chave própria, e só enxerga
+          o que você liberar — o resto nem aparece na tela dela.
+        </p>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="eq-nick" maxlength="20" placeholder="Nick da pessoa" autocomplete="off" autocapitalize="off">
+          <button class="adm-btn gold" id="eq-add">ADICIONAR</button>
+        </div>
+        <div class="eq-cargos" id="eq-cargos"></div>
+        <div class="eq-novo-perms" id="eq-novo-perms"></div>
+        <div class="eq-lista" id="eq-lista"></div>
+      </div>
+
+      <div class="adm-card" id="adm-sug" style="display:none">
+        <div class="adm-h gold">
+          💡 SUGESTÕES DOS JOGADORES
+          <span class="vivo-cont" id="sug-cont"></span>
+        </div>
+        <p class="adm-note" style="max-width:none">
+          O que as pessoas escreveram no fim das fases. As novas ficam
+          destacadas em amarelo.
+        </p>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn" id="sug-atualizar">ATUALIZAR</button>
+          <button class="adm-btn gold" id="sug-copiar">📋 COPIAR TODAS</button>
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn" id="sug-marcar">MARCAR TODAS COMO LIDAS</button>
+          <button class="adm-btn danger" id="sug-apagar-lidas">APAGAR AS LIDAS</button>
+        </div>
+        <div class="sug-lista" id="sug-lista"></div>
+      </div>
+
+      <div class="adm-card" id="adm-diag">
+        <div class="adm-h">🩺 TESTE DA NUVEM</div>
+        <p class="adm-note" style="max-width:none">
+          Se algum botão não estiver fazendo efeito, aperte aqui: o teste diz
+          exatamente o que está travando e o que fazer.
+        </p>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="diag-testar">TESTAR AGORA</button>
+        </div>
+        <div class="diag-lista" id="diag-lista"></div>
+      </div>
+
+      <div class="adm-card" id="adm-atualiza" style="display:none">
+        <div class="adm-h gold">⬇ MANDAR ATUALIZAR</div>
+        <p class="adm-note" style="max-width:none">
+          Quem estiver numa versão antiga limpa o cache e recarrega sozinho.
+          Quem já está na versão nova nem percebe. Serve para tirar todo mundo
+          de uma versão velha presa no celular.
+        </p>
+        <div class="adm-linha-jog" style="margin-top:10px">
+          <span class="adm-note" style="margin:0">Versão publicada agora: <b id="att-versao">—</b></span>
+        </div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="att-todos">⬇ MANDAR TODO MUNDO ATUALIZAR</button>
+          <button class="adm-btn" id="att-limpar">APAGAR A ORDEM</button>
+        </div>
+        <div class="adm-note" id="att-estado" style="margin-top:8px"></div>
+        <div id="att-lista" class="adm-lista-versoes"></div>
+      </div>
+
+      <div class="adm-card" id="adm-mundo" style="display:none">
+        <div class="adm-h gold">📢 RECADO PARA O JOGO INTEIRO</div>
+        <p class="adm-note" style="max-width:none">Aparece na tela de todo mundo na hora, esteja onde estiver.</p>
+        <input id="msg-texto" maxlength="160" placeholder="Escreva o recado…" autocomplete="off">
+        <div class="mundo-linha" style="margin-top:8px">
+          <select id="msg-tipo">
+            <option value="normal">💬 Recado</option>
+            <option value="alerta">⚠ Alerta</option>
+            <option value="festa">🎉 Festa</option>
+            <option value="premio">🏆 Prêmio</option>
+          </select>
+          <input id="msg-tempo" type="number" inputmode="numeric" min="5" value="60">
+          <span class="mundo-un">seg</span>
+          <button class="adm-btn gold" id="msg-enviar">ENVIAR</button>
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn" id="msg-limpar">APAGAR O RECADO</button>
+        </div>
+        <div class="msg-rapidas" id="msg-rapidas"></div>
+      </div>
+
+      <div class="adm-card" id="adm-eventos" style="display:none">
+        <div class="adm-h gold">🎆 EVENTOS — MÚSICA E DECORAÇÃO</div>
+        <p class="adm-note" style="max-width:none">
+          Aperte e começa na hora para todo mundo: o céu muda, a decoração cai
+          na tela e a música da fase vira a do evento.
+        </p>
+        <div class="mundo-linha" style="margin-top:10px">
+          <span class="mundo-rot">DURAÇÃO</span>
+          <input id="ev-tempo" type="number" inputmode="numeric" min="1" value="10">
+          <select id="ev-un">
+            <option value="60">minutos</option>
+            <option value="1">segundos</option>
+            <option value="3600">horas</option>
+          </select>
+        </div>
+        <div class="mundo-grade" id="lista-eventos"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn danger" id="ev-parar">PARAR O EVENTO</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-boosts" style="display:none">
+        <div class="adm-h gold">⚡ BOOSTS PARA TODO MUNDO</div>
+        <p class="adm-note" style="max-width:none">
+          Escolha quantas vezes mais e por quanto tempo. Vale para todos os
+          jogadores ao mesmo tempo, e acaba sozinho na hora marcada.
+        </p>
+        <div class="mundo-grade boost" id="lista-boosts"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold" id="boost-tudo">⚡ LIGAR TUDO (5x POR 1h)</button>
+          <button class="adm-btn danger" id="boost-parar">DESLIGAR TODOS</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-trolls" style="display:none">
+        <div class="adm-h red">😈 TRAVESSURAS</div>
+        <p class="adm-note" style="max-width:none">
+          Pegadinhas que valem para todo mundo pelo tempo que você escolher.
+          Elas se apagam sozinhas — ninguém fica preso nelas.
+        </p>
+        <div class="mundo-linha" style="margin-top:10px">
+          <span class="mundo-rot">DURAÇÃO</span>
+          <input id="tr-tempo" type="number" inputmode="numeric" min="1" value="60">
+          <select id="tr-un">
+            <option value="1">segundos</option>
+            <option value="60">minutos</option>
+            <option value="3600">horas</option>
+          </select>
+        </div>
+        <div class="mundo-grade" id="lista-trolls"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn danger" id="tr-caos">🔥 MODO CAOS (tudo junto)</button>
+          <button class="adm-btn" id="tr-parar">PARAR AS TRAVESSURAS</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-agora" style="display:none">
+        <div class="adm-h">🌍 O QUE ESTÁ VALENDO AGORA
+          <span class="vivo-cont" id="agora-cont"></span>
+        </div>
+        <div class="mundo-agora" id="mundo-agora"></div>
+      </div>
+
+      <div class="adm-card" id="adm-vivo" style="display:none">
+        <div class="adm-h gold">
+          <span class="pulso"></span> AO VIVO
+          <span class="vivo-cont" id="vivo-cont"></span>
+        </div>
+        <p class="adm-note" style="max-width:none">Quem está com o jogo aberto agora, em que tela, desde quando e com qual versão.</p>
+        <div class="vivo-lista" id="vivo-lista"></div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn" id="vivo-atualizar">ATUALIZAR AGORA</button>
+          <button class="adm-btn" id="vivo-auto">⏸ PAUSAR</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-nuvem" style="display:none">
+        <div class="adm-h gold">JOGADORES ONLINE</div>
+        <div class="adm-row">
+          <input id="adm-nuvem-busca" placeholder="Buscar jogador pelo nome" autocomplete="off">
+          <button class="adm-btn" id="adm-nuvem-load">ATUALIZAR</button>
+        </div>
+        <div class="profile-list" id="adm-nuvem-lista" style="margin-top:10px"></div>
+        <div id="adm-nuvem-sel" style="display:none;margin-top:12px">
+          <div class="adm-h gold" id="adm-nuvem-alvo"></div>
+          <div class="adm-stats" id="adm-nuvem-stats"></div>
+          <div class="adm-note" id="adm-nuvem-pendente" style="margin-bottom:10px"></div>
+
+          <div class="sub-abas" id="acao-abas"></div>
+
+          <!-- ═══ DAR ═══ -->
+          <div class="sub-pane" id="pane-dar">
+            <div class="adm-h">CRISTAIS</div>
+            <div class="adm-row">
+              <input id="adm-nuvem-gem" type="number" inputmode="numeric" placeholder="Quantidade" value="10000">
+              <button class="adm-btn gold" id="adm-nuvem-dar">DAR</button>
+              <button class="adm-btn" id="adm-nuvem-set">DEFINIR</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">FASE</div>
+            <div class="adm-row">
+              <input id="adm-nuvem-fase" type="number" inputmode="numeric" min="0" max="120" placeholder="Fase" value="120">
+              <button class="adm-btn" id="adm-nuvem-fase-set">DEFINIR FASE</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">RANK</div>
+            <div class="adm-row">
+              <select id="adm-nuvem-rank-sel"></select>
+              <button class="adm-btn gold" id="adm-nuvem-rank">DAR RANK</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">LIBERAR</div>
+            <div class="adm-grid">
+              <button class="adm-btn" id="adm-nuvem-naves">TODAS AS NAVES</button>
+              <button class="adm-btn" id="adm-nuvem-fases">TODAS AS FASES</button>
+              <button class="adm-btn" id="adm-nuvem-hab">HABILIDADES</button>
+              <button class="adm-btn" id="adm-nuvem-melhorias">MELHORIAS MÁX.</button>
+              <button class="adm-btn gold" id="adm-nuvem-lend">3 LENDÁRIOS</button>
+              <button class="adm-btn gold" id="adm-nuvem-tudo">DAR TUDO</button>
+            </div>
+
+            <div class="adm-h gold" style="margin-top:14px">AERONAVES EXCLUSIVAS</div>
+            <div class="adm-grid">
+              <button class="adm-btn gold" id="adm-nuvem-maverick">★ MAVERICK</button>
+              <button class="adm-btn gold" id="adm-nuvem-b2">★ B-2 SPIRIT</button>
+              <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
+              <button class="adm-btn gold wide" id="adm-nuvem-privada">🚽 TRONO REAL (PRIVADA)</button>
+            </div>
+            <p class="adm-note" style="margin-top:10px">Tudo o que você tocar aqui entra na <b>CAIXA</b>. Vá até a abinha 📦 CAIXA para escrever o recado e enviar.</p>
+          </div>
+
+          <!-- ═══ TIRAR ═══ -->
+          <div class="sub-pane" id="pane-tirar" style="display:none">
+            <div class="adm-h red">TIRAR</div>
+            <div class="adm-grid">
+              <button class="adm-btn danger" id="adm-nuvem-gem-zero">ZERAR CRISTAIS</button>
+              <button class="adm-btn danger" id="adm-nuvem-naves-zero">TIRAR AS NAVES</button>
+              <button class="adm-btn danger" id="adm-nuvem-fases-zero">ZERAR FASES</button>
+              <button class="adm-btn danger" id="adm-nuvem-hab-zero">ZERAR HABILIDADES</button>
+              <button class="adm-btn danger" id="adm-nuvem-amu-zero">TIRAR AMULETOS</button>
+              <button class="adm-btn danger" id="adm-nuvem-naves-criadas">DESFAZER NAVES MONTADAS</button>
+            </div>
+
+            <div class="adm-h red" style="margin-top:14px">ZERAR DE VEZ</div>
+            <div class="adm-grid">
+              <button class="adm-btn danger wide" id="adm-nuvem-zerar">ZERAR O JOGADOR</button>
+            </div>
+
+            <div class="adm-h" style="margin-top:14px">OUTROS</div>
+            <div class="adm-grid">
+              <button class="adm-btn" id="adm-nuvem-god-on">⚡ DEIXAR INVENCÍVEL</button>
+              <button class="adm-btn" id="adm-nuvem-god-off">⚡ TIRAR INVENCÍVEL</button>
+              <button class="adm-btn" id="adm-nuvem-ocultar">🙈 ESCONDER DO RANKING</button>
+              <button class="adm-btn" id="adm-nuvem-cancelar">CANCELAR PENDENTE</button>
+              <button class="adm-btn danger" id="adm-nuvem-remover">APAGAR DO RANKING</button>
+            </div>
+          </div>
+
+          <!-- ═══ INVENTÁRIO ═══ -->
+          <div class="sub-pane" id="pane-inv" style="display:none">
+            <div class="adm-h">
+              🎒 O QUE ESTA CONTA TEM
+              <button class="adm-btn" id="inv-abrir" style="float:right;padding:5px 10px;font-size:.62rem">VER TUDO</button>
+            </div>
+            <div class="inv-box" id="inv-box">
+              <div class="adm-note">Toque em VER TUDO para puxar o inventário completo desta conta.</div>
+            </div>
+          </div>
+
+          <!-- ═══ CAIXA ═══ -->
+          <div class="sub-pane" id="pane-caixa" style="display:none">
+            <div class="adm-h gold">📦 O QUE VAI NA CAIXA</div>
+            <div class="caixa-adm" id="caixa-adm">
+              <div class="caixa-vazia" id="caixa-vazia">Vazia. Vá na abinha 🎁 DAR ou ✕ TIRAR e toque no que quiser mandar.</div>
+              <div id="caixa-itens"></div>
+            </div>
+            <div class="cx-recado">
+              <div class="adm-h" style="margin-top:14px">✉ RECADO DENTRO DA CAIXA</div>
+              <input id="caixa-msg" maxlength="200" autocomplete="off"
+                     placeholder="Escreva um recado (aparece quando abrir a caixa)…">
+              <div class="cx-prontos" id="caixa-prontos"></div>
+            </div>
+            <div class="adm-grid" style="margin-top:12px">
+              <button class="adm-btn gold wide" id="caixa-enviar">📦 ENVIAR A CAIXA</button>
+              <button class="adm-btn danger" id="caixa-limpar">ESVAZIAR</button>
+            </div>
+
+            <div class="adm-h gold" style="margin-top:18px">🌍 MANDAR PARA TODO MUNDO</div>
+            <p class="adm-note" style="max-width:none">
+              A mesma caixa e o mesmo recado, só que para todos os jogadores —
+              inclusive quem criar conta depois, enquanto estiver no prazo.
+            </p>
+            <div class="mundo-linha" style="margin-top:8px">
+              <span class="mundo-rot">VALE POR</span>
+              <input id="caixa-geral-dias" type="number" inputmode="numeric" min="1" value="7">
+              <span class="mundo-un">dias</span>
+            </div>
+            <div class="adm-grid" style="margin-top:8px">
+              <button class="adm-btn gold wide" id="caixa-todos">🌍 ENVIAR PARA TODO MUNDO</button>
+            </div>
+            <div class="cx-geral" id="cx-geral"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-numeros">
+        <div class="adm-h">📊 NÚMEROS DO JOGO</div>
+        <div class="adm-note">Quantos pilotos, quantos vieram hoje, onde a maioria parou
+          e quem ainda está na versão velha.</div>
+        <button class="adm-btn wide" id="adm-numeros-ler" style="margin-top:10px">ATUALIZAR NÚMEROS</button>
+        <div id="adm-numeros-corpo" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-erros">
+        <div class="adm-h">🐞 ERROS DOS JOGADORES</div>
+        <div class="adm-note">Erro que estourou no celular de alguém, agrupado por
+          mensagem. Não vem nada pessoal junto.</div>
+        <button class="adm-btn wide" id="adm-erros-ler" style="margin-top:10px">VER ERROS</button>
+        <div id="adm-erros-lista" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-denuncias">
+        <div class="adm-h">🚨 DENÚNCIAS E SUSPEITAS</div>
+        <div class="adm-note">Quem foi denunciado por outro jogador e as partidas que o
+          próprio jogo achou impossíveis.</div>
+        <button class="adm-btn wide" id="adm-den-ler" style="margin-top:10px">VER DENÚNCIAS</button>
+        <div id="adm-denuncias-lista" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-teste">
+        <div class="adm-h">🧪 TESTAR ANTES DE LIBERAR</div>
+        <div class="adm-note">Marca uma versão como "em teste" e diz quem pode ver.
+          Só você e essas contas recebem o aviso; o resto do mundo continua na versão
+          de sempre até você mandar atualizar.</div>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="teste-versao" maxlength="10" placeholder="Versão (ex: 6.7)" autocomplete="off">
+        </div>
+        <div class="adm-row" style="margin-top:6px">
+          <input id="teste-quem" maxlength="120" placeholder="Nicks separados por vírgula" autocomplete="off">
+        </div>
+        <div class="adm-row" style="margin-top:6px">
+          <input id="teste-nota" maxlength="80" placeholder="O que mudou" autocomplete="off">
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn gold" id="teste-ligar">COLOCAR EM TESTE</button>
+          <button class="adm-btn" id="teste-desligar">TIRAR DO TESTE</button>
+        </div>
+        <div class="adm-note" id="teste-estado" style="margin-top:8px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-manutencao">
+        <div class="adm-h gold">🛠 MANUTENÇÃO</div>
+        <div class="adm-note">Com a manutenção ligada, todo mundo vê um aviso e não
+          consegue jogar — menos você. Use antes de publicar algo que mexe nos dados.</div>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="manut-recado" maxlength="120" placeholder="Recado para os jogadores" autocomplete="off">
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn danger" id="manut-ligar">LIGAR MANUTENÇÃO</button>
+          <button class="adm-btn" id="manut-desligar">DESLIGAR</button>
+        </div>
+        <div class="adm-note" id="manut-estado" style="margin-top:8px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-registro">
+        <div class="adm-h">📋 O QUE A EQUIPE FEZ</div>
+        <div class="adm-note">Cada ação importante do painel fica anotada com o nick de
+          quem fez. Se um dia sumir cristal, é aqui que se descobre.</div>
+        <button class="adm-btn wide" id="adm-reg-ler" style="margin-top:10px">VER REGISTRO</button>
+        <div id="adm-registro-lista" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-local">
+        <div class="adm-h">PILOTOS NESTE APARELHO</div>
+        <input class="adm-search" id="adm-search" placeholder="Buscar piloto pelo nome" autocomplete="off">
+        <div class="profile-list" id="adm-players"></div>
+      </div>
+
+      <div id="adm-sel-box" style="display:none">
+
+        <div class="adm-card">
+          <div class="adm-h gold" id="adm-target">Piloto</div>
+          <div class="adm-stats" id="adm-stats"></div>
+          <div class="adm-grid">
+            <button class="adm-btn gold wide" id="adm-tudo">⭐ DESBLOQUEAR TUDO</button>
+            <button class="adm-btn" id="adm-god">⚡ MODO INVENCÍVEL</button>
+            <button class="adm-btn" id="adm-usar">USAR ESTE PILOTO</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h gold">CRISTAIS</div>
+          <div class="adm-row">
+            <input id="adm-gem-val" type="number" inputmode="numeric" placeholder="Quantidade" value="10000">
+            <button class="adm-btn gold" id="adm-gem-add">DAR</button>
+            <button class="adm-btn" id="adm-gem-set">DEFINIR</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" data-gem="1000">+1 MIL</button>
+            <button class="adm-btn" data-gem="10000">+10 MIL</button>
+            <button class="adm-btn" data-gem="100000">+100 MIL</button>
+            <button class="adm-btn" data-gem="1000000">+1 MILHÃO</button>
+            <button class="adm-btn" data-gem="999999999">MÁXIMO</button>
+            <button class="adm-btn danger" id="adm-gem-zero">ZERAR</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">PROGRESSO</div>
+          <div class="adm-row">
+            <input id="adm-fase-val" type="number" inputmode="numeric" min="0" max="120" placeholder="Fase" value="120">
+            <button class="adm-btn" id="adm-fase-set">DEFINIR FASE</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-pts-val" type="number" inputmode="numeric" placeholder="Pontos" value="120">
+            <button class="adm-btn" id="adm-pts-set">DEFINIR PONTOS</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-hi-val" type="number" inputmode="numeric" placeholder="Recorde" value="100000">
+            <button class="adm-btn" id="adm-hi-set">DEFINIR RECORDE</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-rank-val" type="number" inputmode="numeric" placeholder="Pontos de rank" value="1000">
+            <button class="adm-btn" id="adm-rank-set">DEFINIR RANK</button>
+          </div>
+          <div class="adm-row">
+            <select id="adm-rank-sel"></select>
+            <button class="adm-btn gold" id="adm-rank-dar">DAR ESTE RANK</button>
+          </div>
+          <div class="adm-row">
+            <input id="adm-coop-val" type="number" inputmode="numeric" min="0" max="200" placeholder="Fase do cooperativo" value="200">
+            <button class="adm-btn" id="adm-coop-set">DEFINIR COOP</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" id="adm-fases-all">TODAS AS FASES</button>
+            <button class="adm-btn danger" id="adm-fases-zero">ZERAR FASES</button>
+            <button class="adm-btn" id="adm-vitorias">+10 VITÓRIAS</button>
+            <button class="adm-btn danger" id="adm-rank-zero">ZERAR RANK</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">NAVES E OFICINA</div>
+          <div class="adm-row">
+            <select id="adm-ship-sel"></select>
+            <button class="adm-btn" id="adm-ship-give">DAR NAVE</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn gold" id="adm-ships-all">TODAS AS 50 NAVES</button>
+            <button class="adm-btn" id="adm-parts-max">PEÇAS NO MÁXIMO</button>
+            <button class="adm-btn" id="adm-shop-max">MELHORIAS NO MÁXIMO</button>
+            <button class="adm-btn" id="adm-paint-all">PINTURAS E ARMAS</button>
+            <button class="adm-btn gold" id="adm-maverick">★ DAR MAVERICK</button>
+            <button class="adm-btn gold" id="adm-b2">★ DAR B-2 SPIRIT</button>
+            <button class="adm-btn gold" id="adm-omega">☢ DAR ÔMEGA-9</button>
+            <button class="adm-btn gold" id="adm-privada">🚽 DAR TRONO REAL</button>
+            <button class="adm-btn danger wide" id="adm-ships-zero">DEIXAR SÓ A NAVE INICIAL</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">HABILIDADES</div>
+          <div class="adm-grid">
+            <button class="adm-btn gold" id="adm-skills-all">DESBLOQUEAR AS 120</button>
+            <button class="adm-btn danger" id="adm-skills-zero">LIMPAR ÁRVORE</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h">AMULETOS</div>
+          <div class="adm-row">
+            <select id="adm-amu-tipo"></select>
+            <select id="adm-amu-rar"></select>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn gold" id="adm-amu-give">DAR AMULETO</button>
+            <button class="adm-btn gold" id="adm-amu-lend">OS 3 LENDÁRIOS</button>
+            <button class="adm-btn" id="adm-amu-all">UM DE CADA (ÉPICO)</button>
+            <button class="adm-btn danger" id="adm-amu-zero">APAGAR TODOS</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-h red">PERFIL</div>
+          <div class="adm-row">
+            <input id="adm-rename" maxlength="14" placeholder="Novo nome">
+            <button class="adm-btn" id="adm-rename-go">RENOMEAR</button>
+          </div>
+          <div class="adm-grid" style="margin-top:8px">
+            <button class="adm-btn" id="adm-dup">DUPLICAR</button>
+            <button class="adm-btn" id="adm-export">EXPORTAR SAVE</button>
+            <button class="adm-btn danger" id="adm-reset">ZERAR PILOTO</button>
+            <button class="adm-btn danger" id="adm-del">APAGAR PILOTO</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-todos">
+        <div class="adm-h">TODOS OS PILOTOS</div>
+        <div class="adm-row">
+          <input id="adm-novo" maxlength="14" placeholder="Criar piloto novo">
+          <button class="adm-btn" id="adm-novo-go">CRIAR</button>
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn gold" id="adm-gem-todos">+10 MIL A TODOS</button>
+          <button class="adm-btn" id="adm-export-tudo">EXPORTAR TUDO</button>
+        </div>
+      </div>
+
+      <div class="adm-card" id="adm-backup">
+        <div class="adm-h">CÓPIA DE SEGURANÇA</div>
+        <textarea class="adm-ta" id="adm-json" placeholder="O save exportado aparece aqui. Para restaurar, cole um save válido e toque em IMPORTAR."></textarea>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn" id="adm-copy">COPIAR</button>
+          <button class="adm-btn gold" id="adm-import">IMPORTAR</button>
+        </div>
+        <p class="adm-note" style="margin-top:10px">Serve para levar o progresso de um celular para outro: exporte aqui, mande o texto para o outro aparelho e importe lá.</p>
+      </div>
+
+      <p class="adm-note" style="text-align:center;max-width:none">O jogo roda inteiro no aparelho de cada jogador. Este painel administra apenas os pilotos salvos <b>neste</b> aparelho.</p>
+    </div>
+
+    <div id="adm-msg"></div>
+  </div>
+</div>
+
+<!-- MENU PRINCIPAL -->
+<div class="screen" id="screen-menu">
+  <h1 class="brand">NEON<br><em>NEBULA</em></h1>
+
+  <div class="piloto-cartao">
+    <canvas class="piloto-nave" id="menu-nave" width="128" height="128"></canvas>
+    <div class="piloto-info">
+      <div class="piloto-nome" id="menu-hello">Piloto<span class="piloto-vip" id="piloto-vip">👑</span></div>
+      <div class="piloto-rank" id="menu-rank">▲ BRONZE</div>
+      <div class="piloto-barra"><i id="menu-barra"></i></div>
+      <div class="piloto-meta" id="menu-meta">Fase 0 de 270</div>
+    </div>
+    <button class="piloto-trocar" id="btn-perfil" aria-label="Ver o meu perfil">👤</button>
+    <button class="piloto-trocar" id="btn-logout" aria-label="Trocar de piloto">↩</button>
+  </div>
+
+  <div class="stat-panel">
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">CRISTAIS</span>
+      <span class="hud-value gem" id="menu-gems">0</span>
+    </div>
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">FASES</span>
+      <span class="hud-value" id="menu-progress">0/120</span>
+    </div>
+    <div class="hud-col" style="align-items:center">
+      <span class="hud-label">RECORDE</span>
+      <span class="hud-value" id="menu-hi">0</span>
+    </div>
+  </div>
+
+  <div class="menu-btns">
+    <button class="big-btn" id="btn-play">▶ JOGAR</button>
+    <div class="menu-grade">
+      <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
+      <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
+      <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
+      <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
+      <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
+    </div>
+
+    <div class="menu-secao" id="menu-online-h">ONLINE</div>
+    <div class="menu-grade online" id="menu-online">
+      <button class="tile verde wide" id="btn-multi"><b>🤝</b><span>JOGAR COM AMIGO</span><i id="multi-badge">jornada em dupla · duelo · ranqueada</i></button>
+      <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
+      <button class="tile magenta" id="btn-bossrush"><b>☠</b><span>MARATONA DE CHEFES</span><i id="br-rec"></i></button>
+      <button class="tile magenta" id="btn-ranked"><b>⚔</b><span>RANQUEADA</span><i id="ranked-badge"></i></button>
+      <button class="tile" id="btn-amigos"><b>👥</b><span>AMIGOS</span><i id="amigos-badge"></i><span class="selo" id="amigos-selo" style="display:none"></span></button>
+      <button class="tile" id="btn-rank"><b>🏆</b><span>RANKING</span><i></i></button>
+      <button class="tile verde" id="btn-cla"><b>✦</b><span>ESQUADRÃO</span><i id="cla-badge"></i></button>
+    </div>
+
+    <div id="nuvem-status" style="display:none"></div>
+    <div id="presente-aviso"></div>
+    <div id="diaria-cartao" style="display:none"></div>
+    <div id="missoes-resumo" style="display:none"></div>
+    <div id="falta-pouco" style="display:none"></div>
+    <div id="vip-aviso" style="display:none"></div>
+    <div class="menu-chips">
+      <button class="chip" id="btn-mapa">🗺 MAPA</button>
+      <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
+      <button class="chip" id="btn-conquistas">★ CONQUISTAS<i id="conq-badge"></i></button>
+      <button class="chip" id="btn-convite">🎟 CONVIDAR</button>
+      <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
+      <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
+      <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
+    </div>
+    <div id="cloud-status"></div>
+  </div>
+</div>
+
+<!-- LOJA VIP -->
+<!-- PAGAMENTO POR PIX -->
+<div class="page" id="screen-pagar">
+  <div class="page-head">
+    <button class="back-btn" id="pagar-voltar" aria-label="Voltar">‹</button>
+    <div class="page-title">PAGAMENTO</div>
+    <div class="page-gems gem" id="pagar-valor">R$ 0,00</div>
+  </div>
+  <div class="scroll">
+    <div class="pag-capa">
+      <div class="pag-ic">⚡</div>
+      <div class="pag-capa-txt">
+        <b id="pagar-item">Item</b>
+        <span>Pagamento por <b>Pix</b> · entrega assim que eu confirmar</span>
+      </div>
+    </div>
+    <div class="adm-card" id="pagar-corpo"></div>
+  </div>
+</div>
+
+<div class="page" id="screen-loja">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">LOJA</div>
+    <div class="page-gems gem" id="loja-gems">0</div>
+  </div>
+  <div class="abas" id="loja-abas"></div>
+  <div class="scroll"><div id="loja-oferta" style="display:none"></div><div class="card" id="loja-presente"></div><div id="loja-corpo"></div></div>
+  <div class="loja-aviso" id="loja-aviso"></div>
+  <button id="loja-adm" aria-label="Falar com o administrador">
+    <span>⊙</span><i id="loja-adm-selo" style="display:none"></i>
+  </button>
+</div>
+
+<!-- CONVERSA COM O ADMINISTRADOR -->
+<div class="page" id="screen-suporte">
+  <div class="page-head">
+    <button class="back-btn" id="sup-voltar" aria-label="Voltar">‹</button>
+    <div class="chat-quem">
+      <span class="chat-ini adm">⊙</span>
+      <span class="chat-txt">
+        <span class="chat-nome">ADMINISTRADOR</span>
+        <span class="chat-onde">fala direto com quem faz o jogo</span>
+      </span>
+    </div>
+  </div>
+  <div class="chat-rolagem" id="sup-lista"></div>
+  <div class="chat-barra">
+    <input id="sup-campo" maxlength="300" placeholder="Escreva sua mensagem…"
+           autocomplete="off" enterkeyhint="send">
+    <button id="sup-enviar" aria-label="Enviar">➤</button>
+  </div>
+</div>
+
+<!-- AMIGOS -->
+<div class="page" id="screen-amigos">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">AMIGOS</div>
+    <div class="page-gems" id="am-conta"></div>
+  </div>
+  <div class="abas" id="am-abas"></div>
+  <div class="scroll"><div id="amigos-ultimos" style="display:none"></div><div id="am-corpo"></div><div class="card" id="amigos-bloqueados" style="display:none"></div></div>
+</div>
+
+<!-- CONVERSA -->
+<div class="page" id="screen-chat">
+  <div class="page-head">
+    <button class="back-btn" id="chat-voltar" aria-label="Voltar">‹</button>
+    <div class="chat-quem">
+      <span class="chat-ini" id="chat-ini">?</span>
+      <span class="chat-txt">
+        <span class="chat-nome" id="chat-nome">Amigo</span>
+        <span class="chat-onde" id="chat-onde">—</span>
+      </span>
+    </div>
+  </div>
+  <div class="chat-rolagem" id="chat-lista"></div>
+  <div class="chat-barra">
+    <input id="chat-campo" maxlength="200" placeholder="Escreva uma mensagem…"
+           autocomplete="off" enterkeyhint="send">
+    <button id="chat-enviar" aria-label="Enviar">➤</button>
+  </div>
+</div>
+
+<!-- SELEÇÃO DE FASES -->
+<div class="page" id="screen-levels">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">FASES</div>
+    <div class="page-gems gem" id="levels-gems">0</div>
+  </div>
+  <div class="dif-linha" id="dif-linha"></div>
+  <div class="scroll"><div class="fase-lista" id="fase-grid"></div></div>
+</div>
+
+<!-- LOJA DE MELHORIAS -->
+<div class="page" id="screen-shop">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">MELHORIAS</div>
+    <div class="page-gems gem" id="shop-gems">0</div>
+  </div>
+  <div class="scroll"><div class="shop-list" id="shop-list"></div></div>
+</div>
+
+<!-- HANGAR -->
+<div class="page" id="screen-hangar">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">HANGAR</div>
+    <div class="page-gems gem" id="hangar-gems">0</div>
+  </div>
+  <div class="hangar-topo">
+    <button class="adm-btn gold wide" id="btn-criar-nave">🛠 CRIAR MINHA NAVE</button>
+    <button class="adm-btn wide" id="btn-comparar">📊 COMPARAR TODAS AS NAVES</button>
+    <button class="adm-btn wide" id="btn-treino">🎯 SALA DE TREINO</button>
+  </div>
+  <div class="card" id="hangar-conjuntos"></div>
+  <div class="hangar-atual" id="hangar-atual"></div>
+  <div class="hangar-filtros" id="hangar-filtros"></div>
+  <div class="scroll"><div class="ship-list" id="ship-list"></div></div>
+</div>
+
+<!-- CONSTRUTOR DE NAVES -->
+<div class="page" id="screen-construtor">
+  <div class="page-head">
+    <button class="back-btn" id="cn-voltar" aria-label="Voltar">‹</button>
+    <div class="page-title" id="cn-titulo">CRIAR NAVE</div>
+    <div class="page-gems gem" id="cn-gems">0</div>
+  </div>
+
+  <div class="cn-passos" id="cn-passos"></div>
+
+  <!-- passo 1: formato -->
+  <div class="cn-etapa" id="cn-formatos">
+    <div class="cn-filtros" id="cn-familias"></div>
+    <div class="scroll"><div class="cn-grade" id="cn-lista-formatos"></div></div>
+  </div>
+
+  <!-- passo 2: peças -->
+  <div class="cn-etapa" id="cn-pecas" style="display:none">
+    <div class="cn-previa">
+      <canvas id="cn-tela" width="260" height="260"></canvas>
+      <div class="cn-stats" id="cn-stats"></div>
+    </div>
+    <div class="cn-filtros" id="cn-encaixes"></div>
+    <div class="scroll"><div class="cn-grade peca" id="cn-lista-pecas"></div></div>
+  </div>
+
+  <!-- passo 3: acabamento -->
+  <div class="cn-etapa" id="cn-final" style="display:none">
+    <div class="scroll">
+      <div class="cn-previa grande">
+        <canvas id="cn-tela2" width="300" height="300"></canvas>
+        <div class="cn-stats" id="cn-stats2"></div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-h">NOME DA NAVE</div>
+        <input id="cn-nome" maxlength="18" placeholder="Como ela vai se chamar?" autocomplete="off">
+        <div class="adm-h" style="margin-top:14px">COR</div>
+        <input id="cn-cor" type="range" min="0" max="359" value="190" class="cn-slider">
+        <div class="cn-resumo" id="cn-resumo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cn-rodape">
+    <button class="adm-btn" id="cn-anterior">‹ VOLTAR</button>
+    <button class="adm-btn gold" id="cn-proximo">CONTINUAR ›</button>
+  </div>
+</div>
+
+<!-- OFICINA (3D) -->
+<div class="page" id="screen-oficina">
+  <div class="page-head">
+    <button class="back-btn" id="of-back" aria-label="Voltar">‹</button>
+    <div class="page-title" id="of-title">OFICINA</div>
+    <div class="page-gems gem" id="of-gems">0</div>
+  </div>
+  <div class="scroll">
+    <div class="of-stage">
+      <canvas id="of3d"></canvas>
+      <div class="of-caption">ARRASTE PARA GIRAR A NAVE EM 3D</div>
+    </div>
+    <div class="of-section">
+      <div class="of-h" id="of-power" style="color:var(--amber)"></div>
+      <div class="of-h" id="of-ult" style="color:var(--cyan)"></div>
+    </div>
+    <div class="of-section">
+      <div class="of-h">PINTURA DO CASCO <span class="gem" style="font-size:.66rem">100</span></div>
+      <div class="swatches" id="paint-row"></div>
+    </div>
+    <div class="of-section">
+      <div class="of-h">BRILHO DO MOTOR <span class="gem" style="font-size:.66rem">80</span></div>
+      <div class="swatches" id="glow-row"></div>
+    </div>
+    <div class="of-section">
+      <div class="of-h">ARMAMENTO</div>
+      <div class="weap-list" id="weap-list"></div>
+    </div>
+    <div class="of-section" style="display:flex;justify-content:center">
+      <button class="ghost-btn" id="btn-of-cut">▶ VER APRESENTAÇÃO DA NAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- RELÍQUIAS (AMULETOS) -->
+<div class="page" id="screen-reliquias">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">RELÍQUIAS</div>
+    <div class="page-gems gem" id="rel-gems">0</div>
+  </div>
+  <div class="scroll">
+    <div class="of-h" style="text-align:center" id="rel-espacos">AMULETOS EQUIPADOS</div>
+    <div class="amu-slots" id="amu-slots"></div>
+    <div class="chest-row">
+      <button class="big-btn amber" id="btn-chest">ABRIR BAÚ ESTELAR — ◆ 300</button>
+      <div class="adm-note" style="max-width:none;text-align:center">Chefes derrotados pela primeira vez também deixam amuletos. Raridades: Comum, Raro, Épico e Lendário.</div>
+    </div>
+    <div id="amu-reveal"></div>
+    <div class="card" id="rel-fundir" style="display:none"></div>
+    <div class="card" id="rel-historico" style="display:none"></div>
+    <div class="rel-colecao" id="rel-colecao"></div>
+    <div class="amu-list" id="amu-inv"></div>
+  </div>
+</div>
+
+<!-- MULTIJOGADOR -->
+<div class="page" id="screen-multi">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">JOGAR COM AMIGOS</div>
+    <button class="amigo-btn" id="btn-multi-amigos" aria-label="Amigos">
+      <span>👤</span><i>+</i>
+    </button>
+  </div>
+  <div class="abas" id="multi-abas">
+    <button class="aba on" data-modo="jornada" id="aba-jornada">🚀 JORNADA</button>
+    <button class="aba" data-modo="coop" id="aba-coop">🤝 SALA RÁPIDA</button>
+    <button class="aba" data-modo="pvp">⚔ DUELO</button>
+    <button class="aba" data-modo="ranked" id="aba-ranked">🏆 RANQUEADA</button>
+    <button class="aba" data-modo="amigos">👥 AMIGOS</button>
+  </div>
+  <div class="scroll">
+    <div id="multi-jornada" class="multi-painel">
+      <div class="mp-hero">
+        <div class="mp-hero-ic">🚀</div>
+        <div class="mp-hero-txt">
+          <b>JORNADA EM DUPLA</b>
+          <span>270 fases para cada amizade. O que vocês avançarem com um amigo
+          fica com ele; com outro amigo, a jornada começa do zero — com as
+          melhorias próprias daquela dupla.</span>
+        </div>
+      </div>
+      <div class="jor-lista" id="jor-lista"></div>
+    </div>
+
+    <div id="multi-coop" class="multi-painel" style="display:none">
+      <div class="mp-hero">
+        <div class="mp-hero-ic">🤝</div>
+        <div class="mp-hero-txt">
+          <b>JOGAR JUNTO</b>
+          <span>Mesma fase, mesma onda, mesmos inimigos. O abate de um vale
+          para os dois e a pontuação soma.</span>
+        </div>
+      </div>
+      <div class="mp-net" id="coop-net"></div>
+      <div class="adm-card">
+        <div class="adm-h">CRIAR OU ENTRAR</div>
+        <div class="adm-grid" style="margin-top:10px">
+          <button class="adm-btn gold wide" id="coop-criar">CRIAR SALA</button>
+        </div>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="coop-codigo" inputmode="numeric" maxlength="4" placeholder="Código da sala">
+          <button class="adm-btn" id="coop-entrar">ENTRAR</button>
+        </div>
+        <p class="adm-note" style="margin-top:10px">Quem cria vira o anfitrião: é o
+        aparelho dele que manda a onda, então os dois nunca ficam em ondas diferentes.</p>
+      </div>
+      <div class="mp-lista">
+        <div class="mp-item"><b>⚡</b><span>Ligação direta entre os dois celulares, sem servidor no meio</span></div>
+        <div class="mp-item"><b>💥</b><span>O inimigo cai na mesma hora nas duas telas</span></div>
+        <div class="mp-item"><b>✦</b><span>Você vê os tiros e as habilidades do parceiro</span></div>
+        <div class="mp-item"><b>🏆</b><span>O chefe soma o dano dos dois</span></div>
+      </div>
+    </div>
+
+    <div id="multi-pvp" class="multi-painel" style="display:none">
+      <div class="mp-hero duelo">
+        <div class="mp-hero-ic">⚔</div>
+        <div class="mp-hero-txt">
+          <b>DUELO PRIVADO</b>
+          <span>Um contra um, pelo código, com quem você quiser. Aqui os
+          tiros do adversário machucam de verdade.</span>
+        </div>
+      </div>
+      <div class="mp-net" id="pvp-net"></div>
+      <div class="adm-card">
+        <div class="rank-row">
+          <div class="rank-info">
+            <div class="rank-nome" id="pvp-meu-rank">BRONZE</div>
+            <div class="rank-meta" id="pvp-meu-placar">0 vitórias · 0 derrotas</div>
+          </div>
+          <div class="rank-fase" id="pvp-meus-pontos">0<span>PONTOS</span></div>
+        </div>
+        <div class="adm-grid" style="margin-top:12px">
+          <button class="adm-btn danger wide" id="pvp-criar">CRIAR DUELO</button>
+        </div>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="pvp-codigo" inputmode="numeric" maxlength="4" placeholder="Código do duelo">
+          <button class="adm-btn" id="pvp-entrar">ENTRAR</button>
+        </div>
+        <p class="adm-note" style="margin-top:10px">Duelo pelo código não mexe no seu
+        rank de propósito: é para treinar com os amigos. Para valer pontos, use a
+        aba <b>🏆 RANQUEADA</b>.</p>
+      </div>
+    </div>
+
+    <div id="multi-ranked" class="multi-painel" style="display:none">
+      <div class="rk-cartao-novo">
+        <div class="rk-brasao" id="mrk-sim">▲</div>
+        <div class="rk-dados">
+          <div class="rk-titulo" id="mrk-nome">BRONZE</div>
+          <div class="rk-sub" id="mrk-pts">0 pontos de rank</div>
+          <div class="rk-barra"><i id="mrk-barra"></i></div>
+          <div class="rk-prox" id="mrk-prox"></div>
+        </div>
+      </div>
+      <div class="rk-nums">
+        <div><b id="mrk-vit">0</b><span>VITÓRIAS</span></div>
+        <div><b id="mrk-der">0</b><span>DERROTAS</span></div>
+        <div><b id="mrk-taxa">—</b><span>APROVEITAMENTO</span></div>
+        <div><b id="mrk-fila">0</b><span>NA FILA AGORA</span></div>
+      </div>
+      <div class="adm-grid" style="margin-top:12px">
+        <button class="adm-btn danger wide" id="mrk-procurar">⚔ PROCURAR PARTIDA</button>
+      </div>
+      <div class="rk-busca" id="mrk-busca">
+        <div class="rk-radar"><i></i><i></i><i></i></div>
+        <div class="rk-busca-txt" id="mrk-busca-txt">Procurando adversário…</div>
+        <button class="adm-btn" id="mrk-cancelar" style="margin-top:12px">CANCELAR</button>
+      </div>
+      <div class="adm-card" style="margin-top:12px">
+        <div class="adm-h">DIVISÕES</div>
+        <div class="rk-escada" id="mrk-escada"></div>
+      </div>
+      <p class="adm-note" style="margin-top:10px">
+        Sem código: o jogo acha alguém do seu nível sozinho. Tudo começa zerado dos
+        dois lados, então vence quem jogar melhor. Ganhou, sobe; perdeu, desce um pouco.
+      </p>
+    </div>
+
+    <div id="multi-amigos" class="multi-painel" style="display:none">
+      <div class="adm-card">
+        <div class="adm-h">ADICIONAR AMIGO</div>
+        <div class="adm-row">
+          <input id="amigo-nome" maxlength="14" placeholder="Nome do piloto" autocomplete="off">
+          <button class="adm-btn gold" id="amigo-add">👤+ ADICIONAR</button>
+        </div>
+        <p class="adm-note" style="margin-top:8px">Toque em um amigo para convidá-lo: o código da sala é copiado para você mandar por mensagem.</p>
+      </div>
+      <div class="adm-card">
+        <div class="adm-h">MEUS AMIGOS</div>
+        <div class="profile-list" id="amigos-lista"></div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-h">JOGADORES ONLINE</div>
+        <div class="profile-list" id="online-lista"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JORNADA EM DUPLA -->
+<div class="page" id="screen-jornada">
+  <div class="page-head">
+    <button class="back-btn" id="jor-voltar" aria-label="Voltar">‹</button>
+    <div class="page-title" id="jor-titulo">JORNADA</div>
+    <div class="page-gems gem" id="jor-gems">0</div>
+  </div>
+  <div class="scroll">
+    <div class="jor-capa" id="jor-capa"></div>
+    <div class="abas" id="jor-abas">
+      <button class="aba on" data-jor="fases">▶ FASES</button>
+      <button class="aba" data-jor="up">⚙ MELHORIAS DA DUPLA</button>
+    </div>
+    <div id="jor-pane-fases">
+      <p class="adm-note" style="margin:10px 0">Toque na fase em que vocês querem
+      jogar. Dá para voltar em qualquer fase já vencida para pegar cristais.</p>
+      <div class="areas" id="jor-areas"></div>
+      <div class="levels" id="jor-fases"></div>
+    </div>
+    <div id="jor-pane-up" style="display:none">
+      <p class="adm-note" style="margin:10px 0">Estas melhorias valem só nesta
+      jornada, com este amigo. Com outro amigo, outras melhorias.</p>
+      <div class="parts" id="jor-ups"></div>
+    </div>
+    <div class="jor-rodape">
+      <button class="big-btn" id="jor-jogar">CHAMAR E COMEÇAR</button>
+      <div class="adm-note" id="jor-dica" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SALA -->
+<div class="page" id="screen-sala">
+  <div class="page-head">
+    <button class="back-btn" id="sala-sair" aria-label="Sair">‹</button>
+    <div class="page-title" id="sala-titulo">SALA</div>
+    <div class="page-gems" id="sala-modo"></div>
+  </div>
+  <div class="scroll">
+    <div class="codigo-box">
+      <div class="codigo-rot">CÓDIGO DA SALA</div>
+      <div class="codigo" id="sala-codigo">----</div>
+      <button class="ghost-btn" id="sala-copiar">COPIAR CÓDIGO</button>
+    </div>
+    <div class="mp-net" id="sala-net"></div>
+    <div class="adm-card">
+      <div class="adm-h">PILOTOS NA SALA</div>
+      <div id="sala-jogadores"></div>
+    </div>
+    <div class="adm-card" id="sala-acoes">
+      <button class="big-btn" id="sala-comecar" style="width:100%">COMEÇAR</button>
+      <p class="adm-note" style="margin-top:10px;text-align:center" id="sala-dica">Esperando o outro piloto entrar…</p>
+    </div>
+  </div>
+</div>
+
+<!-- RANKING ONLINE -->
+<div class="page" id="screen-rank">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">RANKING</div>
+    <div class="page-gems" id="rank-count"></div>
+  </div>
+  <div class="abas" id="rank-abas"></div>
+  <div class="scroll"><div class="rank-list" id="rank-list"></div></div>
+</div>
+
+<!-- RANQUEADA -->
+<div class="page" id="screen-ranked">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">RANQUEADA</div>
+    <div class="page-gems" id="ranked-fila"></div>
+  </div>
+  <div class="scroll">
+    <div class="rank-cartao">
+      <div class="rk-sim" id="rk-sim">▲</div>
+      <div class="rk-txt">
+        <div class="rk-nome" id="rk-nome">BRONZE</div>
+        <div class="rk-pts" id="rk-pts">0 pontos</div>
+        <div class="rk-barra"><i id="rk-barra"></i></div>
+        <div class="rk-prox" id="rk-prox"></div>
+      </div>
+    </div>
+    <div class="rk-placar" id="rk-placar"></div>
+    <div class="card" id="rk-temporada"></div>
+
+    <div class="adm-grid" style="margin-top:14px">
+      <button class="adm-btn danger wide" id="rk-procurar">⚔ PROCURAR PARTIDA</button>
+    </div>
+    <div class="rk-busca" id="rk-busca">
+      <div class="rk-radar"><i></i><i></i><i></i></div>
+      <div class="rk-busca-txt" id="rk-busca-txt">Procurando adversário…</div>
+      <button class="adm-btn" id="rk-cancelar" style="margin-top:12px">CANCELAR</button>
+    </div>
+    <div class="card" id="rk-historico" style="display:none"></div>
+    <p class="adm-note" style="margin-top:10px">
+      Não precisa de código: o jogo acha alguém do seu nível sozinho. Tudo fica
+      zerado dos dois lados, então vence quem jogar melhor. Ganhou, sobe pontos
+      de rank; perdeu, desce um pouco. Quanto mais tempo na fila, mais longe do
+      seu nível o jogo aceita — para ninguém ficar preso esperando.
+    </p>
+  </div>
+</div>
+
+<!-- ARENA INFINITA -->
+<div class="page" id="screen-arena">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">ARENA INFINITA</div>
+    <div class="page-gems" id="arena-online"></div>
+  </div>
+  <div class="scroll">
+    <div class="adm-card">
+      <div class="adm-h roxo">A ARENA NUNCA ZERA</div>
+      <p class="adm-note" style="max-width:none">
+        Uma só arena para todo mundo. Ondas sem fim, todos são aliados e ninguém
+        atira em ninguém. A onda continua de onde o último parou — mesmo que você
+        feche o jogo. A cada 5 ondas vem um chefe.
+      </p>
+      <div class="arena-nums" id="arena-nums"></div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-h">QUEM ESTÁ NA ARENA AGORA</div>
+      <div class="arena-gente" id="arena-gente"></div>
+    </div>
+
+    <div class="adm-grid" style="margin-top:4px">
+      <button class="adm-btn gold wide" id="arena-entrar">∞ ENTRAR NA ARENA</button>
+    </div>
+    <p class="adm-note" style="margin-top:8px">
+      Na arena tudo fica zerado, igual para todo mundo: valem só a sua nave e a sua
+      mão. O que você derrubar entra na conta de todos.
+    </p>
+  </div>
+</div>
+
+<div id="foto-caixa"></div>
+
+<!-- MAPA DA JORNADA -->
+<div class="page" id="screen-mapa">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">MAPA DA JORNADA</div>
+  </div>
+  <div class="scroll"><div id="mapa-corpo"></div></div>
+</div>
+
+<!-- ESQUADRÃO -->
+<div class="page" id="screen-cla">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">ESQUADRÃO</div>
+  </div>
+  <div class="scroll"><div id="cla-corpo"></div></div>
+</div>
+
+<!-- COMPARAR NAVES -->
+<div class="page" id="screen-comparar">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">COMPARAR NAVES</div>
+  </div>
+  <div class="scroll"><div id="comp-corpo"></div></div>
+</div>
+
+<!-- PERFIL DO PILOTO -->
+<div class="page" id="screen-perfil">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">PERFIL</div>
+  </div>
+  <div class="scroll"><div id="perf-corpo"></div><div class="card" id="perf-combos"></div><div class="card" id="perf-molduras"></div><div id="perf-prestigio" style="display:none"></div></div>
+</div>
+
+<!-- CONQUISTAS -->
+<div class="page" id="screen-conquistas">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">CONQUISTAS</div>
+    <div class="page-gems gem" id="conq-gems">0</div>
+  </div>
+  <div class="scroll"><div id="conq-corpo"></div></div>
+</div>
+
+<!-- CONVITE -->
+<div class="page" id="screen-convite">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">CONVIDAR</div>
+  </div>
+  <div class="scroll"><div id="conv-corpo"></div></div>
+</div>
+
+<!-- AJUSTES -->
+<div class="page" id="screen-ajustes">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">AJUSTES</div>
+  </div>
+  <div class="scroll"><div id="aj-corpo"></div></div>
+</div>
+
+<!-- MISSÕES DO DIA -->
+<div class="page" id="screen-missoes">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">MISSÕES</div>
+    <div class="page-gems gem" id="mis-gems">0</div>
+  </div>
+  <div class="scroll"><div id="mis-corpo"></div></div>
+</div>
+
+<!-- NOVIDADES -->
+<div class="page" id="screen-novidades">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">NOVIDADES</div>
+    <div class="page-gems" id="nov-versao"></div>
+  </div>
+  <div class="scroll"><div class="nov-lista" id="nov-lista"></div></div>
+</div>
+
+<!-- ÁRVORE DE HABILIDADES -->
+<div class="page" id="screen-tree">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">HABILIDADES</div>
+    <div class="page-gems gem" id="tree-gems">0</div>
+  </div>
+  <div class="tree-pts" id="tree-pts">0 PONTOS DISPONÍVEIS</div>
+  <button class="ghost-btn" id="tree-zerar" style="margin:0 14px 8px">↻ REFAZER A ÁRVORE</button>
+  <div class="adm-note" id="tree-zerar-nota" style="margin:0 14px 6px"></div>
+  <div class="scroll"><div class="tree-cols" id="tree-cols"></div></div>
+  <div class="tree-detail">
+    <div class="tree-detail-info">
+      <div class="tree-detail-name" id="td-name">Toque em um nó</div>
+      <div class="tree-detail-desc" id="td-desc">Cada fase concluída dá 1 ponto de habilidade.</div>
+    </div>
+    <button class="buy-btn" id="td-buy" disabled>—</button>
+  </div>
+</div>
+
+<!-- PAUSA -->
+<div class="screen" id="screen-pause">
+  <div class="fim-cartao">
+    <div class="tagline">Pausado</div>
+    <div class="fim-ic pausa">⏸</div>
+    <h1 class="fim-titulo cyan">PAUSA</h1>
+    <p class="fim-sub">A partida está esperando por você.</p>
+    <button class="big-btn" id="btn-resume" style="width:100%">▶ CONTINUAR</button>
+    <div class="qual-cx">
+      <div class="qual-h">CAPRICHO DO DESENHO</div>
+      <div class="qual-linha" id="qual-linha"></div>
+      <p class="qual-nota" id="qual-nota">
+        O jogo escolhe sozinho o que o seu aparelho aguenta. Nada do jogo
+        muda — só o capricho dos enfeites.
+      </p>
+    </div>
+    <button class="ghost-btn" id="btn-quit" style="width:100%">SAIR PARA O MENU</button>
+  </div>
+</div>
+
+<!-- VITÓRIA -->
+<div class="screen" id="screen-victory">
+  <div class="fim-cartao ganhou">
+    <div class="fim-raios"></div>
+    <div class="tagline">Setor limpo</div>
+    <div class="fim-ic vitoria">★</div>
+    <h1 class="fim-titulo cyan" id="vic-title">FASE CONCLUÍDA</h1>
+    <div id="vic-estrelas"></div>
+    <div id="vic-resumo"></div>
+    <div id="vic-estrelas-nota" class="adm-note" style="text-align:center;margin:-4px 0 8px"></div>
+    <div class="fim-premios">
+      <div class="fim-premio gem" id="vic-gems">+0 cristais</div>
+      <div class="fim-premio extra" id="vic-skill">✦ +1 PONTO DE HABILIDADE</div>
+      <div class="fim-premio extra roxo" id="vic-amulet"></div>
+    </div>
+    <div class="fim-placar">
+      <div class="fim-cx"><b id="vic-fase">1</b><span>FASE</span></div>
+      <div class="fim-cx"><b id="vic-score">0</b><span>PONTOS</span></div>
+    </div>
+    <button class="big-btn" id="btn-next" style="width:100%">PRÓXIMA FASE ›</button>
+    <button class="ghost-btn" id="vic-foto" style="width:100%;margin-top:8px">📸 FOTO DA PARTIDA</button>
+    <div class="fim-linha">
+      <button class="ghost-btn" id="btn-vic-shop">⬡ MELHORIAS</button>
+      <button class="ghost-btn" id="btn-vic-menu">MENU</button>
+    </div>
+    <button class="ghost-btn sugestao-btn" id="btn-vic-sug" style="width:100%">💡 MANDAR UMA SUGESTÃO</button>
+  </div>
+</div>
+
+<!-- CAIXA DE SUGESTÃO -->
+<div id="sugestao-box">
+  <div class="sg-fundo"></div>
+  <div class="sg-cartao">
+    <div class="sg-topo">
+      <b>💡 SUA SUGESTÃO</b>
+      <button class="sg-x" id="sg-fechar" aria-label="Fechar">✕</button>
+    </div>
+    <p class="sg-nota">
+      O que você gostaria de ver no jogo? Uma nave, uma fase, um chefe, uma
+      habilidade, o que estiver quebrado — escreva do seu jeito. Isso vai
+      direto para quem faz o jogo.
+    </p>
+    <div class="sg-tipos" id="sg-tipos"></div>
+    <textarea id="sg-texto" maxlength="500" rows="4"
+      placeholder="Escreva aqui a sua ideia…"></textarea>
+    <div class="sg-conta" id="sg-conta">0 / 500</div>
+    <button class="big-btn" id="sg-enviar" style="width:100%">ENVIAR SUGESTÃO</button>
+    <div class="sg-aviso" id="sg-aviso"></div>
+    <div class="sg-minhas" id="sg-minhas"></div>
+  </div>
+</div>
+
+<!-- DERROTA -->
+<div class="screen" id="screen-over">
+  <div class="fim-cartao perdeu">
+    <div class="tagline" style="color:var(--danger);background:rgba(255,92,92,.1);border-color:rgba(255,92,92,.32)">Fim da missão</div>
+    <div class="fim-ic derrota">✖</div>
+    <h1 class="fim-titulo vermelho" id="go-title">NAVE DESTRUÍDA</h1>
+    <div class="fim-premios">
+      <div class="fim-premio gem" id="go-gems">+0 cristais recuperados</div>
+      <div class="fim-premio extra ouro" id="go-record">★ NOVO RECORDE!</div>
+    </div>
+    <div class="fim-placar">
+      <div class="fim-cx"><b id="go-fase">1</b><span>FASE</span></div>
+      <div class="fim-cx"><b id="go-score">0</b><span>PONTOS</span></div>
+    </div>
+    <button class="big-btn rosa" id="btn-retry" style="width:100%">↻ TENTAR DE NOVO</button>
+    <div id="pular-caixa" style="display:none"></div>
+    <div id="revanche-caixa"></div>
+    <div class="fim-linha">
+      <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
+      <button class="ghost-btn" id="btn-go-menu">MENU</button>
+    </div>
+    <button class="ghost-btn sugestao-btn" id="btn-go-sug" style="width:100%">💡 MANDAR UMA SUGESTÃO</button>
+  </div>
+</div>
+<script>
