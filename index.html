@@ -3662,6 +3662,120 @@
   #vic-estrelas i{font-style:normal;color:rgba(255,255,255,.16);transition:color .3s ease,transform .3s ease}
   #vic-estrelas i.on{color:var(--amber);text-shadow:0 0 18px rgba(255,193,69,.7);transform:scale(1.12)}
 
+  /* ---------- v6.1: cartão da fase, tutorial, conquistas, perfil, convite ---------- */
+  #fase-cartao{
+    position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);
+    top:calc(120px + var(--safe-top));z-index:9;pointer-events:none;text-align:center;
+    opacity:0;transition:opacity .3s ease,transform .3s ease;width:min(88vw,340px);
+  }
+  #fase-cartao.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  #fase-cartao b{
+    display:block;font-family:"Russo One",sans-serif;font-size:.78rem;
+    letter-spacing:.22em;color:var(--cyan);
+  }
+  #fase-cartao span{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.35rem;color:var(--ink);
+    text-shadow:0 0 18px rgba(94,230,255,.45);margin:2px 0 5px;
+  }
+  #fase-cartao i{display:block;font-style:normal;font-size:.62rem;color:var(--dim);line-height:1.4}
+  body.menos-luz #fase-cartao span{text-shadow:none}
+
+  #tuto-caixa{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(148px + var(--safe-bot));z-index:12;width:min(90vw,350px);
+    padding:14px 15px;border-radius:var(--r-lg);text-align:center;
+    background:linear-gradient(150deg,rgba(16,26,58,.97),rgba(9,15,36,.97));
+    border:1px solid var(--cyan);box-shadow:var(--som-3),0 0 30px rgba(94,230,255,.25);
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  #tuto-caixa.on{opacity:1;pointer-events:auto}
+  #tuto-caixa.fim{border-color:var(--verde);box-shadow:var(--som-3),0 0 30px rgba(99,245,181,.3)}
+  .tuto-n{font-size:.55rem;letter-spacing:.2em;color:var(--cyan);margin-bottom:6px}
+  #tuto-caixa b{display:block;font-size:.82rem;line-height:1.45}
+  #tuto-caixa span{display:block;font-size:.62rem;color:var(--dim);margin-top:5px}
+  .tuto-pular{
+    margin-top:10px;padding:6px 16px;border-radius:99px;font-size:.58rem;letter-spacing:.14em;
+    background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink2);
+  }
+
+  /* conquistas */
+  .conq-topo{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .conq-topo b{font-family:"Russo One",sans-serif;font-size:.9rem;color:var(--amber);white-space:nowrap}
+  .conq-barra{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .conq-barra i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--cyan))}
+  .conq-linha{
+    display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r-md);
+    margin-bottom:8px;background:rgba(255,255,255,.035);border:1px solid var(--line);
+  }
+  .conq-linha.pronto{border-color:rgba(255,200,97,.5);background:rgba(255,200,97,.09)}
+  .conq-linha.pego{opacity:.5}
+  .conq-ic{
+    flex:none;width:34px;height:34px;border-radius:11px;display:flex;
+    align-items:center;justify-content:center;font-size:1rem;
+    background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--fraco);
+  }
+  .conq-linha.pronto .conq-ic{color:var(--amber);border-color:rgba(255,200,97,.5);background:rgba(255,200,97,.14)}
+  .conq-linha.pego .conq-ic{color:var(--verde);border-color:rgba(99,245,181,.4)}
+  .conq-txt{flex:1;min-width:0}
+  .conq-txt b{display:block;font-size:.74rem}
+  .conq-txt span{display:block;font-size:.6rem;color:var(--dim);margin-top:2px}
+  .conq-mini{height:4px;border-radius:99px;background:rgba(255,255,255,.08);margin:6px 0 3px;overflow:hidden}
+  .conq-mini i{display:block;height:100%;background:var(--cyan)}
+  .conq-txt em{font-style:normal;font-size:.55rem;color:var(--fraco)}
+  .conq-fim{flex:none;text-align:right;font-size:.64rem}
+  .conq-ok{font-size:.58rem;color:var(--verde);letter-spacing:.1em}
+
+  /* perfil */
+  .perf-capa{text-align:center;margin-bottom:16px}
+  .perf-nome{font-family:"Russo One",sans-serif;font-size:1.3rem;letter-spacing:.04em}
+  .perf-vip{font-style:normal;font-size:.6rem;color:var(--amber);vertical-align:middle}
+  .perf-sub{font-size:.62rem;color:var(--dim);margin-top:4px;letter-spacing:.06em}
+  .perf-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .perf-cx{
+    padding:12px 6px;border-radius:var(--r-md);text-align:center;
+    background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid var(--line);
+  }
+  .perf-cx b{display:block;font-family:"Russo One",sans-serif;font-size:1rem;color:var(--cyan)}
+  .perf-cx.ouro b{color:var(--amber)}
+  .perf-cx.rosa b{color:var(--magenta)}
+  .perf-cx span{display:block;font-size:.5rem;letter-spacing:.14em;color:var(--fraco);margin-top:4px}
+  .perf-lista{margin-bottom:12px}
+  .perf-linha{
+    display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+    padding:9px 2px;border-bottom:1px solid var(--line);font-size:.7rem;color:var(--dim);
+  }
+  .perf-linha:last-child{border-bottom:none}
+  .perf-linha b{color:var(--ink);font-size:.76rem;font-variant-numeric:tabular-nums}
+
+  /* convite */
+  .conv-cartao{
+    text-align:center;padding:16px;border-radius:var(--r-lg);
+    background:rgba(94,230,255,.08);border:1px dashed rgba(94,230,255,.45);
+  }
+  .conv-cartao b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.5rem;
+    letter-spacing:.1em;color:var(--cyan);margin:8px 0 12px;word-break:break-all;
+  }
+
+  /* foto da partida */
+  #foto-caixa{
+    position:fixed;inset:0;z-index:70;display:none;
+    background:rgba(3,6,15,.9);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;padding:20px;
+  }
+  #foto-caixa.on{display:flex}
+  .foto-dentro{width:min(92vw,380px);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+  .foto-dentro img{width:100%;border-radius:var(--r-lg);border:1px solid var(--line2);display:block}
+
+  /* ---------- v6.2: borda de dano ---------- */
+  #doeu{
+    position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;
+    box-shadow:inset 0 0 80px 20px rgba(255,45,70,.85);
+    transition:opacity .1s linear;
+  }
+  body.menos-luz #doeu{box-shadow:inset 0 0 40px 10px rgba(255,45,70,.6)}
+
 </style>
 </head>
 <body>
@@ -3687,6 +3801,9 @@
     <button class="hud-btn" id="btn-pause" aria-label="Pausar">❚❚</button>
   </div>
   <div id="fps-conta" style="display:none">60 fps</div>
+  <div id="doeu"></div>
+  <div id="fase-cartao"></div>
+  <div id="tuto-caixa"></div>
   <div id="combo-hud"></div>
   <button id="ult-btn">ULT</button>
   <button id="cloak-btn">CAPA</button>
@@ -4398,6 +4515,7 @@
       <div class="piloto-barra"><i id="menu-barra"></i></div>
       <div class="piloto-meta" id="menu-meta">Fase 0 de 270</div>
     </div>
+    <button class="piloto-trocar" id="btn-perfil" aria-label="Ver o meu perfil">👤</button>
     <button class="piloto-trocar" id="btn-logout" aria-label="Trocar de piloto">↩</button>
   </div>
 
@@ -4441,6 +4559,8 @@
     <div id="missoes-resumo" style="display:none"></div>
     <div class="menu-chips">
       <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
+      <button class="chip" id="btn-conquistas">★ CONQUISTAS<i id="conq-badge"></i></button>
+      <button class="chip" id="btn-convite">🎟 CONVIDAR</button>
       <button class="chip" id="btn-ajustes">⚙ AJUSTES</button>
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
       <button class="chip" id="cloud-btn">☁ SALVAR NA NUVEM</button>
@@ -4954,6 +5074,36 @@
   </div>
 </div>
 
+<div id="foto-caixa"></div>
+
+<!-- PERFIL DO PILOTO -->
+<div class="page" id="screen-perfil">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">PERFIL</div>
+  </div>
+  <div class="scroll"><div id="perf-corpo"></div></div>
+</div>
+
+<!-- CONQUISTAS -->
+<div class="page" id="screen-conquistas">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">CONQUISTAS</div>
+    <div class="page-gems gem" id="conq-gems">0</div>
+  </div>
+  <div class="scroll"><div id="conq-corpo"></div></div>
+</div>
+
+<!-- CONVITE -->
+<div class="page" id="screen-convite">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">CONVIDAR</div>
+  </div>
+  <div class="scroll"><div id="conv-corpo"></div></div>
+</div>
+
 <!-- AJUSTES -->
 <div class="page" id="screen-ajustes">
   <div class="page-head">
@@ -5040,6 +5190,7 @@
       <div class="fim-cx"><b id="vic-score">0</b><span>PONTOS</span></div>
     </div>
     <button class="big-btn" id="btn-next" style="width:100%">PRÓXIMA FASE ›</button>
+    <button class="ghost-btn" id="vic-foto" style="width:100%;margin-top:8px">📸 FOTO DA PARTIDA</button>
     <div class="fim-linha">
       <button class="ghost-btn" id="btn-vic-shop">⬡ MELHORIAS</button>
       <button class="ghost-btn" id="btn-vic-menu">MENU</button>
@@ -5372,6 +5523,13 @@ function defaultSave() {
     amigos: [],              // apelidos dos amigos
     habNv: {},               // nível das habilidades: "nave:habilidade" -> nível
     estrelas: {},            // fase -> quantas estrelas (1 passou, 2 sem dano, 3 rápido)
+    conquistas: {},          // id da conquista -> quando foi pega
+    abates: 0, tiros: 0, acertos: 0, chefes: 0, mortes: 0, partidas: 0,
+    fasesPerfeitas: 0, melhorCombo: 0, coopFases: 0, missoesFeitas: 0, maiorSeq: 0,
+    tutorialFeito: false,    // já viu o tutorial da primeira fase
+    conviteUsado: null,      // de quem foi o convite que usei
+    convidados: 0,           // quantos entraram com o meu código
+    desde: 0,                // quando este piloto voou pela primeira vez
     diaria: { dia: "", seq: 0 },   // presente do dia e a sequência de dias
     missoes: { dia: "", itens: [] },  // as três missões do dia
     jornadas: {}             // campanha em dupla: "nick|nick" -> {fase, up, ...}
@@ -5387,6 +5545,7 @@ function mergeSave(parsed) {
   s.parts = (parsed && parsed.parts) || {};
   s.habNv = (parsed && parsed.habNv) || {};
   s.estrelas = (parsed && parsed.estrelas) || {};
+  s.conquistas = (parsed && parsed.conquistas) || {};
   s.diaria = (parsed && parsed.diaria) || { dia: "", seq: 0 };
   s.missoes = (parsed && parsed.missoes) || { dia: "", itens: [] };
   s.jornadas = (parsed && parsed.jornadas) || {};
@@ -7716,6 +7875,7 @@ const AudioSys = {
   victory()  { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.tone(f, 0.22, "triangle", 0.16), i * 140)); },
   skill()    { this.tone(784, 0.1, "sine", 0.15); setTimeout(() => this.tone(1046, 0.2, "sine", 0.15), 110); },
   ultReady() { this.tone(660, 0.12, "sine", 0.14, 990); setTimeout(() => this.tone(990, 0.18, "sine", 0.14), 130); },
+  habPronta(){ this.tone(880, 0.06, "sine", 0.08); setTimeout(() => this.tone(1320, 0.09, "sine", 0.08), 70); },
   ultFire()  { this.noise(0.5, 0.4, 600); this.tone(120, 0.6, "sawtooth", 0.22, 480); },
   cloak()    { this.tone(700, 0.35, "sine", 0.14, 120); },
   chest()    { [392, 523, 659, 880, 1174].forEach((f, i) => setTimeout(() => this.tone(f, 0.14, "triangle", 0.13), i * 100)); },
@@ -7985,6 +8145,7 @@ const SCREENS = {
   pagar: $("screen-pagar"),
   novidades: $("screen-novidades"),
   ajustes: $("screen-ajustes"), missoes: $("screen-missoes"),
+  perfil: $("screen-perfil"), conquistas: $("screen-conquistas"), convite: $("screen-convite"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
@@ -8075,7 +8236,7 @@ function checarPresentesPeriodicamente() {
 setInterval(checarPresentesPeriodicamente, 6000);
 
 function refreshMenu() {
-  try { diariaRender(); misBadge(); } catch (e) {}
+  try { diariaRender(); misBadge(); conqBadge(); } catch (e) {}
   const h = $("menu-hello");
   h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
   document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
@@ -16979,6 +17140,7 @@ function diariaPegar() {
   }
   d.dia = hojeTxt();
   d.seq = (d.dia === hojeTxt() && i + 1 <= 7) ? i + 1 : 1;
+  if (i + 1 > (save.maiorSeq || 0)) save.maiorSeq = i + 1;
   if (d.seq > 7) d.seq = 0;
   persist();
   try { nuvemEnviar(true); } catch (e) {}
@@ -17087,6 +17249,7 @@ function misPegar(i) {
   const it = e.itens[i];
   if (!it || it.pego || it.feito < it.alvo) return;
   it.pego = true;
+  contar("missoesFeitas");
   save.crystals += it.premio;
   persist();
   try { nuvemEnviar(true); } catch (er) {}
@@ -17152,6 +17315,445 @@ $("btn-missoes").addEventListener("click", () => { AudioSys.gem(); misAbrir(); }
 
 ajCarregar();
 ajAplicar();
+
+
+/* =====================================================================
+   v6.1 — TUTORIAL, CONQUISTAS, PERFIL, NOME DAS FASES, CONVITE E FOTO
+   ===================================================================== */
+
+/* ---------------------- números do piloto ----------------------
+   Contadores que faltavam para o perfil e para as conquistas.     */
+function contar(campo, quanto) {
+  try {
+    if (!save) return;
+    save[campo] = (save[campo] || 0) + (quanto === undefined ? 1 : quanto);
+  } catch (e) {}
+}
+function precisao() {
+  const t = save.tiros || 0;
+  if (t < 20) return null;
+  return Math.round((save.acertos || 0) / t * 100);
+}
+
+/* ---------------------- nome de cada fase ----------------------
+   Sempre o mesmo nome para a mesma fase, sem guardar lista nenhuma. */
+const FASE_ADJ = ["Corredor", "Campo", "Cerco", "Garganta", "Órbita", "Fenda",
+  "Ninho", "Muralha", "Enxame", "Silêncio", "Rastro", "Portal", "Colmeia",
+  "Trincheira", "Abismo", "Vigília", "Ruína", "Espiral"];
+const FASE_DE = ["de Ferro", "de Vidro", "Carmesim", "de Cinzas", "de Plasma",
+  "Esquecido", "de Prata", "Faminto", "de Sal", "Sem Nome", "de Âmbar",
+  "Profundo", "de Ossos", "Gelado", "em Chamas", "de Névoa"];
+function faseNome(fase) {
+  const r = rngDe(((fase * 2246822519) ^ 0x5bf03635) >>> 0);
+  const a = FASE_ADJ[Math.floor(r() * FASE_ADJ.length)];
+  const b = FASE_DE[Math.floor(r() * FASE_DE.length)];
+  return a + " " + b;
+}
+/* uma linha dizendo por que ESTA fase é diferente */
+function fasePerigo(fase) {
+  if (isBossFase(fase)) return "Chefe no fim. Guarde a ultimate para a segunda metade.";
+  const w = faseWaves(fase);
+  if (fase <= 5) return "Fase de aquecimento: aprenda a desviar sem pressa.";
+  if (fase % 10 === 9) return "Última fase antes do chefe: os inimigos vêm em bloco.";
+  if (w >= 6) return w + " ondas seguidas — a resistência importa mais que o dano.";
+  if (fase % 7 === 0) return "Muitas naves pesadas: mire nelas primeiro.";
+  if (fase % 5 === 0) return "Tiros teleguiados: não fique parado no meio da tela.";
+  return w + " ondas. Combo alto aqui rende cristal fácil.";
+}
+/* cartão que aparece por 2 segundos no começo da fase */
+function faseCartao(fase) {
+  const el = $("fase-cartao");
+  if (!el) return;
+  el.innerHTML = '<b>FASE ' + fase + "</b><span>" + escaparTexto(faseNome(fase)) + "</span>" +
+                 "<i>" + escaparTexto(fasePerigo(fase)) + "</i>";
+  el.className = "on";
+  clearTimeout(faseCartao._t);
+  faseCartao._t = setTimeout(() => { el.className = ""; }, 2600);
+}
+
+/* ---------------------- tutorial da primeira fase ---------------------- */
+const TUTO_PASSOS = [
+  { txt: "Arraste o dedo em qualquer lugar da tela para pilotar",
+    dica: "não precisa tocar na nave", fim: "mover" },
+  { txt: "A nave atira sozinha — você só desvia e mira com o corpo dela",
+    dica: "", fim: "tempo", seg: 3.5 },
+  { txt: "Os tiros rosa são do inimigo. Encostar neles tira uma vida",
+    dica: "passe entre eles, o espaço é maior do que parece", fim: "tempo", seg: 4.5 },
+  { txt: "Quando o botão ULT acender, toque para soltar o ataque especial",
+    dica: "ele limpa a tela quando aperta", fim: "tempo", seg: 4.5 }
+];
+const TUTO = { ligado: false, passo: 0, t: 0, andou: 0, x0: 0, y0: 0 };
+function tutoPrecisa() {
+  return !save.tutorialFeito && (save.best || 0) <= 0;
+}
+function tutoComecar() {
+  TUTO.ligado = true; TUTO.passo = 0; TUTO.t = 0; TUTO.andou = 0;
+  TUTO.x0 = player.x; TUTO.y0 = player.y;
+  tutoMostrar();
+}
+function tutoMostrar() {
+  const el = $("tuto-caixa");
+  if (!el) return;
+  if (!TUTO.ligado || TUTO.passo >= TUTO_PASSOS.length) {
+    el.className = "";
+    return;
+  }
+  const p = TUTO_PASSOS[TUTO.passo];
+  el.innerHTML = '<div class="tuto-n">' + (TUTO.passo + 1) + " de " + TUTO_PASSOS.length + "</div>" +
+    "<b>" + escaparTexto(p.txt) + "</b>" +
+    (p.dica ? "<span>" + escaparTexto(p.dica) + "</span>" : "") +
+    '<button class="tuto-pular" id="tuto-pular">PULAR</button>';
+  el.className = "on";
+  const b = $("tuto-pular");
+  if (b) b.addEventListener("click", ev => { ev.stopPropagation(); tutoTerminar(); });
+}
+function tutoPassar(dt) {
+  if (!TUTO.ligado) return;
+  const p = TUTO_PASSOS[TUTO.passo];
+  if (!p) { tutoTerminar(); return; }
+  TUTO.t += dt;
+  let pronto = false;
+  if (p.fim === "mover") {
+    TUTO.andou += Math.abs(player.x - TUTO.x0) + Math.abs(player.y - TUTO.y0);
+    TUTO.x0 = player.x; TUTO.y0 = player.y;
+    pronto = TUTO.andou > 220;
+  } else {
+    pronto = TUTO.t >= (p.seg || 3);
+  }
+  if (pronto) {
+    TUTO.passo++; TUTO.t = 0;
+    try { AudioSys.gem(); } catch (e) {}
+    if (TUTO.passo >= TUTO_PASSOS.length) tutoTerminar();
+    else tutoMostrar();
+  }
+}
+function tutoTerminar() {
+  TUTO.ligado = false;
+  save.tutorialFeito = true;
+  persist();
+  const el = $("tuto-caixa");
+  if (el) {
+    el.innerHTML = "<b>Pronto. Agora é com você 🚀</b>";
+    el.className = "on fim";
+    setTimeout(() => { el.className = ""; }, 2200);
+  }
+}
+
+/* ---------------------- conquistas ---------------------- */
+const CONQUISTAS = [
+  { id: "primeiro",  nome: "Primeiro voo",        desc: "Passe a fase 1",                 premio: 100,  valor: () => save.best || 0, alvo: 1 },
+  { id: "fase10",    nome: "Dez de dez",          desc: "Chegue à fase 10",               premio: 200,  valor: () => save.best || 0, alvo: 10 },
+  { id: "fase50",    nome: "Meio caminho",        desc: "Chegue à fase 50",               premio: 800,  valor: () => save.best || 0, alvo: 50 },
+  { id: "fase120",   nome: "Veterano",            desc: "Chegue à fase 120",              premio: 2000, valor: () => save.best || 0, alvo: 120 },
+  { id: "fase270",   nome: "Fim da nebulosa",     desc: "Passe as 270 fases",             premio: 9000, valor: () => save.best || 0, alvo: 270 },
+  { id: "abate100",  nome: "Faxina",              desc: "Derrube 100 inimigos",           premio: 120,  valor: () => save.abates || 0, alvo: 100 },
+  { id: "abate1k",   nome: "Mil caídos",          desc: "Derrube 1.000 inimigos",         premio: 500,  valor: () => save.abates || 0, alvo: 1000 },
+  { id: "abate10k",  nome: "Praga da galáxia",    desc: "Derrube 10.000 inimigos",        premio: 3000, valor: () => save.abates || 0, alvo: 10000 },
+  { id: "chefe1",    nome: "Caçador",             desc: "Derrote o primeiro chefe",       premio: 250,  valor: () => save.chefes || 0, alvo: 1 },
+  { id: "chefe25",   nome: "Matador de titãs",    desc: "Derrote 25 chefes",              premio: 1500, valor: () => save.chefes || 0, alvo: 25 },
+  { id: "combo25",   nome: "Sequência",           desc: "Faça um combo de 25",            premio: 300,  valor: () => save.melhorCombo || 0, alvo: 25 },
+  { id: "combo50",   nome: "Sem respirar",        desc: "Faça um combo de 50",            premio: 900,  valor: () => save.melhorCombo || 0, alvo: 50 },
+  { id: "estrela10", nome: "Constelação",         desc: "Junte 10 estrelas",              premio: 400,  valor: () => estrelasTotal(), alvo: 10 },
+  { id: "estrela100",nome: "Céu inteiro",         desc: "Junte 100 estrelas",             premio: 2500, valor: () => estrelasTotal(), alvo: 100 },
+  { id: "perfeita",  nome: "Sem um arranhão",     desc: "Passe uma fase sem levar dano",  premio: 300,  valor: () => save.fasesPerfeitas || 0, alvo: 1 },
+  { id: "perfeita20",nome: "Intocável",           desc: "Passe 20 fases sem levar dano",  premio: 1800, valor: () => save.fasesPerfeitas || 0, alvo: 20 },
+  { id: "naves5",    nome: "Hangar cheio",        desc: "Tenha 5 naves",                  premio: 300,  valor: () => (save.ships || []).length, alvo: 5 },
+  { id: "naves20",   nome: "Frota",              desc: "Tenha 20 naves",                 premio: 1500, valor: () => (save.ships || []).length, alvo: 20 },
+  { id: "amigo1",    nome: "Não voo sozinho",     desc: "Faça um amigo no jogo",          premio: 250,  valor: () => (save.amigos || []).length, alvo: 1 },
+  { id: "coop10",    nome: "Dupla",              desc: "Passe 10 fases no cooperativo",  premio: 700,  valor: () => save.coopFases || 0, alvo: 10 },
+  { id: "vitoria1",  nome: "Primeiro duelo",      desc: "Ganhe uma ranqueada",            premio: 300,  valor: () => save.vitorias || 0, alvo: 1 },
+  { id: "vitoria25", nome: "Terror da arena",     desc: "Ganhe 25 ranqueadas",            premio: 2000, valor: () => save.vitorias || 0, alvo: 25 },
+  { id: "arena50",   nome: "Sem fim",            desc: "Chegue à onda 50 da arena",      premio: 1200, valor: () => save.arenaOnda || 0, alvo: 50 },
+  { id: "missao10",  nome: "Cumpridor",          desc: "Complete 10 missões do dia",     premio: 600,  valor: () => save.missoesFeitas || 0, alvo: 10 },
+  { id: "dia7",      nome: "Todo dia",           desc: "Pegue o presente 7 dias seguidos", premio: 1500, valor: () => save.maiorSeq || 0, alvo: 7 }
+];
+function conqEstado(c) {
+  const v = c.valor();
+  return { valor: v, pronto: v >= c.alvo, pego: !!(save.conquistas || {})[c.id] };
+}
+function conqProntas() {
+  let n = 0;
+  for (const c of CONQUISTAS) {
+    const e = conqEstado(c);
+    if (e.pronto && !e.pego) n++;
+  }
+  return n;
+}
+function conqPegar(id) {
+  const c = CONQUISTAS.filter(x => x.id === id)[0];
+  if (!c) return;
+  const e = conqEstado(c);
+  if (!e.pronto || e.pego) return;
+  save.conquistas = save.conquistas || {};
+  save.conquistas[id] = Date.now();
+  save.crystals += c.premio;
+  persist();
+  try { nuvemEnviar(true); } catch (er) {}
+  AudioSys.buy(); vibrate([30, 40, 60]);
+  conqRender(); conqBadge(); refreshMenu();
+}
+function conqBadge() {
+  const n = conqProntas();
+  const b = $("conq-badge");
+  if (b) { b.textContent = n; b.className = n ? "on" : ""; }
+}
+function conqRender() {
+  const cx = $("conq-corpo");
+  if (!cx) return;
+  const feitas = CONQUISTAS.filter(c => conqEstado(c).pronto).length;
+  $("conq-gems").textContent = fmt(save.crystals);
+  cx.innerHTML =
+    '<div class="conq-topo"><b>' + feitas + " de " + CONQUISTAS.length + "</b>" +
+      '<span class="conq-barra"><i style="width:' +
+      Math.round(feitas / CONQUISTAS.length * 100) + '%"></i></span></div>' +
+    CONQUISTAS.map(c => {
+      const e = conqEstado(c);
+      const pc = Math.min(100, Math.round(e.valor / c.alvo * 100));
+      return '<div class="conq-linha' + (e.pego ? " pego" : e.pronto ? " pronto" : "") + '">' +
+        '<div class="conq-ic">' + (e.pego ? "✓" : e.pronto ? "★" : "◇") + "</div>" +
+        '<div class="conq-txt"><b>' + escaparTexto(c.nome) + "</b>" +
+          "<span>" + escaparTexto(c.desc) + "</span>" +
+          (e.pronto ? "" : '<div class="conq-mini"><i style="width:' + pc + '%"></i></div>' +
+            "<em>" + fmt(Math.min(e.valor, c.alvo)) + " / " + fmt(c.alvo) + "</em>") +
+        "</div>" +
+        '<div class="conq-fim">' +
+          (e.pego ? '<span class="conq-ok">pego</span>'
+                  : e.pronto ? '<button class="mis-btn" data-conq="' + c.id + '">◆' + fmt(c.premio) + "</button>"
+                             : '<span class="gem">' + fmt(c.premio) + "</span>") +
+        "</div></div>";
+    }).join("");
+  cx.querySelectorAll("[data-conq]").forEach(b =>
+    b.addEventListener("click", () => conqPegar(b.getAttribute("data-conq"))));
+}
+function conqAbrir() { S.mode = "conquistas"; showScreen("conquistas"); conqRender(); }
+
+/* ---------------------- perfil do piloto ---------------------- */
+function tempoBonito(seg) {
+  seg = Math.max(0, Math.round(seg || 0));
+  const h = Math.floor(seg / 3600), m = Math.floor((seg % 3600) / 60);
+  if (h) return h + "h" + String(m).padStart(2, "0");
+  if (m) return m + " min";
+  return seg + "s";
+}
+function perfilRender() {
+  const cx = $("perf-corpo");
+  if (!cx) return;
+  const pr = precisao();
+  const cx1 = (rot, val, cor) =>
+    '<div class="perf-cx' + (cor ? " " + cor : "") + '"><b>' + val + "</b><span>" + rot + "</span></div>";
+  const linha = (rot, val) =>
+    '<div class="perf-linha"><span>' + rot + "</span><b>" + val + "</b></div>";
+  cx.innerHTML =
+    '<div class="perf-capa"><div class="perf-nome">' + escaparTexto(minhaTag()) +
+      (temVip() ? ' <em class="perf-vip">👑 VIP</em>' : "") + "</div>" +
+      '<div class="perf-sub">' + escaparTexto((rankDe(save.rank || 0) || {}).nome || "") +
+      " · piloto desde " + (save.desde ? new Date(save.desde).toLocaleDateString("pt-BR") : "hoje") +
+      "</div></div>" +
+    '<div class="perf-grade">' +
+      cx1("FASE", (save.best || 0) + "/" + TOTAL_FASES) +
+      cx1("ESTRELAS", estrelasTotal(), "ouro") +
+      cx1("ABATES", fmt(save.abates || 0)) +
+      cx1("CHEFES", fmt(save.chefes || 0), "rosa") +
+      cx1("MELHOR COMBO", fmt(save.melhorCombo || 0), "ouro") +
+      cx1("TEMPO DE VOO", tempoBonito(save.tempoJogado)) +
+    "</div>" +
+    '<div class="card perf-lista">' +
+      linha("Precisão dos tiros", pr === null ? "jogue mais um pouco" : pr + "%") +
+      linha("Fases sem levar dano", fmt(save.fasesPerfeitas || 0)) +
+      linha("Partidas jogadas", fmt(save.partidas || 0)) +
+      linha("Vezes que caiu", fmt(save.mortes || 0)) +
+      linha("Naves no hangar", (save.ships || []).length + " de " + SHIPS.length) +
+      linha("Amuletos", (save.amulets || []).length) +
+      linha("Ranqueada", (save.vitorias || 0) + "V · " + (save.derrotas || 0) + "D") +
+      linha("Maior onda na arena", fmt(save.arenaOnda || 0)) +
+      linha("Fases no cooperativo", fmt(save.coopFases || 0)) +
+      linha("Missões cumpridas", fmt(save.missoesFeitas || 0)) +
+      linha("Conquistas", CONQUISTAS.filter(c => conqEstado(c).pronto).length + " de " + CONQUISTAS.length) +
+    "</div>" +
+    '<button class="ghost-btn" id="perf-conq" style="width:100%">★ VER CONQUISTAS</button>';
+  const b = $("perf-conq");
+  if (b) b.addEventListener("click", () => conqAbrir());
+}
+function perfilAbrir() { S.mode = "perfil"; showScreen("perfil"); perfilRender(); }
+
+/* ---------------------- convite com prêmio ----------------------
+   Cada piloto tem um código (o próprio gametag). Quem entra com o
+   código de alguém ganha cristais, e quem convidou recebe também —
+   pela caixa de presente, que já existe.                            */
+const CONVITE_QUEM_ENTRA = 500;
+const CONVITE_QUEM_CHAMA = 800;
+function meuCodigo() {
+  const t = String(minhaTag() || save.__name || "").trim();
+  return t.toUpperCase().replace(/\s+/g, "");
+}
+async function conviteUsar(codigo) {
+  codigo = String(codigo || "").trim();
+  if (!codigo) return { ok: false, msg: "Escreva o código do amigo." };
+  if (save.conviteUsado) return { ok: false, msg: "Você já usou um convite — é um por conta." };
+  if ((save.best || 0) > 20) return { ok: false, msg: "O convite vale só para quem está começando (até a fase 20)." };
+  if (nickSimples(codigo) === nickSimples(save.__name) || nickSimples(codigo) === nickSimples(minhaTag()))
+    return { ok: false, msg: "Esse código é o seu." };
+  if (!nuvemAtiva()) return { ok: false, msg: "Precisa de internet para conferir o código." };
+  const achado = await acharPiloto(codigo);
+  if (!achado) return { ok: false, msg: "Não achei esse código. Confira as letras com o seu amigo." };
+  /* prêmio de quem entrou */
+  save.conviteUsado = achado.id;
+  save.crystals += CONVITE_QUEM_ENTRA;
+  persist();
+  /* prêmio de quem convidou, pela caixa de presente */
+  try {
+    const pend = (await nuvemReq("presentes/" + achado.id)) || {};
+    pend.cristais = (pend.cristais || 0) + CONVITE_QUEM_CHAMA;
+    pend.msg = (minhaTag() || "Um piloto") + " entrou com o seu convite!";
+    pend.quando = Date.now();
+    await nuvemReq("presentes/" + achado.id, {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(pend)
+    });
+  } catch (e) {}
+  try { nuvemEnviar(true); } catch (e) {}
+  AudioSys.buy(); vibrate([30, 40, 60]);
+  return { ok: true, msg: "Boa! +" + fmt(CONVITE_QUEM_ENTRA) + " cristais para você e +" +
+           fmt(CONVITE_QUEM_CHAMA) + " para " + (achado.p.nome || codigo) + "." };
+}
+function convRender() {
+  const cx = $("conv-corpo");
+  if (!cx) return;
+  const cod = meuCodigo();
+  const link = (location.origin + location.pathname).replace(/index\.html$/, "") + "?convite=" + encodeURIComponent(cod);
+  cx.innerHTML =
+    '<div class="conv-cartao"><span class="pag-rot">SEU CÓDIGO</span>' +
+      "<b>" + escaparTexto(cod) + "</b>" +
+      '<div class="pag-chave-btns">' +
+        '<button class="pag-copiar" id="conv-copiar">COPIAR CÓDIGO</button>' +
+        '<button class="pag-copiar fraco" id="conv-link">COPIAR CONVITE</button>' +
+      "</div></div>" +
+    '<p class="adm-note" style="margin:12px 0">Quando um amigo entrar com o seu código, ' +
+      "ele ganha <b>" + fmt(CONVITE_QUEM_ENTRA) + " cristais</b> e você ganha <b>" +
+      fmt(CONVITE_QUEM_CHAMA) + "</b>. Sem limite de amigos." +
+      (save.convidados ? " Você já chamou <b>" + save.convidados + "</b>." : "") + "</p>" +
+    (save.conviteUsado
+      ? '<div class="card"><b>Você já usou um convite ✓</b></div>'
+      : '<div class="card"><div class="aj-titulo">🎟 TENHO UM CÓDIGO</div>' +
+        '<div class="adm-row"><input id="conv-campo" maxlength="24" placeholder="Código do amigo" autocomplete="off">' +
+        '<button class="adm-btn gold" id="conv-usar">USAR</button></div>' +
+        '<div class="adm-note" id="conv-aviso" style="margin-top:8px"></div></div>');
+
+  const copiar = async (txt, btn, certo) => {
+    try { await navigator.clipboard.writeText(txt); btn.textContent = certo; AudioSys.buy(); }
+    catch (e) { btn.textContent = "Copie na mão: " + txt; }
+  };
+  $("conv-copiar").addEventListener("click", ev => copiar(cod, ev.currentTarget, "✓ COPIADO"));
+  $("conv-link").addEventListener("click", ev => copiar(
+    "Vem jogar Neon Nebula comigo! Use o meu código " + cod + ": " + link,
+    ev.currentTarget, "✓ CONVITE COPIADO"));
+  const bu = $("conv-usar");
+  if (bu) bu.addEventListener("click", async ev => {
+    const b = ev.currentTarget;
+    b.disabled = true; b.textContent = "…";
+    const r = await conviteUsar(($("conv-campo") || {}).value);
+    b.disabled = false; b.textContent = "USAR";
+    const av = $("conv-aviso");
+    if (av) { av.textContent = r.msg; av.style.color = r.ok ? "var(--verde)" : "var(--danger)"; }
+    if (r.ok) { setTimeout(() => { convRender(); refreshMenu(); }, 1400); }
+    else AudioSys.deny();
+  });
+}
+function convAbrir() { S.mode = "convite"; showScreen("convite"); convRender(); }
+/* se abriu o jogo por um link de convite, já deixa o código escrito */
+function conviteDoLink() {
+  try {
+    const m = /[?&]convite=([^&]+)/.exec(location.search);
+    if (!m) return null;
+    return decodeURIComponent(m[1]);
+  } catch (e) { return null; }
+}
+
+/* ---------------------- foto da partida ----------------------
+   Desenha um cartão com o resultado para mandar para os amigos.   */
+function fotoDaPartida(titulo, linhas) {
+  const c = document.createElement("canvas");
+  c.width = 1080; c.height = 1080;
+  const g = c.getContext("2d");
+  /* fundo */
+  const fundo = g.createLinearGradient(0, 0, 1080, 1080);
+  fundo.addColorStop(0, "#0A1030"); fundo.addColorStop(0.55, "#140B33"); fundo.addColorStop(1, "#05070F");
+  g.fillStyle = fundo; g.fillRect(0, 0, 1080, 1080);
+  /* estrelas */
+  const r = rngDe(97531);
+  for (let i = 0; i < 150; i++) {
+    const x = r() * 1080, y = r() * 1080, s = r() * 2.4 + 0.6;
+    g.globalAlpha = 0.25 + r() * 0.6;
+    g.fillStyle = "#CFE6FF"; g.beginPath(); g.arc(x, y, s, 0, 7); g.fill();
+  }
+  g.globalAlpha = 1;
+  /* halo */
+  const halo = g.createRadialGradient(540, 430, 20, 540, 430, 460);
+  halo.addColorStop(0, "rgba(94,230,255,.34)");
+  halo.addColorStop(0.55, "rgba(150,110,255,.16)");
+  halo.addColorStop(1, "rgba(94,230,255,0)");
+  g.fillStyle = halo; g.fillRect(0, 0, 1080, 1080);
+  /* nave */
+  try { render3D(g, save.ship, 540, 400, 7, Math.PI * 0.22, 1080, 1080); } catch (e) {}
+  /* textos */
+  g.textAlign = "center";
+  g.fillStyle = "#5EE6FF";
+  g.font = "600 34px 'Chakra Petch', sans-serif";
+  g.fillText("NEON NEBULA", 540, 96);
+  g.fillStyle = "#FFFFFF";
+  g.font = "700 64px 'Russo One', sans-serif";
+  g.fillText(String(titulo).toUpperCase().slice(0, 24), 540, 700);
+  g.font = "500 34px 'Chakra Petch', sans-serif";
+  g.fillStyle = "#B9C6E4";
+  linhas.slice(0, 4).forEach((t, i) => g.fillText(String(t).slice(0, 42), 540, 770 + i * 52));
+  g.font = "500 28px 'Chakra Petch', sans-serif";
+  g.fillStyle = "#FFC145";
+  g.fillText("código " + meuCodigo() + " · venha jogar", 540, 1012);
+  return c.toDataURL("image/png");
+}
+function fotoMostrar(titulo, linhas) {
+  const url = fotoDaPartida(titulo, linhas);
+  const cx = $("foto-caixa");
+  if (!cx) return;
+  cx.innerHTML =
+    '<div class="foto-dentro">' +
+      '<img src="' + url + '" alt="Resultado da partida">' +
+      '<p class="adm-note">Segure na imagem para salvar ou compartilhar.</p>' +
+      '<button class="big-btn" id="foto-fechar" style="width:100%">FECHAR</button>' +
+    "</div>";
+  cx.className = "on";
+  $("foto-fechar").addEventListener("click", () => { cx.className = ""; cx.innerHTML = ""; });
+  try {
+    if (navigator.share && navigator.canShare) {
+      /* onde o aparelho deixa, oferece o compartilhar de verdade */
+      const b = document.createElement("button");
+      b.className = "ghost-btn"; b.style.width = "100%"; b.style.marginTop = "9px";
+      b.textContent = "COMPARTILHAR";
+      b.addEventListener("click", async () => {
+        try {
+          const resp = await fetch(url); const blob = await resp.blob();
+          const arq = new File([blob], "neon-nebula.png", { type: "image/png" });
+          if (navigator.canShare({ files: [arq] })) await navigator.share({ files: [arq], text: "Neon Nebula" });
+        } catch (e) {}
+      });
+      cx.querySelector(".foto-dentro").appendChild(b);
+    }
+  } catch (e) {}
+}
+
+/* ---------------------- ligação com o menu ---------------------- */
+const bf = $("vic-foto");
+if (bf) bf.addEventListener("click", () => {
+  const est = (S.estrelasAgora || {}).estrelas || 1;
+  fotoMostrar("Fase " + S.fase + " concluída", [
+    faseNome(S.fase),
+    "★".repeat(est) + "☆".repeat(3 - est) + "  ·  " + fmt(S.score) + " pontos",
+    "combo máximo x" + (S.comboMax || 0),
+    (save.best || 0) + " de " + TOTAL_FASES + " fases"
+  ]);
+});
+$("btn-perfil").addEventListener("click", () => { AudioSys.gem(); perfilAbrir(); });
+$("btn-conquistas").addEventListener("click", () => { AudioSys.gem(); conqAbrir(); });
+$("btn-convite").addEventListener("click", () => { AudioSys.gem(); convAbrir(); });
 
 
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
@@ -18320,6 +18922,10 @@ function startGame(fase) {
   EFX.length = 0;
   S.inicioFase = Date.now();
   S.danoLevado = 0; S.combo = 0; S.comboT = 0; S.comboMax = 0;
+  contar("partidas");
+  if (!save.desde) save.desde = Date.now();
+  faseCartao(S.fase);
+  if (tutoPrecisa()) tutoComecar();
   MP.meuDano = 0; MP.danoTotal = 0;
   player.lives = ST.maxLives;
   player.hp = ST.maxHp;
@@ -18698,6 +19304,28 @@ function bossSoltarPoder(id) {
   }
 }
 /* roda todo quadro: conta o tempo, mostra o aviso e resolve o golpe */
+/* Vale para TODO tipo de chefe: seja qual for o relógio que ele usa para
+   atirar, meio segundo antes a linha vermelha aparece no caminho do tiro.
+   É o que transforma "morri sem ver" em "eu que não desviei".          */
+const BOSS_RELOGIOS = ["fireTimer", "burstTimer", "colT", "poderT", "raioT", "dashCd", "cuspeT"];
+function bossAvisarTiro() {
+  if (!boss || boss.entering) return;
+  /* cada tipo de chefe usa um relógio diferente para atirar; olhamos
+     todos e usamos o que estiver mais perto de estourar */
+  let t = 99;
+  for (const campo of BOSS_RELOGIOS) {
+    const v = boss[campo];
+    if (typeof v === "number" && v > 0) t = Math.min(t, v);
+  }
+  if (t > 0 && t < 0.45) {
+    if (!boss.avisou) {
+      boss.avisou = true;
+      avisarAtaque(boss.x, boss.y + (boss.r || 40), "linha", t + 0.08);
+    }
+  } else if (t > 0.6) {
+    boss.avisou = false;
+  }
+}
 function bossPoderes(dt) {
   if (!boss || boss.entering) return;
   if (boss.casca > 0) boss.casca -= dt;
@@ -18780,6 +19408,7 @@ function updateBoss(dt) {
   boss.t += dt;
   if (boss.hitFlash > 0) boss.hitFlash -= dt;
   bossPoderes(dt);          // os oito golpes sorteados
+  bossAvisarTiro();         // a linha vermelha meio segundo antes do tiro
   if (boss.frozenT > 0) { boss.frozenT -= dt; return; }
   const targetY = Math.max(120, H * 0.17);
   if (boss.entering) {
@@ -18803,7 +19432,12 @@ function updateBoss(dt) {
     }
     boss.y = targetY + Math.sin(boss.t * 2.2) * 16;
     boss.fireTimer -= dt;
+    if (boss.fireTimer > 0 && boss.fireTimer < 0.5 && !boss.avisou) {
+      boss.avisou = true;
+      avisarAtaque(boss.x, boss.y + boss.r, "linha", boss.fireTimer + 0.1);
+    }
     if (boss.fireTimer <= 0 && bossCanFire()) {
+      boss.avisou = false;
       for (let s2 = -1; s2 <= 1; s2++) enemyShootAt(boss.x + s2 * 18, boss.y + 28, 250 + S.fase * 1.2, 0.1 + Math.abs(s2) * 0.12);
       boss.fireTimer = 1.5;
     }
@@ -18840,7 +19474,12 @@ function updateBoss(dt) {
     boss.trail.unshift({ x: boss.x, y: boss.y });
     if (boss.trail.length > boss.segs * 7 + 8) boss.trail.pop();
     boss.fireTimer -= dt;
+    if (boss.fireTimer > 0 && boss.fireTimer < 0.5 && !boss.avisou) {
+      boss.avisou = true;
+      avisarAtaque(boss.x, boss.y + boss.r, "linha", boss.fireTimer + 0.1);
+    }
     if (boss.fireTimer <= 0 && bossCanFire()) {
+      boss.avisou = false;
       enemyShootAt(boss.x, boss.y + 14, 260 + S.fase, 0.07);
       enemyShootAt(boss.x, boss.y + 14, 200 + S.fase, 0.3);
       boss.fireTimer = 1.25;
@@ -18961,6 +19600,7 @@ function bulletDmg() {
 }
 let serieTiro = 0;
 function playerShoot() {
+  contar("tiros");
   const x = player.x, y = player.y - player.r - 2;
   const vk = ST.balaVel || 1;          // Amuleto Certeiro: bala mais rápida
   const spd = -560 * vk;
@@ -19140,7 +19780,22 @@ function damageEnemy(e, idx, dmg, crit) {
   }
   return false;
 }
+/* pedaços que sobram quando uma nave quebra */
+function destrocos(x, y, cor, quantos) {
+  const n = (typeof Q !== "undefined" && Q.nivel === 0) ? Math.ceil(quantos / 3) : quantos;
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x: x, y: y,
+      vx: rand(-150, 150), vy: rand(-170, 60),
+      t: 0.75, max: 0.75, color: cor, r: rand(2, 5), pedaco: true,
+      giro: rand(-8, 8), ang: rand(0, 6.28)
+    });
+  }
+}
 function killEnemy(e) {
+  contar("abates");
+  destrocos(e.x, e.y, e.type === "tank" ? "#FFC145" : "#FF7AA8", e.type === "tank" ? 10 : 6);
+  somDoInimigo(e);
   comboMais();
   misProgresso("matar", 1);
   if (e.type === "tank") misProgresso("tanque", 1);
@@ -19160,6 +19815,24 @@ function killEnemy(e) {
   }
   updateHud();
 }
+/* cada inimigo cai com um som diferente: dá para reconhecer sem olhar */
+function somDoInimigo(e) {
+  try {
+    const t = e && e.type;
+    if (t === "tank") { AudioSys.tone(90, 0.34, "sawtooth", 0.18, 40); AudioSys.noise(0.3, 0.3, 480); }
+    else if (t === "zig") AudioSys.tone(520, 0.11, "triangle", 0.1, 180);
+    else if (t === "shooter") AudioSys.tone(330, 0.13, "square", 0.1, 120);
+    else AudioSys.tone(240, 0.1, "square", 0.09, 90);
+  } catch (er) {}
+}
+/* os pedaços caem e giram; as faíscas normais seguem como antes */
+function pedacosPassar(dt) {
+  for (const p of particles) {
+    if (!p.pedaco) continue;
+    p.vy += 420 * dt;
+    p.ang = (p.ang || 0) + (p.giro || 0) * dt;
+  }
+}
 function blastArea(x, y, radius, dmg) {
   explosion(x, y, "#FF9E4D", 8, 140);
   for (let j = enemies.length - 1; j >= 0; j--) {
@@ -19176,10 +19849,30 @@ function novaBlast() {
   explosion(player.x, player.y, "#C34DFF", 34, 300);
   addText(player.x, player.y - 40, "NOVA DE CHOQUE", "#C34DFF");
 }
+/* toca um "tec" no momento em que uma habilidade sai da recarga, para
+   você jogar olhando a tela e não os botões */
+let habProntasAntes = -1;
+function habProntaConferir() {
+  try {
+    if (S.mode !== "playing") return;
+    const bar = document.getElementById("hab-bar");
+    if (!bar) return;
+    const n = bar.querySelectorAll(".hab-btn.pronta").length;
+    if (habProntasAntes >= 0 && n > habProntasAntes) AudioSys.habPronta();
+    habProntasAntes = n;
+  } catch (e) {}
+}
+/* meio segundo de câmera lenta: usado quando o chefe cai e quando você
+   escapa por um triz. Reaproveita o S.lentoT que a Ampulheta já usava. */
+function camLenta(seg) {
+  S.lentoT = Math.max(S.lentoT || 0, seg);
+}
 function hitPlayer() {
   if (player.invuln > 0 || !player.alive || player.invis > 0) return;
   if (save.godMode) { player.invuln = 0.3; return; }
   S.danoLevado = (S.danoLevado || 0) + 1;
+  S.doeuT = 0.45;
+  S.shake = Math.max(S.shake || 0, 9);
   comboZera();
   if (ST.nova) novaBlast();
   if (player.shield > 0) {
@@ -19201,7 +19894,7 @@ function hitPlayer() {
     player.invuln = ST.invulnDur * 0.55;
     AudioSys.hit();
     vibrate(35);
-    S.shake = 7;
+    S.shake = Math.max(S.shake || 0, 9);
     explosion(player.x, player.y, shipColor(save.ship), 12);
     updateHud();
     return;
@@ -19293,9 +19986,12 @@ function faseVictory() {
     const d = amuletDef(a);
     amuletMsg = "◈ AMULETO ENCONTRADO: " + d.name + " (" + RARS[a.rar].name + ")";
   }
+  camLenta(0.8);
   misProgresso("fase", 1);
-  if (isBossFase(S.fase)) misProgresso("chefe", 1);
-  if (coop) misProgresso("amigo", 1);
+  if (isBossFase(S.fase)) { misProgresso("chefe", 1); contar("chefes"); }
+  if (coop) { misProgresso("amigo", 1); contar("coopFases"); }
+  if (!S.danoLevado) contar("fasesPerfeitas");
+  if ((S.comboMax || 0) > (save.melhorCombo || 0)) save.melhorCombo = S.comboMax;
   estrelasDaFase(S.fase, dur, S.danoLevado === 0);
   persist();
   AudioSys.victory();
@@ -19315,6 +20011,7 @@ function faseVictory() {
   nuvemEnviar(true);
 }
 function gameOver() {
+  contar("mortes");
   if (MP.sala && MP.modo === "pvp" && !MP.fim) {
     MP.fim = "derrota";
     finalizarDuelo("derrota", mpOutroPrincipal() || { nome: "Adversário", rank: 0 });
@@ -19361,6 +20058,15 @@ function update(dt) {
   if (S.mode !== "playing") return;
 
   comboPassar(dt);
+  tutoPassar(dt);
+  avisosPassar(dt);
+  pedacosPassar(dt);
+  if (S.doeuT > 0) {
+    S.doeuT = Math.max(0, S.doeuT - dt);
+    const d = $("doeu");
+    if (d) d.style.opacity = (S.doeuT / 0.45) * 0.55;
+  }
+  habProntaConferir();
   save.tempoJogado = (save.tempoJogado || 0) + dt;
 
   if (S.banner) { S.banner.t -= dt; if (S.banner.t <= 0) S.banner = null; }
@@ -19773,6 +20479,7 @@ function update(dt) {
       damageEnemy(alvo, enemies.indexOf(alvo), dm.d, dm.crit);
       if (ST.blast > 0) blastArea(b.x, b.y, ST.blast, dm.d * 0.5);
       particles.push({ x: b.x, y: b.y, vx: rand(-40, 40), vy: rand(-80, -20), t: 0.2, max: 0.2, color: "#EAF2FF", r: 2 });
+      contar("acertos");
       if (b.pierce > 0) { b.pierce--; }
       else { bullets.splice(i, 1); consumed = true; }
     }
@@ -20828,17 +21535,63 @@ function drawBoss() {
   ctx.fillRect(bx - 2, by - 2, bw + 4, 12);
   ctx.fillStyle = boss.furia ? "#FF2A4A" : "#FF4D8F";
   const vidaChefe = mpCoop() ? Math.max(0, boss.maxHp - MP.danoTotal) : bossHpLeft();
-  ctx.fillRect(bx, by, bw * clamp(vidaChefe / boss.maxHp, 0, 1), 8);
+  const fracChefe = clamp(vidaChefe / boss.maxHp, 0, 1);
+  ctx.fillRect(bx, by, bw * fracChefe, 8);
   ctx.strokeStyle = boss.furia ? "rgba(255,42,74,.9)" : "rgba(255,77,143,.5)";
   ctx.lineWidth = 1;
   ctx.strokeRect(bx - 2, by - 2, bw + 4, 12);
-  // a marca de onde a fúria começa
-  ctx.fillStyle = "rgba(255,255,255,.35)";
+  /* três partes: dá para ver que você está ganhando, e onde a fúria começa */
+  ctx.fillStyle = "rgba(4,8,20,.85)";
+  ctx.fillRect(bx + bw / 3 - 1, by - 1, 2, 10);
+  ctx.fillRect(bx + bw * 2 / 3 - 1, by - 1, 2, 10);
+  ctx.fillStyle = "rgba(255,255,255,.45)";
   ctx.fillRect(bx + bw * 0.35 - 1, by - 1, 2, 10);
+  /* quantas partes ainda faltam, em números grandes o bastante para ver */
+  ctx.textAlign = "right";
+  ctx.fillStyle = "rgba(234,242,255,.7)";
+  ctx.font = "700 10px 'Chakra Petch',sans-serif";
+  ctx.fillText("PARTE " + Math.max(1, Math.ceil(fracChefe * 3)) + "/3", bx + bw, by - 8);
   ctx.textAlign = "center";
   ctx.fillStyle = boss.furia ? "#FF6B84" : "rgba(234,242,255,.85)";
   ctx.font = "700 11px 'Chakra Petch',sans-serif";
   ctx.fillText(boss.bname.toUpperCase() + (boss.furia ? "  ⚠ EM FÚRIA" : ""), W / 2, by - 8);
+}
+
+/* =====================================================================
+   PRÉ-AVISO DOS ATAQUES DO CHEFE
+   ---------------------------------------------------------------------
+   Uma linha vermelha aparece meio segundo antes do tiro sair, no lugar
+   onde ele vai passar. Dificuldade justa é o jogador PODER desviar.
+   ===================================================================== */
+const AVISOS = [];
+function avisarAtaque(x, y, tipo, dur) {
+  AVISOS.push({ x: x, y: y, tipo: tipo || "linha", t: 0, dur: dur || 0.55 });
+}
+function avisosPassar(dt) {
+  for (let i = AVISOS.length - 1; i >= 0; i--) {
+    AVISOS[i].t += dt;
+    if (AVISOS[i].t >= AVISOS[i].dur) AVISOS.splice(i, 1);
+  }
+}
+function drawAvisos() {
+  if (!AVISOS.length) return;
+  ctx.save();
+  for (const a of AVISOS) {
+    const k = a.t / a.dur;
+    const piscar = 0.25 + Math.abs(Math.sin(a.t * 18)) * 0.45;
+    ctx.globalAlpha = piscar * (1 - k * 0.3);
+    ctx.strokeStyle = "#FF4040";
+    ctx.fillStyle = "rgba(255,64,64,.14)";
+    ctx.lineWidth = 2;
+    if (a.tipo === "circulo") {
+      ctx.beginPath(); ctx.arc(a.x, a.y, a.r || 90, 0, TAU); ctx.fill(); ctx.stroke();
+    } else if (a.tipo === "coluna") {
+      ctx.fillRect(a.x - 26, 0, 52, H); ctx.strokeRect(a.x - 26, 0, 52, H);
+    } else {
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(a.x, H); ctx.stroke();
+    }
+  }
+  ctx.restore();
 }
 
 function drawPowerup(p) {
@@ -21723,6 +22476,7 @@ function draw() {
   }
 
   for (const e of enemies) drawEnemy(e);
+  drawAvisos();
   drawBoss();
   for (const p of powerups) drawPowerup(p);
   drawShip();
@@ -21733,7 +22487,16 @@ function draw() {
     if (p.y < -20 || p.y > H + 20) continue;
     ctx.globalAlpha = clamp(p.t / p.max, 0, 1);
     ctx.fillStyle = p.color;
-    ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r);
+    if (p.pedaco) {
+      /* pedaço de casco: gira enquanto cai, como sucata de verdade */
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.ang || 0);
+      ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
+      ctx.restore();
+    } else {
+      ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r);
+    }
   }
   ctx.globalAlpha = 1;
 
@@ -22372,6 +23135,15 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.1", itens: [
+      "TUTORIAL na primeira fase: quatro passos curtos que ensinam a pilotar, entender que a nave atira sozinha, desviar dos tiros rosa e usar a ultimate. Quem já jogou não vê",
+      "CADA FASE TEM NOME: um cartão aparece no começo com o nome da fase e uma linha dizendo o que ela tem de perigoso",
+      "CONQUISTAS: 25 medalhas com prêmio em cristais — de passar a fase 1 até derrubar 10.000 inimigos, juntar 100 estrelas ou ganhar 25 ranqueadas",
+      "PERFIL DO PILOTO (o 👤 no cartão do menu): fase, estrelas, abates, chefes, melhor combo, tempo de voo, precisão dos tiros, fases sem levar dano e mais",
+      "CONVIDAR AMIGO: você tem um código; quem entrar com ele ganha 500 cristais e você ganha 800, sem limite de amigos. O convite também vira link para mandar no WhatsApp",
+      "FOTO DA PARTIDA: um botão na tela de vitória desenha um cartão com o seu resultado e o seu código, para mandar para os amigos",
+      "COMBATE MAIS GOSTOSO: barra do chefe dividida em 3 partes, linha vermelha meio segundo antes do tiro do chefe, destroços girando quando a nave quebra, câmera lenta quando o chefe cai, borda vermelha e tremida ao levar dano, som diferente para cada tipo de inimigo e um toque quando a habilidade fica pronta"
+    ] },
   { v: "6.0", itens: [
       "PRESENTE DO DIA: entrou, ganhou. São 7 dias em sequência, de 120 até 1.800 cristais mais um amuleto no dia 7. Faltou um dia, a sequência recomeça",
       "MISSÕES DO DIA: três por dia, iguais para todo mundo, trocando à meia-noite — derrubar inimigos, passar fases, matar chefe, fazer combo, jogar no cooperativo. Cada uma paga cristais",
@@ -22676,7 +23448,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.0";
+const VERSAO = "6.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
