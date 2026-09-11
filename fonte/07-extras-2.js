@@ -575,6 +575,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.2", itens: [
+      "AJUSTES agora tem um cartão VERSÃO: mostra em que versão você está, procura atualização na hora e tem o botão BAIXAR TUDO DE NOVO",
+      "Isso é para quem joga pelo atalho da tela inicial. O celular guarda a página do atalho num canto separado do navegador e pode ficar entregando a mesma cópia por semanas — o botão joga esse guardado fora e pega a página do zero",
+      "O seu progresso não fica nessa cópia guardada: ele fica na sua conta e na nuvem. Baixar tudo de novo não apaga nada do que você conquistou"
+    ] },
   { v: "7.1", itens: [
       "CORRIGIDO (grave): o jogo não avisava que tinha saído versão nova e ficava preso na cópia velha para sempre. O aviso só olhava um arquivo (versao.json) que existe no repositório mas NÃO existe no link do jogo — lá a busca falhava e o jogo desistia calado. Dava para ficar várias versões atrás sem nunca ser avisado",
       "Agora o jogo pergunta para ele mesmo: pede o pedacinho final da própria página no servidor, lê o número da versão de lá e compara com a que está rodando. Não depende de arquivo nenhum, funciona em qualquer lugar, e são uns 40 KB em vez dos 3 MB da página inteira",
@@ -987,7 +992,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.1";
+const VERSAO = "7.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

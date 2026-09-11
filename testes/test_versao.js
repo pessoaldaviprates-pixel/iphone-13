@@ -93,6 +93,45 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   await p2.close();
   await new Promise(r => s2.close(r));
 
+  /* ---------- 3. o cartão VERSÃO dos ajustes ---------- */
+  const s3 = servidor(false);          // aparelho velho, servidor novo
+  await new Promise(r => s3.listen(8125, '127.0.0.1', r));
+  const p3 = await b.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  p3.on('pageerror', e => errs.push('PAGEERROR3: ' + e.message));
+  await p3.goto('http://127.0.0.1:8125/?nuvem=http://127.0.0.1:8099');
+  await p3.waitForTimeout(1200);
+  await p3.evaluate(() => {
+    const el = document.getElementById('abertura'); if (el) { el.className = ''; el.innerHTML = ''; }
+    ROOT.profiles['Davi'] = defaultSave(); ROOT.current = 'Davi';
+    save = ROOT.profiles['Davi']; save.__name = 'Davi'; save.tutorialFeito = true;
+    calcStats(); persist(); goMenu(); ajRender();
+  });
+  await p3.waitForTimeout(600);
+  out.cartao = await p3.evaluate(() => {
+    const c = document.getElementById('aj-corpo');
+    return {
+      mostraVersao: c.textContent.indexOf('v' + VERSAO) >= 0,
+      temBuscar: !!document.getElementById('aj-ver-buscar'),
+      temForcar: !!document.getElementById('aj-ver-forcar')
+    };
+  });
+  /* PROCURAR ATUALIZAÇÃO precisa achar a versão do servidor */
+  await p3.evaluate(() => document.getElementById('aj-ver-buscar').click());
+  await p3.waitForTimeout(2500);
+  out.buscou = await p3.evaluate(() => ({
+    estado: document.getElementById('aj-ver-estado').textContent,
+    achou: versaoNova && versaoNova.versao
+  }));
+
+  /* BAIXAR TUDO DE NOVO tem que recarregar com o cache furado */
+  await p3.evaluate(() => { window.__antes = location.href; });
+  await p3.evaluate(() => document.getElementById('aj-ver-forcar').click());
+  await p3.waitForTimeout(3000);
+  out.forcou = { url: p3.url(), furouCache: /[?&]v=/.test(p3.url()) };
+  await p3.screenshot({ path: 'versao-ajustes.png' });
+  await p3.close();
+  await new Promise(r => s3.close(r));
+
   await b.close();
   out.errs = errs;
 
@@ -104,6 +143,10 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   if (!out.atrasado.portaoAberto) problemas.push('nao abriu o portao de atualizar');
   if (out.emDia.achou) problemas.push('avisou atualizacao estando em dia');
   if (out.emDia.portaoAberto) problemas.push('abriu portao estando em dia');
+  if (!out.cartao.mostraVersao) problemas.push('o cartao nao mostra a versao');
+  if (!out.cartao.temBuscar || !out.cartao.temForcar) problemas.push('faltam os botoes do cartao');
+  if (out.buscou.achou !== VNOVA) problemas.push('PROCURAR nao achou a versao do servidor');
+  if (!out.forcou.furouCache) problemas.push('BAIXAR TUDO DE NOVO nao recarregou furando o cache');
   if (errs.length) problemas.push('erros de pagina: ' + errs.join(' | '));
 
   console.log(JSON.stringify(out, null, 1));

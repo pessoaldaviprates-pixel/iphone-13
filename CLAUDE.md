@@ -79,6 +79,15 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   próprio painel, e o dono é justamente quem mais demora a receber a
   atualização — a ordem saía "atualize para a 6.5" para quem já estava na 6.5.
   Agora ela leva a versão que está no servidor.
+- **Atalho na tela inicial guarda a página num canto só dele.** No iPhone, um
+  jogo aberto pelo atalho da tela de início tem um armazenamento separado do
+  Safari e pode servir a mesma cópia por semanas — publicar não atravessa isso,
+  e nem limpar o Safari resolve. Por isso AJUSTES tem o cartão VERSÃO com
+  "BAIXAR TUDO DE NOVO" (`limparTudoERecarregar`), que é o jeito de o jogador
+  sair de uma cópia velha sem apagar o atalho. Quando alguém disser "não
+  atualizou", pergunte ANTES como ele abre o jogo: pelo cartão da conversa, por
+  link, pelo atalho ou pelo app. O conserto é diferente em cada caso, e chutar
+  faz perder rodada.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

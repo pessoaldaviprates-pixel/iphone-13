@@ -351,6 +351,21 @@ function ajRender() {
       "(automático, leve ou bonito). Se o jogo travar, ligue os quadros por segundo aqui " +
       "em cima e veja quanto dá durante a partida.</p>" +
     "</div>" +
+    /* Quando o jogo está num atalho da tela inicial, o celular guarda a
+       página e pode ficar entregando a mesma cópia por semanas. Este
+       cartão existe para o jogador não precisar apagar o atalho: ele vê
+       em que versão está e tem um botão que joga o guardado fora. */
+    '<div class="card aj-grupo"><div class="aj-titulo">🔄 VERSÃO</div>' +
+      '<p class="adm-note">Você está jogando a <b>v' + VERSAO + "</b>.</p>" +
+      '<div id="aj-ver-estado" class="adm-note" style="margin-top:6px"></div>' +
+      '<button class="ghost-btn" id="aj-ver-buscar" style="width:100%;margin-top:8px">' +
+      "PROCURAR ATUALIZAÇÃO</button>" +
+      '<button class="ghost-btn" id="aj-ver-forcar" style="width:100%;margin-top:6px">' +
+      "BAIXAR TUDO DE NOVO</button>" +
+      '<p class="adm-note" style="margin-top:8px">“Baixar tudo de novo” joga fora a ' +
+      "cópia guardada no aparelho e pega a página do zero. O seu progresso não está " +
+      "nessa cópia — ele fica na sua conta e na nuvem, então não se perde.</p>" +
+    "</div>" +
     '<button class="ghost-btn" id="aj-padrao" style="width:100%;margin-top:6px">VOLTAR AO PADRÃO</button>';
 
   const barra = (id, campo, sufixo) => {
@@ -365,6 +380,7 @@ function ajRender() {
     el.addEventListener("change", () => { ajSalvar(); AudioSys.gem(); });
   };
   try { idiomaRender(); resgateRender(); } catch (e) {}
+  ajVersaoLigar();
   barra("aj-mus", "volMus", "%");
   barra("aj-efe", "volEfe", "%");
   barra("aj-sens", "sens", "%");
@@ -397,6 +413,48 @@ function ajAbrir() {
 }
 
 /* ---------------------- contador de quadros ---------------------- */
+/* Os dois botões do cartão de versão. Ficam aqui embaixo para o
+   ajRender não crescer mais do que já cresceu. */
+function ajVersaoLigar() {
+  const estado = $("aj-ver-estado");
+  const buscar = $("aj-ver-buscar");
+  const forcar = $("aj-ver-forcar");
+  if (!buscar || !forcar) return;
+
+  buscar.addEventListener("click", async () => {
+    buscar.disabled = true;
+    const antes = buscar.textContent;
+    buscar.textContent = "PROCURANDO…";
+    if (estado) estado.textContent = "";
+    let achou = null;
+    try { achou = await versaoNoServidor(); } catch (e) {}
+    buscar.disabled = false;
+    buscar.textContent = antes;
+    if (!estado) return;
+    if (!achou) {
+      estado.textContent = "Não deu para perguntar ao servidor agora. " +
+        "Se você acha que está atrasado, use o botão de baixar tudo de novo.";
+      return;
+    }
+    if (versaoNumero(achou) > versaoNumero(VERSAO)) {
+      estado.textContent = "Saiu a v" + achou + ". Atualizando…";
+      try { checarVersao(false); } catch (e) {}
+    } else {
+      estado.textContent = "Você já está na versão mais nova (v" + achou + ").";
+    }
+  });
+
+  forcar.addEventListener("click", () => {
+    if (estado) estado.textContent = "Limpando o que estava guardado…";
+    try { limparTudoERecarregar(); } catch (e) {
+      /* se algo der errado, pelo menos recarrega furando o cache */
+      const u = new URL(location.href);
+      u.searchParams.set("v", Date.now().toString(36));
+      location.replace(u.toString());
+    }
+  });
+}
+
 let fpsQuadros = 0, fpsMarca = 0;
 function fpsContar() {
   if (!AJ.fps) return;
