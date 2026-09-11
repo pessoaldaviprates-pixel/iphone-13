@@ -575,6 +575,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.3", itens: [
+      "O jogo está sendo preparado para a App Store e a Google Play. A versão que vier dessas lojas não vai ter a loja de dinheiro: a Apple e o Google exigem que compra dentro do app passe pelo pagamento deles, e a nossa é por Pix",
+      "Nada do jogo muda por causa disso: cristais, naves, melhorias, fases e tudo o que se ganha jogando continuam iguais nas duas versões. A loja por Pix segue existindo aqui na web",
+      "A política de privacidade foi reescrita para dizer a verdade sobre a parte online: o que sai do aparelho (apelido, progresso, conversas, denúncias), o que nunca sai, e como pedir para apagar tudo"
+    ] },
   { v: "7.2", itens: [
       "AJUSTES agora tem um cartão VERSÃO: mostra em que versão você está, procura atualização na hora e tem o botão BAIXAR TUDO DE NOVO",
       "Isso é para quem joga pelo atalho da tela inicial. O celular guarda a página do atalho num canto separado do navegador e pode ficar entregando a mesma cópia por semanas — o botão joga esse guardado fora e pega a página do zero",
@@ -992,7 +997,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.2";
+const VERSAO = "7.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

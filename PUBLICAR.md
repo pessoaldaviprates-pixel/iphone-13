@@ -51,6 +51,54 @@ público, ou num arquivo `privacidade.html` na raiz do repositório.
 
 ---
 
+## Antes de qualquer coisa: as três regras que derrubam o app
+
+Estas três não são detalhe de ficha. São motivo de recusa na revisão, e as
+duas primeiras podem derrubar o app depois de publicado.
+
+### 1. A conta tem que ser de quem já tem 18 anos
+
+A Apple e o Google só aceitam conta de desenvolvedor de quem tem a maioridade
+legal (18 anos no Brasil). A conta vai no nome de um adulto — seu pai, no caso
+— com o documento e o dado bancário dele. Isso não é burocracia à toa: quem
+assina é o responsável legal pelo app, pelo conteúdo e pelos impostos. Vale
+conversar com ele sobre isso antes de pagar qualquer coisa.
+
+### 2. Loja por Pix não pode dentro do app
+
+As duas lojas exigem que **coisa do jogo vendida por dinheiro** (VIP, passe,
+nave) passe pelo sistema de pagamento **delas**, que fica com 15% a 30%. Vender
+por Pix dentro do app é recusa certa na revisão (Apple, regra 3.1.1; Google,
+política de Pagamentos) — e remoção se passar batido.
+
+**Já está resolvido:** o empacotador marca a cópia que vira app, e nela a loja
+de dinheiro não existe. Some o botão, some a porta LOJA, some o aviso de
+renovar VIP, e a tela não abre nem forçando. O resto do jogo fica idêntico:
+cristais, naves, melhorias e tudo o que se ganha jogando continuam iguais.
+`testes/test_app.js` confere isso na cópia de verdade.
+
+A loja por Pix continua existindo **na versão web**, que é sua e não tem
+essa regra.
+
+Se um dia quiser vender dentro do app, o caminho é implementar o pagamento das
+lojas de verdade (plugin de compras do Capacitor + produtos cadastrados nos
+dois painéis). Dá trabalho e exige a conta do adulto configurada com banco.
+
+### 3. Tem conversa entre jogadores — e isso puxa regras
+
+O jogo tem conversa com amigos, esquadrão e suporte. Para as duas lojas isso é
+"conteúdo criado por usuário", e elas exigem quatro coisas:
+
+- um jeito de **denunciar** conteúdo ofensivo → já existe no jogo
+- um jeito de **bloquear** outro jogador → já existe
+- **alguém olhando** as denúncias → é você, no painel
+- um **contato publicado** que funcione → falta preencher
+
+Na ficha, a classificação etária precisa dizer que há interação entre usuários.
+Se você esconder isso e a loja descobrir, cai.
+
+---
+
 ## Caminho A — Google Play
 
 ### A1. Criar a conta de desenvolvedor
@@ -247,7 +295,13 @@ costuma resolver.
    transparência e sem cantos arredondados — a Apple aplica o arredondamento)
 4. **Capturas**: as imagens de `loja/capturas/ios/` (1290×2796, tamanho de
    iPhone 6,7"). A Apple aceita esse conjunto para todos os iPhones
-5. **Privacidade do app**: marque **"Dados não coletados"**
+5. **Privacidade do app**: **NÃO** marque "Dados não coletados" — seria
+   declaração falsa e o revisor vê o tráfego para o Firebase. Declare:
+   - *Identificadores* → "ID de usuário" (o apelido do piloto)
+   - *Conteúdo do usuário* → "Mensagens" e "Outro conteúdo"
+   - *Uso do app* → progresso e recordes
+   - marque que **não** são usados para rastreamento nem para publicidade, e
+     que **são** ligados à identidade do jogador dentro do jogo
 6. **Classificação etária**: violência de fantasia leve/infrequente
 7. **Preço**: Gratuito
 8. Cole o link da política de privacidade
@@ -298,14 +352,16 @@ ajudar a redefinir a chave de upload. Sem isso, seria preciso publicar um app
 novo, com outro ID. Guarde a chave em dois lugares diferentes.
 
 **O botão "Salvar na nuvem" vai funcionar no app das lojas?**
-Não — ele existe só na versão publicada como Artifact do Claude. No app, o
-progresso é salvo no aparelho (localStorage + IndexedDB), que já é bem
-resistente. Se quiser progresso sincronizado entre aparelhos, dá para ligar o
-jogo num serviço gratuito como o Firebase depois.
+Vai. O `preparar.js` copia o `config.js` junto, então o app sai com o mesmo
+endereço de nuvem da versão web: ranking, amigos, arena e salvar na nuvem
+funcionam igual. É justamente por isso que a política de privacidade precisa
+dizer que dados saem do aparelho — e por isso a declaração de privacidade da
+Apple não pode ser "dados não coletados".
 
 **Posso vender o jogo ou colocar anúncios?**
-Pode. Para cobrar, basta marcar como pago no painel (a Play exige uma conta de
-pagamentos). Para anúncios, o caminho comum é o AdMob, que entra como um
+Pode, com cuidado. Cobrar **pelo app inteiro** (preço na loja) é simples: basta
+marcar como pago no painel. O que não pode é vender coisa de dentro do jogo por
+fora do pagamento das lojas — veja a regra 2 lá em cima. Para anúncios, o caminho comum é o AdMob, que entra como um
 plugin do Capacitor — e aí a política de privacidade precisa ser atualizada,
 porque passaria a haver coleta de dados.
 

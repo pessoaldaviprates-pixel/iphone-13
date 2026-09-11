@@ -814,7 +814,7 @@ let portaAberta = null;
 function portaRender() {
   const cx = $("menu-portas");
   if (!cx) return;
-  cx.innerHTML = PORTAS.map(p => {
+  cx.innerHTML = PORTAS.filter(p => p.id !== "loja" || lojaDeDinheiroLigada()).map(p => {
     let nota = "", pip = 0;
     try { nota = p.nota(); } catch (e) {}
     try { pip = p.pip ? p.pip() : 0; } catch (e) {}

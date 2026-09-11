@@ -1043,6 +1043,9 @@ function ofertaRender() {
 function vipAvisoRender() {
   const cx = $("vip-aviso");
   if (!cx) return;
+  /* sem loja de dinheiro não há o que renovar: o aviso viraria propaganda
+     de uma compra que o app nem oferece */
+  if (!lojaDeDinheiroLigada()) { cx.style.display = "none"; return; }
   if (!temVip()) { cx.style.display = "none"; return; }
   const dias = vipDiasQueFaltam();
   if (dias > 3) { cx.style.display = "none"; return; }

@@ -1436,6 +1436,23 @@ async function checarPresenteGeral(d) {
    TODO MUNDO que estiver numa versão anterior limpa o cache e recarrega
    sozinho. Quem já está na versão nova nem percebe.
    ===================================================================== */
+/* ---------------------------------------------------------------------
+   VENDER DINHEIRO DE VERDADE DENTRO DO APP DAS LOJAS
+   ---------------------------------------------------------------------
+   A Apple e o Google não deixam vender coisa do jogo (VIP, passe, nave)
+   por fora do sistema de pagamento deles. O nosso Pix é exatamente isso:
+   no navegador tudo bem, mas dentro do app baixado da loja é motivo de
+   recusa na revisão — e de remoção se passar batido.
+
+   Por isso o empacotador escreve window.NN_EMPACOTADO = true na cópia
+   que vira app, e aqui a loja de dinheiro some. O que se ganha jogando
+   (cristais, naves, melhorias) continua igual: só a parte de comprar
+   com dinheiro fica de fora.
+   --------------------------------------------------------------------- */
+function lojaDeDinheiroLigada() {
+  return !(typeof window !== "undefined" && window.NN_EMPACOTADO === true);
+}
+
 function versaoNumero(v) {
   /* Lê os TRÊS pedaços (7.1.2), não só dois. Enquanto lia dois, "7.0.1"
      e "7.0" davam o mesmo número e um conserto pequeno nunca chegava a

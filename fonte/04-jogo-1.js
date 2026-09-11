@@ -261,7 +261,11 @@ function refreshMenu() {
   const lb = $("menu-loja-badge");
   if (lb) lb.textContent = temVip() ? "VIP · " + vipDiasQueFaltam() + "d" : "VIP e passes";
   const bl = $("btn-loja");
-  if (bl) bl.classList.toggle("vip", temVip());
+  if (bl) {
+    bl.classList.toggle("vip", temVip());
+    /* no app das lojas não existe compra com dinheiro: o botão sai */
+    if (!lojaDeDinheiroLigada()) bl.style.display = "none";
+  }
   const totalUp = UPGRADES.reduce((a, u) => a + u.max, 0);
   const meusUp = UPGRADES.reduce((a, u) => a + (save.upgrades[u.id] || 0), 0);
   $("menu-up-badge").textContent = meusUp + "/" + totalUp;

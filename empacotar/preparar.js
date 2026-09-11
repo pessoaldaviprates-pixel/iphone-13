@@ -24,6 +24,24 @@ for (const f of ARQUIVOS) {
 const idx = path.join(www, "index.html");
 let html = fs.readFileSync(idx, "utf8");
 html = html.replace('<link rel="manifest" href="manifest.json">', "");
+
+/* A Apple e o Google não deixam vender coisa do jogo por fora do pagamento
+   deles. A nossa loja é por Pix: no navegador tudo bem, dentro do app baixado
+   da loja é recusa na revisão. Esta marca desliga a loja de dinheiro (o jogo
+   inteiro continua igual; só a compra com dinheiro sai).
+
+   Se um dia o pagamento das lojas for implementado de verdade, é aqui que se
+   volta atrás — e aí a loja precisa usar o sistema DELES, não o Pix. */
+const MARCA = "<script>window.NN_EMPACOTADO = true;</script>\n";
+/* procura a MARCA inteira, não a palavra: o próprio jogo cita
+   NN_EMPACOTADO no código, e procurar só a palavra fazia o injetor
+   achar que já tinha marcado e ir embora sem marcar nada. */
+if (html.indexOf(MARCA.trim()) < 0) {
+  const i = html.indexOf("<body>");
+  if (i < 0) throw new Error("não achei <body> no index.html");
+  html = html.slice(0, i + 6) + "\n" + MARCA + html.slice(i + 6);
+  console.log("marcado: sem loja de dinheiro (regra das lojas)");
+}
 fs.writeFileSync(idx, html);
 
 // ícone-mestre para gerar todos os tamanhos das lojas

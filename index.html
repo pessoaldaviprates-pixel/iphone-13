@@ -7368,6 +7368,23 @@ async function checarPresenteGeral(d) {
    TODO MUNDO que estiver numa versão anterior limpa o cache e recarrega
    sozinho. Quem já está na versão nova nem percebe.
    ===================================================================== */
+/* ---------------------------------------------------------------------
+   VENDER DINHEIRO DE VERDADE DENTRO DO APP DAS LOJAS
+   ---------------------------------------------------------------------
+   A Apple e o Google não deixam vender coisa do jogo (VIP, passe, nave)
+   por fora do sistema de pagamento deles. O nosso Pix é exatamente isso:
+   no navegador tudo bem, mas dentro do app baixado da loja é motivo de
+   recusa na revisão — e de remoção se passar batido.
+
+   Por isso o empacotador escreve window.NN_EMPACOTADO = true na cópia
+   que vira app, e aqui a loja de dinheiro some. O que se ganha jogando
+   (cristais, naves, melhorias) continua igual: só a parte de comprar
+   com dinheiro fica de fora.
+   --------------------------------------------------------------------- */
+function lojaDeDinheiroLigada() {
+  return !(typeof window !== "undefined" && window.NN_EMPACOTADO === true);
+}
+
 function versaoNumero(v) {
   /* Lê os TRÊS pedaços (7.1.2), não só dois. Enquanto lia dois, "7.0.1"
      e "7.0" davam o mesmo número e um conserto pequeno nunca chegava a
@@ -9039,7 +9056,11 @@ function refreshMenu() {
   const lb = $("menu-loja-badge");
   if (lb) lb.textContent = temVip() ? "VIP · " + vipDiasQueFaltam() + "d" : "VIP e passes";
   const bl = $("btn-loja");
-  if (bl) bl.classList.toggle("vip", temVip());
+  if (bl) {
+    bl.classList.toggle("vip", temVip());
+    /* no app das lojas não existe compra com dinheiro: o botão sai */
+    if (!lojaDeDinheiroLigada()) bl.style.display = "none";
+  }
   const totalUp = UPGRADES.reduce((a, u) => a + u.max, 0);
   const meusUp = UPGRADES.reduce((a, u) => a + (save.upgrades[u.id] || 0), 0);
   $("menu-up-badge").textContent = meusUp + "/" + totalUp;
@@ -17213,6 +17234,7 @@ $("sup-campo").addEventListener("keydown", e => { if (e.key === "Enter") mandarS
 
 /* --- LOJA --- */
 $("btn-loja").addEventListener("click", () => {
+  if (!lojaDeDinheiroLigada()) return;   // trava por dentro também
   AudioSys.resume();
   S.mode = "loja";
   renderLoja();
@@ -20469,6 +20491,9 @@ function ofertaRender() {
 function vipAvisoRender() {
   const cx = $("vip-aviso");
   if (!cx) return;
+  /* sem loja de dinheiro não há o que renovar: o aviso viraria propaganda
+     de uma compra que o app nem oferece */
+  if (!lojaDeDinheiroLigada()) { cx.style.display = "none"; return; }
   if (!temVip()) { cx.style.display = "none"; return; }
   const dias = vipDiasQueFaltam();
   if (dias > 3) { cx.style.display = "none"; return; }
@@ -22117,7 +22142,7 @@ let portaAberta = null;
 function portaRender() {
   const cx = $("menu-portas");
   if (!cx) return;
-  cx.innerHTML = PORTAS.map(p => {
+  cx.innerHTML = PORTAS.filter(p => p.id !== "loja" || lojaDeDinheiroLigada()).map(p => {
     let nota = "", pip = 0;
     try { nota = p.nota(); } catch (e) {}
     try { pip = p.pip ? p.pip() : 0; } catch (e) {}
@@ -27664,6 +27689,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.3", itens: [
+      "O jogo está sendo preparado para a App Store e a Google Play. A versão que vier dessas lojas não vai ter a loja de dinheiro: a Apple e o Google exigem que compra dentro do app passe pelo pagamento deles, e a nossa é por Pix",
+      "Nada do jogo muda por causa disso: cristais, naves, melhorias, fases e tudo o que se ganha jogando continuam iguais nas duas versões. A loja por Pix segue existindo aqui na web",
+      "A política de privacidade foi reescrita para dizer a verdade sobre a parte online: o que sai do aparelho (apelido, progresso, conversas, denúncias), o que nunca sai, e como pedir para apagar tudo"
+    ] },
   { v: "7.2", itens: [
       "AJUSTES agora tem um cartão VERSÃO: mostra em que versão você está, procura atualização na hora e tem o botão BAIXAR TUDO DE NOVO",
       "Isso é para quem joga pelo atalho da tela inicial. O celular guarda a página do atalho num canto separado do navegador e pode ficar entregando a mesma cópia por semanas — o botão joga esse guardado fora e pega a página do zero",
@@ -28081,7 +28111,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.2";
+const VERSAO = "7.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

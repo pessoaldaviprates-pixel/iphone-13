@@ -854,6 +854,7 @@ $("sup-campo").addEventListener("keydown", e => { if (e.key === "Enter") mandarS
 
 /* --- LOJA --- */
 $("btn-loja").addEventListener("click", () => {
+  if (!lojaDeDinheiroLigada()) return;   // trava por dentro também
   AudioSys.resume();
   S.mode = "loja";
   renderLoja();
