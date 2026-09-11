@@ -3916,6 +3916,67 @@
   #revanche-caixa{display:none;margin-top:10px}
   #revanche-caixa.on{display:block}
 
+  /* ---------- v6.4: temporada, histórico, bloqueio ---------- */
+  .temp-topo{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:9px}
+  .temp-topo b{font-size:.66rem;letter-spacing:.12em;color:var(--cyan)}
+  .temp-topo span{font-size:.58rem;color:var(--dim)}
+  .temp-premios{display:flex;gap:6px;flex-wrap:wrap}
+  .temp-p{
+    font-size:.56rem;padding:4px 9px;border-radius:99px;
+    background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink2);
+  }
+  .temp-p.ouro{background:rgba(255,200,97,.14);border-color:rgba(255,200,97,.4);color:var(--amber)}
+  .temp-hist{margin-top:9px;display:flex;flex-direction:column;gap:3px}
+  .temp-hist span{font-size:.56rem;color:var(--fraco)}
+
+  .hist-resumo{font-size:.6rem;color:var(--dim);margin-bottom:9px}
+  .hist-linha{
+    display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);
+    margin-bottom:5px;background:rgba(255,255,255,.035);border-left:3px solid var(--line);
+  }
+  .hist-linha.vitoria{border-left-color:var(--verde)}
+  .hist-linha.derrota{border-left-color:var(--danger)}
+  .hist-linha b{font-size:.58rem;letter-spacing:.1em;width:66px;flex:none}
+  .hist-linha.vitoria b{color:var(--verde)}
+  .hist-linha.derrota b{color:var(--danger)}
+  .hist-linha span{flex:1;font-size:.62rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hist-linha em{font-style:normal;font-size:.62rem;font-variant-numeric:tabular-nums;color:var(--ink2)}
+
+  /* ---------- v6.5: painel e manutenção ---------- */
+  .err-linha,.reg-linha{
+    padding:10px 11px;border-radius:var(--r-sm);margin-bottom:6px;
+    background:rgba(255,255,255,.04);border-left:3px solid var(--line);
+  }
+  .err-linha.suspeita{border-left-color:var(--amber)}
+  .err-linha.denuncia{border-left-color:var(--danger)}
+  .err-topo{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .err-topo b{font-size:.66rem;word-break:break-word}
+  .err-n{
+    font-style:normal;font-size:.54rem;padding:2px 7px;border-radius:99px;flex:none;
+    background:rgba(255,92,92,.16);color:var(--danger);
+  }
+  .err-meta{font-size:.54rem;color:var(--fraco);margin-top:4px}
+  .reg-linha{display:flex;gap:9px;align-items:baseline;border-left-color:var(--cyan)}
+  .reg-linha b{font-size:.6rem;color:var(--cyan);flex:none}
+  .reg-linha span{flex:1;font-size:.62rem;color:var(--ink2)}
+  .reg-linha em{font-style:normal;font-size:.52rem;color:var(--fraco);flex:none}
+
+  .num-linha{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .num-linha span{font-size:.58rem;color:var(--dim);width:78px;flex:none}
+  .num-linha b{font-size:.62rem;font-variant-numeric:tabular-nums;width:38px;text-align:right;flex:none}
+  .num-barra{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+  .num-barra i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet))}
+
+  #manut-tela{
+    position:fixed;inset:0;z-index:90;display:none;
+    background:rgba(3,6,15,.97);align-items:center;justify-content:center;padding:24px;
+  }
+  #manut-tela.on{display:flex}
+  .manut-dentro{text-align:center;max-width:340px;display:flex;flex-direction:column;gap:12px}
+  .manut-ic{font-size:3rem}
+  .manut-dentro b{font-family:"Russo One",sans-serif;font-size:1.1rem;color:var(--amber)}
+  .manut-dentro span{font-size:.76rem;color:var(--dim);line-height:1.5}
+
 </style>
 </head>
 <body>
@@ -3943,6 +4004,7 @@
   <div id="fps-conta" style="display:none">60 fps</div>
   <div id="doeu"></div>
   <div id="lanterna"></div>
+  <div id="manut-tela"></div>
   <div id="recon-faixa"></div>
   <div id="mp-ping"></div>
   <div id="reviver-aviso"></div>
@@ -4068,6 +4130,12 @@
       <div class="login-new">
         <input id="new-name" maxlength="14" placeholder="Escolha um nome" autocomplete="off" autocapitalize="off">
         <button class="ghost-btn" id="btn-new">CRIAR</button>
+      </div>
+      <div class="login-linha">
+        <button class="ghost-btn" id="btn-resgatar" style="width:100%;font-size:.62rem">
+          ESQUECI O DESENHO DA SENHA</button>
+      </div>
+      <div class="login-linha" id="login-resgate" style="display:none;flex-direction:column">
       </div>
     </div>
 
@@ -4495,6 +4563,52 @@
         </div>
       </div>
 
+      <div class="adm-card" id="adm-numeros">
+        <div class="adm-h">📊 NÚMEROS DO JOGO</div>
+        <div class="adm-note">Quantos pilotos, quantos vieram hoje, onde a maioria parou
+          e quem ainda está na versão velha.</div>
+        <button class="adm-btn wide" id="adm-numeros-ler" style="margin-top:10px">ATUALIZAR NÚMEROS</button>
+        <div id="adm-numeros-corpo" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-erros">
+        <div class="adm-h">🐞 ERROS DOS JOGADORES</div>
+        <div class="adm-note">Erro que estourou no celular de alguém, agrupado por
+          mensagem. Não vem nada pessoal junto.</div>
+        <button class="adm-btn wide" id="adm-erros-ler" style="margin-top:10px">VER ERROS</button>
+        <div id="adm-erros-lista" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-denuncias">
+        <div class="adm-h">🚨 DENÚNCIAS E SUSPEITAS</div>
+        <div class="adm-note">Quem foi denunciado por outro jogador e as partidas que o
+          próprio jogo achou impossíveis.</div>
+        <button class="adm-btn wide" id="adm-den-ler" style="margin-top:10px">VER DENÚNCIAS</button>
+        <div id="adm-denuncias-lista" style="margin-top:12px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-manutencao">
+        <div class="adm-h gold">🛠 MANUTENÇÃO</div>
+        <div class="adm-note">Com a manutenção ligada, todo mundo vê um aviso e não
+          consegue jogar — menos você. Use antes de publicar algo que mexe nos dados.</div>
+        <div class="adm-row" style="margin-top:10px">
+          <input id="manut-recado" maxlength="120" placeholder="Recado para os jogadores" autocomplete="off">
+        </div>
+        <div class="adm-grid" style="margin-top:8px">
+          <button class="adm-btn danger" id="manut-ligar">LIGAR MANUTENÇÃO</button>
+          <button class="adm-btn" id="manut-desligar">DESLIGAR</button>
+        </div>
+        <div class="adm-note" id="manut-estado" style="margin-top:8px"></div>
+      </div>
+
+      <div class="adm-card" id="adm-registro">
+        <div class="adm-h">📋 O QUE A EQUIPE FEZ</div>
+        <div class="adm-note">Cada ação importante do painel fica anotada com o nick de
+          quem fez. Se um dia sumir cristal, é aqui que se descobre.</div>
+        <button class="adm-btn wide" id="adm-reg-ler" style="margin-top:10px">VER REGISTRO</button>
+        <div id="adm-registro-lista" style="margin-top:12px"></div>
+      </div>
+
       <div class="adm-card" id="adm-local">
         <div class="adm-h">PILOTOS NESTE APARELHO</div>
         <input class="adm-search" id="adm-search" placeholder="Buscar piloto pelo nome" autocomplete="off">
@@ -4779,7 +4893,7 @@
     <div class="page-gems" id="am-conta"></div>
   </div>
   <div class="abas" id="am-abas"></div>
-  <div class="scroll"><div id="amigos-ultimos" style="display:none"></div><div id="am-corpo"></div></div>
+  <div class="scroll"><div id="amigos-ultimos" style="display:none"></div><div id="am-corpo"></div><div class="card" id="amigos-bloqueados" style="display:none"></div></div>
 </div>
 
 <!-- CONVERSA -->
@@ -5176,6 +5290,7 @@
       </div>
     </div>
     <div class="rk-placar" id="rk-placar"></div>
+    <div class="card" id="rk-temporada"></div>
 
     <div class="adm-grid" style="margin-top:14px">
       <button class="adm-btn danger wide" id="rk-procurar">⚔ PROCURAR PARTIDA</button>
@@ -5185,10 +5300,12 @@
       <div class="rk-busca-txt" id="rk-busca-txt">Procurando adversário…</div>
       <button class="adm-btn" id="rk-cancelar" style="margin-top:12px">CANCELAR</button>
     </div>
+    <div class="card" id="rk-historico" style="display:none"></div>
     <p class="adm-note" style="margin-top:10px">
       Não precisa de código: o jogo acha alguém do seu nível sozinho. Tudo fica
       zerado dos dois lados, então vence quem jogar melhor. Ganhou, sobe pontos
-      de rank; perdeu, desce um pouco.
+      de rank; perdeu, desce um pouco. Quanto mais tempo na fila, mais longe do
+      seu nível o jogo aceita — para ninguém ficar preso esperando.
     </p>
   </div>
 </div>
@@ -5698,6 +5815,12 @@ function defaultSave() {
     fasesPerfeitas: 0, melhorCombo: 0, coopFases: 0, missoesFeitas: 0, maiorSeq: 0,
     tutorialFeito: false,    // já viu o tutorial da primeira fase
     conviteUsado: null,      // de quem foi o convite que usei
+    temporada: 0,            // temporada da ranqueada que está valendo
+    resgate: null,           // código que devolve a conta se esquecer a senha
+    historico: [],           // últimas partidas da ranqueada
+    historicoTemporadas: [], // como você terminou cada temporada
+    bloqueados: {},          // quem você bloqueou
+    denunciei: [],           // quem você já denunciou
     convidados: 0,           // quantos entraram com o meu código
     desde: 0,                // quando este piloto voou pela primeira vez
     diaria: { dia: "", seq: 0 },   // presente do dia e a sequência de dias
@@ -5717,6 +5840,9 @@ function mergeSave(parsed) {
   s.estrelas = (parsed && parsed.estrelas) || {};
   s.conquistas = (parsed && parsed.conquistas) || {};
   s.conjuntos = (parsed && Array.isArray(parsed.conjuntos)) ? parsed.conjuntos : [null, null, null];
+  s.bloqueados = (parsed && parsed.bloqueados) || {};
+  s.historico = (parsed && Array.isArray(parsed.historico)) ? parsed.historico : [];
+  s.historicoTemporadas = (parsed && Array.isArray(parsed.historicoTemporadas)) ? parsed.historicoTemporadas : [];
   s.bauHist = (parsed && Array.isArray(parsed.bauHist)) ? parsed.bauHist : [];
   s.diaria = (parsed && parsed.diaria) || { dia: "", seq: 0 };
   s.missoes = (parsed && parsed.missoes) || { dia: "", itens: [] };
@@ -6846,6 +6972,7 @@ function obedecerOrdemDeAtualizar(att) {
 function mundoAplicar(d) {
   try { obedecerOrdemDeAtualizar(d && d.att); } catch (e) {}
   try { pagAplicar(d && d.pagamento); } catch (e) {}
+  try { manutencaoAplicar(d && d.manutencao); } catch (e) {}
   try { checarPresenteGeral(d); } catch (e) {}
   MUNDO.geral = (d && d.geral) || null;
   MUNDO.aviso = (d && d.aviso) || null;
@@ -8686,6 +8813,15 @@ $("btn-new").addEventListener("click", () => {
   const name = $("new-name").value.trim();
   if (!name) return;
   if (ROOT.profiles[name]) { $("new-name").value = ""; return; }
+  /* filtro: nada de se passar por administrador nem palavrão no nome */
+  const filtro = nomePermitido(name);
+  if (!filtro.ok) {
+    const aviso = $("login-aviso") || $("new-name");
+    if (aviso && aviso.tagName !== "INPUT") { aviso.textContent = filtro.msg; }
+    else { $("new-name").value = ""; $("new-name").placeholder = filtro.msg; }
+    AudioSys.deny();
+    return;
+  }
   // conta liberada: nasce sem senha e entra na hora
   if (contaSemSenha(name)) {
     ROOT.profiles[name] = defaultSave();
@@ -9751,7 +9887,8 @@ const ABAS_ADM = [
   { id: "equipe",    nome: "👥 EQUIPE",    perms: ["equipe"],
     cartoes: ["adm-equipe"] },
   { id: "sistema",   nome: "🔧 SISTEMA",   perms: ["diag", "backup"],
-    cartoes: ["adm-diag", "adm-local", "adm-todos", "adm-backup"] }
+    cartoes: ["adm-numeros", "adm-erros", "adm-denuncias", "adm-manutencao",
+              "adm-registro", "adm-diag", "adm-local", "adm-todos", "adm-backup"] }
 ];
 let abaAdm = "";
 
@@ -9868,6 +10005,11 @@ function renderSubAcoes() {
 
 /* cada cartão e cada botão só aparece se a permissão estiver ligada */
 const CARTOES_PERM = {
+  "adm-numeros":    "diag",
+  "adm-erros":      "diag",
+  "adm-denuncias":  "verLista",
+  "adm-manutencao": "recados",
+  "adm-registro":   "diag",
   "adm-sug":     "sugVer",
   "adm-equipe":  "equipe",
   "adm-diag":    "diag",
@@ -12188,7 +12330,7 @@ function conversaDesligar() {
 async function conversaEnviar(texto) {
   const eu = meuIdNuvem();
   const alvo = AM.conversaCom;
-  texto = String(texto || "").trim().slice(0, 200);
+  texto = limparTexto(String(texto || "").trim().slice(0, 200));
   if (!eu || !alvo || !texto) return false;
   const sala = salaDaConversa(eu, alvo);
   const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -15658,9 +15800,26 @@ function finalizarDuelo(resultado, oponente) {
   }
   const ganho = resultado === "vitoria" ? 25 + Math.floor((oponente.rank || 0) / 100)
               : resultado === "derrota" ? -12 : 0;
-  save.rank = Math.max(0, (save.rank || 0) + ganho);
+  /* confere o que veio do outro aparelho antes de valer elo */
+  let ganhoFinal = ganho;
+  try {
+    const seg = Math.max(1, (Date.now() - (S.inicioFase || Date.now())) / 1000);
+    const dele = { pontos: oponente.pontos || 0, segundos: seg,
+                   abates: oponente.abates || 0, elo: ganho };
+    const conf = duelaValido({ pontos: S.score, segundos: seg, abates: save.abates || 0, elo: ganho }, dele);
+    if (!conf.ok) {
+      ganhoFinal = 0;
+      anotarSuspeita(oponente.id || "?", oponente.nome || "", conf.dele, dele);
+      S.banner = { text: "PARTIDA NÃO CONTOU", sub: "resultado fora do normal do outro lado", t: 3 };
+    }
+  } catch (e) {}
+  save.rank = Math.max(0, (save.rank || 0) + ganhoFinal);
   if (resultado === "vitoria") save.vitorias = (save.vitorias || 0) + 1;
   if (resultado === "derrota") save.derrotas = (save.derrotas || 0) + 1;
+  try {
+    anotarPartida({ contra: oponente.nome || "Adversário", resultado: resultado,
+                    elo: ganhoFinal, pontos: S.score });
+  } catch (e) {}
   persist();
   nuvemEnviar(true);
   S.mode = "gameover";
@@ -15668,7 +15827,7 @@ function finalizarDuelo(resultado, oponente) {
                               resultado === "derrota" ? "DERROTA" : "EMPATE";
   $("go-title").style.color = resultado === "vitoria" ? "var(--cyan)" : "var(--danger)";
   $("go-record").style.display = "none";
-  $("go-gems").textContent = (ganho >= 0 ? "+" : "") + ganho + " pontos de rank · " +
+  $("go-gems").textContent = (ganhoFinal >= 0 ? "+" : "") + ganhoFinal + " pontos de rank · " +
     nomeDoRank(save.rank);
   $("go-fase").textContent = save.vitorias || 0;
   $("go-score").textContent = S.score;
@@ -15748,6 +15907,7 @@ function rkAtualizarCartao() {
 function abrirRanked() {
   S.mode = "ranked";
   rkAtualizarCartao();
+  try { temporadaRender(); historicoRender(); } catch (e) {}
   $("rk-busca").classList.remove("on");
   showScreen("ranked");
   rkContarFila();
@@ -15828,16 +15988,20 @@ async function rkTentar() {
   const meuRank = save.rank || 0;
   const vivos = Object.keys(fila).filter(id => fila[id] && Date.now() - (fila[id].ts || 0) < 45000);
   FILA.naFila = vivos.length;
+  const espera = (Date.now() - FILA.desde) / 1000;
+  const janela = janelaDeElo(espera);
   const candidatos = vivos
     .filter(id => id !== eu && !fila[id].sala)
+    .filter(id => !estaBloqueado(id))                       // não pareia com quem você bloqueou
+    .filter(id => Math.abs((fila[id].rank || 0) - meuRank) <= janela)
     .sort((a, b) => Math.abs((fila[a].rank || 0) - meuRank) -
                     Math.abs((fila[b].rank || 0) - meuRank));
-  const espera = (Date.now() - FILA.desde) / 1000;
   if (S.mode === "ranked" || S.mode === "multi") {
     const txt = candidatos.length
       ? "Achei alguém! Preparando o duelo…"
       : "Procurando adversário… " + Math.round(espera) + "s" +
-        (vivos.length > 1 ? " · " + vivos.length + " na fila" : " · você é o único na fila agora");
+        (vivos.length > 1 ? " · " + vivos.length + " na fila" : " · você é o único na fila agora") +
+        (janela < 99999 ? " · aceitando até " + janela + " de diferença" : " · aceitando qualquer nível");
     for (const id2 of ["rk-busca-txt", "mrk-busca-txt"]) {
       const el = $(id2); if (el) el.textContent = txt;
     }
@@ -15850,9 +16014,7 @@ async function rkTentar() {
   // só o de id menor cria a sala — assim nunca nascem duas
   const alvo = candidatos[0];
   if (eu > alvo) return;                 // o outro cria; eu espero o código
-  // rank muito diferente: espera um pouco antes de aceitar
-  const dif = Math.abs((fila[alvo].rank || 0) - meuRank);
-  if (dif > 900 && espera < 10) return;
+  /* a janela acima já cuida da diferença de nível */
 
   rkPararBusca(false);
   await mpCriarSala("pvp");
@@ -17142,6 +17304,7 @@ function ajRender() {
       ajChave("aj-luz", "Menos flashes", AJ.menosLuz, "para quem se incomoda com luz piscando") +
       ajChave("aj-fps", "Mostrar quadros por segundo", AJ.fps, "para saber se o celular aguenta") +
     "</div>" +
+    '<div class="card aj-grupo" id="aj-resgate"></div>' +
     '<div class="card aj-grupo"><div class="aj-titulo">📱 DESEMPENHO</div>' +
       '<p class="adm-note">A qualidade do gráfico continua no botão da tela de fases ' +
       "(automático, leve ou bonito). Se o jogo travar, ligue os quadros por segundo aqui " +
@@ -17160,6 +17323,7 @@ function ajRender() {
     });
     el.addEventListener("change", () => { ajSalvar(); AudioSys.gem(); });
   };
+  try { resgateRender(); } catch (e) {}
   barra("aj-mus", "volMus", "%");
   barra("aj-efe", "volEfe", "%");
   barra("aj-sens", "sens", "%");
@@ -17961,6 +18125,67 @@ if (bf) bf.addEventListener("click", () => {
 });
 /* ---- botões da v6.2 ---- */
 $("btn-comparar").addEventListener("click", () => { AudioSys.gem(); navesAbrir(); });
+
+/* ---- painel: números, erros, denúncias, manutenção e registro ---- */
+$("adm-numeros-ler").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "LENDO…";
+  try { admNumerosRender(await admNumeros()); } catch (e) {}
+  b.disabled = false; b.textContent = "ATUALIZAR NÚMEROS";
+});
+$("adm-erros-ler").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "LENDO…";
+  await admErrosCarregar();
+  b.disabled = false; b.textContent = "VER ERROS";
+});
+$("adm-den-ler").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "LENDO…";
+  await admDenunciasRender();
+  b.disabled = false; b.textContent = "VER DENÚNCIAS";
+});
+$("adm-reg-ler").addEventListener("click", async ev => {
+  const b = ev.currentTarget;
+  b.disabled = true; b.textContent = "LENDO…";
+  await admRegistroRender();
+  b.disabled = false; b.textContent = "VER REGISTRO";
+});
+$("manut-ligar").addEventListener("click", async () => {
+  const ok = await manutencaoLigar(true, ($("manut-recado") || {}).value);
+  const el = $("manut-estado");
+  if (el) { el.textContent = ok ? "Manutenção LIGADA para todo mundo." : "Não deu para gravar."; }
+});
+$("manut-desligar").addEventListener("click", async () => {
+  const ok = await manutencaoLigar(false);
+  const el = $("manut-estado");
+  if (el) { el.textContent = ok ? "Manutenção desligada." : "Não deu para gravar."; }
+});
+
+/* ---- recuperar a conta na tela de entrada ---- */
+$("btn-resgatar").addEventListener("click", () => {
+  const cx = $("login-resgate");
+  if (!cx) return;
+  cx.style.display = cx.style.display === "block" ? "none" : "block";
+  if (cx.dataset.pronto) return;
+  cx.dataset.pronto = "1";
+  cx.innerHTML =
+    '<p class="adm-note" style="margin-bottom:8px">Escreva o nome da conta e o código de ' +
+    "recuperação que aparece nos AJUSTES de quem está conectado.</p>" +
+    '<div class="adm-row"><input id="resg-nome" maxlength="14" placeholder="Nome da conta" autocomplete="off"></div>' +
+    '<div class="adm-row" style="margin-top:6px"><input id="resg-cod" maxlength="12" placeholder="XXXX-XXXX" autocomplete="off">' +
+    '<button class="adm-btn gold" id="resg-ir">DESTRAVAR</button></div>' +
+    '<div class="adm-note" id="resg-aviso" style="margin-top:8px"></div>';
+  $("resg-ir").addEventListener("click", async ev => {
+    const b = ev.currentTarget;
+    b.disabled = true; b.textContent = "…";
+    const r = await resgatarConta(($("resg-nome") || {}).value, ($("resg-cod") || {}).value);
+    b.disabled = false; b.textContent = "DESTRAVAR";
+    const av = $("resg-aviso");
+    if (av) { av.textContent = r.msg; av.style.color = r.ok ? "var(--verde)" : "var(--danger)"; }
+    if (r.ok) { try { renderLogin(); } catch (e) {} }
+  });
+});
 /* o botão de emotes abre e fecha a listinha */
 $("emote-abrir").addEventListener("click", ev => {
   ev.stopPropagation();
@@ -17974,7 +18199,7 @@ $("emote-abrir").addEventListener("click", ev => {
     const antigo = amigosRender;
     amigosRender = function () {
       const r = antigo.apply(this, arguments);
-      try { ultimosRender(); } catch (e) {}
+      try { ultimosRender(); bloqueadosRender(); } catch (e) {}
       return r;
     };
   } catch (e) {}
@@ -18851,6 +19076,532 @@ function revancheRender(codigo, modo) {
     b.disabled = true; b.textContent = "ENTRANDO…";
     try { await mpEntrarSala(codigo, modo); } catch (e) {}
   });
+}
+
+
+/* =====================================================================
+   v6.4 — RANQUEADA JUSTA
+   temporadas · pareamento por elo que alarga · anti-trapaça · denunciar
+   e bloquear · filtro de nome e de chat · histórico de partidas
+   ===================================================================== */
+
+/* ---------------------- temporadas ----------------------
+   Cada temporada dura 30 dias, começando sempre no dia 1. No fim, quem
+   passou de Prata leva prêmio e o elo encolhe em vez de zerar.        */
+function temporadaAtual() {
+  const d = new Date();
+  return d.getFullYear() * 100 + (d.getMonth() + 1);
+}
+function temporadaNome(t) {
+  const ano = Math.floor((t || temporadaAtual()) / 100);
+  const mes = (t || temporadaAtual()) % 100;
+  const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
+                 "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  return (MESES[mes - 1] || "") + " de " + ano;
+}
+function diasQueFaltamNaTemporada() {
+  const d = new Date();
+  const fim = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+  return Math.max(0, Math.ceil((fim - d) / 86400000));
+}
+/* chamada quando o jogo abre e quando a ranqueada abre */
+function temporadaConferir() {
+  const t = temporadaAtual();
+  if (!save.temporada) { save.temporada = t; persist(); return null; }
+  if (save.temporada === t) return null;
+  /* virou o mês: guarda o resultado e encolhe o elo */
+  const eloAntes = save.rank || 0;
+  const premio = eloAntes >= 1000 ? 4000 : eloAntes >= 600 ? 2000 : eloAntes >= 250 ? 800 : 0;
+  save.historicoTemporadas = save.historicoTemporadas || [];
+  save.historicoTemporadas.unshift({
+    temporada: save.temporada, elo: eloAntes, rank: nomeDoRank(eloAntes),
+    vitorias: save.vitorias || 0, derrotas: save.derrotas || 0, premio: premio
+  });
+  if (save.historicoTemporadas.length > 12) save.historicoTemporadas.length = 12;
+  /* o elo cai pela metade da distância até o bronze, nunca zera */
+  save.rank = Math.round(eloAntes * 0.45);
+  save.vitorias = 0; save.derrotas = 0;
+  save.crystals += premio;
+  save.temporada = t;
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  return { eloAntes: eloAntes, premio: premio, novoElo: save.rank };
+}
+function temporadaRender() {
+  const cx = $("rk-temporada");
+  if (!cx) return;
+  const r = temporadaConferir();
+  cx.innerHTML =
+    '<div class="temp-topo"><b>TEMPORADA DE ' + temporadaNome().toUpperCase() + "</b>" +
+      "<span>" + diasQueFaltamNaTemporada() + " dias para acabar</span></div>" +
+    '<div class="temp-premios">' +
+      '<span class="temp-p">Prata ◆ 800</span>' +
+      '<span class="temp-p">Ouro ◆ 2.000</span>' +
+      '<span class="temp-p ouro">Platina+ ◆ 4.000</span>' +
+    "</div>" +
+    (r ? '<div class="fund-ok">Temporada passada: ' + escaparTexto(nomeDoRank(r.eloAntes)) +
+         " · prêmio ◆ " + fmt(r.premio) + "</div>" : "") +
+    ((save.historicoTemporadas || []).length
+      ? '<div class="temp-hist">' + save.historicoTemporadas.slice(0, 3).map(h =>
+          "<span>" + escaparTexto(temporadaNome(h.temporada)) + ": " + escaparTexto(h.rank) +
+          " · " + h.vitorias + "V " + h.derrotas + "D</span>").join("") + "</div>"
+      : "");
+}
+
+/* ---------------------- pareamento que alarga ----------------------
+   Começa procurando gente do seu nível e vai aceitando cada vez mais
+   longe, para ninguém ficar preso na fila.                            */
+function janelaDeElo(segundosNaFila) {
+  const s = Math.max(0, segundosNaFila || 0);
+  if (s < 10) return 150;
+  if (s < 25) return 350;
+  if (s < 45) return 700;
+  if (s < 70) return 1400;
+  return 99999;                     // depois de 70s, qualquer um serve
+}
+
+/* ---------------------- anti-trapaça ----------------------
+   O jogo é do lado do jogador, então não dá para confiar em nada que
+   venha de outro aparelho. Isto não resolve tudo: só barra o que é
+   impossível de acontecer jogando de verdade.                        */
+const LIMITES = {
+  pontosPorSegundo: 900,     // acima disso é impossível
+  abatesPorSegundo: 22,
+  faseMinima: 8,             // uma fase não termina em menos que isso
+  eloPorPartida: 60
+};
+function partidaSuspeita(dados) {
+  const d = dados || {};
+  const seg = Math.max(1, d.segundos || 0);
+  const motivos = [];
+  if ((d.pontos || 0) / seg > LIMITES.pontosPorSegundo) motivos.push("pontos rápidos demais");
+  if ((d.abates || 0) / seg > LIMITES.abatesPorSegundo) motivos.push("abates rápidos demais");
+  if (d.fase && seg < LIMITES.faseMinima) motivos.push("fase terminada rápido demais");
+  if (Math.abs(d.elo || 0) > LIMITES.eloPorPartida) motivos.push("variação de elo fora do normal");
+  return motivos;
+}
+/* guarda a suspeita para o painel, sem acusar ninguém na cara */
+async function anotarSuspeita(idJogador, nome, motivos, dados) {
+  try {
+    await nuvemSoltar("suspeitas/" + idJogador + "/" + Date.now().toString(36), {
+      nome: nome || "", motivos: motivos.join(", "), quando: Date.now(),
+      pontos: dados.pontos || 0, segundos: dados.segundos || 0, abates: dados.abates || 0
+    });
+  } catch (e) {}
+}
+/* confere o resultado do duelo antes de valer elo */
+function duelaValido(meuResumo, doOutro) {
+  const m = partidaSuspeita(meuResumo);
+  const o = partidaSuspeita(doOutro);
+  return { ok: !o.length, meus: m, dele: o };
+}
+
+/* ---------------------- denunciar e bloquear ---------------------- */
+async function denunciar(idJogador, nome, motivo) {
+  if (!idJogador) return { ok: false, msg: "Não achei essa pessoa." };
+  try {
+    await nuvemSoltar("denuncias/" + idJogador + "/" + Date.now().toString(36), {
+      de: save.__name || "", nome: nome || "", motivo: motivo || "sem motivo",
+      quando: Date.now()
+    });
+    save.denunciei = save.denunciei || [];
+    if (save.denunciei.indexOf(idJogador) < 0) save.denunciei.push(idJogador);
+    persist();
+    return { ok: true, msg: "Denúncia enviada. O desenvolvedor vai olhar." };
+  } catch (e) {
+    return { ok: false, msg: "Não deu para enviar agora." };
+  }
+}
+function bloquear(idJogador, nome) {
+  save.bloqueados = save.bloqueados || {};
+  save.bloqueados[idJogador] = { nome: nome || "", quando: Date.now() };
+  persist();
+  return true;
+}
+function desbloquear(idJogador) {
+  if (save.bloqueados) delete save.bloqueados[idJogador];
+  persist();
+}
+function estaBloqueado(idJogador) {
+  return !!(save.bloqueados || {})[idJogador];
+}
+function bloqueadosRender() {
+  const cx = $("amigos-bloqueados");
+  if (!cx) return;
+  const b = save.bloqueados || {};
+  const ids = Object.keys(b);
+  if (!ids.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.innerHTML =
+    '<div class="aj-titulo">🚫 BLOQUEADOS</div>' +
+    ids.map(id => '<div class="ult-linha"><b>' + escaparTexto(b[id].nome || id) + "</b>" +
+      '<button class="mis-btn" data-desbl="' + escaparTexto(id) + '">DESBLOQUEAR</button></div>').join("");
+  cx.querySelectorAll("[data-desbl]").forEach(x =>
+    x.addEventListener("click", () => { desbloquear(x.getAttribute("data-desbl")); bloqueadosRender(); }));
+}
+
+/* ---------------------- filtro de nome e de chat ----------------------
+   Não é censura: é o mínimo para ninguém se passar por administrador
+   nem escrever as piores palavras no chat que aparece para crianças.  */
+const PALAVRAS_BARRADAS = [
+  "adm", "admin", "administrador", "moderador", "staff", "suporte", "oficial",
+  "neonnebula", "cr1cket"
+];
+const XINGAMENTOS = [
+  "porra", "caralho", "puta", "merda", "viado", "viadinho", "corno", "buceta",
+  "cu", "fdp", "arrombado", "otario", "otário", "retardado", "macaco", "preto nojento",
+  "vagabunda", "piranha", "krl", "pqp", "vsf", "cuzao", "cuzão"
+];
+function textoSimples(t) {
+  return String(t || "").toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+function nomePermitido(nome) {
+  const simples = textoSimples(nome);
+  if (!simples) return { ok: false, msg: "Escolha um nome com letras." };
+  if (simples.length < 2) return { ok: false, msg: "Nome curto demais." };
+  for (const p of PALAVRAS_BARRADAS) {
+    if (simples.indexOf(p) >= 0 && !contaDeDono(nome)) {
+      return { ok: false, msg: "Esse nome parece de administrador. Escolha outro." };
+    }
+  }
+  for (const x of XINGAMENTOS) {
+    if (simples.indexOf(textoSimples(x)) >= 0) {
+      return { ok: false, msg: "Esse nome tem palavrão. Escolha outro." };
+    }
+  }
+  return { ok: true };
+}
+/* no chat não recusa a mensagem: troca a palavra por •••, que incomoda
+   menos e não deixa a conversa travada */
+function limparTexto(t) {
+  let saida = String(t || "");
+  for (const x of XINGAMENTOS) {
+    const re = new RegExp(x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    saida = saida.replace(re, "•".repeat(Math.min(6, x.length)));
+  }
+  return saida;
+}
+
+/* ---------------------- histórico de partidas ---------------------- */
+function anotarPartida(res) {
+  save.historico = save.historico || [];
+  save.historico.unshift({
+    quando: Date.now(),
+    contra: res.contra || "?",
+    resultado: res.resultado || "",
+    elo: res.elo || 0,
+    pontos: res.pontos || 0
+  });
+  if (save.historico.length > 30) save.historico.length = 30;
+  persist();
+}
+function historicoRender() {
+  const cx = $("rk-historico");
+  if (!cx) return;
+  const h = save.historico || [];
+  if (!h.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  const v = h.filter(x => x.resultado === "vitoria").length;
+  cx.innerHTML =
+    '<div class="aj-titulo">📜 SUAS ÚLTIMAS PARTIDAS</div>' +
+    '<div class="hist-resumo">' + v + "V · " + (h.length - v) + "D nas últimas " + h.length + "</div>" +
+    h.slice(0, 10).map(x =>
+      '<div class="hist-linha ' + escaparTexto(x.resultado) + '">' +
+        "<b>" + (x.resultado === "vitoria" ? "VITÓRIA" : x.resultado === "derrota" ? "DERROTA" : "EMPATE") + "</b>" +
+        "<span>vs " + escaparTexto(x.contra) + "</span>" +
+        "<em>" + (x.elo >= 0 ? "+" : "") + x.elo + "</em>" +
+      "</div>").join("");
+}
+
+
+/* =====================================================================
+   v6.5 — CONTA E OPERAÇÃO
+   recuperar conta · relatório de erros · números do jogo · denúncias no
+   painel · modo manutenção · registro do que cada admin fez
+   ===================================================================== */
+
+/* ---------------------- recuperar a conta ----------------------
+   A senha é um desenho; se a pessoa esquecer, antes não havia saída.
+   Agora cada conta ganha um código de 8 letras, guardado no aparelho e
+   na nuvem, que destrava o desenho de novo.                          */
+function codigoNovo() {
+  const letras = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // sem I, O, 0, 1
+  let c = "";
+  for (let i = 0; i < 8; i++) c += letras[Math.floor(Math.random() * letras.length)];
+  return c.slice(0, 4) + "-" + c.slice(4);
+}
+function meuCodigoDeResgate() {
+  if (!save.resgate) {
+    save.resgate = codigoNovo();
+    persist();
+    /* guarda também na nuvem, para valer de outro aparelho */
+    try {
+      const eu = meuIdNuvem();
+      if (eu) nuvemJuntar("pilotos/" + eu, { resgate: save.resgate });
+    } catch (e) {}
+  }
+  return save.resgate;
+}
+async function resgatarConta(nome, codigo) {
+  nome = String(nome || "").trim();
+  codigo = String(codigo || "").trim().toUpperCase();
+  if (!nome || !codigo) return { ok: false, msg: "Escreva o nome e o código." };
+  /* 1) conta que está neste aparelho */
+  const local = ROOT.profiles[nome];
+  if (local && local.resgate && local.resgate.toUpperCase() === codigo) {
+    local.senha = null;
+    persist();
+    return { ok: true, msg: "Senha apagada. Entre e desenhe uma nova." };
+  }
+  /* 2) conta que está na nuvem */
+  try {
+    const achado = await acharPiloto(nome);
+    if (achado && achado.p && achado.p.resgate &&
+        String(achado.p.resgate).toUpperCase() === codigo) {
+      if (local) { local.senha = null; persist(); return { ok: true, msg: "Senha apagada. Entre e desenhe uma nova." }; }
+      return { ok: true, msg: "Código certo! Entre com esse nome neste aparelho para recuperar." };
+    }
+  } catch (e) {}
+  return { ok: false, msg: "Nome ou código não conferem." };
+}
+function resgateRender() {
+  const cx = $("aj-resgate");
+  if (!cx) return;
+  cx.innerHTML =
+    '<div class="aj-titulo">🔑 CÓDIGO DE RECUPERAÇÃO</div>' +
+    '<p class="adm-note" style="margin-bottom:10px">Se um dia você esquecer o desenho da senha, ' +
+    "é este código que devolve a sua conta. Anote num lugar seguro — ele é só seu.</p>" +
+    '<div class="conv-cartao"><b id="resgate-cod">' + escaparTexto(meuCodigoDeResgate()) + "</b>" +
+      '<button class="pag-copiar" id="resgate-copiar">COPIAR CÓDIGO</button></div>';
+  const b = $("resgate-copiar");
+  if (b) b.addEventListener("click", async ev => {
+    try {
+      await navigator.clipboard.writeText("Neon Nebula — conta " + (save.__name || "") +
+        " — código de recuperação " + meuCodigoDeResgate());
+      ev.currentTarget.textContent = "✓ COPIADO";
+    } catch (e) { ev.currentTarget.textContent = meuCodigoDeResgate(); }
+  });
+}
+
+/* ---------------------- relatório de erros ----------------------
+   O erro que estourava no celular do jogador morria lá. Agora ele sobe
+   para a nuvem (sem nada pessoal) e aparece no painel.                */
+async function mandarErroParaONuvem(texto, origem) {
+  try {
+    if (!nuvemAtiva()) return;
+    const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    await nuvemSoltar("erros/" + chave, {
+      msg: String(texto || "").slice(0, 300),
+      origem: String(origem || "").slice(0, 120),
+      versao: typeof VERSAO !== "undefined" ? VERSAO : "?",
+      tela: S.mode || "?",
+      fase: S.fase || 0,
+      nome: (save && save.__name) || "",
+      aparelho: (navigator.userAgent || "").slice(0, 120),
+      quando: Date.now()
+    });
+  } catch (e) {}
+}
+let admErros = {};
+async function admErrosCarregar() {
+  admErros = (await nuvemReq("erros")) || {};
+  admErrosRender();
+}
+function admErrosRender() {
+  const cx = $("adm-erros-lista");
+  if (!cx) return;
+  const chaves = Object.keys(admErros).sort((a, b) =>
+    (admErros[b].quando || 0) - (admErros[a].quando || 0));
+  if (!chaves.length) {
+    cx.innerHTML = '<div class="adm-note">Nenhum erro reportado. Boa notícia.</div>';
+    return;
+  }
+  /* agrupa por mensagem: 20 vezes o mesmo erro é UM problema */
+  const grupos = {};
+  for (const k of chaves) {
+    const e = admErros[k];
+    const chave = (e.msg || "").slice(0, 80);
+    if (!grupos[chave]) grupos[chave] = { n: 0, ex: e, versoes: {} };
+    grupos[chave].n++;
+    grupos[chave].versoes[e.versao || "?"] = true;
+  }
+  cx.innerHTML = Object.keys(grupos).slice(0, 20).map(g => {
+    const x = grupos[g];
+    return '<div class="err-linha"><div class="err-topo"><b>' + escaparTexto(g) + "</b>" +
+      '<em class="err-n">' + x.n + "×</em></div>" +
+      '<div class="err-meta">' + escaparTexto(x.ex.origem || "") + " · versão " +
+      Object.keys(x.versoes).join(", ") + " · tela " + escaparTexto(x.ex.tela || "?") +
+      (x.ex.nome ? " · " + escaparTexto(x.ex.nome) : "") + "</div></div>";
+  }).join("") +
+  '<button class="adm-btn danger wide" id="adm-erros-limpar" style="margin-top:10px">APAGAR TUDO</button>';
+  const b = $("adm-erros-limpar");
+  if (b) b.addEventListener("click", async () => {
+    await nuvemReq("erros", { method: "DELETE" });
+    admErros = {};
+    admErrosRender();
+  });
+}
+
+/* ---------------------- números do jogo ----------------------
+   Sem isto, toda decisão nossa sobre o jogo é palpite.               */
+async function admNumeros() {
+  const pilotos = (await nuvemReq("pilotos")) || {};
+  const ids = Object.keys(pilotos);
+  const agora = Date.now();
+  const hoje = ids.filter(id => agora - ((pilotos[id] || {}).quando || 0) < 86400000);
+  const semana = ids.filter(id => agora - ((pilotos[id] || {}).quando || 0) < 7 * 86400000);
+  /* onde as pessoas param */
+  const faixas = { "1-10": 0, "11-30": 0, "31-60": 0, "61-120": 0, "121-270": 0 };
+  let somaFase = 0, comFase = 0, somaTempo = 0, comTempo = 0;
+  for (const id of ids) {
+    const p = pilotos[id] || {};
+    const f = p.fase || p.best || 0;
+    if (f > 0) {
+      comFase++; somaFase += f;
+      if (f <= 10) faixas["1-10"]++;
+      else if (f <= 30) faixas["11-30"]++;
+      else if (f <= 60) faixas["31-60"]++;
+      else if (f <= 120) faixas["61-120"]++;
+      else faixas["121-270"]++;
+    }
+    if (p.tempo) { comTempo++; somaTempo += p.tempo; }
+  }
+  /* versões */
+  const versoes = {};
+  for (const id of ids) {
+    const v = (pilotos[id] || {}).versao || "?";
+    versoes[v] = (versoes[v] || 0) + 1;
+  }
+  return {
+    total: ids.length, hoje: hoje.length, semana: semana.length,
+    faseMedia: comFase ? Math.round(somaFase / comFase) : 0,
+    tempoMedio: comTempo ? Math.round(somaTempo / comTempo) : 0,
+    faixas: faixas, versoes: versoes
+  };
+}
+function admNumerosRender(n) {
+  const cx = $("adm-numeros-corpo");
+  if (!cx) return;
+  const maior = Math.max(1, ...Object.keys(n.faixas).map(k => n.faixas[k]));
+  cx.innerHTML =
+    '<div class="perf-grade">' +
+      '<div class="perf-cx"><b>' + fmt(n.total) + "</b><span>PILOTOS</span></div>" +
+      '<div class="perf-cx ouro"><b>' + fmt(n.hoje) + "</b><span>HOJE</span></div>" +
+      '<div class="perf-cx rosa"><b>' + fmt(n.semana) + "</b><span>NA SEMANA</span></div>" +
+      '<div class="perf-cx"><b>' + n.faseMedia + "</b><span>FASE MÉDIA</span></div>" +
+      '<div class="perf-cx"><b>' + Math.round(n.tempoMedio / 60) + "min</b><span>TEMPO MÉDIO</span></div>" +
+      '<div class="perf-cx"><b>' + Object.keys(n.versoes).length + "</b><span>VERSÕES</span></div>" +
+    "</div>" +
+    '<div class="aj-titulo" style="margin-top:14px">ONDE AS PESSOAS ESTÃO</div>' +
+    Object.keys(n.faixas).map(k =>
+      '<div class="num-linha"><span>fase ' + k + "</span>" +
+      '<div class="num-barra"><i style="width:' + Math.round(n.faixas[k] / maior * 100) + '%"></i></div>' +
+      "<b>" + n.faixas[k] + "</b></div>").join("") +
+    '<div class="aj-titulo" style="margin-top:14px">VERSÕES EM USO</div>' +
+    Object.keys(n.versoes).sort().map(v =>
+      '<div class="num-linha"><span>' + escaparTexto(v) + "</span>" +
+      '<div class="num-barra"><i style="width:' + Math.round(n.versoes[v] / Math.max(1, n.total) * 100) +
+      '%"></i></div><b>' + n.versoes[v] + "</b></div>").join("");
+}
+
+/* ---------------------- denúncias e suspeitas no painel ---------------------- */
+async function admDenunciasRender() {
+  const cx = $("adm-denuncias-lista");
+  if (!cx) return;
+  const den = (await nuvemReq("denuncias")) || {};
+  const sus = (await nuvemReq("suspeitas")) || {};
+  const linhas = [];
+  for (const id in den) {
+    for (const k in den[id]) {
+      const d = den[id][k];
+      linhas.push({ tipo: "denuncia", id: id, nome: d.nome || id, de: d.de || "",
+                    txt: d.motivo || "", quando: d.quando || 0 });
+    }
+  }
+  for (const id in sus) {
+    for (const k in sus[id]) {
+      const d = sus[id][k];
+      linhas.push({ tipo: "suspeita", id: id, nome: d.nome || id, de: "o jogo",
+                    txt: d.motivos || "", quando: d.quando || 0 });
+    }
+  }
+  linhas.sort((a, b) => b.quando - a.quando);
+  if (!linhas.length) {
+    cx.innerHTML = '<div class="adm-note">Nada por aqui. Ninguém denunciado e nada suspeito.</div>';
+    return;
+  }
+  cx.innerHTML = linhas.slice(0, 30).map(l =>
+    '<div class="err-linha ' + l.tipo + '"><div class="err-topo">' +
+      "<b>" + escaparTexto(l.nome) + "</b>" +
+      '<em class="err-n">' + (l.tipo === "denuncia" ? "denúncia" : "suspeita") + "</em></div>" +
+    '<div class="err-meta">' + escaparTexto(l.txt) +
+      (l.de ? " · por " + escaparTexto(l.de) : "") + " · " + quandoTexto(l.quando) + "</div></div>").join("") +
+  '<button class="adm-btn danger wide" id="adm-den-limpar" style="margin-top:10px">LIMPAR TUDO</button>';
+  const b = $("adm-den-limpar");
+  if (b) b.addEventListener("click", async () => {
+    await nuvemReq("denuncias", { method: "DELETE" });
+    await nuvemReq("suspeitas", { method: "DELETE" });
+    admDenunciasRender();
+  });
+}
+function quandoTexto(t) {
+  if (!t) return "";
+  const min = Math.floor((Date.now() - t) / 60000);
+  if (min < 1) return "agora";
+  if (min < 60) return min + " min atrás";
+  const h = Math.floor(min / 60);
+  if (h < 24) return h + "h atrás";
+  return Math.floor(h / 24) + " dias atrás";
+}
+
+/* ---------------------- modo manutenção ---------------------- */
+async function manutencaoLigar(ligado, recado) {
+  const ok = await nuvemSoltar("mundo/manutencao", ligado
+    ? { ligado: true, recado: recado || "Estamos arrumando uma coisa. Volte em alguns minutos.",
+        quando: Date.now() }
+    : { ligado: false });
+  admRegistrar(ligado ? "ligou a manutenção" : "desligou a manutenção");
+  return ok !== null;
+}
+function manutencaoAplicar(m) {
+  const el = $("manut-tela");
+  if (!el) return;
+  const ligado = !!(m && m.ligado) && !contaDeDono(save && save.__name);
+  el.className = ligado ? "on" : "";
+  if (ligado) {
+    el.innerHTML = '<div class="manut-dentro"><div class="manut-ic">🛠</div>' +
+      "<b>O jogo está em manutenção</b><span>" +
+      escaparTexto((m && m.recado) || "Volte em alguns minutos.") + "</span>" +
+      '<button class="ghost-btn" id="manut-tentar">TENTAR DE NOVO</button></div>';
+    const b = $("manut-tentar");
+    if (b) b.addEventListener("click", () => location.reload());
+  }
+}
+
+/* ---------------------- registro do que cada admin fez ---------------------- */
+async function admRegistrar(oque) {
+  try {
+    const quem = (PERM && PERM.nick) || (save && save.__name) || "?";
+    await nuvemSoltar("registro/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), {
+      quem: quem, oque: String(oque || "").slice(0, 160), quando: Date.now()
+    });
+  } catch (e) {}
+}
+async function admRegistroRender() {
+  const cx = $("adm-registro-lista");
+  if (!cx) return;
+  const r = (await nuvemReq("registro")) || {};
+  const linhas = Object.keys(r).map(k => r[k]).sort((a, b) => (b.quando || 0) - (a.quando || 0));
+  if (!linhas.length) {
+    cx.innerHTML = '<div class="adm-note">Nada registrado ainda.</div>';
+    return;
+  }
+  cx.innerHTML = linhas.slice(0, 40).map(l =>
+    '<div class="reg-linha"><b>' + escaparTexto(l.quem || "?") + "</b>" +
+    "<span>" + escaparTexto(l.oque || "") + "</span>" +
+    "<em>" + quandoTexto(l.quando) + "</em></div>").join("");
 }
 
 
@@ -24231,6 +24982,7 @@ function mostrarErro(msg, origem) {
   ].join("\n");
   $("erro-msg").textContent = info;
   box.classList.add("on");
+  try { mandarErroParaONuvem(msg, origem); } catch (e) {}
   try { if (S.mode === "playing") togglePause(); } catch (e) {}
 }
 window.addEventListener("error", ev => {
@@ -24261,6 +25013,19 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.4", itens: [
+      "TEMPORADAS NA RANQUEADA: cada mês é uma temporada. No fim, quem passou de Prata leva prêmio em cristais (800, 2.000 ou 4.000) e o elo encolhe para 45% em vez de zerar. O histórico das temporadas fica guardado",
+      "FILA QUE ALARGA: a ranqueada começa procurando gente do seu nível e vai aceitando cada vez mais longe (150 → 350 → 700 → 1400 → qualquer um depois de 70s), para ninguém ficar preso esperando",
+      "ANTI-TRAPAÇA: o jogo confere o resultado que veio do outro aparelho e, se for impossível (pontos ou abates rápidos demais, fase curta demais, elo fora do normal), a partida não conta e a suspeita vai para o painel",
+      "DENUNCIAR E BLOQUEAR jogador: a denúncia cai no painel e quem você bloqueia não aparece mais na sua fila",
+      "FILTRO DE NOME: ninguém mais consegue se chamar “Admin”, “Moderador” ou usar palavrão no nome. No chat, o palavrão vira ••• em vez de travar a conversa",
+      "HISTÓRICO DAS PARTIDAS: as últimas 30 ranqueadas, com quem, resultado e quanto de elo",
+      "CÓDIGO DE RECUPERAÇÃO: esqueceu o desenho da senha? Nos AJUSTES tem um código de 8 letras que destrava a conta, e na tela de entrada tem o botão ESQUECI O DESENHO DA SENHA",
+      "PAINEL — NÚMEROS DO JOGO: quantos pilotos existem, quantos vieram hoje e na semana, a fase média, onde a maioria parou e quem ainda está na versão velha",
+      "PAINEL — ERROS DOS JOGADORES: quando o jogo quebra no celular de alguém, o erro sobe (sem nada pessoal) e aparece agrupado por mensagem",
+      "PAINEL — MANUTENÇÃO: um botão tira todo mundo do jogo com um recado, menos você, para publicar coisa grande em paz",
+      "PAINEL — O QUE A EQUIPE FEZ: cada ação importante fica anotada com o nick de quem fez"
+    ] },
   { v: "6.3", itens: [
       "REGRAS MALUCAS: toda fase terminada em 5 tem uma regra diferente — GRAVIDADE, APAGÃO (só enxerga perto da nave), TURBO, VIDRO (um toque e acabou, mas paga o dobro), ENXAME, CHUMBO, REBOTE e CINTURÃO. A regra é sempre a mesma para a mesma fase, e paga de 30% a 100% a mais",
       "ASTEROIDES: pedras que dá para quebrar a tiro, bloqueiam o seu tiro e as grandes soltam cristal",
@@ -24596,7 +25361,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.3";
+const VERSAO = "6.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
