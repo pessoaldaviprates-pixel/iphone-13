@@ -3830,6 +3830,92 @@
 
   #pular-caixa{margin-top:10px}
 
+  /* ---------- v6.3: regras malucas ---------- */
+  body.escuro #game::after,
+  body.escuro #lanterna{display:block}
+  #lanterna{
+    position:fixed;inset:0;z-index:4;pointer-events:none;display:none;
+    background:radial-gradient(circle var(--lanterna-r,150px) at var(--lanterna-x,50%) var(--lanterna-y,70%),
+      transparent 0%, transparent 60%, rgba(2,4,10,.97) 100%);
+  }
+
+  /* ---------- v6.4: multijogador ---------- */
+  #recon-faixa{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(52px + var(--safe-top));z-index:48;display:none;
+    padding:8px 15px;border-radius:12px;font-size:.66rem;letter-spacing:.03em;
+    background:rgba(28,14,6,.96);border:1px solid var(--amber);color:var(--amber);
+    box-shadow:var(--som-2);max-width:92vw;text-align:center;
+  }
+  #recon-faixa.on{display:block}
+  #recon-faixa.ruim{background:rgba(34,8,8,.96);border-color:var(--danger);color:var(--danger)}
+  #recon-faixa.bom{background:rgba(6,28,20,.96);border-color:var(--verde);color:var(--verde)}
+
+  #mp-ping{
+    position:fixed;right:12px;top:calc(52px + var(--safe-top));z-index:20;display:none;
+    font-size:.54rem;letter-spacing:.06em;padding:3px 8px;border-radius:8px;
+    background:rgba(4,8,20,.65);color:var(--verde);pointer-events:none;
+  }
+  #mp-ping.on{display:block}
+  #mp-ping.meio{color:var(--amber)}
+  #mp-ping.ruim{color:var(--danger)}
+
+  #reviver-aviso{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(210px + var(--safe-bot));z-index:11;display:none;
+    width:min(88vw,320px);padding:11px 14px;border-radius:var(--r-lg);text-align:center;
+    background:rgba(6,26,20,.95);border:1px solid var(--verde);box-shadow:var(--som-2);
+  }
+  #reviver-aviso.on{display:block}
+  #reviver-aviso.longe{background:rgba(28,8,14,.95);border-color:var(--magenta)}
+  #reviver-aviso b{display:block;font-size:.72rem;letter-spacing:.1em;color:var(--verde)}
+  #reviver-aviso.longe b{color:var(--magenta)}
+  #reviver-aviso span{display:block;font-size:.58rem;color:var(--dim);margin-top:3px}
+  .rev-barra{height:5px;border-radius:99px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
+  .rev-barra i{display:block;height:100%;background:var(--verde);transition:width .1s linear}
+
+  #emote-bolhas{
+    position:fixed;left:0;right:0;bottom:calc(270px + var(--safe-bot));z-index:12;
+    display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;
+  }
+  .emote-bolha{
+    font-size:1.8rem;animation:emoteSobe 2.6s ease-out forwards;
+  }
+  .emote-bolha.meu{opacity:.85}
+  @keyframes emoteSobe{
+    0%{opacity:0;transform:translateY(14px) scale(.6)}
+    18%{opacity:1;transform:translateY(0) scale(1.1)}
+    30%{transform:scale(1)}
+    80%{opacity:1}
+    100%{opacity:0;transform:translateY(-30px)}
+  }
+  #emote-caixa{
+    position:fixed;left:12px;bottom:calc(150px + var(--safe-bot));z-index:13;display:none;
+  }
+  #emote-caixa.on{display:block}
+  #emote-abrir{
+    width:40px;height:40px;border-radius:14px;font-size:1.1rem;
+    background:rgba(6,11,26,.7);border:1px solid var(--line);color:var(--ink2);
+  }
+  #emote-btns{
+    display:none;flex-direction:column;gap:5px;margin-bottom:6px;
+  }
+  #emote-caixa.aberto #emote-btns{display:flex}
+  .emote-b{
+    width:40px;height:40px;border-radius:13px;font-size:1.15rem;
+    background:rgba(6,11,26,.82);border:1px solid var(--line2);
+  }
+  body.canhoto #emote-caixa{left:auto;right:12px}
+
+  .ult-linha{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 11px;border-radius:var(--r-md);margin-bottom:6px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .ult-linha b{font-size:.7rem;font-weight:500}
+  #revanche-caixa{display:none;margin-top:10px}
+  #revanche-caixa.on{display:block}
+
 </style>
 </head>
 <body>
@@ -3856,6 +3942,12 @@
   </div>
   <div id="fps-conta" style="display:none">60 fps</div>
   <div id="doeu"></div>
+  <div id="lanterna"></div>
+  <div id="recon-faixa"></div>
+  <div id="mp-ping"></div>
+  <div id="reviver-aviso"></div>
+  <div id="emote-bolhas"></div>
+  <div id="emote-caixa"><button id="emote-abrir">☺</button><div id="emote-btns"></div></div>
   <div id="fase-cartao"></div>
   <div id="tuto-caixa"></div>
   <div id="combo-hud"></div>
@@ -4602,6 +4694,7 @@
     <div class="menu-grade online" id="menu-online">
       <button class="tile verde wide" id="btn-multi"><b>🤝</b><span>JOGAR COM AMIGO</span><i id="multi-badge">jornada em dupla · duelo · ranqueada</i></button>
       <button class="tile roxo" id="btn-arena"><b>∞</b><span>ARENA INFINITA</span><i id="arena-badge"></i></button>
+      <button class="tile magenta" id="btn-bossrush"><b>☠</b><span>MARATONA DE CHEFES</span><i id="br-rec"></i></button>
       <button class="tile magenta" id="btn-ranked"><b>⚔</b><span>RANQUEADA</span><i id="ranked-badge"></i></button>
       <button class="tile" id="btn-amigos"><b>👥</b><span>AMIGOS</span><i id="amigos-badge"></i><span class="selo" id="amigos-selo" style="display:none"></span></button>
       <button class="tile" id="btn-rank"><b>🏆</b><span>RANKING</span><i></i></button>
@@ -4686,7 +4779,7 @@
     <div class="page-gems" id="am-conta"></div>
   </div>
   <div class="abas" id="am-abas"></div>
-  <div class="scroll" id="am-corpo"></div>
+  <div class="scroll"><div id="amigos-ultimos" style="display:none"></div><div id="am-corpo"></div></div>
 </div>
 
 <!-- CONVERSA -->
@@ -5308,6 +5401,7 @@
     </div>
     <button class="big-btn rosa" id="btn-retry" style="width:100%">↻ TENTAR DE NOVO</button>
     <div id="pular-caixa" style="display:none"></div>
+    <div id="revanche-caixa"></div>
     <div class="fim-linha">
       <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
       <button class="ghost-btn" id="btn-go-menu">MENU</button>
@@ -5598,6 +5692,8 @@ function defaultSave() {
     conjuntos: [null, null, null],  // três conjuntos de nave + relíquias
     bauHist: [],             // o que saiu dos últimos baús
     prestigio: 0,            // quantas vezes já terminou as 270 fases
+    bossRushRec: 0,          // recorde na maratona de chefes
+    ultimos: [],             // últimos parceiros de partida
     abates: 0, tiros: 0, acertos: 0, chefes: 0, mortes: 0, partidas: 0,
     fasesPerfeitas: 0, melhorCombo: 0, coopFases: 0, missoesFeitas: 0, maiorSeq: 0,
     tutorialFeito: false,    // já viu o tutorial da primeira fase
@@ -8317,7 +8413,11 @@ function checarPresentesPeriodicamente() {
 setInterval(checarPresentesPeriodicamente, 6000);
 
 function refreshMenu() {
-  try { diariaRender(); misBadge(); conqBadge(); faltaRender(); } catch (e) {}
+  try {
+    diariaRender(); misBadge(); conqBadge(); faltaRender();
+    const br = $("br-rec");
+    if (br) { br.textContent = save.bossRushRec ? fmt(save.bossRushRec) : ""; br.className = save.bossRushRec ? "on" : ""; }
+  } catch (e) {}
   const h = $("menu-hello");
   h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
   document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
@@ -14752,6 +14852,7 @@ async function mpLerJogadores() {
   try {
     const js = await nuvemReq(mpCaminho() + "/p");
     if (js) {
+      MP.ultimoOk = Date.now();
       for (const id in js) {
         if (id === MP.eu) continue;
         const d = mpDesempacotar(js[id]);
@@ -15225,6 +15326,7 @@ function p2pEnviar(txt, firme) {
 function p2pReceber(txt) {
   if (typeof txt !== "string" || !txt.length) return;
   P2P.recebidos++;
+  MP.ultimoOk = Date.now();
   const tipo = txt[0], corpo = txt.slice(1);
   if (tipo === "e") {                       // estado do outro piloto
     const d = mpDesempacotar(corpo);
@@ -15237,11 +15339,19 @@ function p2pReceber(txt) {
     if (d.abates && d.abates.length && MP.modo !== "pvp") mpAplicarAbates(d.abates);
     // se o pacote diz que ele caiu, o duelo termina na hora
     if (MP.modo === "pvp" && (d.vivo === false || d.hp <= 0)) mpChecarFimDuelo();
+    /* no cooperativo, marca a hora da queda para o parceiro poder reviver */
+    const alvo = MP.outros[id];
+    if (alvo && d.vivo === false && !alvo.caiuEm) alvo.caiuEm = Date.now();
+    if (alvo && d.vivo !== false) alvo.caiuEm = 0;
     mpAtualizarPlacar();
   } else if (tipo === "x") {                // poder do outro (ult/habilidade)
     const id = P2P.parceiro || "p2p";
     if (!MP.outros[id]) MP.outros[id] = {};
     mpPoderRecebido(MP.outros[id], corpo);
+  } else if (tipo === "m") {                // emote do parceiro
+    emoteRecebido(corpo);
+  } else if (tipo === "v") {                // o parceiro me levantou
+    fuiRevivido();
   } else if (tipo === "k") {                // abates, na hora
     if (MP.modo !== "pvp") mpAplicarAbates(corpo.split("|"));
   } else if (tipo === "w") {                // onda e fase do anfitrião
@@ -15563,10 +15673,19 @@ function finalizarDuelo(resultado, oponente) {
   $("go-fase").textContent = save.vitorias || 0;
   $("go-score").textContent = S.score;
   showScreen("over");
+  try { revancheRender(MP.sala, MP.modo); } catch (e) {}
   // segura o registro por alguns segundos para o adversário conseguir ler o fim
   mpSair(false, true);
 }
 async function mpSair(voltarMenu, atraso) {
+  try {
+    const o = mpOutroPrincipal();
+    if (o && o.nome) anotarParceiro(o.nome, o.tag);
+    if (MP.sala) S.ultimaSala = { codigo: MP.sala, modo: MP.modo };
+  } catch (e) {}
+  reconParar();
+  emotesVisiveis(false);
+  reconMostrar(null);
   if (MP.sala) {
     const caminho = mpCaminho() + "/jogadores/" + MP.eu;
     const movel = mpCaminho() + "/p/" + MP.eu;
@@ -17842,6 +17961,60 @@ if (bf) bf.addEventListener("click", () => {
 });
 /* ---- botões da v6.2 ---- */
 $("btn-comparar").addEventListener("click", () => { AudioSys.gem(); navesAbrir(); });
+/* o botão de emotes abre e fecha a listinha */
+$("emote-abrir").addEventListener("click", ev => {
+  ev.stopPropagation();
+  const cx = $("emote-caixa");
+  cx.classList.toggle("aberto");
+  emotesRender();
+});
+/* últimos parceiros, na tela de amigos */
+(function () {
+  try {
+    const antigo = amigosRender;
+    amigosRender = function () {
+      const r = antigo.apply(this, arguments);
+      try { ultimosRender(); } catch (e) {}
+      return r;
+    };
+  } catch (e) {}
+})();
+/* se abriu o jogo por um link de sala, entra direto */
+async function entrarPeloLink() {
+  const l = salaDoLink();
+  if (!l || !l.codigo) return;
+  try {
+    alertaMenu("Entrando na sala " + l.codigo + "…");
+    await mpEntrarSala(l.codigo, l.modo);
+  } catch (e) {}
+}
+$("btn-bossrush").addEventListener("click", () => {
+  AudioSys.resume();
+  if ((save.best || 0) < 10) {
+    S.banner = null;
+    alertaMenu("Chegue à fase 10 para abrir a maratona de chefes.");
+    return;
+  }
+  bossRushComecar();
+});
+/* um recado curto no menu, sem travar nada */
+function alertaMenu(txt) {
+  const el = $("cloud-status");
+  if (!el) return;
+  el.textContent = txt;
+  el.style.color = "var(--amber)";
+  clearTimeout(alertaMenu._t);
+  alertaMenu._t = setTimeout(() => { el.textContent = ""; }, 4000);
+}
+/* a lanterna do APAGÃO segue a nave */
+function lanternaSeguir() {
+  if (!regraAtiva("escuro")) return;
+  const el = $("lanterna");
+  if (!el || !player) return;
+  const r = canvas.getBoundingClientRect();
+  el.style.setProperty("--lanterna-x", (r.left + player.x / DPR * (r.width / (W / DPR)) ) + "px");
+  el.style.setProperty("--lanterna-y", (r.top + player.y / DPR * (r.height / (H / DPR))) + "px");
+}
 $("tree-zerar").addEventListener("click", () => {
   const nota = $("tree-zerar-nota");
   const gastos = ptsSpent();
@@ -18195,6 +18368,488 @@ function prestigioRender() {
     perfilRender();
     const av = $("perf-prestigio");
     if (av) av.insertAdjacentHTML("beforeend", '<div class="fund-ok">' + escaparTexto(r.msg) + "</div>");
+  });
+}
+
+
+/* =====================================================================
+   v6.3 — MODOS E FASES COM CARA PRÓPRIA
+   regras malucas · maratona de chefes · asteroides · fase secreta
+   ===================================================================== */
+
+/* ---------------------- regras malucas ----------------------
+   A cada 10 fases (nas terminadas em 5) o jogo muda uma regra. Sempre
+   a mesma regra para a mesma fase, para os amigos compararem.        */
+const REGRAS = [
+  { id: "gravidade", nome: "GRAVIDADE",  desc: "sua nave é puxada para baixo o tempo todo", premio: 1.4 },
+  { id: "escuro",    nome: "APAGÃO",     desc: "só enxerga perto da nave", premio: 1.5 },
+  { id: "turbo",     nome: "TURBO",      desc: "tudo 40% mais rápido, inclusive você", premio: 1.5 },
+  { id: "fragil",    nome: "VIDRO",      desc: "um toque e acabou — mas paga o dobro", premio: 2.0 },
+  { id: "enxame",    nome: "ENXAME",     desc: "o dobro de inimigos, cada um com metade da vida", premio: 1.4 },
+  { id: "pesado",    nome: "CHUMBO",     desc: "inimigos com o dobro de vida e mais lentos", premio: 1.6 },
+  { id: "rebote",    nome: "REBOTE",     desc: "os tiros inimigos quicam nas paredes", premio: 1.6 },
+  { id: "asteroide", nome: "CINTURÃO",   desc: "campo de asteroides: dá para destruir e eles soltam cristal", premio: 1.3 }
+];
+function regraDaFase(fase) {
+  if (!fase || fase % 10 !== 5) return null;
+  const r = rngDe(((fase * 374761393) ^ 0x2f1b) >>> 0);
+  return REGRAS[Math.floor(r() * REGRAS.length)];
+}
+function regraAtiva(id) {
+  return !!(S.regra && S.regra.id === id);
+}
+function regraAplicar(fase) {
+  S.regra = regraDaFase(fase);
+  document.body.classList.toggle("escuro", regraAtiva("escuro"));
+  if (!S.regra) return;
+  S.banner = { text: "⚡ " + S.regra.nome, sub: S.regra.desc, t: 3.2 };
+  try { AudioSys.bossAlert(); } catch (e) {}
+}
+/* quanto a fase paga a mais por causa da regra */
+function regraPremio() { return S.regra ? S.regra.premio : 1; }
+
+/* ---------------------- asteroides ----------------------
+   Pedra que não atira: bloqueia o seu tiro, dá para quebrar e solta
+   cristal. Serve à regra CINTURÃO e às fases de perseguição.        */
+const ASTEROIDES = [];
+function asteroideNovo() {
+  const r = rand(16, 34);
+  ASTEROIDES.push({
+    x: rand(r, W - r), y: -r - 10, r: r,
+    vy: rand(40, 95), vx: rand(-25, 25),
+    hp: Math.round(r / 4), maxHp: Math.round(r / 4),
+    ang: rand(0, 6.28), giro: rand(-1.2, 1.2),
+    lados: Math.floor(rand(6, 9))
+  });
+}
+function asteroidesPassar(dt) {
+  if (regraAtiva("asteroide") && S.mode === "playing") {
+    S.astTimer = (S.astTimer || 0) - dt;
+    if (S.astTimer <= 0 && ASTEROIDES.length < 9) {
+      S.astTimer = rand(0.7, 1.6);
+      asteroideNovo();
+    }
+  }
+  for (let i = ASTEROIDES.length - 1; i >= 0; i--) {
+    const a = ASTEROIDES[i];
+    a.y += a.vy * dt; a.x += a.vx * dt;
+    a.ang += a.giro * dt;
+    if (a.x < a.r || a.x > W - a.r) a.vx *= -1;
+    if (a.y > H + a.r + 20) { ASTEROIDES.splice(i, 1); continue; }
+    /* bate na nave */
+    if (player.alive && dist2(a.x, a.y, player.x, player.y) < (a.r + player.r) * (a.r + player.r)) {
+      hitPlayer();
+      asteroideQuebrar(i);
+      continue;
+    }
+    /* leva tiro */
+    for (let j = bullets.length - 1; j >= 0; j--) {
+      const b = bullets[j];
+      if (dist2(b.x, b.y, a.x, a.y) < (a.r + b.r) * (a.r + b.r)) {
+        bullets.splice(j, 1);
+        a.hp--;
+        destrocos(b.x, b.y, "#9FB0CC", 2);
+        if (a.hp <= 0) { asteroideQuebrar(i); break; }
+      }
+    }
+  }
+}
+function asteroideQuebrar(i) {
+  const a = ASTEROIDES[i];
+  if (!a) return;
+  ASTEROIDES.splice(i, 1);
+  explosion(a.x, a.y, "#9FB0CC", 14);
+  destrocos(a.x, a.y, "#B9C6E4", 8);
+  try { AudioSys.explode(); } catch (e) {}
+  S.shake = Math.max(S.shake || 0, 4);
+  /* pedra grande solta cristal */
+  if (a.r > 22) { S.runGems = (S.runGems || 0) + 3; addText(a.x, a.y, "+3 ◆", "#FFC145"); }
+}
+function drawAsteroides() {
+  if (!ASTEROIDES.length) return;
+  ctx.save();
+  for (const a of ASTEROIDES) {
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.rotate(a.ang);
+    ctx.fillStyle = "#5A6478";
+    ctx.strokeStyle = a.hp < a.maxHp ? "#FF8A8A" : "#9FB0CC";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let k = 0; k < a.lados; k++) {
+      const ang = (k / a.lados) * TAU;
+      const rr = a.r * (0.78 + ((k * 37) % 10) / 40);
+      const x = Math.cos(ang) * rr, y = Math.sin(ang) * rr;
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+/* ---------------------- maratona de chefes ----------------------
+   Cinco chefes em fila, sem ondas no meio. O prêmio cresce a cada um.  */
+function bossRushComecar() {
+  S.bossRush = { n: 0, total: 5, pontos: 0 };
+  const fases = [];
+  for (let f = 10; f <= TOTAL_FASES; f += 10) if (f <= Math.max(10, save.best || 10)) fases.push(f);
+  S.bossRushFases = fases.length >= 5 ? embaralhar(fases).slice(0, 5) : [10, 20, 30, 40, 50];
+  startGame(S.bossRushFases[0]);
+  S.soChefe = true;
+  S.waveIdx = S.nWaves;
+  setupWave();
+  S.banner = { text: "MARATONA DE CHEFES", sub: "5 chefes seguidos — sem descanso", t: 3 };
+}
+function embaralhar(v) {
+  const a = v.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+/* chamada quando um chefe cai dentro da maratona */
+function bossRushProximo() {
+  if (!S.bossRush) return false;
+  S.bossRush.n++;
+  S.bossRush.pontos += S.score;
+  if (S.bossRush.n >= S.bossRush.total) {
+    const premio = 800 + S.bossRush.pontos / 20;
+    save.crystals += Math.round(premio);
+    if ((S.bossRush.pontos || 0) > (save.bossRushRec || 0)) save.bossRushRec = S.bossRush.pontos;
+    persist();
+    S.bossRush = null; S.soChefe = false;
+    S.banner = { text: "MARATONA VENCIDA!", sub: "+" + fmt(Math.round(premio)) + " cristais", t: 3 };
+    setTimeout(() => { goMenu(); }, 2200);
+    return true;
+  }
+  /* próximo chefe, sem sair da partida */
+  const prox = S.bossRushFases[S.bossRush.n];
+  S.fase = prox;
+  S.nWaves = faseWaves(prox);
+  S.waveIdx = S.nWaves;
+  boss = null;
+  enemyBullets.length = 0;
+  player.hp = Math.min(ST.maxHp, player.hp + ST.maxHp * 0.35);
+  S.banner = { text: "CHEFE " + (S.bossRush.n + 1) + " DE 5", sub: "+35% de casco de volta", t: 2.2 };
+  setupWave();
+  return true;
+}
+
+/* ---------------------- fase secreta ----------------------
+   Um portal raro aparece no fim de uma onda. Entrar leva a uma fase
+   curtinha só de cristais.                                          */
+function portalTalvez() {
+  if (S.portal || S.naSecreta || S.bossRush) return;
+  if (Math.random() > 0.06) return;            // 6% por onda terminada
+  S.portal = { x: rand(60, W - 60), y: rand(H * 0.25, H * 0.5), t: 0, vivo: 9 };
+  S.banner = { text: "✦ PORTAL ABERTO", sub: "entre nele antes de sumir", t: 2.4 };
+  try { AudioSys.power(); } catch (e) {}
+}
+function portalPassar(dt) {
+  if (!S.portal) return;
+  S.portal.t += dt;
+  S.portal.vivo -= dt;
+  if (S.portal.vivo <= 0) { S.portal = null; return; }
+  if (player.alive && dist2(player.x, player.y, S.portal.x, S.portal.y) < 46 * 46) {
+    S.portal = null;
+    secretaEntrar();
+  }
+}
+function drawPortal() {
+  if (!S.portal) return;
+  const p = S.portal;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.t * 1.6);
+  for (let k = 0; k < 3; k++) {
+    ctx.globalAlpha = 0.5 + Math.sin(p.t * 4 + k) * 0.3;
+    ctx.strokeStyle = k === 1 ? "#C34DFF" : "#5EE6FF";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, 20 + k * 9, k * 1.4, k * 1.4 + 4.2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function secretaEntrar() {
+  S.naSecreta = true;
+  S.secretaT = 18;
+  S.secretaGemas = 0;
+  enemies.length = 0; enemyBullets.length = 0; boss = null;
+  ASTEROIDES.length = 0;
+  S.banner = { text: "SALA SECRETA", sub: "18 segundos para juntar tudo", t: 2.6 };
+  try { AudioSys.victory(); } catch (e) {}
+  /* enche a tela de cristais */
+  for (let i = 0; i < 40; i++) {
+    powerups.push({ x: rand(30, W - 30), y: rand(60, H * 0.72), type: "gem",
+                    t: 0, vy: rand(10, 30), r: 11 });
+  }
+}
+function secretaPassar(dt) {
+  if (!S.naSecreta) return;
+  S.secretaT -= dt;
+  if (S.secretaT <= 0) {
+    S.naSecreta = false;
+    S.banner = { text: "DE VOLTA", sub: "+" + fmt(S.secretaGemas || 0) + " cristais na mochila", t: 2.2 };
+    powerups.length = 0;
+  }
+}
+
+
+/* =====================================================================
+   v6.4 — MULTIJOGADOR
+   reconectar sozinho · ping do parceiro · convite por link · reviver o
+   parceiro · emotes rápidos · revanche num toque · últimos jogadores
+   ===================================================================== */
+
+/* ---------------------- reconectar sozinho ----------------------
+   A internet do celular cai o tempo todo. Antes disso derrubava a
+   partida; agora o jogo avisa, tenta voltar sozinho por 30 segundos e
+   só desiste se realmente não voltar.                                */
+const RECON = { tentando: false, desde: 0, tentativas: 0, timer: null };
+function conexaoCaiu() {
+  return MP.sala && MP.ultimoOk && (Date.now() - MP.ultimoOk > 4000);
+}
+function reconMostrar(estado, texto) {
+  const el = $("recon-faixa");
+  if (!el) return;
+  el.className = estado ? "on " + estado : "";
+  el.textContent = texto || "";
+}
+function reconComecar() {
+  if (RECON.tentando || !MP.sala) return;
+  RECON.tentando = true;
+  RECON.desde = Date.now();
+  RECON.tentativas = 0;
+  reconMostrar("aviso", "⚠ Conexão instável — tentando voltar…");
+  try { AudioSys.deny(); } catch (e) {}
+  RECON.timer = setInterval(reconTentar, 2000);
+}
+async function reconTentar() {
+  if (!MP.sala) { reconParar(); return; }
+  RECON.tentativas++;
+  const passou = Date.now() - RECON.desde;
+  if (passou > 30000) {
+    reconMostrar("ruim", "Não deu para voltar. Saindo da sala…");
+    setTimeout(() => { reconParar(); try { mpSair(true); } catch (e) {} }, 1800);
+    return;
+  }
+  reconMostrar("aviso", "⚠ Tentando voltar… (" + Math.round((30000 - passou) / 1000) + "s)");
+  try {
+    /* uma leitura simples é o bastante para saber se a sala responde */
+    const sala = await nuvemReq(mpCaminho() + "/estado");
+    if (sala !== null && sala !== undefined) {
+      MP.ultimoOk = Date.now();
+      /* volta a anunciar a minha posição na sala */
+      try { await mpEnviarPosicao(); } catch (e) {}
+      try { p2pTentarDeNovo(); } catch (e) {}
+      reconMostrar("bom", "✓ De volta!");
+      setTimeout(() => reconMostrar(null), 1800);
+      reconParar();
+    }
+  } catch (e) {}
+}
+function reconParar() {
+  RECON.tentando = false;
+  if (RECON.timer) clearInterval(RECON.timer);
+  RECON.timer = null;
+}
+/* roda junto com o jogo: percebe a queda sem gastar rede */
+function reconConferir() {
+  if (!MP.sala || S.mode !== "playing") { if (RECON.tentando) reconParar(); return; }
+  if (conexaoCaiu() && !RECON.tentando) reconComecar();
+}
+
+/* ---------------------- ping do parceiro ---------------------- */
+function pingDoParceiro() {
+  try {
+    if (P2P.ligado && P2P.ping) return Math.round(P2P.ping);
+    const o = mpOutroPrincipal && mpOutroPrincipal();
+    if (o && o.ts) return Math.max(0, Math.round(Date.now() - o.ts));
+  } catch (e) {}
+  return null;
+}
+function pingRender() {
+  const el = $("mp-ping");
+  if (!el) return;
+  if (!MP.sala || S.mode !== "playing") { el.className = ""; return; }
+  const p = pingDoParceiro();
+  if (p === null) { el.className = ""; return; }
+  el.className = "on " + (p < 120 ? "bom" : p < 300 ? "meio" : "ruim");
+  el.textContent = (P2P.ligado ? "direto " : "nuvem ") + p + " ms";
+}
+
+/* ---------------------- reviver o parceiro ----------------------
+   No cooperativo, se o parceiro cair você tem 10 segundos para chegar
+   perto e segurar. É o que faz as pessoas jogarem juntas de verdade. */
+function parceiroCaido() {
+  if (!mpCoop || !mpCoop()) return null;
+  for (const id in MP.outros) {
+    const o = MP.outros[id];
+    if (o && o.vivo === false && (o.caiuEm || 0) > Date.now() - 12000) return o;
+  }
+  return null;
+}
+function reviverPassar(dt) {
+  const o = parceiroCaido();
+  const el = $("reviver-aviso");
+  if (!o) {
+    S.revivendo = 0;
+    if (el) el.className = "";
+    return;
+  }
+  const perto = player.alive && o.x !== undefined &&
+                dist2(player.x, player.y, o.x, o.y) < 90 * 90;
+  if (perto) {
+    S.revivendo = (S.revivendo || 0) + dt;
+    if (el) {
+      el.className = "on";
+      el.innerHTML = "<b>REVIVENDO…</b><span>segure perto do parceiro</span>" +
+        '<div class="rev-barra"><i style="width:' + Math.min(100, S.revivendo / 2.5 * 100) + '%"></i></div>';
+    }
+    if (S.revivendo >= 2.5) {
+      S.revivendo = 0;
+      mpAvisarReviver(o);
+      if (el) el.className = "";
+    }
+  } else {
+    S.revivendo = Math.max(0, (S.revivendo || 0) - dt * 2);
+    if (el) {
+      el.className = "on longe";
+      el.innerHTML = "<b>PARCEIRO CAIU</b><span>chegue perto para reviver</span>";
+    }
+  }
+}
+function mpAvisarReviver(o) {
+  try {
+    o.vivo = true; o.caiuEm = 0;
+    mpAvisarPoder && mpAvisarPoder("reviver");
+    p2pEnviar && p2pEnviar("v1", true);
+    addText(player.x, player.y - 40, "PARCEIRO DE VOLTA!", "#63F5B5");
+    AudioSys.power(); vibrate([40, 50, 90]);
+  } catch (e) {}
+}
+/* quando o OUTRO me revive */
+function fuiRevivido() {
+  if (player.alive) return;
+  player.alive = true;
+  player.lives = Math.max(1, player.lives);
+  player.hp = ST.maxHp * 0.6;
+  player.invuln = 2.5;
+  player.deadTimer = 0;
+  addText(player.x, player.y - 40, "DE PÉ!", "#63F5B5");
+  try { AudioSys.power(); vibrate([60, 40, 90]); } catch (e) {}
+}
+
+/* ---------------------- emotes rápidos ---------------------- */
+const EMOTES = [
+  { id: "ok",    txt: "👍", nome: "beleza" },
+  { id: "cuida", txt: "⚠", nome: "cuidado" },
+  { id: "vem",   txt: "🫵", nome: "vem cá" },
+  { id: "boa",   txt: "🔥", nome: "boa!" },
+  { id: "ajuda", txt: "🆘", nome: "socorro" },
+  { id: "rir",   txt: "😂", nome: "kkkk" }
+];
+function emoteMandar(id) {
+  const e = EMOTES.filter(x => x.id === id)[0];
+  if (!e) return;
+  emoteMostrar(e.txt, true);
+  try {
+    p2pEnviar && p2pEnviar("m" + id, true);
+    if (MP.sala) nuvemSoltar(mpCaminho() + "/emote/" + MP.eu, { id: id, quando: Date.now() });
+  } catch (er) {}
+}
+function emoteMostrar(txt, meu) {
+  const cx = $("emote-bolhas");
+  if (!cx) return;
+  const b = document.createElement("div");
+  b.className = "emote-bolha" + (meu ? " meu" : "");
+  b.textContent = txt;
+  cx.appendChild(b);
+  setTimeout(() => { try { cx.removeChild(b); } catch (e) {} }, 2600);
+  try { AudioSys.gem(); } catch (e) {}
+}
+function emoteRecebido(id) {
+  const e = EMOTES.filter(x => x.id === id)[0];
+  if (e) emoteMostrar(e.txt, false);
+}
+function emotesRender() {
+  const cx = $("emote-btns");
+  if (!cx) return;
+  if (cx.dataset.pronto) return;
+  cx.dataset.pronto = "1";
+  cx.innerHTML = EMOTES.map(e =>
+    '<button class="emote-b" data-emote="' + e.id + '" title="' + e.nome + '">' + e.txt + "</button>").join("");
+  cx.querySelectorAll("[data-emote]").forEach(b =>
+    b.addEventListener("click", ev => { ev.stopPropagation(); emoteMandar(b.getAttribute("data-emote")); }));
+}
+function emotesVisiveis(ligado) {
+  const cx = $("emote-caixa");
+  if (cx) cx.className = ligado ? "on" : "";
+  if (ligado) emotesRender();
+}
+
+/* ---------------------- convite por link ---------------------- */
+function linkDaSala(codigo, modo) {
+  const base = (location.origin + location.pathname).replace(/index\.html$/, "");
+  return base + "?sala=" + encodeURIComponent(codigo) + "&modo=" + (modo || "coop");
+}
+function salaDoLink() {
+  try {
+    const m = /[?&]sala=([^&]+)/.exec(location.search);
+    if (!m) return null;
+    const mo = /[?&]modo=([^&]+)/.exec(location.search);
+    return { codigo: decodeURIComponent(m[1]), modo: mo ? decodeURIComponent(mo[1]) : "coop" };
+  } catch (e) { return null; }
+}
+async function copiarConviteDaSala(codigo, modo, btn) {
+  const txt = "Bora jogar Neon Nebula comigo! Entra aqui: " + linkDaSala(codigo, modo);
+  try { await navigator.clipboard.writeText(txt); if (btn) btn.textContent = "✓ CONVITE COPIADO"; }
+  catch (e) { if (btn) btn.textContent = "Copie: " + codigo; }
+}
+
+/* ---------------------- últimos com quem você jogou ---------------------- */
+function anotarParceiro(nome, tag) {
+  if (!nome) return;
+  save.ultimos = save.ultimos || [];
+  save.ultimos = save.ultimos.filter(x => nickSimples(x.nome) !== nickSimples(nome));
+  save.ultimos.unshift({ nome: nome, tag: tag || nome, quando: Date.now() });
+  if (save.ultimos.length > 8) save.ultimos.length = 8;
+  persist();
+}
+function ultimosRender() {
+  const cx = $("amigos-ultimos");
+  if (!cx) return;
+  const l = save.ultimos || [];
+  if (!l.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.innerHTML =
+    '<div class="aj-titulo">🕹 JOGOU COM ELES HÁ POUCO</div>' +
+    l.map(u => '<div class="ult-linha"><b>' + escaparTexto(u.tag || u.nome) + "</b>" +
+      '<button class="mis-btn" data-ult="' + escaparTexto(u.nome) + '">+ AMIGO</button></div>').join("");
+  cx.querySelectorAll("[data-ult]").forEach(b =>
+    b.addEventListener("click", async () => {
+      b.disabled = true; b.textContent = "…";
+      const r = await amigoPedir(b.getAttribute("data-ult"));
+      b.textContent = r.ok ? "✓" : "erro";
+    }));
+}
+
+/* ---------------------- revanche num toque ---------------------- */
+function revancheRender(codigo, modo) {
+  const cx = $("revanche-caixa");
+  if (!cx) return;
+  if (!codigo) { cx.className = ""; return; }
+  cx.className = "on";
+  cx.innerHTML =
+    '<button class="big-btn" id="revanche-ir" style="width:100%">↻ REVANCHE</button>' +
+    '<div class="adm-note" style="text-align:center;margin-top:6px">mesma sala, mesma dupla</div>';
+  const b = $("revanche-ir");
+  if (b) b.addEventListener("click", async () => {
+    b.disabled = true; b.textContent = "ENTRANDO…";
+    try { await mpEntrarSala(codigo, modo); } catch (e) {}
   });
 }
 
@@ -19367,6 +20022,10 @@ function startGame(fase) {
   S.danoLevado = 0; S.combo = 0; S.comboT = 0; S.comboMax = 0;
   contar("partidas");
   if (!save.desde) save.desde = Date.now();
+  ASTEROIDES.length = 0;
+  S.portal = null; S.naSecreta = false; S.astTimer = 0;
+  if (!S.bossRush) { S.soChefe = false; }
+  regraAplicar(S.fase);
   faseCartao(S.fase);
   if (tutoPrecisa()) tutoComecar();
   MP.meuDano = 0; MP.danoTotal = 0;
@@ -19393,6 +20052,8 @@ function startGame(fase) {
   dragging = false; dragId = null;
   setupWave();
   updateHud();
+  emotesVisiveis(!!MP.sala);
+  try { revancheRender(null); } catch (e) {}
   ultBtn.style.display = "flex";
   ultBtnSync();
   $("hab-bar").dataset.nave = "";
@@ -19437,13 +20098,13 @@ function setupWave() {
     const espaco = clamp((W * H) / (430 * 800), 0.9, 1.4);
     const base = (7 + Math.round(Math.pow(dl, 0.76) * 0.95)) * espaco;
     S.toSpawn = Math.max(3, Math.round(base * A.quantidade * D.qtd *
-                (mundoAtivo("chuvisco") ? 2.4 : 1)));
+                (mundoAtivo("chuvisco") ? 2.4 : 1) * (regraAtiva("enxame") ? 2 : 1)));
     S.spawnTimer = 0.5;
     S.juizoPendente = !!ST.juizo;   // Selo do Juízo: cai no primeiro segundo da onda
     // a onda também dura mais: eles entram em fila, não todos de uma vez
     S.spawnInterval = clamp(1.05 - dl * 0.004, 0.34, 1.05) / (A.velocidade * D.vel);
     S.banner = { text: "ONDA " + S.waveIdx + "/" + S.nWaves, sub: S.waveIdx === 1 ? "FASE " + S.fase : "", t: 1.6 };
-    if (S.waveIdx !== 1) AudioSys.wave();
+    if (S.waveIdx !== 1) { AudioSys.wave(); portalTalvez(); }
   }
   updateHud();
 }
@@ -20315,6 +20976,8 @@ function hitPlayer() {
   if (save.godMode) { player.invuln = 0.3; return; }
   S.danoLevado = (S.danoLevado || 0) + 1;
   S.doeuT = 0.45;
+  /* regra VIDRO: um toque e acabou */
+  if (regraAtiva("fragil")) { player.lives = 1; player.hp = 1; }
   S.shake = Math.max(S.shake || 0, 9);
   comboZera();
   if (ST.nova) novaBlast();
@@ -20419,7 +21082,8 @@ function faseVictory() {
     const antes = save.tempos[S.fase];
     if (!antes || dur < antes) save.tempos[S.fase] = Math.round(dur * 10) / 10;
   }
-  const base = Math.round(faseReward(S.fase) * (first ? 1 : 0.3) * ST.crystalMult * dificuldadeAtual().premio);
+  const base = Math.round(faseReward(S.fase) * (first ? 1 : 0.3) * ST.crystalMult *
+                          dificuldadeAtual().premio * regraPremio());
   const gems = bankRunGems(1);
   const scoreBonus = Math.floor(S.score / 100);
   save.crystals += base + scoreBonus;
@@ -20430,6 +21094,7 @@ function faseVictory() {
     amuletMsg = "◈ AMULETO ENCONTRADO: " + d.name + " (" + RARS[a.rar].name + ")";
   }
   camLenta(0.8);
+  if (S.bossRush && bossRushProximo()) return;
   S.derrotasSeguidas = 0;
   misProgresso("fase", 1);
   if (isBossFase(S.fase)) { misProgresso("chefe", 1); contar("chefes"); }
@@ -20490,6 +21155,8 @@ function mundoSinalControle() { return mundoAtivo("invertido") ? -1 : 1; }
 
 /* ---------- Atualização ---------- */
 function update(dt) {
+  /* regra TURBO: o relógio do jogo inteiro corre mais rápido */
+  if (S.mode === "playing" && regraAtiva("turbo")) dt *= 1.4;
   // Ampulheta Rachada: enquanto o efeito dura, tudo anda em camera lenta
   if (S.mode === "playing" && (S.lentoT || 0) > 0) {
     S.lentoT = Math.max(0, S.lentoT - dt);
@@ -20508,6 +21175,16 @@ function update(dt) {
   tutoPassar(dt);
   avisosPassar(dt);
   pedacosPassar(dt);
+  asteroidesPassar(dt);
+  lanternaSeguir();
+  reconConferir();
+  reviverPassar(dt);
+  if ((S.pingT = (S.pingT || 0) + dt) > 0.5) { S.pingT = 0; pingRender(); }
+  portalPassar(dt);
+  secretaPassar(dt);
+  if (regraAtiva("gravidade") && player.alive) {
+    player.ty = Math.min(limiteBaixo(), player.ty + 42 * dt);
+  }
   if (S.doeuT > 0) {
     S.doeuT = Math.max(0, S.doeuT - dt);
     const d = $("doeu");
@@ -22923,6 +23600,8 @@ function draw() {
   }
 
   for (const e of enemies) drawEnemy(e);
+  drawAsteroides();
+  drawPortal();
   drawAvisos();
   drawBoss();
   for (const p of powerups) drawPowerup(p);
@@ -23582,6 +24261,18 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.3", itens: [
+      "REGRAS MALUCAS: toda fase terminada em 5 tem uma regra diferente — GRAVIDADE, APAGÃO (só enxerga perto da nave), TURBO, VIDRO (um toque e acabou, mas paga o dobro), ENXAME, CHUMBO, REBOTE e CINTURÃO. A regra é sempre a mesma para a mesma fase, e paga de 30% a 100% a mais",
+      "ASTEROIDES: pedras que dá para quebrar a tiro, bloqueiam o seu tiro e as grandes soltam cristal",
+      "MARATONA DE CHEFES: botão novo no menu — 5 chefes seguidos, sem ondas no meio, ganhando 35% de casco de volta entre um e outro. Tem recorde próprio",
+      "SALA SECRETA: de vez em quando um portal abre no fim de uma onda; entrar leva a 18 segundos só de cristais",
+      "COOPERATIVO — RECONECTAR: se a internet cair, o jogo avisa e tenta voltar sozinho por 30 segundos, em vez de derrubar a partida",
+      "PING DO PARCEIRO no alto da tela, dizendo se está indo pela rede direta ou pela nuvem",
+      "REVIVER O PARCEIRO: chegou perto de quem caiu e segurou 2,5 segundos, ele volta com 60% de casco",
+      "EMOTES: seis botões rápidos (👍 ⚠ 🫵 🔥 🆘 😂) para conversar sem teclado",
+      "CONVITE POR LINK: manda um link no WhatsApp e o amigo entra direto na sua sala, sem digitar código",
+      "REVANCHE num toque no fim do duelo, e a lista de quem você jogou junto há pouco, com botão de adicionar como amigo"
+    ] },
   { v: "6.2", itens: [
       "FUNDIR RELÍQUIAS: três repetidas iguais viram uma da raridade de cima, direto na tela de relíquias. O que está equipado não entra na fusão",
       "CONJUNTOS: três espaços no hangar guardam nave + relíquias + arma, e você troca tudo num toque",
@@ -23905,7 +24596,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.2";
+const VERSAO = "6.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
