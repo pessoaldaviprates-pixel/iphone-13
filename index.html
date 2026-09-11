@@ -3776,6 +3776,60 @@
   }
   body.menos-luz #doeu{box-shadow:inset 0 0 40px 10px rgba(255,45,70,.6)}
 
+  /* ---------- v6.2: progressão ---------- */
+  .fund-linha,.bau-item{
+    display:flex;align-items:center;gap:11px;padding:10px;border-radius:var(--r-md);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);margin-bottom:7px;
+  }
+  .fund-ic{font-size:1.2rem;flex:none;width:30px;text-align:center}
+  .fund-txt{flex:1;min-width:0}
+  .fund-txt b{display:block;font-size:.72rem}
+  .fund-txt span{display:block;font-size:.58rem;color:var(--dim);margin-top:2px}
+  .fund-ok{
+    font-size:.64rem;color:var(--verde);text-align:center;padding:8px;margin-bottom:8px;
+    background:rgba(99,245,181,.12);border-radius:var(--r-sm);
+  }
+  .bau-resumo{font-size:.6rem;color:var(--dim);margin-bottom:9px}
+  .bau-item b{flex:1;font-size:.68rem;font-weight:500}
+  .bau-item em{font-style:normal;font-size:.54rem;color:var(--fraco);letter-spacing:.1em}
+
+  .conj-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .conj-cx{
+    padding:11px 8px;border-radius:var(--r-md);text-align:center;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .conj-cx.tem{border-color:rgba(94,230,255,.4);background:rgba(94,230,255,.08)}
+  .conj-cx b{display:block;font-family:"Russo One",sans-serif;font-size:.8rem;color:var(--cyan)}
+  .conj-cx span{display:block;font-size:.56rem;margin:4px 0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .conj-cx em{display:block;font-style:normal;font-size:.5rem;color:var(--fraco)}
+  .conj-btns{display:flex;flex-direction:column;gap:4px;margin-top:7px}
+  .conj-b{
+    padding:5px;border-radius:8px;font-size:.52rem;letter-spacing:.06em;
+    background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink2);
+  }
+  .conj-b.usar{background:rgba(94,230,255,.16);border-color:rgba(94,230,255,.4);color:var(--cyan)}
+
+  .comp-abas{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
+  .comp-rolagem{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md)}
+  .comp-tab{border-collapse:collapse;width:100%;font-size:.64rem}
+  .comp-tab th,.comp-tab td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--line)}
+  .comp-tab th{font-size:.52rem;letter-spacing:.12em;color:var(--fraco);background:rgba(255,255,255,.03)}
+  .comp-tab td{font-variant-numeric:tabular-nums;color:var(--ink2)}
+  .comp-tab tr.eu{background:rgba(94,230,255,.12)}
+  .comp-tab tr.eu td{color:var(--cyan)}
+  .comp-tab tr.tem td:first-child{color:var(--ink)}
+  .comp-tab td.melhor{color:var(--verde)}
+  .comp-tab td.pior{color:var(--danger)}
+
+  .falta{
+    width:min(92vw,360px);padding:11px 13px;border-radius:var(--r-lg);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .falta b{display:block;font-size:.56rem;letter-spacing:.2em;color:var(--fraco);margin-bottom:6px}
+  .falta span{display:block;font-size:.64rem;color:var(--ink2);padding:2px 0}
+
+  #pular-caixa{margin-top:10px}
+
 </style>
 </head>
 <body>
@@ -4557,6 +4611,7 @@
     <div id="presente-aviso"></div>
     <div id="diaria-cartao" style="display:none"></div>
     <div id="missoes-resumo" style="display:none"></div>
+    <div id="falta-pouco" style="display:none"></div>
     <div class="menu-chips">
       <button class="chip" id="btn-missoes">🎯 MISSÕES<i id="mis-badge"></i></button>
       <button class="chip" id="btn-conquistas">★ CONQUISTAS<i id="conq-badge"></i></button>
@@ -4684,7 +4739,9 @@
   </div>
   <div class="hangar-topo">
     <button class="adm-btn gold wide" id="btn-criar-nave">🛠 CRIAR MINHA NAVE</button>
+    <button class="adm-btn wide" id="btn-comparar">📊 COMPARAR TODAS AS NAVES</button>
   </div>
+  <div class="card" id="hangar-conjuntos"></div>
   <div class="hangar-atual" id="hangar-atual"></div>
   <div class="hangar-filtros" id="hangar-filtros"></div>
   <div class="scroll"><div class="ship-list" id="ship-list"></div></div>
@@ -4788,6 +4845,8 @@
       <div class="adm-note" style="max-width:none;text-align:center">Chefes derrotados pela primeira vez também deixam amuletos. Raridades: Comum, Raro, Épico e Lendário.</div>
     </div>
     <div id="amu-reveal"></div>
+    <div class="card" id="rel-fundir" style="display:none"></div>
+    <div class="card" id="rel-historico" style="display:none"></div>
     <div class="rel-colecao" id="rel-colecao"></div>
     <div class="amu-list" id="amu-inv"></div>
   </div>
@@ -5076,13 +5135,22 @@
 
 <div id="foto-caixa"></div>
 
+<!-- COMPARAR NAVES -->
+<div class="page" id="screen-comparar">
+  <div class="page-head">
+    <button class="back-btn" data-back aria-label="Voltar">‹</button>
+    <div class="page-title">COMPARAR NAVES</div>
+  </div>
+  <div class="scroll"><div id="comp-corpo"></div></div>
+</div>
+
 <!-- PERFIL DO PILOTO -->
 <div class="page" id="screen-perfil">
   <div class="page-head">
     <button class="back-btn" data-back aria-label="Voltar">‹</button>
     <div class="page-title">PERFIL</div>
   </div>
-  <div class="scroll"><div id="perf-corpo"></div></div>
+  <div class="scroll"><div id="perf-corpo"></div><div id="perf-prestigio" style="display:none"></div></div>
 </div>
 
 <!-- CONQUISTAS -->
@@ -5141,6 +5209,8 @@
     <div class="page-gems gem" id="tree-gems">0</div>
   </div>
   <div class="tree-pts" id="tree-pts">0 PONTOS DISPONÍVEIS</div>
+  <button class="ghost-btn" id="tree-zerar" style="margin:0 14px 8px">↻ REFAZER A ÁRVORE</button>
+  <div class="adm-note" id="tree-zerar-nota" style="margin:0 14px 6px"></div>
   <div class="scroll"><div class="tree-cols" id="tree-cols"></div></div>
   <div class="tree-detail">
     <div class="tree-detail-info">
@@ -5237,6 +5307,7 @@
       <div class="fim-cx"><b id="go-score">0</b><span>PONTOS</span></div>
     </div>
     <button class="big-btn rosa" id="btn-retry" style="width:100%">↻ TENTAR DE NOVO</button>
+    <div id="pular-caixa" style="display:none"></div>
     <div class="fim-linha">
       <button class="ghost-btn" id="btn-go-shop">⬡ MELHORIAS</button>
       <button class="ghost-btn" id="btn-go-menu">MENU</button>
@@ -5524,6 +5595,9 @@ function defaultSave() {
     habNv: {},               // nível das habilidades: "nave:habilidade" -> nível
     estrelas: {},            // fase -> quantas estrelas (1 passou, 2 sem dano, 3 rápido)
     conquistas: {},          // id da conquista -> quando foi pega
+    conjuntos: [null, null, null],  // três conjuntos de nave + relíquias
+    bauHist: [],             // o que saiu dos últimos baús
+    prestigio: 0,            // quantas vezes já terminou as 270 fases
     abates: 0, tiros: 0, acertos: 0, chefes: 0, mortes: 0, partidas: 0,
     fasesPerfeitas: 0, melhorCombo: 0, coopFases: 0, missoesFeitas: 0, maiorSeq: 0,
     tutorialFeito: false,    // já viu o tutorial da primeira fase
@@ -5546,6 +5620,8 @@ function mergeSave(parsed) {
   s.habNv = (parsed && parsed.habNv) || {};
   s.estrelas = (parsed && parsed.estrelas) || {};
   s.conquistas = (parsed && parsed.conquistas) || {};
+  s.conjuntos = (parsed && Array.isArray(parsed.conjuntos)) ? parsed.conjuntos : [null, null, null];
+  s.bauHist = (parsed && Array.isArray(parsed.bauHist)) ? parsed.bauHist : [];
   s.diaria = (parsed && parsed.diaria) || { dia: "", seq: 0 };
   s.missoes = (parsed && parsed.missoes) || { dia: "", itens: [] };
   s.jornadas = (parsed && parsed.jornadas) || {};
@@ -7702,6 +7778,10 @@ function modoJusto() {
    chamadas antes disso sem quebrar o carregamento */
 function vipLigado() { try { return temVip(); } catch (e) { return false; } }
 function passeLigado(id) { try { return temPasse(id); } catch (e) { return false; } }
+/* bônus permanente de quem já terminou as 270 fases (+10% por volta) */
+function prestMult() {
+  try { return 1 + (save.prestigio || 0) * 0.10; } catch (e) { return 1; }
+}
 function calcStats() {
   const justo = modoJusto();
   const ZERO = { dmg: 0, rate: 0, hull: 0, shield: 0, speed: 0, luck: 0,
@@ -7740,7 +7820,7 @@ function calcStats() {
     dmg: (1 + 0.08 * u.dmg) * (1 + 0.03 * atk) * sh.baseDmg *
          (1 + 0.06 * (P.cannon || 0)) * (1 + pw("dmg") / 100) * wp.dmg *
          (1 + (A.dano + A.prisma) / 100) * (A.coroa ? 1.25 : 1) * (1 + 0.01 * nvTudo) *
-         jm("dano") * mundoMult("dano"),
+         jm("dano") * mundoMult("dano") * prestMult(),
     fireInterval: 0.17 / ((1 + 0.05 * u.rate) * (1 + 0.05 * (P.turbine || 0)) *
                   (1 + pw("rate") / 100) * wp.rate * (1 + (A.cadencia + A.prisma) / 100) * (sh.baseRate || 1) *
                   (1 + (sh.bonusCad || 0)) * jm("cadencia") * mundoMult("cadencia")),
@@ -7759,7 +7839,7 @@ function calcStats() {
        escorregadia e dá para mirar melhor sem perder a agilidade   */
     speedK: 1.06 * (1 + 0.06 * u.speed) * sh.baseAgi * (1 + 0.06 * (P.engine || 0)) *
             (1 + A.motor / 100) * jm("motor"),
-    crystalMult: (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
+    crystalMult: prestMult() * (1 + 0.10 * u.luck) * (1 + 0.02 * res) * (hasSkill("res", 30) ? 1.5 : 1) *
                  (1 + 0.06 * (P.reactor || 0)) * (1 + pw("gold") / 100) * (1 + A.cristal / 100) *
                  (sh.baseGem || 1) * (1 + (sh.bonusGem || 0)) * (A.coroa ? 1.25 : 1) *
                  (justo ? 1 : (vipLigado() ? 1.25 : 1)) * jm("cristal") * mundoMult("cristais"),
@@ -8146,6 +8226,7 @@ const SCREENS = {
   novidades: $("screen-novidades"),
   ajustes: $("screen-ajustes"), missoes: $("screen-missoes"),
   perfil: $("screen-perfil"), conquistas: $("screen-conquistas"), convite: $("screen-convite"),
+  comparar: $("screen-comparar"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };
@@ -8236,7 +8317,7 @@ function checarPresentesPeriodicamente() {
 setInterval(checarPresentesPeriodicamente, 6000);
 
 function refreshMenu() {
-  try { diariaRender(); misBadge(); conqBadge(); } catch (e) {}
+  try { diariaRender(); misBadge(); conqBadge(); faltaRender(); } catch (e) {}
   const h = $("menu-hello");
   h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
   document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
@@ -13417,6 +13498,7 @@ function renderHangarFiltros() {
   }
 }
 function renderHangar(scrollToSel) {
+  try { conjuntosRender(); } catch (e) {}
   porCristais("hangar-gems");
   document.querySelector(".hangar-topo").style.display = CRIAR_NAVE_LIGADO ? "" : "none";
   renderHangarAtual();
@@ -14290,6 +14372,8 @@ function renderReliquias() {
       "</div>";
   }
 
+  fundirRender();
+  bauHistRender();
   const inv = $("amu-inv");
   inv.innerHTML = "";
   if (!save.amulets.length) {
@@ -17574,7 +17658,12 @@ function perfilRender() {
   const b = $("perf-conq");
   if (b) b.addEventListener("click", () => conqAbrir());
 }
-function perfilAbrir() { S.mode = "perfil"; showScreen("perfil"); perfilRender(); }
+function perfilAbrir() {
+  S.mode = "perfil";
+  showScreen("perfil");
+  perfilRender();
+  prestigioRender();
+}
 
 /* ---------------------- convite com prêmio ----------------------
    Cada piloto tem um código (o próprio gametag). Quem entra com o
@@ -17751,9 +17840,363 @@ if (bf) bf.addEventListener("click", () => {
     (save.best || 0) + " de " + TOTAL_FASES + " fases"
   ]);
 });
+/* ---- botões da v6.2 ---- */
+$("btn-comparar").addEventListener("click", () => { AudioSys.gem(); navesAbrir(); });
+$("tree-zerar").addEventListener("click", () => {
+  const nota = $("tree-zerar-nota");
+  const gastos = ptsSpent();
+  if (!gastos) { if (nota) nota.textContent = "A árvore já está vazia."; return; }
+  if (!$("tree-zerar").dataset.confirma) {
+    $("tree-zerar").dataset.confirma = "1";
+    $("tree-zerar").textContent = "TEM CERTEZA? ◆ " + fmt(arvoreCustoZerar());
+    if (nota) nota.textContent = "Os " + gastos + " pontos voltam e você escolhe tudo de novo.";
+    return;
+  }
+  const r = arvoreZerar();
+  $("tree-zerar").dataset.confirma = "";
+  $("tree-zerar").textContent = "↻ REFAZER A ÁRVORE";
+  if (nota) { nota.textContent = r.msg; nota.style.color = r.ok ? "var(--verde)" : "var(--danger)"; }
+  if (r.ok) { renderTree(); porCristais("tree-gems"); }
+});
+/* o botão de pular a fase só aparece depois de 5 derrotas seguidas nela */
+function pularRender() {
+  const cx = $("pular-caixa");
+  if (!cx) return;
+  if (!podePular()) { cx.style.display = "none"; return; }
+  const custo = pularCusto();
+  const tem = save.crystals >= custo;
+  cx.style.display = "block";
+  cx.innerHTML =
+    '<div class="card" style="margin-top:10px"><b style="font-size:.72rem">Essa fase está brava, né?</b>' +
+    '<p class="adm-note" style="margin:6px 0 10px">Você caiu ' + (S.derrotasSeguidas || 0) +
+    " vezes seguidas aqui. Dá para pular e seguir em frente — a fase fica guardada para você " +
+    "voltar quando quiser.</p>" +
+    '<button class="big-btn amber" id="pular-ir" style="width:100%"' + (tem ? "" : " disabled") +
+    ">PULAR A FASE — ◆ " + fmt(custo) + "</button>" +
+    (tem ? "" : '<div class="adm-note" style="margin-top:6px">Faltam ◆ ' + fmt(custo - save.crystals) + "</div>") +
+    "</div>";
+  const b2 = $("pular-ir");
+  if (b2) b2.addEventListener("click", () => { if (pularFase()) cx.style.display = "none"; });
+}
 $("btn-perfil").addEventListener("click", () => { AudioSys.gem(); perfilAbrir(); });
 $("btn-conquistas").addEventListener("click", () => { AudioSys.gem(); conqAbrir(); });
 $("btn-convite").addEventListener("click", () => { AudioSys.gem(); convAbrir(); });
+
+
+/* =====================================================================
+   v6.2 — PROGRESSÃO
+   fundir relíquias · conjuntos salvos · comparar naves · histórico do
+   baú · falta pouco para... · reespecializar a árvore · pular a fase
+   depois de apanhar muito · prestígio
+   ===================================================================== */
+
+/* ---------------------- fundir relíquias repetidas ----------------------
+   Três iguais na mesma raridade viram uma da raridade de cima. É o que
+   dá utilidade ao monte de amuleto comum que ninguém usa.             */
+function fundirGrupos() {
+  const grupos = {};
+  for (const a of save.amulets) {
+    if (a.rar >= 3) continue;                         // lendário não sobe mais
+    if (save.equipped.indexOf(a.uid) >= 0) continue;  // o que está em uso não entra
+    const k = a.type + ":" + a.rar;
+    (grupos[k] = grupos[k] || []).push(a);
+  }
+  const prontos = [];
+  for (const k in grupos) if (grupos[k].length >= 3) prontos.push({ chave: k, itens: grupos[k] });
+  return prontos;
+}
+function fundir(chave) {
+  const g = fundirGrupos().filter(x => x.chave === chave)[0];
+  if (!g) return null;
+  const tres = g.itens.slice(0, 3);
+  const tipo = tres[0].type, rar = tres[0].rar;
+  for (const a of tres) {
+    const i = save.amulets.indexOf(a);
+    if (i >= 0) save.amulets.splice(i, 1);
+  }
+  const novo = { uid: save.amuletSeq++, type: tipo, rar: rar + 1 };
+  save.amulets.push(novo);
+  persist(); calcStats();
+  AudioSys.power(); vibrate([30, 40, 70]);
+  return novo;
+}
+function fundirRender() {
+  const cx = $("rel-fundir");
+  if (!cx) return;
+  const prontos = fundirGrupos();
+  if (!prontos.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.innerHTML =
+    '<div class="aj-titulo">⚗ FUNDIR REPETIDAS</div>' +
+    '<p class="adm-note" style="margin-bottom:10px">Três iguais viram uma melhor. ' +
+    "O que está equipado não entra.</p>" +
+    prontos.map(g => {
+      const a = g.itens[0];
+      const d = amuletDef(a);
+      return '<div class="fund-linha"><span class="fund-ic" style="color:' + RARS[a.rar].color + '">' +
+        d.icon + "</span>" +
+        '<div class="fund-txt"><b>' + escaparTexto(d.name) + "</b>" +
+          "<span>3 " + RARS[a.rar].name.toLowerCase() + " → 1 " + RARS[a.rar + 1].name.toLowerCase() +
+          " · você tem " + g.itens.length + "</span></div>" +
+        '<button class="mis-btn" data-fundir="' + escaparTexto(g.chave) + '">FUNDIR</button></div>';
+    }).join("");
+  cx.querySelectorAll("[data-fundir]").forEach(b =>
+    b.addEventListener("click", () => {
+      const novo = fundir(b.getAttribute("data-fundir"));
+      if (novo) {
+        const d = amuletDef(novo);
+        renderReliquias();
+        const av = $("rel-fundir");
+        if (av) av.insertAdjacentHTML("afterbegin",
+          '<div class="fund-ok">Saiu: <b style="color:' + RARS[novo.rar].color + '">' +
+          escaparTexto(d.name) + " (" + RARS[novo.rar].name + ")</b></div>");
+      }
+    }));
+}
+
+/* ---------------------- conjuntos salvos ----------------------
+   Três conjuntos: nave + relíquias equipadas, trocados num toque.   */
+/* liga o histórico no baú que já existia */
+(function () {
+  try {
+    const antigo = rollAmulet;
+    rollAmulet = function () {
+      const a = antigo.apply(this, arguments);
+      try { bauAnotar(a); } catch (e) {}
+      return a;
+    };
+  } catch (e) {}
+})();
+function conjuntoSalvar(i) {
+  save.conjuntos = save.conjuntos || [null, null, null];
+  save.conjuntos[i] = {
+    nave: save.ship,
+    equipped: (save.equipped || []).slice(),
+    arma: (save.weaponSel || {})[save.ship],
+    quando: Date.now()
+  };
+  persist();
+  AudioSys.buy(); vibrate(30);
+  conjuntosRender();
+}
+function conjuntoUsar(i) {
+  const c = (save.conjuntos || [])[i];
+  if (!c) return;
+  if ((save.ships || []).indexOf(c.nave) >= 0) save.ship = c.nave;
+  save.equipped = (c.equipped || []).filter(uid => save.amulets.some(a => a.uid === uid));
+  if (c.arma !== undefined) { save.weaponSel = save.weaponSel || {}; save.weaponSel[c.nave] = c.arma; }
+  persist(); calcStats();
+  AudioSys.power(); vibrate([25, 35, 45]);
+  conjuntosRender();
+  if (typeof renderHangar === "function") renderHangar();
+}
+function conjuntosRender() {
+  const cx = $("hangar-conjuntos");
+  if (!cx) return;
+  save.conjuntos = save.conjuntos || [null, null, null];
+  cx.innerHTML =
+    '<div class="aj-titulo">🎒 CONJUNTOS</div>' +
+    '<div class="conj-grade">' +
+      save.conjuntos.map((c, i) => {
+        const nome = c ? (SHIPS[c.nave] ? SHIPS[c.nave].name : "Nave") : "vazio";
+        return '<div class="conj-cx' + (c ? " tem" : "") + '">' +
+          "<b>" + (i + 1) + "</b><span>" + escaparTexto(nome) + "</span>" +
+          (c ? "<em>" + (c.equipped || []).length + " relíquias</em>" : "<em>guarde aqui</em>") +
+          '<div class="conj-btns">' +
+            (c ? '<button class="conj-b usar" data-usar="' + i + '">USAR</button>' : "") +
+            '<button class="conj-b" data-salvar="' + i + '">' + (c ? "TROCAR" : "SALVAR") + "</button>" +
+          "</div></div>";
+      }).join("") +
+    "</div>";
+  cx.querySelectorAll("[data-usar]").forEach(b =>
+    b.addEventListener("click", () => conjuntoUsar(parseInt(b.getAttribute("data-usar"), 10))));
+  cx.querySelectorAll("[data-salvar]").forEach(b =>
+    b.addEventListener("click", () => conjuntoSalvar(parseInt(b.getAttribute("data-salvar"), 10))));
+}
+
+/* ---------------------- comparar as naves ----------------------
+   Uma tabela com as 120: dá para ordenar e ver a sua do lado.      */
+let navesOrdem = "dano";
+function navesRender() {
+  const cx = $("comp-corpo");
+  if (!cx) return;
+  const minha = save.ship;
+  const lista = SHIPS.map((s2, i) => ({
+    i: i, nome: s2.name,
+    dano: Math.round((s2.baseDmg || 1) * 100) / 100,
+    vida: s2.baseHp || 100,
+    cadencia: Math.round((s2.baseRate || 1) * 100) / 100,
+    preco: s2.price || 0,
+    tem: (save.ships || []).indexOf(i) >= 0
+  }));
+  lista.sort((a, b) => {
+    if (navesOrdem === "nome") return a.nome.localeCompare(b.nome);
+    return (b[navesOrdem] || 0) - (a[navesOrdem] || 0);
+  });
+  const eu = lista.filter(x => x.i === minha)[0] || lista[0];
+  const seta = c => navesOrdem === c ? " ▾" : "";
+  cx.innerHTML =
+    '<p class="adm-note" style="margin-bottom:10px">Comparando com a sua <b>' +
+      escaparTexto(eu.nome) + "</b>. Verde é melhor que a sua, vermelho é pior.</p>" +
+    '<div class="comp-abas">' +
+      ['<button class="sub-aba' + (navesOrdem === "dano" ? " on" : "") + '" data-ord="dano">DANO' + seta("dano") + "</button>",
+       '<button class="sub-aba' + (navesOrdem === "vida" ? " on" : "") + '" data-ord="vida">VIDA' + seta("vida") + "</button>",
+       '<button class="sub-aba' + (navesOrdem === "cadencia" ? " on" : "") + '" data-ord="cadencia">CADÊNCIA' + seta("cadencia") + "</button>",
+       '<button class="sub-aba' + (navesOrdem === "nome" ? " on" : "") + '" data-ord="nome">NOME</button>'].join("") +
+    "</div>" +
+    '<div class="comp-rolagem"><table class="comp-tab"><thead><tr>' +
+      "<th>NAVE</th><th>DANO</th><th>VIDA</th><th>CAD.</th></tr></thead><tbody>" +
+      lista.map(n => {
+        const cor = v => v > 0 ? "melhor" : v < 0 ? "pior" : "";
+        return "<tr" + (n.i === minha ? ' class="eu"' : n.tem ? ' class="tem"' : "") + ">" +
+          "<td>" + (n.tem ? "" : "🔒 ") + escaparTexto(n.nome) + "</td>" +
+          '<td class="' + cor(n.dano - eu.dano) + '">' + n.dano + "</td>" +
+          '<td class="' + cor(n.vida - eu.vida) + '">' + n.vida + "</td>" +
+          '<td class="' + cor(n.cadencia - eu.cadencia) + '">' + (Math.round(n.cadencia * 100) / 100) + "</td>" +
+        "</tr>";
+      }).join("") +
+    "</tbody></table></div>";
+  cx.querySelectorAll("[data-ord]").forEach(b =>
+    b.addEventListener("click", () => { navesOrdem = b.getAttribute("data-ord"); navesRender(); }));
+}
+function navesAbrir() { S.mode = "comparar"; showScreen("comparar"); navesRender(); }
+
+/* ---------------------- histórico do baú ---------------------- */
+function bauAnotar(a) {
+  save.bauHist = save.bauHist || [];
+  const d = amuletDef(a);
+  save.bauHist.unshift({ nome: d.name, rar: a.rar, quando: Date.now() });
+  if (save.bauHist.length > 30) save.bauHist.length = 30;
+}
+function bauHistRender() {
+  const cx = $("rel-historico");
+  if (!cx) return;
+  const h = save.bauHist || [];
+  if (!h.length) { cx.style.display = "none"; return; }
+  const conta = [0, 0, 0, 0];
+  for (const x of h) conta[x.rar]++;
+  cx.style.display = "block";
+  cx.innerHTML =
+    '<div class="aj-titulo">📜 O QUE SAIU DOS ÚLTIMOS BAÚS</div>' +
+    '<div class="bau-resumo">' +
+      RARS.map((r, i) => '<span style="color:' + r.color + '">' + conta[i] + " " + r.name.toLowerCase() + "</span>").join(" · ") +
+    "</div>" +
+    '<div class="bau-lista">' +
+      h.slice(0, 12).map(x =>
+        '<div class="bau-item"><span style="color:' + RARS[x.rar].color + '">◈</span>' +
+        "<b>" + escaparTexto(x.nome) + "</b><em>" + RARS[x.rar].name + "</em></div>").join("") +
+    "</div>";
+}
+
+/* ---------------------- falta pouco para... ----------------------
+   Diz o que está mais perto de acontecer: é o motivo de jogar mais
+   uma partida.                                                     */
+function faltaPouco() {
+  const opcoes = [];
+  /* nave de cristal mais perto do seu bolso */
+  try {
+    for (let i = 0; i < SHIPS.length; i++) {
+      if ((save.ships || []).indexOf(i) >= 0) continue;
+      const preco = SHIPS[i].price || 0;
+      if (!preco) continue;
+      const falta = preco - save.crystals;
+      if (falta > 0) opcoes.push({ falta: falta, txt: "◆ " + fmt(falta) + " para a nave " + SHIPS[i].name });
+    }
+  } catch (e) {}
+  /* próxima conquista */
+  for (const c of CONQUISTAS) {
+    const e = conqEstado(c);
+    if (e.pronto) continue;
+    const falta = c.alvo - e.valor;
+    opcoes.push({ falta: falta * 30, txt: fmt(falta) + " para a conquista “" + c.nome + "”" });
+  }
+  /* próximo baú */
+  const b = precoDoBau() - save.crystals;
+  if (b > 0) opcoes.push({ falta: b, txt: "◆ " + fmt(b) + " para abrir um baú estelar" });
+  opcoes.sort((x, y) => x.falta - y.falta);
+  return opcoes.slice(0, 3);
+}
+function faltaRender() {
+  const cx = $("falta-pouco");
+  if (!cx) return;
+  const l = faltaPouco();
+  if (!l.length) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "falta";
+  cx.innerHTML = "<b>FALTA POUCO</b>" + l.map(x => "<span>" + escaparTexto(x.txt) + "</span>").join("");
+}
+
+/* ---------------------- reespecializar a árvore ---------------------- */
+function arvoreCustoZerar() {
+  const gastos = ptsSpent();
+  return Math.max(300, gastos * 120);
+}
+function arvoreZerar() {
+  const custo = arvoreCustoZerar();
+  if (save.crystals < custo) return { ok: false, msg: "Faltam ◆ " + fmt(custo - save.crystals) + "." };
+  save.crystals -= custo;
+  save.skills = {};
+  persist(); calcStats();
+  AudioSys.power(); vibrate([40, 50, 80]);
+  return { ok: true, msg: "Árvore zerada. Os " + save.pts + " pontos voltaram." };
+}
+
+/* ---------------------- pular a fase depois de apanhar ---------------------- */
+function pularCusto() { return 400 + (S.fase || 1) * 12; }
+function podePular() { return (S.derrotasSeguidas || 0) >= 5; }
+function pularFase() {
+  const custo = pularCusto();
+  if (save.crystals < custo) return false;
+  save.crystals -= custo;
+  save.best = Math.max(save.best || 0, S.fase);
+  save.pts++;
+  S.derrotasSeguidas = 0;
+  persist(); calcStats();
+  AudioSys.buy();
+  goMenu();
+  return true;
+}
+
+/* ---------------------- prestígio ----------------------
+   Terminou as 270? Recomeça com um bônus que fica para sempre.     */
+function prestigioPronto() { return (save.best || 0) >= TOTAL_FASES; }
+function prestigioNivel() { return save.prestigio || 0; }
+function prestigioBonus() { return prestigioNivel() * 10; }   // +10% por volta
+function prestigioFazer() {
+  if (!prestigioPronto()) return { ok: false, msg: "Termine as " + TOTAL_FASES + " fases primeiro." };
+  save.prestigio = prestigioNivel() + 1;
+  save.best = 0;
+  save.estrelas = {};
+  save.crystals += 5000;
+  persist(); calcStats();
+  AudioSys.victory(); vibrate([60, 60, 120]);
+  return { ok: true, msg: "Volta " + save.prestigio + "! +" + prestigioBonus() +
+           "% de dano e de cristais para sempre, e 5.000 de bônus." };
+}
+function prestigioRender() {
+  const cx = $("perf-prestigio");
+  if (!cx) return;
+  if (!prestigioPronto() && !prestigioNivel()) { cx.style.display = "none"; return; }
+  cx.style.display = "block";
+  cx.className = "card";
+  cx.innerHTML =
+    '<div class="aj-titulo">♾ PRESTÍGIO</div>' +
+    (prestigioNivel() ? "<p class=\"adm-note\">Você está na <b>volta " + prestigioNivel() +
+      "</b>: +" + prestigioBonus() + "% de dano e de cristais para sempre.</p>" : "") +
+    (prestigioPronto()
+      ? '<p class="adm-note" style="margin:8px 0">Recomeçar as 270 fases guarda as naves, as relíquias e as ' +
+        "conquistas — só o número da fase volta ao começo. Em troca, +10% de dano e de cristais " +
+        "para sempre e 5.000 cristais.</p>" +
+        '<button class="big-btn amber" id="prest-ir" style="width:100%">RECOMEÇAR A JORNADA</button>'
+      : "");
+  const b = $("prest-ir");
+  if (b) b.addEventListener("click", () => {
+    const r = prestigioFazer();
+    perfilRender();
+    const av = $("perf-prestigio");
+    if (av) av.insertAdjacentHTML("beforeend", '<div class="fund-ok">' + escaparTexto(r.msg) + "</div>");
+  });
+}
 
 
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { goMenu(); }));
@@ -19987,6 +20430,7 @@ function faseVictory() {
     amuletMsg = "◈ AMULETO ENCONTRADO: " + d.name + " (" + RARS[a.rar].name + ")";
   }
   camLenta(0.8);
+  S.derrotasSeguidas = 0;
   misProgresso("fase", 1);
   if (isBossFase(S.fase)) { misProgresso("chefe", 1); contar("chefes"); }
   if (coop) { misProgresso("amigo", 1); contar("coopFases"); }
@@ -20012,6 +20456,9 @@ function faseVictory() {
 }
 function gameOver() {
   contar("mortes");
+  S.derrotasSeguidas = (S.faseDaDerrota === S.fase ? (S.derrotasSeguidas || 0) : 0) + 1;
+  S.faseDaDerrota = S.fase;
+  setTimeout(() => { try { pularRender(); } catch (e) {} }, 60);
   if (MP.sala && MP.modo === "pvp" && !MP.fim) {
     MP.fim = "derrota";
     finalizarDuelo("derrota", mpOutroPrincipal() || { nome: "Adversário", rank: 0 });
@@ -23135,6 +23582,16 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "6.2", itens: [
+      "FUNDIR RELÍQUIAS: três repetidas iguais viram uma da raridade de cima, direto na tela de relíquias. O que está equipado não entra na fusão",
+      "CONJUNTOS: três espaços no hangar guardam nave + relíquias + arma, e você troca tudo num toque",
+      "COMPARAR TODAS AS NAVES: uma tabela com as 120, que dá para ordenar por dano, vida ou cadência, pintando de verde o que é melhor que a sua e de vermelho o que é pior",
+      "O QUE SAIU DOS ÚLTIMOS BAÚS: histórico das últimas 12 relíquias com o resumo por raridade — nada de achar que o baú está roubando",
+      "FALTA POUCO: o menu mostra as três coisas mais perto de acontecer (a nave que você quase pode comprar, a conquista que está quase lá)",
+      "REFAZER A ÁRVORE: pagando cristais, todos os pontos de habilidade voltam e você escolhe tudo de novo",
+      "PULAR A FASE: depois de cair 5 vezes seguidas na mesma fase, aparece a opção de pular pagando cristais — ninguém larga o jogo por causa de um muro",
+      "PRESTÍGIO: terminou as 270? Dá para recomeçar a jornada guardando naves, relíquias e conquistas, e ganhar +10% de dano e de cristais PARA SEMPRE a cada volta, mais 5.000 cristais"
+    ] },
   { v: "6.1", itens: [
       "TUTORIAL na primeira fase: quatro passos curtos que ensinam a pilotar, entender que a nave atira sozinha, desviar dos tiros rosa e usar a ultimate. Quem já jogou não vê",
       "CADA FASE TEM NOME: um cartão aparece no começo com o nome da fase e uma linha dizendo o que ela tem de perigoso",
@@ -23448,7 +23905,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "6.1";
+const VERSAO = "6.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
