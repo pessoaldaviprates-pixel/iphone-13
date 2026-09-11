@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
         n.name+': dano '+n.baseDmg.toFixed(2)+' casco '+n.baseHp+' agil '+n.baseAgi.toFixed(2))};
   });
 
-  await p.tap('#btn-loja'); await p.waitForTimeout(800);
+  await p.tap('[data-porta="loja"]'); await p.waitForTimeout(800);
   out.abriu = await p.evaluate(()=>({modo:S.mode,
     abas:[...document.querySelectorAll('#loja-abas .aba')].map(x=>x.textContent)}));
 

@@ -16,12 +16,15 @@ const fim=c=>{process.exit(c);};
   await p.waitForTimeout(800);
 
   /* 1) o botão novo existe e leva ao multijogador */
+  /* desde a v7.0 o botao mora dentro da porta COM AMIGOS: o teste entra
+     pelo mesmo caminho que o dedo do jogador faz. */
+  await p.tap('[data-porta="online"]'); await p.waitForTimeout(500);
   out.botao = await p.evaluate(()=>{
-    const b2 = document.getElementById('btn-multi');
-    return { existe: !!b2, texto: b2 ? b2.textContent.replace(/\s+/g,' ').trim() : null,
-             visivel: b2 ? getComputedStyle(b2).display !== 'none' : false };
+    const l = document.querySelector('[data-ir="btn-multi"]');
+    return { existe: !!l, texto: l ? l.textContent.replace(/\s+/g,' ').trim() : null,
+             visivel: l ? getComputedStyle(l).display !== 'none' : false };
   });
-  await p.click('#btn-multi'); await p.waitForTimeout(700);
+  await p.tap('[data-ir="btn-multi"]'); await p.waitForTimeout(700);
   out.abriu = await p.evaluate(()=>({
     tela: S.mode,
     abaLigada: (document.querySelector('#multi-abas .aba.on')||{textContent:''}).textContent.trim(),

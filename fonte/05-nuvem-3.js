@@ -867,7 +867,11 @@ function portaCorpoRender() {
     let selo = "";
     try {
       const i = b.querySelector("i");
-      if (i && i.textContent && i.textContent.trim()) selo = i.textContent.trim();
+      const t = i && i.textContent ? i.textContent.trim() : "";
+      /* selo e aviso curto: um numero, um recorde, um "NOVO". Alguns botoes
+         antigos usam o mesmo <i> para escrever um subtitulo inteiro, e isso
+         nao cabe na linha nem faz falta: a linha ja tem a frase dela. */
+      if (t && t.length <= 14) selo = t;
     } catch (e) {}
     return '<button class="porta-linha" data-ir="' + it.botao + '">' +
       '<b class="porta-ic pequeno">' + it.icone + "</b>" +

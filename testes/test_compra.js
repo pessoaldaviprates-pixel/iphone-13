@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
     calcStats(); persist(); nuvemEnviar(true); goMenu(); });
   await J.p.waitForTimeout(800);
   await J.p.evaluate(()=>pagAplicar({chave:'123.456.789-09',tipo:'CPF',nome:'Teste Do Jogo',cidade:'SAO PAULO'}));
-  await J.p.tap('#btn-loja'); await J.p.waitForTimeout(800);
+  await J.p.tap('[data-porta="loja"]'); await J.p.waitForTimeout(800);
   out.precos = await J.p.evaluate(()=>({
     planos:[...document.querySelectorAll('.plano')].map(e=>
       e.querySelector('.plano-dias').textContent+' '+e.querySelector('.plano-preco').textContent),
