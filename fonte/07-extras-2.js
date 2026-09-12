@@ -575,6 +575,13 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.4", itens: [
+      "O MENU CABE NA TELA: acabou a rolagem. Antes o conteúdo do menu dava mais de 1000 pixels numa tela de 568, e quem tinha celular pequeno via metade e precisava arrastar para achar o resto dos botões",
+      "Os botões agora são do tamanho da sua tela. As quatro portas dividem entre si o espaço que sobra: em celular grande ficam folgadas, em pequeno encolhem juntas — e nunca abaixo de 44 pixels, que é o mínimo para o dedo acertar",
+      "O cartão do piloto, os números, o presente do dia e o JOGAR também encolhem junto, em vez de empurrar o resto para fora da tela",
+      "Em tela muito baixa (celular deitado, aparelho antigo) o que é enfeite sai primeiro para o que serve continuar cabendo",
+      "CORRIGIDO: o resumo de missões e o \u201cfalta pouco\u201d continuavam desenhando no menu por cima do HOJE, repetindo a mesma informação e ocupando 131 pixels à toa desde a v7.0"
+    ] },
   { v: "7.3", itens: [
       "O jogo está sendo preparado para a App Store e a Google Play. A versão que vier dessas lojas não vai ter a loja de dinheiro: a Apple e o Google exigem que compra dentro do app passe pelo pagamento deles, e a nossa é por Pix",
       "Nada do jogo muda por causa disso: cristais, naves, melhorias, fases e tudo o que se ganha jogando continuam iguais nas duas versões. A loja por Pix segue existindo aqui na web",
@@ -997,7 +1004,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.3";
+const VERSAO = "7.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

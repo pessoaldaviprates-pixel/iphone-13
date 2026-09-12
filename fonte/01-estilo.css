@@ -624,12 +624,113 @@
     font-size:.48rem;font-weight:700;padding:1px 5px;display:none;
   }
   .chip i.on{display:block}
-  #screen-menu.show{justify-content:flex-start;padding-top:calc(10px + var(--safe-top));overflow-y:auto}
+  /* ---------- o menu cabe na tela, sem rolagem ----------
+     Antes o menu rolava: o conteúdo dava 1050px numa tela de 568px, e
+     ainda havia um espaçador morto de 25vh no fim. Quem tinha celular
+     pequeno via metade do menu e precisava arrastar para achar o resto.
+
+     Agora a tela inteira é uma coluna que não transborda, e as quatro
+     portas dividem entre si o espaço que sobrar — em tela grande elas
+     ficam folgadas, em tela pequena encolhem juntas, sempre com o dedo
+     alcançando todas sem arrastar nada. */
+  #screen-menu.show{
+    justify-content:flex-start;
+    overflow:hidden;
+    padding:calc(6px + var(--safe-top)) 16px calc(6px + var(--safe-bot));
+  }
   #screen-menu.show > *{flex:none}
-  #screen-menu.show::after{content:"";display:block;height:25vh;flex:none}
   .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
-  #screen-menu.show{gap:9px}
-  #screen-menu .brand{font-size:clamp(1.5rem,6.8vw,2.2rem);margin-bottom:0}
+  #screen-menu.show{gap:clamp(4px,1vh,10px)}
+  #screen-menu .brand{
+    font-size:clamp(1.05rem,3.3vh,2.2rem);margin-bottom:0;flex:none;
+  }
+
+  /* o bloco de baixo é quem estica: as portas moram nele */
+  #screen-menu .menu-btns{
+    flex:1 1 auto;min-height:0;
+    gap:clamp(6px,1.3vh,12px);
+  }
+  #screen-menu #btn-play{
+    flex:none;
+    padding:clamp(9px,1.7vh,15px) 38px;
+    font-size:clamp(.86rem,2vh,1.05rem);
+  }
+  /* as quatro portas repartem o que sobrou, sem passar de um tamanho
+     confortável para o dedo nem descer abaixo do que dá para tocar */
+  /* sem min-height aqui: com ele as quatro portas encolhiam até 0px e
+     sumiam da tela em celular pequeno. Sem ele, o menor tamanho das
+     portas é o piso, e é o resto do menu que cede espaço. */
+  #screen-menu .portas{
+    flex:1 1 auto;justify-content:center;
+    gap:clamp(5px,1vh,9px);
+  }
+  #screen-menu .porta{
+    /* 44px é o mínimo que a Apple recomenda para alvo de toque: é o
+       piso, e o resto cresce com a tela até 92px. */
+    flex:1 1 0;min-height:clamp(44px,7.6vh,60px);max-height:92px;
+    padding:clamp(7px,1.2vh,14px) clamp(11px,3vw,15px);
+    gap:clamp(9px,2.6vw,13px);
+  }
+  #screen-menu .porta-ic{
+    width:clamp(34px,5.4vh,46px);height:clamp(34px,5.4vh,46px);
+    border-radius:clamp(11px,1.8vh,15px);
+    font-size:clamp(.95rem,2.3vh,1.4rem);
+  }
+  #screen-menu .porta-txt strong{font-size:clamp(.64rem,1.55vh,.8rem)}
+  #screen-menu .porta-txt em{font-size:clamp(.5rem,1.15vh,.6rem);margin-top:2px}
+
+  /* o cartão do piloto e os números encolhem junto */
+  #screen-menu .piloto-cartao{padding:clamp(7px,1.2vh,11px) 13px;flex:none}
+  #screen-menu .piloto-nave{
+    width:clamp(38px,6.4vh,56px);height:clamp(38px,6.4vh,56px);
+  }
+  #screen-menu .piloto-nome{font-size:clamp(.8rem,1.9vh,.95rem)}
+  #screen-menu .piloto-barra{margin:clamp(3px,.7vh,7px) 0 3px}
+  #screen-menu .stat-panel{flex:none}
+  #screen-menu .stat-panel .hud-col{padding:clamp(5px,1vh,10px) 6px}
+  #screen-menu .stat-panel .hud-value{font-size:clamp(.9rem,2.2vh,1.2rem)}
+  #screen-menu .menu-chips{flex:none;margin-top:0;gap:clamp(5px,1.4vw,8px)}
+  #screen-menu .chip{padding:clamp(6px,1.3vh,9px) clamp(11px,3.6vw,15px);font-size:clamp(.6rem,1.5vh,.7rem)}
+  #screen-menu .hoje{flex:none;padding:clamp(6px,1.1vh,10px) 12px;gap:clamp(2px,.5vh,5px)}
+  #screen-menu .hoje-linha{font-size:clamp(.56rem,1.3vh,.64rem)}
+
+  /* O presente do dia tinha 113px fixos e não cedia um pixel: sozinho,
+     ele era o que cortava o menu no celular pequeno. Aqui ele encolhe
+     junto com o resto — o botão de pegar continua do tamanho do dedo. */
+  #screen-menu .diaria{
+    flex:none;padding:clamp(7px,1.3vh,13px);gap:clamp(4px,1vh,9px);
+  }
+  #screen-menu .diaria-txt b{font-size:clamp(.62rem,1.6vh,.74rem)}
+  #screen-menu .diaria-txt span{font-size:clamp(.52rem,1.25vh,.62rem);margin-top:2px}
+  #screen-menu .diaria-bolhas i{
+    width:clamp(20px,4vh,26px);height:clamp(20px,4vh,26px);
+    font-size:clamp(.5rem,1.2vh,.6rem);
+  }
+  #screen-menu .diaria .big-btn{
+    padding:clamp(8px,1.5vh,11px);font-size:clamp(.7rem,1.8vh,.8rem);
+  }
+  #screen-menu .diaria-ok{font-size:clamp(.54rem,1.3vh,.64rem)}
+
+  /* Telas muito baixas (celular deitado, aparelho antigo): o que é
+     enfeite sai para o que serve continuar cabendo. A ordem de sacrifício
+     é a do menos útil para o mais útil. */
+  @media (max-height:640px){
+    #screen-menu .brand{display:none}
+  }
+  /* Numa tela de 568px (iPhone SE antigo) ainda faltavam uns 15px. O
+     primeiro a sair é o resumo de HOJE, porque ele é só um atalho: a
+     mesma informação está inteira dentro da porta PROGRESSO. O presente
+     do dia fica — esse é prêmio, e some só quando não há mesmo jeito. */
+  @media (max-height:600px){
+    #screen-menu .hoje{display:none !important}
+  }
+  @media (max-height:520px){
+    #screen-menu #diaria-cartao{display:none !important}
+  }
+  @media (max-height:460px){
+    #screen-menu .stat-panel{display:none}
+    #screen-menu .piloto-cartao{display:none}
+  }
   .gem{color:var(--amber);font-weight:700}
   .gem::before{content:"◆ "}
   .stat-panel{

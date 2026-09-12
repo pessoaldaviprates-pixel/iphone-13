@@ -37,7 +37,16 @@ const { chromium } = require('playwright');
     const e = misEstado();
     return { dia: e.dia, quantas: e.itens.length, tipos: e.itens.map(i => i.tipo),
              rotulos: e.itens.map(i => misRotulo(i)),
-             resumoVisivel: getComputedStyle(document.getElementById('missoes-resumo')).display };
+             /* Desde a v7.4 o cartao "missoes-resumo" nao existe mais: quem
+                leva essa informacao ao jogador e a linha do menu-hoje. O que
+                importa continua sendo o mesmo -- ele ver no menu quantas
+                missoes faltam --, entao o teste olha onde ela mora agora. */
+             resumoVisivel: (() => {
+               hojeRender();
+               const cx = document.getElementById('menu-hoje');
+               if (!cx || cx.style.display === 'none') return 'none';
+               return /miss/i.test(cx.textContent) ? 'block' : 'sem missoes';
+             })() };
   });
   out.missoesEstaveis = await p.evaluate(() => {
     const a = JSON.stringify(misEstado().itens.map(i => i.tipo + i.alvo));

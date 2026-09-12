@@ -902,8 +902,11 @@
       <button class="chip" id="btn-convite">🎟 CONVIDAR</button>
       <button class="chip" id="btn-novidades">📋 NOVIDADES<i id="nov-badge"></i></button>
     </div>
-    <div id="missoes-resumo" style="display:none"></div>
-    <div id="falta-pouco" style="display:none"></div>
+    <!-- Os cartões "missoes-resumo" e "falta-pouco" viviam aqui. Desde a
+         v7.0 quem mostra as duas coisas é o menu-hoje, numa linha só, e
+         eles ficaram desenhando por cima: 131px de repetição no menu.
+         Saíram do HTML — misResumo() e faltaRender() já começam com
+         "if (!cx) return", então viraram inertes sem sobrar código morto. -->
     <div id="cloud-status"></div>
   </div>
 </div>

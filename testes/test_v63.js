@@ -78,7 +78,13 @@ const { chromium } = require('playwright');
     const l = faltaPouco();
     goMenu();
     return { itens: l.length, primeiro: (l[0] || {}).txt,
-             naTela: getComputedStyle(document.getElementById('falta-pouco')).display };
+             /* mesma mudanca da v7.4: o cartao proprio saiu, a informacao
+                passou para a segunda linha do menu-hoje */
+             naTela: (() => {
+               hojeRender();
+               const cx = document.getElementById('menu-hoje');
+               return (cx && cx.style.display !== 'none' && cx.textContent.trim()) ? 'block' : 'none';
+             })() };
   });
 
   /* ---- refazer a árvore ---- */
