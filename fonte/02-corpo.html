@@ -1440,8 +1440,25 @@
     <div class="ex-girar-cx">
       <div class="ex-cel"><i></i></div>
       <strong>VIRE O DISPOSITIVO PARA O MODO PAISAGEM</strong>
-      <span>A cabine tem três painéis lado a lado — em pé não cabe.</span>
+      <span>A cabine tem três painéis lado a lado — deitado cabe tudo com folga.</span>
+      <!-- Aparece se o aparelho não virar em alguns segundos. Sem isto o
+           aviso vira uma parede: quem está com a rotação travada, ou num
+           iPhone (onde página nenhuma pode virar a tela), ficaria
+           trancado do lado de fora de um modo inteiro. -->
+      <div class="ex-girar-saida" id="c3-girar-saida">
+        <p>Não está virando? No iPhone, arraste do canto superior direito e
+           desligue o cadeado <b>🔒 Bloqueio de Orientação</b>. No Android,
+           a mesma coisa nos atalhos rápidos.</p>
+        <button class="ex-ficar" id="c3-ficar">CONTINUAR EM PÉ MESMO ASSIM</button>
+      </div>
     </div>
+  </div>
+
+  <!-- em pé só cabe um painel de cada vez -->
+  <div class="ex-sel" id="c3-sel">
+    <button data-painel="sis">SISTEMAS</button>
+    <button data-painel="voo" class="on">VOO</button>
+    <button data-painel="nave">NAVE</button>
   </div>
 
   <div class="c3-hud">

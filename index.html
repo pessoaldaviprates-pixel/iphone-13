@@ -4446,6 +4446,45 @@
     color:var(--cyan);letter-spacing:.05em;margin-bottom:10px;
   }
   .ex-girar span{display:block;font-size:.74rem;color:var(--dim);line-height:1.6}
+  /* a saída: só aparece depois de o aparelho provar que não vai virar */
+  .ex-girar-saida{display:none;margin-top:22px}
+  .ex-girar-saida.on{display:block}
+  .ex-girar-saida p{
+    font-size:.66rem;color:var(--fraco);line-height:1.65;margin:0 0 14px;
+  }
+  .ex-girar-saida b{color:var(--ink2)}
+  .ex-ficar{
+    padding:11px 20px;border-radius:11px;cursor:pointer;
+    background:rgba(77,232,255,.1);border:1px solid var(--line2);color:var(--cyan);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;
+  }
+  .ex-ficar:active{background:rgba(77,232,255,.24)}
+
+  /* ---- em pé: um painel de cada vez, na largura toda ----
+     Três painéis lado a lado não cabem num celular em pé. Em vez de
+     espremer (que foi o problema que esta versão veio consertar), só um
+     aparece, e um seletor troca qual. */
+  .ex-sel{
+    display:none;position:absolute;left:10px;right:10px;
+    bottom:calc(12px + var(--safe-bot));z-index:6;
+    gap:6px;pointer-events:auto;
+  }
+  .ex-sel button{
+    flex:1;padding:9px 4px;border-radius:10px;cursor:pointer;
+    background:rgba(9,16,34,.85);border:1px solid rgba(120,200,255,.2);
+    color:var(--fraco);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.5rem;letter-spacing:.12em;
+  }
+  .ex-sel button.on{background:rgba(77,232,255,.14);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  #screen-cabine.retrato .ex-sel{display:flex}
+  #screen-cabine.retrato .ex-painel{
+    left:10px;right:10px;width:auto;max-width:none;transform:none;
+    bottom:calc(56px + var(--safe-bot));display:none;
+  }
+  #screen-cabine.retrato .ex-painel.mostrar{display:block}
+  #screen-cabine.retrato .ex-topo{flex-wrap:wrap;max-width:96vw}
+  #screen-cabine.retrato .ex-radar{width:19vh;height:19vh}
+  #screen-cabine.retrato .ex-pot{height:19vh}
   /* o celular girando: a animação mostra o que fazer sem precisar ler */
   .ex-cel{
     width:54px;height:92px;margin:0 auto 24px;border-radius:9px;
@@ -6162,8 +6201,25 @@
     <div class="ex-girar-cx">
       <div class="ex-cel"><i></i></div>
       <strong>VIRE O DISPOSITIVO PARA O MODO PAISAGEM</strong>
-      <span>A cabine tem três painéis lado a lado — em pé não cabe.</span>
+      <span>A cabine tem três painéis lado a lado — deitado cabe tudo com folga.</span>
+      <!-- Aparece se o aparelho não virar em alguns segundos. Sem isto o
+           aviso vira uma parede: quem está com a rotação travada, ou num
+           iPhone (onde página nenhuma pode virar a tela), ficaria
+           trancado do lado de fora de um modo inteiro. -->
+      <div class="ex-girar-saida" id="c3-girar-saida">
+        <p>Não está virando? No iPhone, arraste do canto superior direito e
+           desligue o cadeado <b>🔒 Bloqueio de Orientação</b>. No Android,
+           a mesma coisa nos atalhos rápidos.</p>
+        <button class="ex-ficar" id="c3-ficar">CONTINUAR EM PÉ MESMO ASSIM</button>
+      </div>
     </div>
+  </div>
+
+  <!-- em pé só cabe um painel de cada vez -->
+  <div class="ex-sel" id="c3-sel">
+    <button data-painel="sis">SISTEMAS</button>
+    <button data-painel="voo" class="on">VOO</button>
+    <button data-painel="nave">NAVE</button>
   </div>
 
   <div class="c3-hud">
@@ -29230,11 +29286,59 @@ function explAbrirMapa() {
    experiência ruim e fingir que está tudo bem.
 
    Isto vale SÓ neste modo: o resto do jogo continua em pé como sempre. */
+let explRetratoAceito = false, explRelogioGirar = 0;
 function explOlharOrientacao() {
   const av = $("c3-girar");
   if (!av) return;
   const retrato = innerHeight > innerWidth;
-  av.classList.toggle("on", retrato && explLigada);
+  const mostrar = retrato && explLigada && !explRetratoAceito;
+  av.classList.toggle("on", mostrar);
+  SCREENS.cabine.classList.toggle("retrato", retrato && explRetratoAceito);
+
+  if (explRelogioGirar) { clearTimeout(explRelogioGirar); explRelogioGirar = 0; }
+  const saida = $("c3-girar-saida");
+  if (saida) saida.classList.remove("on");
+  if (!mostrar) return;
+
+  /* Se depois de alguns segundos o aparelho continua em pé, ele
+     provavelmente NÃO VAI virar: ou a rotação está travada, ou é um
+     iPhone (onde nenhuma página pode virar a tela). Insistir no mesmo
+     aviso seria deixar o jogador do lado de fora de um modo inteiro --
+     então aqui aparece a explicação e a saída. */
+  explRelogioGirar = setTimeout(() => {
+    if (!explLigada || innerHeight <= innerWidth) return;
+    if (saida) saida.classList.add("on");
+  }, 3500);
+}
+
+
+/* ---------------------------------------------------------------------
+   VIRAR A TELA
+   ---------------------------------------------------------------------
+   O manifest.json trancava o jogo inteiro em retrato. Isso mantinha o
+   resto do jogo em pé (que é o certo), mas fazia o atalho da tela
+   inicial NUNCA virar -- e aí o aviso "vire o aparelho" virava uma
+   parede: o modo ficava inalcançável para quem joga pelo atalho.
+
+   Agora o manifesto libera, e quem manda na orientação é cada modo:
+   este pede paisagem ao entrar e devolve retrato ao sair. Os outros
+   modos continuam em pé porque o retrato é pedido de volta na saída e
+   no começo do jogo.
+
+   No iPhone a API screen.orientation.lock não existe -- a Apple não
+   deixa página nenhuma virar a tela. Lá o que resolve é o aviso, e por
+   isso ele explica a trava de rotação em vez de só mandar girar: mandar
+   girar um aparelho travado não ajuda ninguém.                        */
+function orientarPara(qual) {
+  try {
+    const o = screen.orientation;
+    if (o && typeof o.lock === "function") {
+      const p = o.lock(qual);
+      if (p && p.catch) p.catch(() => {});   // recusado: o aviso assume
+      return true;
+    }
+  } catch (e) {}
+  return false;
 }
 
 /* ---------------------------------------------------------------------
@@ -29264,6 +29368,8 @@ function exploracaoEntrar() {
   explPintarControles();
   explPintarPainel();
   explPintarAvisos();
+  orientarPara("landscape");
+  explRetratoAceito = false;
   explOlharOrientacao();
   explAntes = performance.now();
   explQuadro = requestAnimationFrame(explLaco);
@@ -29276,6 +29382,9 @@ function explSair() {
   explQuadro = 0;
   if (explAPI) explAPI.desligar();
   const m = $("c3-mapa"); if (m) m.style.display = "none";
+  /* devolve o aparelho ao retrato: os outros modos do jogo são em pé */
+  orientarPara("portrait");
+  explRetratoAceito = false;
   explOlharOrientacao();
   goMenu();
 }
@@ -29293,6 +29402,32 @@ addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220)
   if (b) b.addEventListener("click", () => { try { AudioSys.resume(); } catch (e) {} exploracaoEntrar(); });
   const v = $("c3-voltar");
   if (v) v.addEventListener("click", explSair);
+})();
+
+/* o jogador escolheu jogar em pé: a cabine se reorganiza em vez de
+   barrar a entrada */
+(function ligarSaidaDoRetrato() {
+  const b = $("c3-ficar");
+  if (b) b.addEventListener("click", () => {
+    explRetratoAceito = true;
+    /* o VOO começa aberto: é o painel que mais se usa, e abrir em
+       nenhum deixaria a tela parecendo quebrada */
+    const cen = $("c3-pcen");
+    if (cen && !document.querySelector(".ex-painel.mostrar")) cen.classList.add("mostrar");
+    explOlharOrientacao();
+    if (explAPI) { explAPI.medir(); explPintarControles(); }
+  });
+  /* em pé só cabe um painel de cada vez: o seletor troca qual */
+  document.querySelectorAll("[data-painel]").forEach(x =>
+    x.addEventListener("click", () => {
+      const g = x.getAttribute("data-painel");
+      document.querySelectorAll("[data-painel]").forEach(y =>
+        y.classList.toggle("on", y === x));
+      for (const [id, gg] of [["c3-pesq","sis"],["c3-pcen","voo"],["c3-pdir","nave"]]) {
+        const el = $(id);
+        if (el) el.classList.toggle("mostrar", gg === g);
+      }
+    }));
 })();
 /* ---------- Loop ---------- */
 let last = performance.now();
@@ -29871,6 +30006,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.0", itens: [
+      "CORRIGIDO (grave): o celular não virava na EXPLORAÇÃO. A culpa era minha — o jogo estava trancado em retrato no manifesto, então o atalho da tela inicial nunca girava e o aviso “vire o aparelho” virava uma parede: o modo ficava inalcançável",
+      "Agora só a exploração pede paisagem, e ela devolve o retrato ao sair. Os outros modos continuam em pé como sempre foram",
+      "E o aviso deixou de ser parede: se o aparelho não virar em alguns segundos, ele explica onde fica a trava de rotação (no iPhone, arrastar do canto superior direito e desligar o cadeado) e oferece CONTINUAR EM PÉ",
+      "Jogando em pé, a cabine se reorganiza: um painel de cada vez, na largura toda, com um seletor SISTEMAS · VOO · NAVE. Nada fica pequeno demais nem sai da tela — só aparece menos de cada vez",
+      "Girando o aparelho depois, ela volta sozinha para os três painéis lado a lado",
+      "Honesto sobre o iPhone: a Apple não deixa página nenhuma virar a tela sozinha. Se a sua rotação estiver travada, quem resolve é o cadeado do sistema — e é por isso que o aviso ensina onde ele fica, em vez de só mandar girar"
+    ] },
   { v: "7.9", itens: [
       "EXPLORAÇÃO: a interface foi refeita inteira. Estava apertada — 49 botões minúsculos espremidos numa faixa colada no rodapé, parecendo planilha em vez de cabine",
       "Os botões ficaram GRANDES, com ícone, rótulo legível e uma luzinha de estado. Nenhum encosta no outro",
@@ -30356,7 +30499,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.9";
+const VERSAO = "8.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

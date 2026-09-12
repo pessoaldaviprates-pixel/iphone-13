@@ -4428,6 +4428,45 @@
     color:var(--cyan);letter-spacing:.05em;margin-bottom:10px;
   }
   .ex-girar span{display:block;font-size:.74rem;color:var(--dim);line-height:1.6}
+  /* a saída: só aparece depois de o aparelho provar que não vai virar */
+  .ex-girar-saida{display:none;margin-top:22px}
+  .ex-girar-saida.on{display:block}
+  .ex-girar-saida p{
+    font-size:.66rem;color:var(--fraco);line-height:1.65;margin:0 0 14px;
+  }
+  .ex-girar-saida b{color:var(--ink2)}
+  .ex-ficar{
+    padding:11px 20px;border-radius:11px;cursor:pointer;
+    background:rgba(77,232,255,.1);border:1px solid var(--line2);color:var(--cyan);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;
+  }
+  .ex-ficar:active{background:rgba(77,232,255,.24)}
+
+  /* ---- em pé: um painel de cada vez, na largura toda ----
+     Três painéis lado a lado não cabem num celular em pé. Em vez de
+     espremer (que foi o problema que esta versão veio consertar), só um
+     aparece, e um seletor troca qual. */
+  .ex-sel{
+    display:none;position:absolute;left:10px;right:10px;
+    bottom:calc(12px + var(--safe-bot));z-index:6;
+    gap:6px;pointer-events:auto;
+  }
+  .ex-sel button{
+    flex:1;padding:9px 4px;border-radius:10px;cursor:pointer;
+    background:rgba(9,16,34,.85);border:1px solid rgba(120,200,255,.2);
+    color:var(--fraco);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.5rem;letter-spacing:.12em;
+  }
+  .ex-sel button.on{background:rgba(77,232,255,.14);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  #screen-cabine.retrato .ex-sel{display:flex}
+  #screen-cabine.retrato .ex-painel{
+    left:10px;right:10px;width:auto;max-width:none;transform:none;
+    bottom:calc(56px + var(--safe-bot));display:none;
+  }
+  #screen-cabine.retrato .ex-painel.mostrar{display:block}
+  #screen-cabine.retrato .ex-topo{flex-wrap:wrap;max-width:96vw}
+  #screen-cabine.retrato .ex-radar{width:19vh;height:19vh}
+  #screen-cabine.retrato .ex-pot{height:19vh}
   /* o celular girando: a animação mostra o que fazer sem precisar ler */
   .ex-cel{
     width:54px;height:92px;margin:0 auto 24px;border-radius:9px;

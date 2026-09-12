@@ -575,6 +575,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.0", itens: [
+      "CORRIGIDO (grave): o celular não virava na EXPLORAÇÃO. A culpa era minha — o jogo estava trancado em retrato no manifesto, então o atalho da tela inicial nunca girava e o aviso “vire o aparelho” virava uma parede: o modo ficava inalcançável",
+      "Agora só a exploração pede paisagem, e ela devolve o retrato ao sair. Os outros modos continuam em pé como sempre foram",
+      "E o aviso deixou de ser parede: se o aparelho não virar em alguns segundos, ele explica onde fica a trava de rotação (no iPhone, arrastar do canto superior direito e desligar o cadeado) e oferece CONTINUAR EM PÉ",
+      "Jogando em pé, a cabine se reorganiza: um painel de cada vez, na largura toda, com um seletor SISTEMAS · VOO · NAVE. Nada fica pequeno demais nem sai da tela — só aparece menos de cada vez",
+      "Girando o aparelho depois, ela volta sozinha para os três painéis lado a lado",
+      "Honesto sobre o iPhone: a Apple não deixa página nenhuma virar a tela sozinha. Se a sua rotação estiver travada, quem resolve é o cadeado do sistema — e é por isso que o aviso ensina onde ele fica, em vez de só mandar girar"
+    ] },
   { v: "7.9", itens: [
       "EXPLORAÇÃO: a interface foi refeita inteira. Estava apertada — 49 botões minúsculos espremidos numa faixa colada no rodapé, parecendo planilha em vez de cabine",
       "Os botões ficaram GRANDES, com ícone, rótulo legível e uma luzinha de estado. Nenhum encosta no outro",
@@ -1060,7 +1068,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.9";
+const VERSAO = "8.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

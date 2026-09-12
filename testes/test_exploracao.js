@@ -83,7 +83,10 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
 
   /* ---- nenhum botão encostando, cortado ou fora da tela ---- */
   out.layout = await p.evaluate(() => {
-    const bts = [...document.querySelectorAll('#screen-cabine [data-ctrl]')];
+    /* só os que o dedo alcança: botão de painel escondido mede zero e
+       entraria na conta como "pequeno demais" sem ser problema nenhum */
+    const bts = [...document.querySelectorAll('#screen-cabine [data-ctrl]')]
+      .filter(e => e.getBoundingClientRect().height > 1);
     const rs = bts.map(b => b.getBoundingClientRect());
     let encostando = 0, forinhas = 0, pequenos = 0, cortados = 0;
     for (let i = 0; i < rs.length; i++) {
@@ -213,9 +216,39 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   await p.setViewportSize({ width: 390, height: 844 });
   await p.waitForTimeout(700);
   out.emPe = await p.evaluate(() => document.getElementById('c3-girar').classList.contains('on'));
+  /* ---- o aviso não pode ser uma parede ----
+     Quem está com a rotação travada (ou num iPhone, onde página nenhuma
+     vira a tela) ficaria trancado do lado de fora de um modo inteiro.
+     Depois de alguns segundos aparece a explicação e a saída. */
+  await p.waitForTimeout(4200);
+  out.saidaDoRetrato = await p.evaluate(() => ({
+    apareceu: document.getElementById('c3-girar-saida').classList.contains('on')
+  }));
+  out.emPeMesmoAssim = await p.evaluate(() => {
+    document.getElementById('c3-ficar').click();
+    const t = document.getElementById('screen-cabine');
+    const vis = [...document.querySelectorAll('.ex-painel')]
+      .filter(e => getComputedStyle(e).display !== 'none');
+    const bts = [...document.querySelectorAll('#screen-cabine [data-ctrl]')]
+      .filter(e => e.getBoundingClientRect().height > 1);
+    let fora = 0, peq = 0;
+    for (const x of bts) {
+      const q = x.getBoundingClientRect();
+      if (q.right > innerWidth+1 || q.bottom > innerHeight+1 || q.left < -1 || q.top < -1) fora++;
+      if (q.height < 34 || q.width < 34) peq++;
+    }
+    return { avisoSumiu: !document.getElementById('c3-girar').classList.contains('on'),
+             modoRetrato: t.classList.contains('retrato'),
+             paineisAbertos: vis.length,
+             seletor: getComputedStyle(document.getElementById('c3-sel')).display,
+             botoes: bts.length, fora, peq };
+  });
+
   await p.setViewportSize({ width: 844, height: 390 });
   await p.waitForTimeout(700);
   out.deitadoDeNovo = await p.evaluate(() => document.getElementById('c3-girar').classList.contains('on'));
+  out.voltouDeitado = await p.evaluate(() =>
+    !document.getElementById('screen-cabine').classList.contains('retrato'));
   await p.screenshot({ path: 'exploracao.png' });
 
   /* ---- sair e conferir que o JOGO continua inteiro ---- */
@@ -290,6 +323,15 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   if (out.retrato.emPaisagem) erro('o aviso de girar aparece em paisagem');
   if (!out.emPe) erro('o aviso de girar NAO aparece em retrato');
   if (out.deitadoDeNovo) erro('o aviso de girar nao sumiu ao voltar para paisagem');
+  if (!out.saidaDoRetrato.apareceu) erro('o aviso virou parede: a saida nao apareceu');
+  const R = out.emPeMesmoAssim;
+  if (!R.avisoSumiu) erro('continuar em pe nao tirou o aviso');
+  if (!R.modoRetrato) erro('nao entrou no arranjo de retrato');
+  if (R.paineisAbertos !== 1) erro('em pe deviam aparecer 1 painel de cada vez, apareceram ' + R.paineisAbertos);
+  if (R.seletor === 'none') erro('o seletor de painel nao aparece em pe');
+  if (R.fora) erro('em pe, ' + R.fora + ' botoes fora da tela');
+  if (R.peq) erro('em pe, ' + R.peq + ' botoes menores que o dedo alcanca');
+  if (!out.voltouDeitado) erro('ao deitar de novo nao voltou ao arranjo de tres paineis');
   if (out.saiu.ligada || out.saiu.quadro !== 0) erro('sobrou laco rodando depois de sair');
   if (!out.saiu.menu) erro('nao voltou para o menu');
   for (const k of ['hangar','habilidades','mapa','amigos','loja'])

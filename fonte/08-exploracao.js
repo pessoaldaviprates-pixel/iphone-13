@@ -1551,11 +1551,59 @@ function explAbrirMapa() {
    experiência ruim e fingir que está tudo bem.
 
    Isto vale SÓ neste modo: o resto do jogo continua em pé como sempre. */
+let explRetratoAceito = false, explRelogioGirar = 0;
 function explOlharOrientacao() {
   const av = $("c3-girar");
   if (!av) return;
   const retrato = innerHeight > innerWidth;
-  av.classList.toggle("on", retrato && explLigada);
+  const mostrar = retrato && explLigada && !explRetratoAceito;
+  av.classList.toggle("on", mostrar);
+  SCREENS.cabine.classList.toggle("retrato", retrato && explRetratoAceito);
+
+  if (explRelogioGirar) { clearTimeout(explRelogioGirar); explRelogioGirar = 0; }
+  const saida = $("c3-girar-saida");
+  if (saida) saida.classList.remove("on");
+  if (!mostrar) return;
+
+  /* Se depois de alguns segundos o aparelho continua em pé, ele
+     provavelmente NÃO VAI virar: ou a rotação está travada, ou é um
+     iPhone (onde nenhuma página pode virar a tela). Insistir no mesmo
+     aviso seria deixar o jogador do lado de fora de um modo inteiro --
+     então aqui aparece a explicação e a saída. */
+  explRelogioGirar = setTimeout(() => {
+    if (!explLigada || innerHeight <= innerWidth) return;
+    if (saida) saida.classList.add("on");
+  }, 3500);
+}
+
+
+/* ---------------------------------------------------------------------
+   VIRAR A TELA
+   ---------------------------------------------------------------------
+   O manifest.json trancava o jogo inteiro em retrato. Isso mantinha o
+   resto do jogo em pé (que é o certo), mas fazia o atalho da tela
+   inicial NUNCA virar -- e aí o aviso "vire o aparelho" virava uma
+   parede: o modo ficava inalcançável para quem joga pelo atalho.
+
+   Agora o manifesto libera, e quem manda na orientação é cada modo:
+   este pede paisagem ao entrar e devolve retrato ao sair. Os outros
+   modos continuam em pé porque o retrato é pedido de volta na saída e
+   no começo do jogo.
+
+   No iPhone a API screen.orientation.lock não existe -- a Apple não
+   deixa página nenhuma virar a tela. Lá o que resolve é o aviso, e por
+   isso ele explica a trava de rotação em vez de só mandar girar: mandar
+   girar um aparelho travado não ajuda ninguém.                        */
+function orientarPara(qual) {
+  try {
+    const o = screen.orientation;
+    if (o && typeof o.lock === "function") {
+      const p = o.lock(qual);
+      if (p && p.catch) p.catch(() => {});   // recusado: o aviso assume
+      return true;
+    }
+  } catch (e) {}
+  return false;
 }
 
 /* ---------------------------------------------------------------------
@@ -1585,6 +1633,8 @@ function exploracaoEntrar() {
   explPintarControles();
   explPintarPainel();
   explPintarAvisos();
+  orientarPara("landscape");
+  explRetratoAceito = false;
   explOlharOrientacao();
   explAntes = performance.now();
   explQuadro = requestAnimationFrame(explLaco);
@@ -1597,6 +1647,9 @@ function explSair() {
   explQuadro = 0;
   if (explAPI) explAPI.desligar();
   const m = $("c3-mapa"); if (m) m.style.display = "none";
+  /* devolve o aparelho ao retrato: os outros modos do jogo são em pé */
+  orientarPara("portrait");
+  explRetratoAceito = false;
   explOlharOrientacao();
   goMenu();
 }
@@ -1614,4 +1667,30 @@ addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220)
   if (b) b.addEventListener("click", () => { try { AudioSys.resume(); } catch (e) {} exploracaoEntrar(); });
   const v = $("c3-voltar");
   if (v) v.addEventListener("click", explSair);
+})();
+
+/* o jogador escolheu jogar em pé: a cabine se reorganiza em vez de
+   barrar a entrada */
+(function ligarSaidaDoRetrato() {
+  const b = $("c3-ficar");
+  if (b) b.addEventListener("click", () => {
+    explRetratoAceito = true;
+    /* o VOO começa aberto: é o painel que mais se usa, e abrir em
+       nenhum deixaria a tela parecendo quebrada */
+    const cen = $("c3-pcen");
+    if (cen && !document.querySelector(".ex-painel.mostrar")) cen.classList.add("mostrar");
+    explOlharOrientacao();
+    if (explAPI) { explAPI.medir(); explPintarControles(); }
+  });
+  /* em pé só cabe um painel de cada vez: o seletor troca qual */
+  document.querySelectorAll("[data-painel]").forEach(x =>
+    x.addEventListener("click", () => {
+      const g = x.getAttribute("data-painel");
+      document.querySelectorAll("[data-painel]").forEach(y =>
+        y.classList.toggle("on", y === x));
+      for (const [id, gg] of [["c3-pesq","sis"],["c3-pcen","voo"],["c3-pdir","nave"]]) {
+        const el = $(id);
+        if (el) el.classList.toggle("mostrar", gg === g);
+      }
+    }));
 })();
