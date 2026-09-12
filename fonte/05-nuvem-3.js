@@ -754,7 +754,7 @@ const PORTAS = [
       { botao: "btn-reliquias", icone: "◈", nome: "Relíquias",    nota: "amuletos e baús" },
       { botao: "btn-comparar",  icone: "📊", nome: "Comparar naves", nota: "as 120 lado a lado", ondeEsta: "hangar" },
       { botao: "btn-treino",    icone: "🎯", nome: "Sala de treino", nota: "alvos parados, nada machuca", ondeEsta: "hangar" },
-      { botao: "btn-cabine",    icone: "🛸", nome: "Cabine · primeira pessoa", nota: "pilotar por dentro, em 3D" }
+      { botao: "btn-cabine",    icone: "🛸", nome: "Exploração espacial", nota: "pilotar a nave por dentro, em 3D" }
     ]
   },
   {

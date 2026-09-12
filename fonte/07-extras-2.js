@@ -575,6 +575,36 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.8", itens: [
+      "EXPLORAÇÃO ESPACIAL substitui o modo de luta em 3D. Mesma porta no menu (MINHA NAVE), experiência nova: agora você pilota uma nave e explora o espaço, em vez de atirar em caças",
+      "A NAVE COMEÇA DESLIGADA. Você liga em ordem: bateria, energia, computadores, navegação, combustível, bombas, comunicação, motores, estabilizadores e controles. Apertar fora de ordem não pune — a nave explica o que falta antes",
+      "49 CONTROLES QUE FAZEM ALGUMA COISA, em três painéis: SISTEMAS, VOO e NAVE. Radar, scanner, sensores, escudo, mapa estelar, hiperpropulsão, atracar, pousar, decolar, autopiloto, turbo, freio, retro, oxigênio, gravidade, temperatura, diagnóstico, reparo, câmeras, farol, transmitir e mais",
+      "OITO SISTEMAS SOLARES gerados por semente: estrela, planetas em órbita de verdade, luas girando, asteroides e, em alguns, uma estação para atracar (que enche o tanque e conserta a nave)",
+      "OITO TIPOS DE PLANETA — rochoso, desértico, oceânico, congelado, vulcânico, com vegetação, alienígena e com tempestades. Escaneie para descobrir temperatura, gravidade, água e o que há de interessante lá",
+      "HIPERPROPULSÃO com a sequência inteira: DESTINO, CÁLCULO, VERIFICAÇÃO, CARREGANDO, SALTO e CHEGADA — e as estrelas se esticam no salto",
+      "ALIENÍGENAS com jeitos diferentes: pacíficos, comerciantes, exploradores, piratas e misteriosos. Eles falam com você pelo rádio; os piratas atiram",
+      "COMBUSTÍVEL, ENERGIA, ESCUDO, CASCO, OXIGÊNIO E TEMPERATURA de verdade: cada sistema ligado consome, e quando o combustível acaba os motores apagam",
+      "AVARIAS por sistema (motor, energia, escudos, sensores, comunicação, navegação, casco) que atrapalham mesmo — motor avariado puxa a nave para o lado. Dá para diagnosticar e reparar",
+      "ACONTECIMENTOS: tempestade solar, chuva de micrometeoros, sinal misterioso, destroços, campo gravitacional, anomalia, sobrecarga e nave abandonada",
+      "COMBUSTÍVEL INFINITO é uma opção: o botão FUEL MODE alterna entre normal e infinito, e vale só neste modo",
+      "QUATRO CÂMERAS: cabine, externa frontal, externa traseira e lateral",
+      "O MANCHE E OS DOIS ACELERADORES aparecem na cabine e se mexem: o manche com o seu dedo, os aceleradores conforme a potência",
+      "PEDE O CELULAR DEITADO: a cabine tem três painéis lado a lado e em pé não cabe. O aviso mostra o aparelho girando e some sozinho quando você vira — e volta se você virar de novo. Isso vale SÓ neste modo; o resto do jogo continua em pé",
+      "No computador: W e S para potência, C troca a câmera, T trava alvo, R escaneia, M abre o mapa e H salta",
+      "Nada do resto do jogo mudou: fases, naves, loja, amigos, ranking e progressão continuam exatamente como estavam"
+    ] },
+  { v: "7.7", itens: [
+      "CORRIGIDO (grave): o botão AJUSTES sumia do menu para quem tinha VIP perto de vencer. Desde a v7.4 o menu não rola, e o cartão a mais empurrava os botões para fora da tela — onde eram cortados em silêncio. Agora o menu se mede depois de desenhar: se não couber, ele guarda os cartões opcionais (que continuam nas portas PROGRESSO e LOJA), e se mesmo assim não couber ele volta a rolar. Botão fora do alcance do dedo nunca mais",
+      "CABINE — ACERTAR FICOU POSSÍVEL: são 4 caças em vez de 7, nascem mais perto e na sua frente, o alvo do tiro é do tamanho da nave (não de um ponto) e eles atiram bem menos",
+      "OS TIROS INIMIGOS DÁ PARA VER CHEGANDO: cada tiro agora é um núcleo forte com um rastro atrás, e voa mais devagar — dá tempo de desviar",
+      "PAINEL DE HABILIDADES na cabine, com cinco: MIRA (os tiros perseguem o alvo travado), TRIPLO (três canos em leque), ESCUDO (nada te acerta), LENTO (o mundo anda devagar, o seu manche não) e ULT (queima tudo na sua frente)",
+      "A MIRA é interruptor, não gasta e não recarrega: quem quer treinar pontaria deixa desligada, quem só quer voar e ver explosão liga. Com ela, um quadradinho verde mostra o alvo travado",
+      "O MANCHE AGORA EXISTE DENTRO DA CABINE e se mexe junto com o seu dedo — com punho, gatilho vermelho e dois botões acesos",
+      "CABINE MUITO MAIS VIVA: radar com cursor girando, escada de energia, 22 botões piscando em quatro ritmos, seis chavinhas, luzinhas no teto, costelas nos montantes e duas luzes de alerta que acendem sozinhas quando o casco cai de 40%",
+      "OS CAÇAS INIMIGOS foram refeitos: bolha do piloto, asas em duas partes com aleta na ponta, canhões nas asas e chama nos motores",
+      "Faíscas quando o tiro acerta, e uma chuva delas quando a nave explode",
+      "O jogo 2D não mudou em nada: a conta de inimigos da cabine é outra, num arquivo separado"
+    ] },
   { v: "7.6", itens: [
       "CABINE — PRIMEIRA PESSOA (começo): em MINHA NAVE tem uma linha nova, “Cabine · primeira pessoa”. Você pilota por dentro da nave, em 3D de verdade",
       "O manche é um dedo em qualquer lugar da tela: ele nasce onde você encostar, vai para qualquer direção (não só reto para os lados) e a nave inclina para dentro da curva sozinha. Solte e ela endireita",
@@ -1017,7 +1047,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.6";
+const VERSAO = "7.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

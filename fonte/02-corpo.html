@@ -867,7 +867,7 @@
       <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
       <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
       <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
-      <button class="tile" id="btn-cabine"><b>🛸</b><span>CABINE</span><i>NOVO</i></button>
+      <button class="tile" id="btn-cabine"><b>🛸</b><span>EXPLORAÇÃO</span><i>NOVO</i></button>
       <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
       <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
     </div>
@@ -1430,29 +1430,52 @@
 
 <div id="foto-caixa"></div>
 
-<!-- CABINE: o modo primeira pessoa -->
+<!-- EXPLORAÇÃO ESPACIAL: um modo inteiro, isolado nesta tela -->
 <div class="screen" id="screen-cabine">
   <canvas id="tela3d"></canvas>
-  <div class="c3-hud">
-    <div class="c3-painel">
-      <div class="c3-cx"><div class="rot">VELOCIDADE</div><div class="val" id="c3-vel">0</div></div>
-      <div class="c3-cx casco" id="c3-cx-casco"><div class="rot">CASCO</div><div class="val" id="c3-casco">100%</div></div>
-      <div class="c3-cx"><div class="rot">ABATES</div><div class="val" id="c3-abates">0</div></div>
+
+  <!-- pede o aparelho deitado, e não deixa fechar: a cabine tem três
+       painéis lado a lado e em pé não cabe. Vale só neste modo. -->
+  <div class="ex-girar" id="c3-girar">
+    <div class="ex-girar-cx">
+      <div class="ex-cel"><i></i></div>
+      <strong>VIRE O DISPOSITIVO PARA O MODO PAISAGEM</strong>
+      <span>A cabine tem três painéis lado a lado — em pé não cabe.</span>
     </div>
+  </div>
+
+  <div class="c3-hud">
+    <!-- leitura de voo -->
+    <div class="ex-topo">
+      <div class="ex-cx"><u>SISTEMA</u><b id="c3-sistema">—</b></div>
+      <div class="ex-cx"><u>VEL</u><b id="c3-vel">0</b></div>
+      <div class="ex-cx"><u>COMB</u><b id="c3-comb">100%</b></div>
+      <div class="ex-cx"><u>ENERGIA</u><b id="c3-ene">100%</b></div>
+      <div class="ex-cx"><u>ESCUDO</u><b id="c3-esc">100%</b></div>
+      <div class="ex-cx"><u>CASCO</u><b id="c3-casco">100%</b></div>
+      <div class="ex-cx"><u>O₂</u><b id="c3-oxi">100%</b></div>
+      <div class="ex-cx"><u>TEMP</u><b id="c3-temp">22°C</b></div>
+    </div>
+
+    <div class="ex-salto" id="c3-salto" style="display:none"></div>
+
+    <!-- os três painéis de controle -->
+    <div class="ex-painel esq"><div class="ex-painel-h">SISTEMAS</div><div class="ex-bts" id="c3-pesq"></div></div>
+    <div class="ex-painel cen"><div class="ex-painel-h">VOO</div><div class="ex-bts" id="c3-pcen"></div></div>
+    <div class="ex-painel dir"><div class="ex-painel-h">NAVE</div><div class="ex-bts" id="c3-pdir"></div></div>
+
+    <!-- radar, potência e recados -->
+    <div class="ex-radar" id="c3-radar"></div>
+    <div class="ex-pot"><i id="c3-pot-b"></i><u>POT</u></div>
+    <div class="ex-avisos" id="c3-avisos"></div>
+
     <div class="c3-mira" id="c3-mira"><i></i><i></i><i></i><i></i><b></b></div>
     <div class="c3-manche" id="c3-manche"><u id="c3-manche-u"></u></div>
-    <div class="c3-habs">
-      <button class="c3-hab ult pronta" id="c3-ult">ULT</button>
-      <button class="c3-hab pronta" id="c3-h1">✦</button>
-      <button class="c3-hab pronta" id="c3-h2">◈</button>
-    </div>
-    <div class="c3-dica" id="c3-dica">
-      Arraste <b>um dedo</b> em qualquer lugar — o manche nasce onde você encostar<br>
-      Solte para endireitar · os canhões atiram sozinhos
-    </div>
     <div class="c3-dano" id="c3-dano"></div>
-    <div class="c3-erro" id="c3-erro">Este aparelho não abriu o WebGL 2, que é o que desenha o 3D.<br>A cabine precisa dele; o resto do jogo funciona normal.</div>
+    <div class="c3-erro" id="c3-erro">Este aparelho não abriu o WebGL 2, que é o que desenha o 3D.<br>A exploração precisa dele; o resto do jogo funciona normal.</div>
   </div>
+
+  <div class="ex-mapa" id="c3-mapa" style="display:none"></div>
   <button class="c3-voltar" id="c3-voltar" aria-label="Voltar ao menu">‹</button>
 </div>
 

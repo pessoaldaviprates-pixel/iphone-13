@@ -18,6 +18,6 @@
 06-painel.js
 06-painel-fim.html
 07-extras-1.js
-08-cabine.js
+08-exploracao.js
 07-extras-2.js
 07-extras-fim.html

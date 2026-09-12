@@ -117,6 +117,10 @@ function showScreen(name) {
   if (dica) dica.style.display = (name === null && modoPC) ? "block" : "none";
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
+  /* o menu só pode se medir depois de estar na tela: o goMenu chama o
+     refreshMenu ANTES do showScreen, e medir um elemento escondido dá
+     zero em tudo. Medir aqui pega todos os caminhos que abrem o menu. */
+  if (name === "menu") { try { menuCaber(); } catch (e) {} }
 }
 let hudOndasMarca = "";
 let hudSujo = false;
@@ -290,7 +294,54 @@ function refreshMenu() {
   const nb = $("nov-badge");
   if (nb) nb.classList.toggle("on", novidadesNovas());
   if (typeof arenaAtualizarSelo === "function") arenaAtualizarSelo();
+  menuCaber();
 }
+
+/* ---------------------------------------------------------------------
+   O MENU SE MEDE
+   ---------------------------------------------------------------------
+   Desde a v7.4 o menu não rola: ele tem overflow escondido para caber
+   inteiro na tela. Isso criou um jeito novo de quebrar — quando aparece
+   um cartão a mais (o aviso de VIP acabando, por exemplo), o conteúdo
+   cresce e o que está no fim é CORTADO em silêncio. Foi o que aconteceu:
+   o botão AJUSTES sumiu para quem tinha VIP perto de vencer, e nenhum
+   teste pegou porque todos mediam o menu sem esse cartão.
+
+   O conserto não é outro número mágico. O menu agora se mede depois de
+   desenhar: se não couber, ele guarda os cartões OPCIONAIS, um a um, na
+   ordem do menos importante para o mais. E se mesmo assim não couber,
+   ele volta a rolar — porque botão inalcançável é sempre pior do que
+   rolagem.                                                             */
+const MENU_OPCIONAIS = ["menu-hoje", "vip-aviso", "diaria-cartao"];
+
+function menuCaber() {
+  const tela = SCREENS.menu;
+  if (!tela || !tela.classList.contains("show")) return;
+  /* devolve todos e deixa o próprio jogo decidir quem aparece */
+  for (const id of MENU_OPCIONAIS) {
+    const el = $(id);
+    if (el) el.classList.remove("menu-guardado");
+  }
+  tela.classList.remove("menu-rola");
+
+  const fundoDisponivel = () => innerHeight - 6;
+  const naoCabe = () => {
+    const chips = tela.querySelector(".menu-chips");
+    const alvo = chips || tela.lastElementChild;
+    if (!alvo) return false;
+    return alvo.getBoundingClientRect().bottom > fundoDisponivel();
+  };
+
+  for (const id of MENU_OPCIONAIS) {
+    if (!naoCabe()) return;
+    const el = $(id);
+    if (el && getComputedStyle(el).display !== "none") el.classList.add("menu-guardado");
+  }
+  /* último recurso: nada pode ficar fora do alcance do dedo */
+  if (naoCabe()) tela.classList.add("menu-rola");
+}
+
+addEventListener("resize", () => { try { menuCaber(); } catch (e) {} });
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
 
 /* ---------- Login ---------- */

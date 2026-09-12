@@ -658,6 +658,11 @@
   }
   #screen-menu.show > *{flex:none}
   .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
+  /* cartao que o menu guardou por falta de espaco (ver menuCaber) */
+  #screen-menu .menu-guardado{display:none !important}
+  /* ultimo recurso: se nem guardando couber, o menu volta a rolar --
+     botao que o dedo nao alcanca e sempre pior do que rolagem */
+  #screen-menu.menu-rola{overflow-y:auto}
   #screen-menu.show{gap:clamp(4px,1vh,10px)}
   #screen-menu .brand{
     font-size:clamp(1.05rem,3.3vh,2.2rem);margin-bottom:0;flex:none;
@@ -4421,72 +4426,196 @@
   .hoje-linha.tem{cursor:pointer}
   .hoje-linha.tem b{color:var(--verde)}
 
-  /* ================= CABINE (primeira pessoa) =================
-     A tela da cabine é só o canvas e o que fica por cima do vidro. Ela
+  /* ============ EXPLORAÇÃO ESPACIAL ============
+     A tela deste modo é só o canvas e o que fica por cima do vidro. Ela
      não usa o céu das outras telas: quem pinta o fundo é o 3D.        */
   #screen-cabine{padding:0;gap:0;background:#04060F;overflow:hidden}
   #screen-cabine::before,#screen-cabine::after{display:none}
   #tela3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
   .c3-hud{position:absolute;inset:0;pointer-events:none;z-index:2}
 
-  .c3-mira{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:44px;height:44px}
-  .c3-mira i{position:absolute;background:var(--cyan);box-shadow:0 0 8px rgba(77,232,255,.9);opacity:.85}
-  .c3-mira i:nth-child(1){left:50%;top:0;width:1.5px;height:11px;margin-left:-.75px}
-  .c3-mira i:nth-child(2){left:50%;bottom:0;width:1.5px;height:11px;margin-left:-.75px}
-  .c3-mira i:nth-child(3){top:50%;left:0;height:1.5px;width:11px;margin-top:-.75px}
-  .c3-mira i:nth-child(4){top:50%;right:0;height:1.5px;width:11px;margin-top:-.75px}
+  /* ---- o aviso de girar o aparelho ---- */
+  .ex-girar{
+    position:absolute;inset:0;z-index:20;display:none;
+    align-items:center;justify-content:center;background:#04060F;
+  }
+  .ex-girar.on{display:flex}
+  .ex-girar-cx{text-align:center;padding:26px;max-width:30ch}
+  .ex-girar strong{
+    display:block;font-family:"Russo One",sans-serif;font-size:1rem;line-height:1.4;
+    color:var(--cyan);letter-spacing:.05em;margin-bottom:10px;
+  }
+  .ex-girar span{display:block;font-size:.74rem;color:var(--dim);line-height:1.6}
+  /* o celular girando: a animação mostra o que fazer sem precisar ler */
+  .ex-cel{
+    width:54px;height:92px;margin:0 auto 24px;border-radius:9px;
+    border:2.5px solid var(--ink2);position:relative;
+    animation:exGira 2.6s ease-in-out infinite;
+  }
+  .ex-cel i{
+    position:absolute;left:50%;bottom:5px;width:16px;height:2.5px;margin-left:-8px;
+    background:var(--ink2);border-radius:2px;
+  }
+  @keyframes exGira{
+    0%,26%{transform:rotate(0deg)}
+    54%,84%{transform:rotate(-90deg)}
+    100%{transform:rotate(0deg)}
+  }
+  @media (prefers-reduced-motion:reduce){.ex-cel{animation:none;transform:rotate(-90deg)}}
+
+  /* ---- leitura de voo, no topo ---- */
+  .ex-topo{
+    position:absolute;top:calc(6px + var(--safe-top));left:8px;right:8px;
+    display:flex;gap:5px;flex-wrap:wrap;justify-content:center;
+    font-variant-numeric:tabular-nums;
+  }
+  .ex-cx{
+    background:rgba(6,12,26,.66);border:1px solid rgba(120,200,255,.16);
+    border-radius:8px;padding:3px 8px;text-align:center;min-width:52px;
+  }
+  .ex-cx u{display:block;font-size:.4rem;letter-spacing:.16em;color:var(--fraco);
+    text-decoration:none;font-weight:700}
+  .ex-cx b{display:block;font-family:"Russo One",sans-serif;font-size:.72rem;color:var(--cyan)}
+
+  .ex-salto{
+    position:absolute;top:34%;left:50%;transform:translateX(-50%);
+    font-family:"Russo One",sans-serif;font-size:.95rem;letter-spacing:.18em;
+    color:var(--amber);text-shadow:0 0 18px rgba(255,200,97,.7);
+  }
+
+  /* ---- os três painéis de controle ---- */
+  .ex-painel{
+    position:absolute;bottom:calc(6px + var(--safe-bot));
+    pointer-events:auto;background:rgba(6,11,24,.72);
+    border:1px solid rgba(120,200,255,.18);border-radius:10px;padding:5px 6px 6px;
+    backdrop-filter:blur(5px);
+  }
+  .ex-painel.esq{left:6px;width:23%}
+  .ex-painel.cen{left:50%;transform:translateX(-50%);width:32%}
+  .ex-painel.dir{right:6px;width:23%}
+  .ex-painel-h{
+    font-size:.4rem;letter-spacing:.2em;color:var(--fraco);font-weight:700;
+    text-align:center;margin-bottom:4px;
+  }
+  .ex-bts{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:3px}
+  .ex-bt{
+    position:relative;display:flex;align-items:center;gap:4px;cursor:pointer;
+    padding:4px 5px;border-radius:6px;text-align:left;
+    background:linear-gradient(160deg,rgba(20,32,62,.9),rgba(8,14,30,.9));
+    border:1px solid rgba(232,239,255,.14);color:var(--fraco);
+    font-family:"Chakra Petch",sans-serif;font-size:.4rem;font-weight:700;
+    letter-spacing:.04em;line-height:1.1;
+  }
+  .ex-bt i{
+    flex:none;width:6px;height:6px;border-radius:50%;
+    background:rgba(232,239,255,.18);box-shadow:none;
+  }
+  .ex-bt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ex-bt.on{border-color:rgba(91,240,176,.6);color:var(--verde)}
+  .ex-bt.on i{background:var(--verde);box-shadow:0 0 6px var(--verde)}
+  .ex-bt.acao{border-color:rgba(77,232,255,.28);color:var(--cyan)}
+  .ex-bt.acao i{background:rgba(77,232,255,.5)}
+  .ex-bt.travado{opacity:.38}
+  .ex-bt:active{transform:scale(.94)}
+
+  /* ---- radar ---- */
+  .ex-radar{
+    position:absolute;left:6px;top:calc(52px + var(--safe-top));
+    width:22vh;height:22vh;max-width:150px;max-height:150px;border-radius:50%;
+    background:radial-gradient(circle,rgba(10,40,44,.66),rgba(4,12,18,.72) 72%);
+    border:1px solid rgba(60,220,180,.3);overflow:hidden;
+  }
+  .ex-radar i{
+    position:absolute;transform:translate(-50%,-50%);font-style:normal;
+    font-size:.5rem;color:var(--verde);text-shadow:0 0 5px rgba(91,240,176,.9);
+  }
+  .ex-radar i.sol{color:var(--amber);font-size:.7rem}
+  .ex-radar i.planeta{color:#7FD4FF}
+  .ex-radar i.estacao{color:#FFF}
+  .ex-radar i.hostil{color:var(--magenta);font-size:.62rem}
+  .ex-radar u,.ex-radar .ex-off{
+    position:absolute;left:50%;bottom:4px;transform:translateX(-50%);
+    font-size:.38rem;letter-spacing:.1em;color:var(--fraco);text-decoration:none;
+  }
+  .ex-radar .ex-off{top:50%;bottom:auto;transform:translate(-50%,-50%);color:var(--fraco)}
+
+  /* ---- potência ---- */
+  .ex-pot{
+    position:absolute;right:6px;top:calc(52px + var(--safe-top));
+    width:18px;height:20vh;max-height:140px;border-radius:9px;
+    background:rgba(6,12,26,.66);border:1px solid rgba(120,200,255,.2);
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+  }
+  .ex-pot i{display:block;width:100%;background:linear-gradient(180deg,var(--cyan),var(--verde));
+    height:0;transition:height .12s linear}
+  .ex-pot u{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+    font-size:.34rem;color:var(--fraco);text-decoration:none;letter-spacing:.1em}
+
+  /* ---- recados ---- */
+  .ex-avisos{
+    position:absolute;left:50%;transform:translateX(-50%);top:calc(46px + var(--safe-top));
+    display:flex;flex-direction:column;gap:3px;align-items:center;width:min(56vw,420px);
+  }
+  .ex-aviso{
+    font-size:.52rem;line-height:1.4;padding:3px 9px;border-radius:99px;
+    background:rgba(6,12,26,.8);border:1px solid rgba(120,200,255,.16);color:var(--ink2);
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .ex-aviso.ok{border-color:rgba(91,240,176,.45);color:var(--verde)}
+  .ex-aviso.erro{border-color:rgba(255,77,143,.5);color:var(--magenta)}
+
+  /* ---- mapa estelar ---- */
+  .ex-mapa{
+    position:absolute;inset:0;z-index:14;display:none;
+    align-items:center;justify-content:center;background:rgba(3,6,14,.88);
+  }
+  .ex-mapa-cx{
+    width:min(88vw,520px);max-height:86%;display:flex;flex-direction:column;
+    background:rgba(9,16,34,.96);border:1px solid var(--line2);border-radius:14px;padding:14px;
+  }
+  .ex-mapa-h{font-family:"Russo One",sans-serif;font-size:.8rem;letter-spacing:.16em;
+    color:var(--cyan);text-align:center;margin-bottom:10px}
+  .ex-mapa-lista{overflow-y:auto;display:flex;flex-direction:column;gap:6px;touch-action:pan-y}
+  .ex-sis{
+    text-align:left;padding:8px 11px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .ex-sis b{display:block;font-size:.76rem;color:var(--ink)}
+  .ex-sis em{display:block;font-style:normal;font-size:.56rem;color:var(--dim);margin-top:2px}
+  .ex-sis.aqui{border-color:rgba(91,240,176,.5)}
+  .ex-sis.dest{border-color:var(--amber);background:rgba(255,200,97,.1)}
+  .ex-mapa-pe{display:flex;gap:8px;margin-top:11px}
+  .ex-mapa-bt{
+    flex:1;padding:10px;border-radius:10px;cursor:pointer;
+    background:rgba(77,232,255,.1);border:1px solid var(--line2);color:var(--cyan);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;
+  }
+  .ex-mapa-bt:active{background:rgba(77,232,255,.24)}
+
+  /* ---- mira, manche e aviso de dano ---- */
+  .c3-mira{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:40px;height:40px}
+  .c3-mira i{position:absolute;background:var(--cyan);box-shadow:0 0 7px rgba(77,232,255,.8);opacity:.7}
+  .c3-mira i:nth-child(1){left:50%;top:0;width:1.5px;height:10px;margin-left:-.75px}
+  .c3-mira i:nth-child(2){left:50%;bottom:0;width:1.5px;height:10px;margin-left:-.75px}
+  .c3-mira i:nth-child(3){top:50%;left:0;height:1.5px;width:10px;margin-top:-.75px}
+  .c3-mira i:nth-child(4){top:50%;right:0;height:1.5px;width:10px;margin-top:-.75px}
   .c3-mira b{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;
-    background:var(--amber);border-radius:50%;box-shadow:0 0 7px var(--amber)}
-
-  /* o manche nasce onde o dedo encostar */
-  .c3-manche{position:absolute;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;
-    border:1px solid rgba(77,232,255,.26);
-    background:radial-gradient(circle,rgba(77,232,255,.07),transparent 68%);display:none}
+    background:var(--amber);border-radius:50%;box-shadow:0 0 6px var(--amber)}
+  .c3-manche{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;
+    border:1px solid rgba(77,232,255,.22);
+    background:radial-gradient(circle,rgba(77,232,255,.06),transparent 68%);display:none}
   .c3-manche.on{display:block}
-  .c3-manche u{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;
-    border-radius:50%;border:1.5px solid var(--cyan);background:rgba(77,232,255,.16);
-    box-shadow:0 0 18px rgba(77,232,255,.45)}
-
-  /* habilidades menores, como o modo pede */
-  .c3-habs{position:absolute;right:12px;bottom:calc(14px + var(--safe-bot));
-    display:flex;flex-direction:column-reverse;gap:7px;pointer-events:auto}
-  .c3-hab{width:38px;height:38px;border-radius:11px;cursor:pointer;
-    border:1.5px solid rgba(232,239,255,.2);
-    background:linear-gradient(160deg,rgba(20,34,68,.85),rgba(8,14,34,.85));
-    color:var(--dim);font-size:.86rem;line-height:1;
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .1s,border-color .18s,color .18s}
-  .c3-hab.pronta{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 11px rgba(77,232,255,.35)}
-  .c3-hab:active{transform:scale(.9)}
-  .c3-hab.ult{width:52px;height:52px;border-radius:50%;font-size:.6rem;font-weight:700;
-    border-color:rgba(255,200,97,.5);color:var(--amber);letter-spacing:.06em}
-  .c3-hab.ult.pronta{box-shadow:0 0 20px rgba(255,200,97,.55);border-color:var(--amber)}
-
-  .c3-painel{position:absolute;left:12px;top:calc(12px + var(--safe-top));
-    display:flex;flex-direction:column;gap:7px;font-variant-numeric:tabular-nums}
-  .c3-cx{background:rgba(6,12,26,.55);border:1px solid rgba(120,200,255,.16);
-    border-radius:10px;padding:6px 11px}
-  .c3-cx .rot{font-size:.46rem;letter-spacing:.2em;color:var(--fraco);font-weight:700}
-  .c3-cx .val{font-family:"Russo One",sans-serif;font-size:.92rem;color:var(--cyan);line-height:1.15}
-  .c3-cx.casco .val{color:var(--verde)}
-  .c3-cx.casco.baixo .val{color:var(--magenta)}
-
-  .c3-dica{position:absolute;left:50%;bottom:calc(18px + var(--safe-bot));transform:translateX(-50%);
-    font-size:.6rem;letter-spacing:.06em;color:var(--fraco);text-align:center;line-height:1.7;
-    transition:opacity .6s;max-width:92vw}
-  .c3-dica b{color:var(--cyan);font-weight:600}
-  .c3-dica.some{opacity:0}
-
+  .c3-manche u{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;
+    border-radius:50%;border:1.5px solid var(--cyan);background:rgba(77,232,255,.14);
+    box-shadow:0 0 16px rgba(77,232,255,.4)}
   .c3-dano{position:absolute;inset:0;pointer-events:none;opacity:0;
     box-shadow:inset 0 0 90px rgba(255,77,143,.75);transition:opacity .26s}
   .c3-dano.on{opacity:1;transition:opacity .05s}
-
   .c3-erro{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    padding:28px;text-align:center;font-size:.92rem;color:var(--dim);line-height:1.6;z-index:3}
-
-  .c3-voltar{position:absolute;left:10px;bottom:calc(12px + var(--safe-bot));z-index:4;
-    width:42px;height:42px;border-radius:13px;cursor:pointer;font-size:1.3rem;line-height:1;
-    background:rgba(6,12,26,.6);border:1px solid rgba(120,200,255,.22);color:var(--ink2)}
+    padding:28px;text-align:center;font-size:.9rem;color:var(--dim);line-height:1.6;z-index:3}
+  .c3-voltar{position:absolute;left:8px;bottom:calc(8px + var(--safe-bot));z-index:16;
+    width:36px;height:36px;border-radius:11px;cursor:pointer;font-size:1.15rem;line-height:1;
+    background:rgba(6,12,26,.7);border:1px solid rgba(120,200,255,.22);color:var(--ink2)}
   .c3-voltar:active{transform:scale(.92);border-color:var(--cyan)}
 
 </style>
@@ -5357,7 +5486,7 @@
       <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
       <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
       <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
-      <button class="tile" id="btn-cabine"><b>🛸</b><span>CABINE</span><i>NOVO</i></button>
+      <button class="tile" id="btn-cabine"><b>🛸</b><span>EXPLORAÇÃO</span><i>NOVO</i></button>
       <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
       <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
     </div>
@@ -5920,29 +6049,52 @@
 
 <div id="foto-caixa"></div>
 
-<!-- CABINE: o modo primeira pessoa -->
+<!-- EXPLORAÇÃO ESPACIAL: um modo inteiro, isolado nesta tela -->
 <div class="screen" id="screen-cabine">
   <canvas id="tela3d"></canvas>
-  <div class="c3-hud">
-    <div class="c3-painel">
-      <div class="c3-cx"><div class="rot">VELOCIDADE</div><div class="val" id="c3-vel">0</div></div>
-      <div class="c3-cx casco" id="c3-cx-casco"><div class="rot">CASCO</div><div class="val" id="c3-casco">100%</div></div>
-      <div class="c3-cx"><div class="rot">ABATES</div><div class="val" id="c3-abates">0</div></div>
+
+  <!-- pede o aparelho deitado, e não deixa fechar: a cabine tem três
+       painéis lado a lado e em pé não cabe. Vale só neste modo. -->
+  <div class="ex-girar" id="c3-girar">
+    <div class="ex-girar-cx">
+      <div class="ex-cel"><i></i></div>
+      <strong>VIRE O DISPOSITIVO PARA O MODO PAISAGEM</strong>
+      <span>A cabine tem três painéis lado a lado — em pé não cabe.</span>
     </div>
+  </div>
+
+  <div class="c3-hud">
+    <!-- leitura de voo -->
+    <div class="ex-topo">
+      <div class="ex-cx"><u>SISTEMA</u><b id="c3-sistema">—</b></div>
+      <div class="ex-cx"><u>VEL</u><b id="c3-vel">0</b></div>
+      <div class="ex-cx"><u>COMB</u><b id="c3-comb">100%</b></div>
+      <div class="ex-cx"><u>ENERGIA</u><b id="c3-ene">100%</b></div>
+      <div class="ex-cx"><u>ESCUDO</u><b id="c3-esc">100%</b></div>
+      <div class="ex-cx"><u>CASCO</u><b id="c3-casco">100%</b></div>
+      <div class="ex-cx"><u>O₂</u><b id="c3-oxi">100%</b></div>
+      <div class="ex-cx"><u>TEMP</u><b id="c3-temp">22°C</b></div>
+    </div>
+
+    <div class="ex-salto" id="c3-salto" style="display:none"></div>
+
+    <!-- os três painéis de controle -->
+    <div class="ex-painel esq"><div class="ex-painel-h">SISTEMAS</div><div class="ex-bts" id="c3-pesq"></div></div>
+    <div class="ex-painel cen"><div class="ex-painel-h">VOO</div><div class="ex-bts" id="c3-pcen"></div></div>
+    <div class="ex-painel dir"><div class="ex-painel-h">NAVE</div><div class="ex-bts" id="c3-pdir"></div></div>
+
+    <!-- radar, potência e recados -->
+    <div class="ex-radar" id="c3-radar"></div>
+    <div class="ex-pot"><i id="c3-pot-b"></i><u>POT</u></div>
+    <div class="ex-avisos" id="c3-avisos"></div>
+
     <div class="c3-mira" id="c3-mira"><i></i><i></i><i></i><i></i><b></b></div>
     <div class="c3-manche" id="c3-manche"><u id="c3-manche-u"></u></div>
-    <div class="c3-habs">
-      <button class="c3-hab ult pronta" id="c3-ult">ULT</button>
-      <button class="c3-hab pronta" id="c3-h1">✦</button>
-      <button class="c3-hab pronta" id="c3-h2">◈</button>
-    </div>
-    <div class="c3-dica" id="c3-dica">
-      Arraste <b>um dedo</b> em qualquer lugar — o manche nasce onde você encostar<br>
-      Solte para endireitar · os canhões atiram sozinhos
-    </div>
     <div class="c3-dano" id="c3-dano"></div>
-    <div class="c3-erro" id="c3-erro">Este aparelho não abriu o WebGL 2, que é o que desenha o 3D.<br>A cabine precisa dele; o resto do jogo funciona normal.</div>
+    <div class="c3-erro" id="c3-erro">Este aparelho não abriu o WebGL 2, que é o que desenha o 3D.<br>A exploração precisa dele; o resto do jogo funciona normal.</div>
   </div>
+
+  <div class="ex-mapa" id="c3-mapa" style="display:none"></div>
   <button class="c3-voltar" id="c3-voltar" aria-label="Voltar ao menu">‹</button>
 </div>
 
@@ -9144,6 +9296,10 @@ function showScreen(name) {
   if (dica) dica.style.display = (name === null && modoPC) ? "block" : "none";
   cutSkip.style.display = (name === "cut") ? "block" : "none";
   if (name === "cut") for (const k in SCREENS) SCREENS[k].classList.remove("show");
+  /* o menu só pode se medir depois de estar na tela: o goMenu chama o
+     refreshMenu ANTES do showScreen, e medir um elemento escondido dá
+     zero em tudo. Medir aqui pega todos os caminhos que abrem o menu. */
+  if (name === "menu") { try { menuCaber(); } catch (e) {} }
 }
 let hudOndasMarca = "";
 let hudSujo = false;
@@ -9317,7 +9473,54 @@ function refreshMenu() {
   const nb = $("nov-badge");
   if (nb) nb.classList.toggle("on", novidadesNovas());
   if (typeof arenaAtualizarSelo === "function") arenaAtualizarSelo();
+  menuCaber();
 }
+
+/* ---------------------------------------------------------------------
+   O MENU SE MEDE
+   ---------------------------------------------------------------------
+   Desde a v7.4 o menu não rola: ele tem overflow escondido para caber
+   inteiro na tela. Isso criou um jeito novo de quebrar — quando aparece
+   um cartão a mais (o aviso de VIP acabando, por exemplo), o conteúdo
+   cresce e o que está no fim é CORTADO em silêncio. Foi o que aconteceu:
+   o botão AJUSTES sumiu para quem tinha VIP perto de vencer, e nenhum
+   teste pegou porque todos mediam o menu sem esse cartão.
+
+   O conserto não é outro número mágico. O menu agora se mede depois de
+   desenhar: se não couber, ele guarda os cartões OPCIONAIS, um a um, na
+   ordem do menos importante para o mais. E se mesmo assim não couber,
+   ele volta a rolar — porque botão inalcançável é sempre pior do que
+   rolagem.                                                             */
+const MENU_OPCIONAIS = ["menu-hoje", "vip-aviso", "diaria-cartao"];
+
+function menuCaber() {
+  const tela = SCREENS.menu;
+  if (!tela || !tela.classList.contains("show")) return;
+  /* devolve todos e deixa o próprio jogo decidir quem aparece */
+  for (const id of MENU_OPCIONAIS) {
+    const el = $(id);
+    if (el) el.classList.remove("menu-guardado");
+  }
+  tela.classList.remove("menu-rola");
+
+  const fundoDisponivel = () => innerHeight - 6;
+  const naoCabe = () => {
+    const chips = tela.querySelector(".menu-chips");
+    const alvo = chips || tela.lastElementChild;
+    if (!alvo) return false;
+    return alvo.getBoundingClientRect().bottom > fundoDisponivel();
+  };
+
+  for (const id of MENU_OPCIONAIS) {
+    if (!naoCabe()) return;
+    const el = $(id);
+    if (el && getComputedStyle(el).display !== "none") el.classList.add("menu-guardado");
+  }
+  /* último recurso: nada pode ficar fora do alcance do dedo */
+  if (naoCabe()) tela.classList.add("menu-rola");
+}
+
+addEventListener("resize", () => { try { menuCaber(); } catch (e) {} });
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
 
 /* ---------- Login ---------- */
@@ -22340,7 +22543,7 @@ const PORTAS = [
       { botao: "btn-reliquias", icone: "◈", nome: "Relíquias",    nota: "amuletos e baús" },
       { botao: "btn-comparar",  icone: "📊", nome: "Comparar naves", nota: "as 120 lado a lado", ondeEsta: "hangar" },
       { botao: "btn-treino",    icone: "🎯", nome: "Sala de treino", nota: "alvos parados, nada machuca", ondeEsta: "hangar" },
-      { botao: "btn-cabine",    icone: "🛸", nome: "Cabine · primeira pessoa", nota: "pilotar por dentro, em 3D" }
+      { botao: "btn-cabine",    icone: "🛸", nome: "Exploração espacial", nota: "pilotar a nave por dentro, em 3D" }
     ]
   },
   {
@@ -27373,23 +27576,23 @@ function draw() {
 
 
 /* =====================================================================
-   CABINE — o modo primeira pessoa
+   EXPLORAÇÃO ESPACIAL
    ---------------------------------------------------------------------
-   WebGL 2 escrito na mão, sem biblioteca nenhuma: o jogo é um arquivo só
-   que precisa funcionar offline em celular fraco, e puxar uma engine de
-   600 KB quebraria as duas coisas.
+   Este arquivo é UM MODO do jogo, inteiro e isolado. Ele não é chamado
+   por nenhuma outra parte, não mexe em save, fase, menu, loja, nuvem nem
+   progressão. Ele desenha na sua própria tela (#screen-cabine) e escuta
+   só ela. Sair daqui chama goMenu() e devolve o jogo exatamente como
+   estava — o 2D nunca soube que isto existe.
 
-   Nada aqui roda até o jogador entrar. O contexto 3D, os programas e as
-   malhas só nascem no primeiro cabineEntrar() -- quem nunca abrir a
-   cabine não paga nada por ela, nem memória nem tempo de carga. E os
-   controles escutam só a tela da cabine: se escutassem o documento, o
-   arrasto no menu viraria manche.
+   Por que WebGL escrito à mão: o jogo é um arquivo só que abre offline
+   em celular fraco. Uma engine de 600 KB quebraria as duas coisas.
+
+   Nada roda até alguém entrar: contexto, programas e malhas só nascem no
+   primeiro exploracaoEntrar().
    ===================================================================== */
-let CABINE_PRONTA = false;
-let cabineLigada = false;
-let cabineAPI = null;
+let EXPL_PRONTA = false, explLigada = false, explAPI = null;
 
-function cabineMontar() {
+function explMontar() {
   const cv = $("tela3d");
   if (!cv) return null;
   const gl = cv.getContext("webgl2", { antialias: true, alpha: false, powerPreference: "high-performance" });
@@ -27455,7 +27658,7 @@ function cabineMontar() {
      do espaço, e um canal de brilho próprio para o que precisa acender. */
   const progMalha = programa(`#version 300 es
   in vec3 aPos; in vec3 aNorm; in vec3 aCor; in vec2 aExtra;  // x=brilho proprio, y=indice de pisca
-  uniform mat4 uVP, uModelo; uniform float uTempo;
+  uniform mat4 uVP, uModelo; uniform float uTempo, uAlerta;
   out vec3 vCor; out float vBrilho;
   void main(){
     vec4 mundo = uModelo * vec4(aPos,1.0);
@@ -27468,6 +27671,9 @@ function cabineMontar() {
     if (aExtra.y > 0.5) {                       // painel que pisca no seu ritmo
       b *= 0.45 + 0.55 * (0.5 + 0.5*sin(uTempo*(1.6+aExtra.y*0.7) + aExtra.y*2.1));
     }
+    /* o indice 6 e a luz de alerta: apagada em voo normal, forte quando o
+       casco cai. Quem manda nela e o uAlerta, de fora. */
+    if (aExtra.y > 5.5) b *= uAlerta;
     vCor = aCor * (0.30 + 0.85*dif) + vec3(0.30,0.62,0.95)*contorno*0.42;
     vBrilho = b;
     gl_Position = uVP * mundo;
@@ -27507,11 +27713,16 @@ function cabineMontar() {
   }
   void main(){
     vec3 r = normalize(uDir + uDir2*(vXY.x*uTan*uProp) + uCima*(vXY.y*uTan));
-    vec3 ceu = vec3(0.012,0.020,0.052);
-    ceu += mancha(r, vec3( 0.55, 0.30,-0.78), vec3(0.17,0.46,0.78), 2.4);
-    ceu += mancha(r, vec3(-0.70, 0.12,-0.70), vec3(0.44,0.16,0.68), 2.8);
-    ceu += mancha(r, vec3( 0.10,-0.65,-0.75), vec3(0.48,0.12,0.34), 3.4);
-    ceu += mancha(r, vec3(-0.20, 0.80, 0.55), vec3(0.10,0.32,0.48), 2.6);
+    /* O espaço é ESCURO com nuvens, não um céu colorido. Numa tentativa
+       anterior estas manchas ficaram fortes e largas e lavaram a tela
+       inteira: virou um degradê sólido, as naves sumiram dentro dele e
+       o preto do espaço acabou. Cor baixa e expoente alto deixam a
+       mancha concentrada, dando profundidade sem roubar o fundo. */
+    vec3 ceu = vec3(0.008,0.013,0.034);
+    ceu += mancha(r, vec3( 0.55, 0.30,-0.78), vec3(0.055,0.135,0.240), 5.0);
+    ceu += mancha(r, vec3(-0.70, 0.12,-0.70), vec3(0.130,0.048,0.200), 5.5);
+    ceu += mancha(r, vec3( 0.10,-0.65,-0.75), vec3(0.140,0.035,0.095), 6.5);
+    ceu += mancha(r, vec3(-0.20, 0.80, 0.55), vec3(0.032,0.090,0.135), 5.2);
     cor = vec4(ceu,1.0);
   }`);
   const uFundo = {
@@ -27526,7 +27737,8 @@ function cabineMontar() {
   const uMalha = {
     vp: gl.getUniformLocation(progMalha,"uVP"),
     modelo: gl.getUniformLocation(progMalha,"uModelo"),
-    tempo: gl.getUniformLocation(progMalha,"uTempo")
+    tempo: gl.getUniformLocation(progMalha,"uTempo"),
+    alerta: gl.getUniformLocation(progMalha,"uAlerta")
   };
   const uRisco = { vp: gl.getUniformLocation(progRisco,"uVP") };
 
@@ -27598,80 +27810,6 @@ function cabineMontar() {
     };
   }
 
-  /* ---- o caça inimigo: casco escuro, detalhe magenta, motores acesos ---- */
-  const CACA = (() => {
-    const c = Construtor();
-    const casco=[.16,.19,.28], quina=[.34,.38,.52], mag=[1,.30,.56], mot=[.45,.92,1];
-    c.bico(0,0,-0.15, 1.45, 0.30, 0.22, quina, 0);       // bico
-    c.bloco(0,0,0.45, 0.30,0.24,0.62, casco, 0);         // corpo
-    c.bloco(0,0.20,0.62, 0.16,0.10,0.26, mag, 0.55);     // faixa acesa
-    c.bloco(-0.86,0,0.40, 0.58,0.05,0.30, casco, 0);     // asa esquerda
-    c.bloco( 0.86,0,0.40, 0.58,0.05,0.30, casco, 0);     // asa direita
-    c.bloco(-1.34,0,0.30, 0.10,0.13,0.42, quina, 0);     // ponta esquerda
-    c.bloco( 1.34,0,0.30, 0.10,0.13,0.42, quina, 0);     // ponta direita
-    c.bloco(-0.30,0,1.08, 0.13,0.13,0.07, mot, 1.6);     // motor esquerdo
-    c.bloco( 0.30,0,1.08, 0.13,0.13,0.07, mot, 1.6);     // motor direito
-    c.bloco(0,0.34,0.30, 0.05,0.22,0.30, casco, 0);      // leme
-    return c.pronto();
-  })();
-
-  /* ---- a cabine ----
-     Construida em coordenadas de TELA: x e y de -1 a 1 sao as bordas do
-     que voce enxerga, e z e profundidade para dentro. Na hora de desenhar
-     ela e esticada conforme a proporcao do aparelho.
-
-     Isso importa: num celular em pe o campo horizontal e estreito
-     (a largura e menos da metade da altura). Construida em metros, como
-     estava antes, as laterais e o painel caiam fora da vista e sobravam
-     duas faixas no topo e embaixo. Assim ela emoldura certo em qualquer
-     tela, do celular pequeno ao tablet deitado.                         */
-  const CABINE = (() => {
-    const c = Construtor();
-    const metal=[.10,.12,.19], quina=[.17,.21,.30], claro=[.26,.32,.45];
-
-    /* IMPORTANTE: x e y vao de -1 a 1 e sao as BORDAS da tela. Uma peca
-       centrada em 1.4 fica inteira fora da vista -- foi o que aconteceu
-       numa tentativa anterior e a cabine sumiu por completo, sobrando so
-       o HUD. Cada peca aqui e posta para ATRAVESSAR a borda: parte dentro,
-       formando a moldura, parte fora. */
-
-    /* painel de baixo: uma faixa de uns 20% da altura */
-    c.bloco(0,-1.34,0.10, 1.70,0.58,0.30, metal, 0);
-    c.bloco(0,-0.80,0.16, 1.70,0.045,0.24, quina, 0);
-    c.bloco(0,-0.773,0.30, 1.30,0.010,0.02, [.25,.62,.92], 1.6);
-
-    /* botoes decorativos: duas fileiras, cada cor no seu ritmo */
-    for (let i = 0; i < 9; i++) {
-      const x = -0.62 + i*0.155;
-      const cores = [[1,.30,.56],[.30,.92,.70],[1,.79,.38],[.30,.90,1]];
-      c.bloco(x,-0.865,0.22, 0.028,0.014,0.028, cores[i%4], 1.8, 1+(i%4));
-    }
-    for (let i = 0; i < 5; i++) {
-      c.bloco(-0.30+i*0.15,-0.945,0.26, 0.042,0.010,0.020, [.55,.66,.85], 0.5, 0);
-    }
-    /* duas telinhas */
-    c.bloco(-0.56,-0.925,0.20, 0.20,0.045,0.02, [.14,.50,.72], 1.0, 2);
-    c.bloco( 0.56,-0.925,0.20, 0.20,0.045,0.02, [.52,.26,.70], 1.0, 3);
-    /* a ponta do manche entre as pernas */
-    c.bloco(0,-1.10,0.46, 0.030,0.13,0.030, quina, 0.15);
-    c.bloco(0,-0.985,0.46, 0.060,0.030,0.060, [.28,.88,1], 1.2);
-
-    /* montantes: atravessam a borda de lado, deixando uma faixa dentro */
-    c.bloco(-1.06,0,0.16, 0.30,1.30,0.26, metal, 0);
-    c.bloco( 1.06,0,0.16, 0.30,1.30,0.26, metal, 0);
-    c.bloco(-0.772,0,0.30, 0.026,1.05,0.02, claro, 0.45);
-    c.bloco( 0.772,0,0.30, 0.026,1.05,0.02, claro, 0.45);
-
-    /* arco de cima */
-    c.bloco(0,1.20,0.16, 1.45,0.30,0.26, metal, 0);
-    c.bloco(0,0.888,0.30, 1.15,0.016,0.02, claro, 0.5);
-
-    /* dois montantes finos descendo do arco: dao escala ao vidro */
-    c.bloco(-0.42,0.82,0.30, 0.014,0.10,0.012, quina, 0.10);
-    c.bloco( 0.42,0.82,0.30, 0.014,0.10,0.012, quina, 0.10);
-
-    return c.pronto();
-  })();
 
   /* -------------------------------------------------------------- riscos
      Poeira e tiros são linhas; um buffer só, reescrito a cada quadro.   */
@@ -27702,216 +27840,882 @@ function cabineMontar() {
     nRiscos++;
   }
 
-  /* ------------------------------------------------------------- o mundo */
-  const S = {
-    ori: M.id(), pos: [0,0,0], vel: 46, tempo: 0,
-    giroX: 0, giroY: 0, giroZ: 0,
-    casco: 100, abates: 0, recuo: 0, tremor: 0
+
+  /* ---- esfera: é o que faz planeta, lua e estrela existirem ----
+     Uma esfera por paralelos e meridianos. A cor varia por faixa de
+     latitude com um ruído barato, o que já dá cara de mundo: continente,
+     calota de gelo, mancha de tempestade. Sem textura, sem arquivo. */
+  function esfera(cx, cy, cz, raio, cor, brilho, semente, faixas) {
+    const NP = faixas || 14, NM = (faixas || 14) * 2;
+    const c = Construtor();
+    const rnd = (a, b) => {
+      const x = Math.sin(a * 12.9898 + b * 78.233 + semente * 3.71) * 43758.5453;
+      return x - Math.floor(x);
+    };
+    const pos = [], norm = [], cores = [], extra = [], idx = [];
+    for (let i = 0; i <= NP; i++) {
+      const fi = i / NP * Math.PI;
+      for (let j = 0; j <= NM; j++) {
+        const te = j / NM * Math.PI * 2;
+        const x = Math.sin(fi) * Math.cos(te), y = Math.cos(fi), z = Math.sin(fi) * Math.sin(te);
+        /* manchas: duas escalas de ruído somadas, uma larga e uma miúda */
+        const n = rnd(Math.floor(i / 1.6), Math.floor(j / 1.6)) * 0.7 +
+                  rnd(Math.floor(i / 4), Math.floor(j / 4)) * 0.5;
+        const gelo = Math.pow(Math.abs(y), 6) * 0.8;          // calotas nos polos
+        const k = 0.66 + n * 0.5;
+        pos.push(cx + x * raio, cy + y * raio, cz + z * raio);
+        norm.push(x, y, z);
+        cores.push(Math.min(1, cor[0] * k + gelo), Math.min(1, cor[1] * k + gelo), Math.min(1, cor[2] * k + gelo));
+        extra.push(brilho || 0, 0);
+      }
+    }
+    for (let i = 0; i < NP; i++) {
+      for (let j = 0; j < NM; j++) {
+        const a = i * (NM + 1) + j, b = a + NM + 1;
+        idx.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+    }
+    return { pos, norm, cores, extra, idx };
+  }
+
+  /* junta listas cruas num objeto que a placa entende */
+  function malhaDe(d) {
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+    const mandar = (dados, loc, tam) => {
+      const b = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(dados), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, tam, gl.FLOAT, false, 0, 0);
+    };
+    mandar(d.pos, gl.getAttribLocation(progMalha, "aPos"), 3);
+    mandar(d.norm, gl.getAttribLocation(progMalha, "aNorm"), 3);
+    mandar(d.cores, gl.getAttribLocation(progMalha, "aCor"), 3);
+    mandar(d.extra, gl.getAttribLocation(progMalha, "aExtra"), 2);
+    const ib = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(d.idx), gl.STATIC_DRAW);
+    gl.bindVertexArray(null);
+    return { vao, n: d.idx.length };
+  }
+
+  /* ---- as oito caras de planeta ---- */
+  const TIPOS = [
+    { id: "rochoso",   nome: "Rochoso",    cor: [.42,.38,.34], pousavel: true  },
+    { id: "deserto",   nome: "Desértico",  cor: [.72,.55,.30], pousavel: true  },
+    { id: "oceano",    nome: "Oceânico",   cor: [.16,.38,.68], pousavel: true  },
+    { id: "gelo",      nome: "Congelado",  cor: [.70,.82,.92], pousavel: true  },
+    { id: "vulcanico", nome: "Vulcânico",  cor: [.52,.16,.12], pousavel: true,  brilho: .35 },
+    { id: "vegetacao", nome: "Com vegetação", cor: [.22,.52,.26], pousavel: true },
+    { id: "alien",     nome: "Alienígena", cor: [.44,.20,.56], pousavel: true,  brilho: .2 },
+    { id: "tempestade",nome: "Com tempestades", cor: [.55,.50,.40], pousavel: false }
+  ];
+
+  /* uma malha de esfera por tipo, reaproveitada por todos os planetas
+     daquele tipo -- 40 planetas na tela com 8 malhas, não 40 */
+  const MALHA_PLANETA = {};
+  for (const t of TIPOS) MALHA_PLANETA[t.id] = malhaDe(esfera(0,0,0, 1, t.cor, t.brilho||0, TIPOS.indexOf(t)+1, 16));
+  const MALHA_LUA   = malhaDe(esfera(0,0,0, 1, [.58,.56,.54], 0, 9, 10));
+  const MALHA_SOL   = malhaDe(esfera(0,0,0, 1, [1,.82,.45], 2.6, 11, 14));
+
+  /* ------------------------------------------------------------ malhas
+     A cabine: três painéis, console, manche, aceleradores. Construída em
+     coordenadas de TELA (x e y de -1 a 1 são as bordas), porque em
+     paisagem ou em retrato a proporção muda e uma cabine feita em metros
+     cairia fora da vista. Cada peça ATRAVESSA a borda de propósito.   */
+  const CABINE = (() => {
+    const c = Construtor();
+    const metal=[.085,.10,.155], quina=[.15,.19,.27], claro=[.26,.32,.45],
+          escuro=[.04,.05,.09], borracha=[.06,.07,.10];
+
+    /* ---- console central, embaixo ---- */
+    c.bloco(0,-1.30,0.10, 1.85,0.58,0.34, metal, 0);
+    c.bloco(0,-0.76,0.18, 1.85,0.045,0.26, quina, 0);
+    c.bloco(0,-0.733,0.32, 1.45,0.010,0.02, [.22,.58,.88], 1.4);
+    c.bloco(0,-0.88,0.19, 1.30,0.11,0.02, escuro, 0);        // rebaixo dos mostradores
+
+    /* ---- painel esquerdo e direito, inclinados para dentro ---- */
+    for (const lado of [-1, 1]) {
+      c.bloco(lado*0.96,-0.50,0.20, 0.34,0.34,0.30, metal, 0);
+      c.bloco(lado*0.96,-0.20,0.26, 0.32,0.02,0.24, quina, 0);
+      c.bloco(lado*0.80,-0.42,0.33, 0.012,0.26,0.012, claro, 0.5);
+    }
+
+    /* ---- montantes do vidro ---- */
+    c.bloco(-1.10,0.10,0.16, 0.30,1.30,0.26, metal, 0);
+    c.bloco( 1.10,0.10,0.16, 0.30,1.30,0.26, metal, 0);
+    c.bloco(-0.812,0.10,0.30, 0.024,1.05,0.02, claro, 0.40);
+    c.bloco( 0.812,0.10,0.30, 0.024,1.05,0.02, claro, 0.40);
+    for (let i = -2; i <= 3; i++) {
+      c.bloco(-0.94, i*0.28, 0.26, 0.14,0.016,0.05, quina, 0);
+      c.bloco( 0.94, i*0.28, 0.26, 0.14,0.016,0.05, quina, 0);
+    }
+
+    /* ---- arco de cima, com o painel de teto ---- */
+    c.bloco(0,1.22,0.16, 1.50,0.30,0.26, metal, 0);
+    c.bloco(0,0.905,0.30, 1.20,0.016,0.02, claro, 0.45);
+    for (let i = -2; i <= 2; i++) {
+      c.bloco(i*0.19,0.965,0.28, 0.030,0.012,0.020, [.40,.80,1], 0.9, 2+((i+2)%4));
+    }
+
+    /* ---- luzes de alerta (índice 6: só acendem quando algo vai mal) ---- */
+    c.bloco( 0.34,-0.755,0.28, 0.034,0.014,0.026, [1,.22,.28], 1.0, 6);
+    c.bloco(-0.34,-0.755,0.28, 0.034,0.014,0.026, [1,.22,.28], 1.0, 6);
+
+    /* ---- o descanso de mão e a borda de borracha do console ---- */
+    c.bloco(0,-0.815,0.42, 1.45,0.028,0.05, borracha, 0);
+    return c.pronto();
+  })();
+
+  /* o manche: base no zero, para girar a partir da base como manche gira */
+  const MANCHE3D = (() => {
+    const c = Construtor();
+    const escuro=[.045,.055,.09], quina=[.17,.21,.30], claro=[.30,.36,.50];
+    c.bloco(0,0.07,0, 0.32,0.09,0.32, escuro, 0);
+    c.bloco(0,0.30,0, 0.13,0.24,0.13, [.10,.12,.18], 0);      // fole
+    c.bloco(0,0.62,0, 0.105,0.34,0.105, quina, 0);
+    c.bloco(0,1.02,0, 0.25,0.17,0.21, escuro, 0);             // punho
+    c.bloco(0,1.15,0.10, 0.085,0.05,0.06, [1,.30,.40], 1.6);  // gatilho
+    c.bloco(-0.12,1.12,-0.04, 0.048,0.038,0.048, [.30,.90,1], 1.3, 2);
+    c.bloco( 0.12,1.12,-0.04, 0.048,0.038,0.048, [1,.79,.38], 1.3, 3);
+    c.bloco(0,1.22,-0.02, 0.07,0.035,0.07, claro, 0.6);       // chapéu de visão
+    return c.pronto();
+  })();
+
+  /* os aceleradores: duas alavancas que correm para frente conforme a
+     potência. Construídas com o pivô na base, iguais ao manche. */
+  const ACELERADOR = (() => {
+    const c = Construtor();
+    const escuro=[.045,.055,.09], laranja=[1,.55,.18];
+    c.bloco(0,0.06,0, 0.16,0.07,0.30, escuro, 0);
+    c.bloco(0,0.42,0, 0.075,0.36,0.075, [.16,.19,.26], 0);
+    c.bloco(0,0.76,0, 0.13,0.11,0.16, escuro, 0);
+    c.bloco(0,0.80,0.10, 0.10,0.03,0.03, laranja, 1.3);
+    return c.pronto();
+  })();
+
+  /* nave alienígena: casco chato, dois braços e um olho aceso no meio */
+  const ALIEN = (() => {
+    const c = Construtor();
+    const casco=[.14,.20,.18], quina=[.26,.40,.34], olho=[.40,1,.55];
+    c.bico(0,0,-0.10, 1.30, 0.34, 0.16, quina, 0);
+    c.bloco(0,0,0.40, 0.42,0.16,0.52, casco, 0);
+    c.bloco(0,0.04,0.14, 0.16,0.10,0.16, olho, 1.9);
+    for (const lado of [-1,1]) {
+      c.bloco(lado*0.78,0,0.34, 0.40,0.06,0.26, casco, 0);
+      c.bloco(lado*1.18,0.02,0.22, 0.10,0.16,0.18, quina, 0);
+      c.bloco(lado*0.30,0,0.94, 0.10,0.10,0.08, olho, 1.5);
+    }
+    return c.pronto();
+  })();
+
+  /* estação: um anel de módulos com luzes */
+  const ESTACAO = (() => {
+    const c = Construtor();
+    const casco=[.30,.32,.38], quina=[.46,.48,.56], luz=[.35,.85,1];
+    c.bloco(0,0,0, 0.30,1.30,0.30, casco, 0);            // torre central
+    for (let i = 0; i < 8; i++) {
+      const a = i/8*Math.PI*2, R = 1.5;
+      c.bloco(Math.cos(a)*R, 0, Math.sin(a)*R, 0.42,0.24,0.42, casco, 0);
+      c.bloco(Math.cos(a)*R, 0.28, Math.sin(a)*R, 0.10,0.05,0.10, luz, 1.6, 1+(i%4));
+      c.bloco(Math.cos(a)*R*0.55, 0, Math.sin(a)*R*0.55, 0.34,0.07,0.34, quina, 0);
+    }
+    c.bloco(0,0.95,0, 0.55,0.16,0.55, quina, 0);
+    c.bloco(0,1.12,0, 0.12,0.10,0.12, [1,.35,.35], 1.8, 5);   // farol
+    return c.pronto();
+  })();
+
+  /* asteroide: um bloco irregular; vários giram em ritmos diferentes */
+  const ASTEROIDE = (() => {
+    const c = Construtor();
+    const pedra=[.30,.27,.24], clara=[.40,.37,.33];
+    c.bloco(0,0,0, 0.9,0.75,0.85, pedra, 0);
+    c.bloco(0.5,0.3,-0.3, 0.45,0.40,0.42, clara, 0);
+    c.bloco(-0.45,-0.3,0.35, 0.38,0.45,0.36, clara, 0);
+    c.bloco(0.1,-0.55,0.2, 0.32,0.30,0.30, pedra, 0);
+    return c.pronto();
+  })();
+
+  /* ------------------------------------------------------------- mundo
+     Os sistemas solares são GERADOS por semente, não escritos à mão:
+     cada um sempre nasce igual, então o mapa faz sentido entre visitas,
+     mas nenhum deles ocupa espaço no arquivo.                         */
+  const NOMES = ["Vega","Kepler","Órion","Cygnus","Lyra","Draco","Perseu","Hydra",
+                 "Andrômeda","Sirius","Altair","Rigel","Antares","Deneb"];
+
+  function sorte(s) {                    // um sorteio estável, por semente
+    let x = s;
+    return () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; };
+  }
+
+  function gerarSistema(n) {
+    const r = sorte(n * 7919 + 13);
+    const nome = NOMES[n % NOMES.length] + " " + (Math.floor(n / NOMES.length) + 1);
+    const sis = { n, nome, planetas: [], asteroides: [], estacao: null,
+                  corEstrela: [1, 0.72 + r()*0.26, 0.30 + r()*0.40],
+                  raioEstrela: 60 + r()*45, descoberto: false };
+    const quantos = 2 + Math.floor(r() * 5);
+    for (let i = 0; i < quantos; i++) {
+      const tipo = TIPOS[Math.floor(r() * TIPOS.length)];
+      const dist = 380 + i * (300 + r() * 260);
+      const ang = r() * Math.PI * 2;
+      const raio = 16 + r() * 34;
+      const p = {
+        tipo, nome: nome + " " + "IVXLC".charAt(i % 5).repeat(1) + (i + 1),
+        raio, dist, ang, alt: (r() - 0.5) * 160,
+        x:0, y:0, z:0, luas: [], escaneado: false,
+        agua: Math.round(r()*100), atmosfera: Math.round(r()*100),
+        gravidade: (0.3 + r()*2.2).toFixed(2), temp: Math.round(-180 + r()*420),
+        interesse: ["ruínas antigas","minério raro","sinal de rádio","nada de especial",
+                    "vida microbiana","campo magnético estranho"][Math.floor(r()*6)]
+      };
+      const nl = Math.floor(r() * 3);
+      for (let j = 0; j < nl; j++) {
+        p.luas.push({ raio: raio*(0.15+r()*0.2), dist: raio*(2.2+j*1.3+r()),
+                      ang: r()*Math.PI*2, vel: 0.25+r()*0.5, x:0,y:0,z:0 });
+      }
+      sis.planetas.push(p);
+    }
+    for (let i = 0; i < 26; i++) {
+      sis.asteroides.push({ x:(r()-.5)*2400, y:(r()-.5)*700, z:(r()-.5)*2400,
+                            raio: 4+r()*16, giro: r()*6.28, vel: 0.2+r()*0.8 });
+    }
+    if (r() > 0.35) {
+      const a = r()*Math.PI*2, d = 700 + r()*700;
+      sis.estacao = { x: Math.cos(a)*d, y: (r()-.5)*120, z: Math.sin(a)*d,
+                      nome: "Estação " + nome.split(" ")[0], giro: 0, atracado: false };
+    }
+    return sis;
+  }
+
+  const SISTEMAS = [];
+  for (let i = 0; i < 8; i++) SISTEMAS.push(gerarSistema(i));
+
+  /* ---------------------------------------------------------- a nave
+     Tudo o que a nave é: o que está ligado, o que está gasto, o que
+     está quebrado. Um lugar só, para nada ficar fora de sincronia.   */
+  const N = {
+    sistemaAtual: 0,
+    pos: [0, 0, -1400], ori: M.id(),
+    potencia: 0, velocidade: 0, giroX: 0, giroY: 0, giroZ: 0,
+
+    /* ligados: a ordem importa e está na LIGAR_ORDEM */
+    ligado: {},
+    /* recursos */
+    combustivel: 100, energia: 100, escudo: 100, casco: 100,
+    oxigenio: 100, temperatura: 22,
+    combustivelInfinito: false,
+
+    /* saúde de cada sistema: 100 é inteiro, 0 é morto */
+    dano: { motor:100, energia:100, escudos:100, sensores:100,
+            comunicacao:100, navegacao:100, casco:100 },
+
+    camera: 0,                  // 0 cabine · 1 frente · 2 trás · 3 lateral
+    destino: null, turbo: 0,
+    alvo: null, escaneando: 0,
+    salto: null,                // a sequência da hiperpropulsão
+    pousado: null,
+    recados: [],                // o que a tela de comunicação mostra
+    tempo: 0, avisos: [], tremor: 0
   };
-  const inimigos = [], tiros = [], poeira = [], estrelas = [];
 
-  for (let i = 0; i < 520; i++) {
-    poeira.push({ x:(Math.random()-.5)*150, y:(Math.random()-.5)*150, z:(Math.random()-.5)*150 });
+  /* ------------------------------------------------------- ligar a nave
+     Dez passos, em ordem. Tentar fora de ordem não trava nem pune: a
+     nave EXPLICA o que falta antes. Errar aqui tem que ensinar, não
+     castigar -- quem nunca ligou uma nave não pode adivinhar a ordem. */
+  const LIGAR_ORDEM = [
+    { id:"bateria",       nome:"BATERIA",        precisa:null,           diz:"Bateria ligada. Há energia para acordar o resto." },
+    { id:"energia",       nome:"ENERGIA",        precisa:"bateria",      diz:"Barramento energizado." },
+    { id:"computadores",  nome:"COMPUTADORES",   precisa:"energia",      diz:"Computadores de bordo acordando." },
+    { id:"navegacao",     nome:"NAVEGAÇÃO",      precisa:"computadores", diz:"Navegação pronta: o mapa estelar responde." },
+    { id:"combustivel",   nome:"COMBUSTÍVEL",    precisa:"computadores", diz:"Tanques abertos." },
+    { id:"bombas",        nome:"BOMBAS",         precisa:"combustivel",  diz:"Bombas pressurizando as linhas." },
+    { id:"comunicacao",   nome:"COMUNICAÇÃO",    precisa:"computadores", diz:"Rádio no ar." },
+    { id:"motores",       nome:"MOTORES",        precisa:"bombas",       diz:"Motores acesos. Dá para sair daqui." },
+    { id:"estabilizadores",nome:"ESTABILIZADORES",precisa:"motores",     diz:"Estabilizadores firmes." },
+    { id:"controles",     nome:"CONTROLES",      precisa:"estabilizadores", diz:"Controles liberados. Boa viagem, piloto." }
+  ];
+  const PASSO = {};
+  for (const p of LIGAR_ORDEM) PASSO[p.id] = p;
+
+  function ligarPasso(id) {
+    const p = PASSO[id];
+    if (!p) return;
+    if (N.ligado[id]) {                       // desligar volta atrás em cascata
+      for (let i = LIGAR_ORDEM.length - 1; i >= 0; i--) {
+        const q = LIGAR_ORDEM[i];
+        if (q.id === id || dependeDe(q.id, id)) N.ligado[q.id] = false;
+      }
+      avisar(p.nome + " desligada.", "aviso");
+      return;
+    }
+    if (p.precisa && !N.ligado[p.precisa]) {
+      avisar("Antes de " + p.nome + ", ligue " + PASSO[p.precisa].nome + ".", "erro");
+      try { AudioSys.deny(); } catch (e) {}
+      return;
+    }
+    N.ligado[id] = true;
+    avisar(p.diz, "ok");
+    try { AudioSys.gem(); } catch (e) {}
   }
-  for (let i = 0; i < 380; i++) {
-    const a = Math.random()*Math.PI*2, b = Math.acos(2*Math.random()-1), r = 900;
-    estrelas.push({
-      x: r*Math.sin(b)*Math.cos(a), y: r*Math.cos(b), z: r*Math.sin(b)*Math.sin(a),
-      f: 0.25 + Math.random()*0.75
-    });
+  function dependeDe(quem, de) {
+    let p = PASSO[quem];
+    while (p && p.precisa) { if (p.precisa === de) return true; p = PASSO[p.precisa]; }
+    return false;
+  }
+  const naveViva = () => N.ligado.controles && N.ligado.motores;
+
+  function avisar(texto, tipo) {
+    N.avisos.unshift({ texto, tipo: tipo || "aviso", t: N.tempo });
+    if (N.avisos.length > 5) N.avisos.pop();
+    pintarAvisos();
   }
 
-  function frente() { return [-S.ori[8], -S.ori[9], -S.ori[10]]; }
-  function direita(){ return [ S.ori[0],  S.ori[1],  S.ori[2]]; }
-  function cima()   { return [ S.ori[4],  S.ori[5],  S.ori[6]]; }
+  /* o módulo fala com o HUD por estas quatro portas; o HUD mora fora
+     porque mexe no documento, e aqui dentro é só 3D e estado */
+  function pintarControles() { try { explPintarControles(); } catch (e) {} }
+  function pintarAvisos()    { try { explPintarAvisos(); } catch (e) {} }
+  function pintarPainel()    { try { explPintarPainel(); } catch (e) {} }
+  function abrirMapa()       { try { explAbrirMapa(); } catch (e) {} }
 
-  function nascerInimigo() {
-    const f = frente(), d = direita(), c = cima();
-    const dist = 150 + Math.random()*130;
-    const lx = (Math.random()-.5)*95, ly = (Math.random()-.5)*70;
-    inimigos.push({
-      x: S.pos[0] + f[0]*dist + d[0]*lx + c[0]*ly,
-      y: S.pos[1] + f[1]*dist + d[1]*lx + c[1]*ly,
-      z: S.pos[2] + f[2]*dist + d[2]*lx + c[2]*ly,
-      vida: 3, recarga: 0.9 + Math.random()*1.4, giro: Math.random()*Math.PI*2, vida0: 3
-    });
+  /* ------------------------------------------------------- os controles
+     Mais de 40, e cada um faz alguma coisa de verdade: liga, desliga,
+     dispara uma sequência ou abre uma tela. Não há botão de enfeite --
+     enfeite é a cabine em 3D atrás, que é onde enfeite deve morar.
+
+     A lista é dado, não HTML: o painel se desenha a partir dela, e
+     acrescentar um controle aqui já faz o botão existir.              */
+  const CONTROLES = [
+    /* ---- painel esquerdo: dar vida à nave ---- */
+    { id:"bateria",  rot:"BATTERY",   g:"esq", tipo:"chave", passo:"bateria" },
+    { id:"energia",  rot:"POWER",     g:"esq", tipo:"chave", passo:"energia" },
+    { id:"computadores", rot:"COMPUTER", g:"esq", tipo:"chave", passo:"computadores" },
+    { id:"combustivel", rot:"FUEL",   g:"esq", tipo:"chave", passo:"combustivel" },
+    { id:"bombas",   rot:"FUEL PUMP", g:"esq", tipo:"chave", passo:"bombas" },
+    { id:"motores",  rot:"ENGINE",    g:"esq", tipo:"chave", passo:"motores" },
+    { id:"estabilizadores", rot:"STABILIZER", g:"esq", tipo:"chave", passo:"estabilizadores" },
+    { id:"controles",rot:"CONTROLS",  g:"esq", tipo:"chave", passo:"controles" },
+    { id:"navegacao",rot:"NAV",       g:"esq", tipo:"chave", passo:"navegacao" },
+    { id:"comunicacao", rot:"COMMS",  g:"esq", tipo:"chave", passo:"comunicacao" },
+
+    /* ---- painel central: voar ---- */
+    { id:"radar",    rot:"RADAR",     g:"cen", tipo:"chave", precisa:"computadores" },
+    { id:"scanner",  rot:"SCANNER",   g:"cen", tipo:"chave", precisa:"computadores" },
+    { id:"sensores", rot:"SENSORS",   g:"cen", tipo:"chave", precisa:"computadores" },
+    { id:"escudo",   rot:"SHIELD",    g:"cen", tipo:"chave", precisa:"energia" },
+    { id:"escudoMais", rot:"SHIELD+", g:"cen", tipo:"botao", precisa:"escudo",
+      faz:() => { N.escudo = Math.min(100, N.escudo + 25); N.energia -= 14;
+                  avisar("Escudo reforçado.", "ok"); } },
+    { id:"mapa",     rot:"STAR MAP",  g:"cen", tipo:"botao", precisa:"navegacao",
+      faz:() => abrirMapa() },
+    { id:"hiper",    rot:"HYPERDRIVE",g:"cen", tipo:"botao", precisa:"navegacao",
+      faz:() => comecarSalto() },
+    { id:"carga",    rot:"WARP CHARGE", g:"cen", tipo:"chave", precisa:"navegacao" },
+    { id:"alvo",     rot:"TARGET",    g:"cen", tipo:"botao", precisa:"sensores",
+      faz:() => { travarAlvo(); } },
+    { id:"escanear", rot:"SCAN",      g:"cen", tipo:"botao", precisa:"scanner",
+      faz:() => escanearAlvo() },
+    { id:"piloto",   rot:"AUTOPILOT", g:"cen", tipo:"chave", precisa:"navegacao" },
+    { id:"freio",    rot:"BRAKE",     g:"cen", tipo:"botao", precisa:"motores",
+      faz:() => { N.potencia = 0; avisar("Freando.", "aviso"); } },
+    { id:"re",       rot:"REVERSE",   g:"cen", tipo:"botao", precisa:"motores",
+      faz:() => { N.potencia = -0.35; avisar("Retro-propulsão.", "aviso"); } },
+    { id:"turbo",    rot:"BOOST",     g:"cen", tipo:"botao", precisa:"motores",
+      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4;
+                  avisar("Turbo!", "ok"); } } },
+    { id:"atracar",  rot:"DOCK",      g:"cen", tipo:"botao", precisa:"navegacao",
+      faz:() => atracar() },
+    { id:"pousar",   rot:"LAND",      g:"cen", tipo:"botao", precisa:"navegacao",
+      faz:() => pousar() },
+    { id:"decolar",  rot:"TAKE OFF",  g:"cen", tipo:"botao",
+      faz:() => decolar() },
+
+    /* ---- painel direito: manter a nave viva ---- */
+    { id:"luz",      rot:"CABIN LIGHT", g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"luzEmerg", rot:"EMERG LIGHT", g:"dir", tipo:"chave", precisa:"bateria" },
+    { id:"oxigenio", rot:"OXYGEN",    g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"suporte",  rot:"LIFE SUPP", g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"temperatura", rot:"TEMP",   g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"gravidade",rot:"GRAVITY",   g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"diagnostico", rot:"DIAGNOSTIC", g:"dir", tipo:"botao", precisa:"computadores",
+      faz:() => diagnosticar() },
+    { id:"reparo",   rot:"REPAIR",    g:"dir", tipo:"botao", precisa:"computadores",
+      faz:() => reparar() },
+    { id:"emergencia", rot:"EMERGENCY", g:"dir", tipo:"botao", precisa:"bateria",
+      faz:() => { N.escudo = Math.min(100, N.escudo + 40); N.oxigenio = 100;
+                  avisar("Sistema de emergência: escudo e oxigênio restaurados.", "ok"); } },
+    { id:"farol",    rot:"BEACON",    g:"dir", tipo:"chave", precisa:"comunicacao" },
+    { id:"transmitir", rot:"TRANSMIT",g:"dir", tipo:"botao", precisa:"comunicacao",
+      faz:() => transmitir() },
+    { id:"porta",    rot:"DOOR",      g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"cargaPorao", rot:"CARGO",   g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"furtivo",  rot:"STEALTH",   g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"combate",  rot:"COMBAT",    g:"dir", tipo:"chave", precisa:"energia" },
+    { id:"camera",   rot:"CAMERA",    g:"dir", tipo:"botao",
+      faz:() => { N.camera = (N.camera + 1) % 4;
+                  avisar("Câmera: " + ["cabine","externa frontal","externa traseira","lateral"][N.camera], "aviso"); } },
+    { id:"cameraExt",rot:"EXT CAM",   g:"dir", tipo:"botao",
+      faz:() => { N.camera = N.camera === 0 ? 1 : 0; } },
+    { id:"estado",   rot:"SHIP STATUS", g:"dir", tipo:"botao", precisa:"computadores",
+      faz:() => estadoDaNave() },
+    { id:"varreduraGrav", rot:"GRAV SCAN", g:"dir", tipo:"botao", precisa:"sensores",
+      faz:() => { const p = planetaMaisPerto();
+                  avisar(p ? ("Gravidade em " + p.nome + ": " + p.gravidade + " g")
+                           : "Nada com massa por perto.", "aviso"); } },
+    { id:"varreduraPlan", rot:"PLANET SCAN", g:"dir", tipo:"botao", precisa:"scanner",
+      faz:() => { const p = planetaMaisPerto(); if (p) { N.alvo = p; escanearAlvo(); }
+                  else avisar("Nenhum planeta ao alcance.", "erro"); } },
+    { id:"autoPouso",rot:"AUTO LAND", g:"dir", tipo:"botao", precisa:"navegacao",
+      faz:() => { const p = planetaMaisPerto(); if (p) { N.alvo = p; pousar(); } } },
+    { id:"modoComb", rot:"FUEL MODE", g:"dir", tipo:"botao",
+      faz:() => { N.combustivelInfinito = !N.combustivelInfinito;
+                  avisar("Combustível: " + (N.combustivelInfinito ? "INFINITO" : "NORMAL"), "ok"); } }
+  ];
+
+  /* gastar combustível num lugar só: assim o modo INFINITO é uma linha,
+     e não um "if" espalhado por dez lugares onde um sempre escapa */
+  function gastar(quanto) {
+    if (N.combustivelInfinito) return true;
+    if (N.combustivel < quanto) { avisar("Combustível insuficiente.", "erro"); return false; }
+    N.combustivel -= quanto;
+    return true;
   }
-  for (let i = 0; i < 7; i++) nascerInimigo();
 
-  /* ------------------------------------------------------------- o manche
-     Um dedo em qualquer lugar: onde encostar vira o centro, e o quanto
-     você arrasta é o quanto a nave inclina. Direção livre — o par
-     (horizontal, vertical) vira guinada e arfagem ao mesmo tempo, então
-     dá para ir para qualquer canto, não só reto para os lados.        */
+  const ligadoCtrl = {};
+  function controlePode(c) {
+    if (!c.precisa) return true;
+    return N.ligado[c.precisa] || ligadoCtrl[c.precisa];
+  }
+  function apertar(id) {
+    const c = CONTROLES.filter(x => x.id === id)[0];
+    if (!c) return;
+    if (c.passo) { ligarPasso(c.passo); pintarControles(); return; }
+    if (!controlePode(c)) {
+      const falta = CONTROLES.filter(x => x.id === c.precisa)[0];
+      avisar("Ligue " + (falta ? falta.rot : c.precisa) + " antes.", "erro");
+      try { AudioSys.deny(); } catch (e) {}
+      pintarControles(); return;
+    }
+    if (c.tipo === "chave") {
+      ligadoCtrl[c.id] = !ligadoCtrl[c.id];
+      avisar(c.rot + (ligadoCtrl[c.id] ? " ligado" : " desligado"), "aviso");
+    } else if (c.faz) {
+      c.faz();
+    }
+    try { AudioSys.gem(); } catch (e) {}
+    pintarControles();
+  }
+
+  /* ------------------------------------------------------------- ações */
+  const sistema = () => SISTEMAS[N.sistemaAtual];
+
+  function tudoPorPerto() {
+    const s = sistema(), lista = [];
+    lista.push({ tipo:"estrela", nome:"Estrela de " + s.nome.split(" ")[0],
+                 x:0, y:0, z:0, raio:s.raioEstrela, ref:null });
+    for (const p of s.planetas) {
+      lista.push({ tipo:"planeta", nome:p.nome, x:p.x, y:p.y, z:p.z, raio:p.raio, ref:p });
+      for (const l of p.luas) lista.push({ tipo:"lua", nome:"Lua de " + p.nome, x:l.x, y:l.y, z:l.z, raio:l.raio, ref:l });
+    }
+    if (s.estacao) lista.push({ tipo:"estacao", nome:s.estacao.nome,
+                                x:s.estacao.x, y:s.estacao.y, z:s.estacao.z, raio:40, ref:s.estacao });
+    for (const a of ALIENS) lista.push({ tipo:"nave", nome:a.nome, x:a.x, y:a.y, z:a.z, raio:8, ref:a });
+    for (const a of s.asteroides) lista.push({ tipo:"asteroide", nome:"Asteroide", x:a.x, y:a.y, z:a.z, raio:a.raio, ref:a });
+    return lista;
+  }
+  const distAte = o => Math.hypot(o.x-N.pos[0], o.y-N.pos[1], o.z-N.pos[2]);
+
+  function travarAlvo() {
+    const f = frente();
+    let melhor = 0.90, achado = null;
+    for (const o of tudoPorPerto()) {
+      const dx=o.x-N.pos[0], dy=o.y-N.pos[1], dz=o.z-N.pos[2];
+      const d = Math.hypot(dx,dy,dz) || 1;
+      const alinhado = (dx*f[0]+dy*f[1]+dz*f[2])/d;
+      if (alinhado > melhor) { melhor = alinhado; achado = o; }
+    }
+    N.alvo = achado;
+    avisar(achado ? ("Alvo: " + achado.nome + " a " + Math.round(distAte(achado)) + " km")
+                  : "Nada na mira para travar.", achado ? "ok" : "erro");
+  }
+
+  function escanearAlvo() {
+    if (!N.alvo) { avisar("Trave um alvo antes de escanear.", "erro"); return; }
+    if (N.dano.sensores < 30) { avisar("Sensores avariados demais para escanear.", "erro"); return; }
+    N.escaneando = 2.2;
+    const o = N.alvo;
+    setTimeout(() => {
+      if (o.tipo === "planeta" && o.ref) {
+        o.ref.escaneado = true;
+        avisar(o.nome + " — " + o.ref.tipo.nome + " · " + o.ref.temp + "°C · " +
+               o.ref.gravidade + "g · água " + o.ref.agua + "% · " + o.ref.interesse, "ok");
+      } else if (o.tipo === "nave") {
+        avisar(o.nome + " — " + o.ref.jeito + ". " + o.ref.fala, "ok");
+      } else {
+        avisar(o.nome + " — " + o.tipo + ", raio " + Math.round(o.raio) + " km.", "ok");
+      }
+    }, 2200);
+  }
+
+  const planetaMaisPerto = () => {
+    let p = null, md = 1e9;
+    for (const q of sistema().planetas) {
+      const d = Math.hypot(q.x-N.pos[0], q.y-N.pos[1], q.z-N.pos[2]);
+      if (d < md) { md = d; p = q; }
+    }
+    return md < 900 ? p : null;
+  };
+
+  function pousar() {
+    const p = (N.alvo && N.alvo.tipo === "planeta") ? N.alvo.ref : planetaMaisPerto();
+    if (!p) { avisar("Nenhum planeta perto o bastante.", "erro"); return; }
+    if (!p.tipo.pousavel) { avisar(p.nome + " tem tempestades: não dá para pousar.", "erro"); return; }
+    const d = Math.hypot(p.x-N.pos[0], p.y-N.pos[1], p.z-N.pos[2]);
+    if (d > p.raio * 6) { avisar("Chegue mais perto de " + p.nome + " para pousar.", "erro"); return; }
+    if (!gastar(4)) return;
+    N.pousado = { planeta: p, t: 0 };
+    N.potencia = 0;
+    avisar("Pousando em " + p.nome + "…", "ok");
+  }
+  function decolar() {
+    if (!N.pousado && !(sistema().estacao && sistema().estacao.atracado)) {
+      avisar("A nave já está voando.", "aviso"); return;
+    }
+    if (!gastar(4)) return;
+    if (N.pousado) { avisar("Decolando de " + N.pousado.planeta.nome + ".", "ok"); N.pousado = null; }
+    if (sistema().estacao) sistema().estacao.atracado = false;
+    N.potencia = 0.3;
+  }
+  function atracar() {
+    const e = sistema().estacao;
+    if (!e) { avisar("Não há estação neste sistema.", "erro"); return; }
+    const d = Math.hypot(e.x-N.pos[0], e.y-N.pos[1], e.z-N.pos[2]);
+    if (d > 260) { avisar("Aproxime-se da estação (" + Math.round(d) + " km).", "erro"); return; }
+    e.atracado = true; N.potencia = 0;
+    N.combustivel = 100; N.energia = 100; N.oxigenio = 100;
+    for (const k in N.dano) N.dano[k] = Math.min(100, N.dano[k] + 45);
+    avisar("Atracado em " + e.nome + ". Tanques cheios e avarias reparadas.", "ok");
+  }
+
+  /* ---- hiperpropulsão: DESTINO, CÁLCULO, VERIFICAÇÃO, CARGA, SALTO, CHEGADA ---- */
+  const ETAPAS = ["DESTINO", "CÁLCULO", "VERIFICAÇÃO", "CARREGANDO", "SALTO", "CHEGADA"];
+  function comecarSalto() {
+    if (N.salto) { N.salto = null; avisar("Salto cancelado.", "aviso"); return; }
+    if (N.destino == null) { avisar("Escolha um destino no mapa estelar.", "erro"); abrirMapa(); return; }
+    if (N.dano.navegacao < 40) { avisar("Navegação avariada: salto negado.", "erro"); return; }
+    if (!N.combustivelInfinito && N.combustivel < 25) {
+      avisar("Salto precisa de 25% de combustível. Você tem " + Math.round(N.combustivel) + "%.", "erro");
+      return;
+    }
+    N.salto = { etapa: 0, t: 0 };
+    avisar("Sequência de salto iniciada.", "ok");
+  }
+  function passoSalto(dt) {
+    if (!N.salto) return;
+    const s = N.salto;
+    s.t += dt;
+    const duracao = [1.0, 1.6, 1.2, 2.6, 1.4, 0.9][s.etapa];
+    if (s.t < duracao) return;
+    s.t = 0; s.etapa++;
+    if (s.etapa === 4) gastar(25);
+    if (s.etapa >= ETAPAS.length) {
+      N.sistemaAtual = N.destino;
+      const s2 = sistema();
+      s2.descoberto = true;
+      N.pos = [0, 0, -(s2.raioEstrela * 12)];
+      N.salto = null; N.destino = null;
+      nascerAliens();
+      avisar("Chegada: " + s2.nome + ".", "ok");
+      return;
+    }
+    avisar("Salto: " + ETAPAS[s.etapa] + "…", "aviso");
+  }
+
+  /* ---- avarias, diagnóstico e reparo ---- */
+  const NOME_SIS = { motor:"Motor", energia:"Energia", escudos:"Escudos", sensores:"Sensores",
+                     comunicacao:"Comunicação", navegacao:"Navegação", casco:"Casco" };
+  function avariar(qual, quanto) {
+    N.dano[qual] = Math.max(0, N.dano[qual] - quanto);
+    N.tremor = 1;
+    avisar("AVARIA em " + NOME_SIS[qual] + " (" + Math.round(N.dano[qual]) + "%)", "erro");
+  }
+  function diagnosticar() {
+    const ruins = Object.keys(N.dano).filter(k => N.dano[k] < 95);
+    avisar(ruins.length ? ("Diagnóstico: " + ruins.map(k => NOME_SIS[k] + " " + Math.round(N.dano[k]) + "%").join(" · "))
+                        : "Diagnóstico: todos os sistemas inteiros.", ruins.length ? "aviso" : "ok");
+  }
+  function reparar() {
+    const pior = Object.keys(N.dano).sort((a,b) => N.dano[a]-N.dano[b])[0];
+    if (N.dano[pior] >= 100) { avisar("Não há nada para reparar.", "aviso"); return; }
+    if (N.energia < 12) { avisar("Energia insuficiente para reparar.", "erro"); return; }
+    N.energia -= 12;
+    N.dano[pior] = Math.min(100, N.dano[pior] + 30);
+    avisar(NOME_SIS[pior] + " reparado para " + Math.round(N.dano[pior]) + "%.", "ok");
+  }
+  function estadoDaNave() {
+    avisar("Casco " + Math.round(N.casco) + "% · escudo " + Math.round(N.escudo) +
+           "% · energia " + Math.round(N.energia) + "% · combustível " +
+           (N.combustivelInfinito ? "∞" : Math.round(N.combustivel) + "%"), "aviso");
+  }
+  function transmitir() {
+    const perto = tudoPorPerto().filter(o => o.tipo === "nave" && distAte(o) < 900);
+    if (!perto.length) { avisar("Ninguém responde. Só estática.", "aviso"); return; }
+    const a = perto[0].ref;
+    avisar(a.nome + ": \u201c" + a.resposta + "\u201d", "ok");
+  }
+
+  /* ---- alienígenas ---- */
+  const JEITOS = [
+    { jeito:"pacífico",    cor:[.35,.85,.55], fala:"Passagem livre, viajante.",   resposta:"Que os ventos solares te levem bem." },
+    { jeito:"comerciante", cor:[.95,.75,.30], fala:"Tenho minério e peças.",      resposta:"Atraque comigo e fazemos negócio." },
+    { jeito:"explorador",  cor:[.40,.75,1],   fala:"Também estou mapeando isto.", resposta:"Há ruínas no terceiro planeta." },
+    { jeito:"pirata",      cor:[1,.30,.35],   fala:"Sua carga ou sua nave.",      resposta:"Tarde demais para conversa." },
+    { jeito:"misterioso",  cor:[.75,.45,1],   fala:"…",                            resposta:"Você não deveria estar aqui." }
+  ];
+  const ALIENS = [];
+  function nascerAliens() {
+    ALIENS.length = 0;
+    const r = sorte(N.sistemaAtual * 313 + 7);
+    const quantos = 1 + Math.floor(r() * 3);
+    for (let i = 0; i < quantos; i++) {
+      const j = JEITOS[Math.floor(r() * JEITOS.length)];
+      const a = r() * Math.PI * 2, d = 500 + r() * 900;
+      ALIENS.push({
+        nome: ["Kri'thul","Vorn","Seliah","Nômade","Ecos"][Math.floor(r()*5)] + "-" + (i+1),
+        jeito: j.jeito, cor: j.cor, fala: j.fala, resposta: j.resposta,
+        hostil: j.jeito === "pirata",
+        x: Math.cos(a)*d, y: (r()-.5)*200, z: Math.sin(a)*d,
+        giro: r()*6.28, recarga: 2 + r()*3, falou: false
+      });
+    }
+  }
+  nascerAliens();
+
+  /* --------------------------------------------------------------- voo */
+  function frente() { return [-N.ori[8], -N.ori[9], -N.ori[10]]; }
+  function direita(){ return [ N.ori[0],  N.ori[1],  N.ori[2]]; }
+  function cima()   { return [ N.ori[4],  N.ori[5],  N.ori[6]]; }
+
+  /* o manche: um dedo em qualquer lugar da metade esquerda; a direita é
+     do acelerador. Em PC, o mouse faz o manche e W/S o acelerador. */
   const manche = { ativo:false, id:null, ox:0, oy:0, x:0, y:0 };
-  const elManche = document.getElementById("c3-manche"), elMancheU = document.getElementById("c3-manche-u");
-  const RAIO = 58;
+  const acel = { ativo:false, id:null, oy:0 };
 
+  function ondeToca(e) { return e.clientX < innerWidth * 0.55 ? "manche" : "acel"; }
   function pegar(e) {
-    if (manche.ativo) return;
     const t = e.changedTouches ? e.changedTouches[0] : e;
-    manche.ativo = true; manche.id = t.identifier != null ? t.identifier : "mouse";
-    manche.ox = t.clientX; manche.oy = t.clientY; manche.x = 0; manche.y = 0;
-    elManche.style.left = t.clientX + "px";
-    elManche.style.top = t.clientY + "px";
-    elManche.classList.add("on");
-    document.getElementById("c3-dica").classList.add("some");
+    const id = t.identifier != null ? t.identifier : "mouse";
+    if (ondeToca(t) === "manche") {
+      if (manche.ativo) return;
+      manche.ativo = true; manche.id = id;
+      manche.ox = t.clientX; manche.oy = t.clientY; manche.x = 0; manche.y = 0;
+      const el = $("c3-manche");
+      el.style.left = t.clientX + "px"; el.style.top = t.clientY + "px";
+      el.classList.add("on");
+    } else {
+      if (acel.ativo) return;
+      acel.ativo = true; acel.id = id; acel.oy = t.clientY;
+    }
   }
   function mover(e) {
-    if (!manche.ativo) return;
     const lista = e.changedTouches ? e.changedTouches : [e];
     for (const t of lista) {
       const id = t.identifier != null ? t.identifier : "mouse";
-      if (id !== manche.id) continue;
-      let dx = t.clientX - manche.ox, dy = t.clientY - manche.oy;
-      const d = Math.hypot(dx,dy);
-      if (d > RAIO) { dx = dx/d*RAIO; dy = dy/d*RAIO; }
-      manche.x = dx/RAIO; manche.y = dy/RAIO;
-      elMancheU.style.transform = "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px)";
-    }
-  }
-  function soltar() {
-    manche.ativo = false; manche.x = 0; manche.y = 0;
-    elManche.classList.remove("on");
-    elMancheU.style.transform = "translate(0,0)";
-  }
-  /* Os controles so existem enquanto a cabine esta aberta. Deixar
-       escutando o documento inteiro faria o arrasto do menu virar manche. */
-    function ligarControles() {
-      const t = SCREENS.cabine;
-      t.addEventListener("touchstart", pegar, {passive:true});
-      t.addEventListener("touchmove", mover, {passive:true});
-      t.addEventListener("touchend", soltar, {passive:true});
-      t.addEventListener("touchcancel", soltar, {passive:true});
-      t.addEventListener("mousedown", pegar);
-      t.addEventListener("mousemove", mover);
-      t.addEventListener("mouseup", soltar);
-    }
-    function desligarControles() {
-      const t = SCREENS.cabine;
-      for (const [n,f] of [["touchstart",pegar],["touchmove",mover],["touchend",soltar],
-                           ["touchcancel",soltar],["mousedown",pegar],["mousemove",mover],["mouseup",soltar]]) {
-        t.removeEventListener(n, f);
+      if (manche.ativo && id === manche.id) {
+        let dx = t.clientX - manche.ox, dy = t.clientY - manche.oy;
+        const d = Math.hypot(dx,dy), R = 58;
+        if (d > R) { dx = dx/d*R; dy = dy/d*R; }
+        manche.x = dx/R; manche.y = dy/R;
+        $("c3-manche-u").style.transform = "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px)";
+      } else if (acel.ativo && id === acel.id) {
+        const dy = acel.oy - t.clientY;
+        N.potencia = Math.max(-0.4, Math.min(1, N.potencia + dy * 0.004));
+        acel.oy = t.clientY;
       }
-      soltar();
     }
+  }
+  function soltar(e) {
+    const lista = e && e.changedTouches ? e.changedTouches : [e || {}];
+    for (const t of lista) {
+      const id = t && t.identifier != null ? t.identifier : "mouse";
+      if (manche.ativo && (id === manche.id || !e)) {
+        manche.ativo = false; manche.x = 0; manche.y = 0;
+        $("c3-manche").classList.remove("on");
+        $("c3-manche-u").style.transform = "translate(0,0)";
+      }
+      if (acel.ativo && (id === acel.id || !e)) acel.ativo = false;
+    }
+  }
+  /* PC: teclado para potência, câmeras e as ações mais usadas */
+  function tecla(e) {
+    if (!explLigada) return;
+    const k = e.key.toLowerCase();
+    if (k === "w") N.potencia = Math.min(1, N.potencia + 0.1);
+    else if (k === "s") N.potencia = Math.max(-0.4, N.potencia - 0.1);
+    else if (k === "x") N.potencia = 0;
+    else if (k === "c") apertar("camera");
+    else if (k === "t") travarAlvo();
+    else if (k === "r") escanearAlvo();
+    else if (k === "m") abrirMapa();
+    else if (k === "h") comecarSalto();
+    else return;
+    e.preventDefault();
+  }
 
-  /* --------------------------------------------------------------- passo */
-  let recargaTiro = 0;
+  function ligarControles() {
+    const t = SCREENS.cabine;
+    t.addEventListener("touchstart", pegar, {passive:true});
+    t.addEventListener("touchmove", mover, {passive:true});
+    t.addEventListener("touchend", soltar, {passive:true});
+    t.addEventListener("touchcancel", soltar, {passive:true});
+    t.addEventListener("mousedown", pegar);
+    t.addEventListener("mousemove", mover);
+    t.addEventListener("mouseup", soltar);
+    addEventListener("keydown", tecla);
+  }
+  function desligarControles() {
+    const t = SCREENS.cabine;
+    for (const [n,f] of [["touchstart",pegar],["touchmove",mover],["touchend",soltar],
+                         ["touchcancel",soltar],["mousedown",pegar],["mousemove",mover],["mouseup",soltar]]) {
+      t.removeEventListener(n, f);
+    }
+    removeEventListener("keydown", tecla);
+    soltar(null);
+  }
+
+  /* ------------------------------------------------------------- passo */
+  let proximoEvento = 25;
   function passo(dt) {
-    S.tempo += dt;
+    N.tempo += dt;
+    if (N.salto) { passoSalto(dt); }
 
-    /* a inclinação do manche vira velocidade de giro, com a nave demorando
-       um instante para responder — sem isso o voo fica seco e sem peso */
-    const alvoX = -manche.y * 1.15;              // arfagem: puxar sobe o bico
-    const alvoY = -manche.x * 1.15;              // guinada
-    const alvoZ = -manche.x * 0.85;              // a nave inclina para dentro da curva
-    const suave = 1 - Math.pow(0.0012, dt);
-    S.giroX += (alvoX - S.giroX) * suave;
-    S.giroY += (alvoY - S.giroY) * suave;
-    S.giroZ += (alvoZ - S.giroZ) * suave;
-
-    S.ori = M.mul(S.ori, M.giroX(S.giroX*dt));
-    S.ori = M.mul(S.ori, M.giroY(S.giroY*dt));
-    S.ori = M.mul(S.ori, M.giroZ(S.giroZ*dt));
-    M.reendireitar(S.ori);
-
-    const f = frente();
-    S.pos[0]+=f[0]*S.vel*dt; S.pos[1]+=f[1]*S.vel*dt; S.pos[2]+=f[2]*S.vel*dt;
-
-    /* poeira: cada grão que fica para trás renasce à frente. É o que faz
-       sentir velocidade e direção — sem ela o espaço vazio parece parado */
-    for (const p of poeira) {
-      let dx=p.x-S.pos[0], dy=p.y-S.pos[1], dz=p.z-S.pos[2];
-      if (Math.hypot(dx,dy,dz) > 85) {
-        const d2 = direita(), c2 = cima();
-        const dist = 45 + Math.random()*40, lx=(Math.random()-.5)*110, ly=(Math.random()-.5)*110;
-        p.x = S.pos[0]+f[0]*dist+d2[0]*lx+c2[0]*ly;
-        p.y = S.pos[1]+f[1]*dist+d2[1]*lx+c2[1]*ly;
-        p.z = S.pos[2]+f[2]*dist+d2[2]*lx+c2[2]*ly;
+    /* os planetas andam nas órbitas, sempre -- o sistema é vivo mesmo
+       com a nave desligada, e isso se vê pela janela */
+    const s = sistema();
+    for (const p of s.planetas) {
+      p.ang += dt * (0.02 / (1 + p.dist/900));
+      p.x = Math.cos(p.ang) * p.dist; p.z = Math.sin(p.ang) * p.dist; p.y = p.alt;
+      for (const l of p.luas) {
+        l.ang += dt * l.vel;
+        l.x = p.x + Math.cos(l.ang)*l.dist; l.z = p.z + Math.sin(l.ang)*l.dist; l.y = p.y;
       }
     }
+    for (const a of s.asteroides) a.giro += dt * a.vel;
+    if (s.estacao) s.estacao.giro += dt * 0.12;
 
-    /* canhões: automáticos, como no jogo 2D */
-    recargaTiro -= dt;
-    if (recargaTiro <= 0) {
-      recargaTiro = 0.13;
-      const d2 = direita(), c2 = cima();
-      for (const lado of [-1, 1]) {
-        tiros.push({
-          x: S.pos[0]+d2[0]*lado*1.1+c2[0]*-0.45, y: S.pos[1]+d2[1]*lado*1.1+c2[1]*-0.45,
-          z: S.pos[2]+d2[2]*lado*1.1+c2[2]*-0.45,
-          dx: f[0], dy: f[1], dz: f[2], t: 1.7, meu: true
-        });
-      }
-      S.recuo = 1;
-    }
-    S.recuo = Math.max(0, S.recuo - dt*6);
-    S.tremor = Math.max(0, S.tremor - dt*3.4);
+    /* pilotar só funciona com os controles liberados: é o que dá sentido
+       à sequência de ligar. Antes disso a nave é um objeto parado. */
+    const podeVoar = naveViva() && !N.pousado && !(s.estacao && s.estacao.atracado);
+    if (podeVoar) {
+      const perdaEstab = N.dano.motor < 50 ? 1.5 : 1;    // motor avariado puxa a nave
+      const alvoX = -manche.y * 0.95, alvoY = -manche.x * 0.95, alvoZ = -manche.x * 0.7;
+      const suave = 1 - Math.pow(0.0015, dt);
+      N.giroX += (alvoX - N.giroX) * suave;
+      N.giroY += (alvoY - N.giroY) * suave;
+      N.giroZ += (alvoZ - N.giroZ) * suave;
+      N.ori = M.mul(N.ori, M.giroX(N.giroX*dt*perdaEstab));
+      N.ori = M.mul(N.ori, M.giroY(N.giroY*dt*perdaEstab));
+      N.ori = M.mul(N.ori, M.giroZ(N.giroZ*dt));
+      M.reendireitar(N.ori);
 
-    /* inimigos: viram para você, se aproximam e atiram */
-    for (let i = inimigos.length-1; i >= 0; i--) {
-      const e = inimigos[i];
-      let dx=S.pos[0]-e.x, dy=S.pos[1]-e.y, dz=S.pos[2]-e.z;
-      const d = Math.hypot(dx,dy,dz) || 1;
-      dx/=d; dy/=d; dz/=d;
-      const v = d > 34 ? 26 : -16;                 // chega perto, depois passa reto
-      e.x += dx*v*dt; e.y += dy*v*dt; e.z += dz*v*dt;
-      e.giro += dt*0.7;
-      e.recarga -= dt;
-      if (e.recarga <= 0 && d < 150) {
-        e.recarga = 1.5 + Math.random()*1.6;
-        tiros.push({ x:e.x, y:e.y, z:e.z, dx:dx, dy:dy, dz:dz, t:2.6, meu:false });
-      }
-      if (d > 420) { inimigos.splice(i,1); nascerInimigo(); }
+      const forca = (N.dano.motor/100) * (N.turbo && N.tempo < N.turbo ? 2.2 : 1);
+      const alvoVel = N.potencia * 240 * forca;
+      N.velocidade += (alvoVel - N.velocidade) * (1 - Math.pow(0.08, dt));
+      const f = frente();
+      N.pos[0]+=f[0]*N.velocidade*dt; N.pos[1]+=f[1]*N.velocidade*dt; N.pos[2]+=f[2]*N.velocidade*dt;
+
+      if (Math.abs(N.potencia) > 0.02) gastarPoucoAPouco(dt);
+    } else {
+      N.velocidade += (0 - N.velocidade) * (1 - Math.pow(0.2, dt));
     }
 
-    /* tiros */
-    for (let i = tiros.length-1; i >= 0; i--) {
-      const t = tiros[i];
-      const v = t.meu ? 220 : 95;
-      t.x += t.dx*v*dt; t.y += t.dy*v*dt; t.z += t.dz*v*dt;
-      t.t -= dt;
-      if (t.t <= 0) { tiros.splice(i,1); continue; }
-      if (t.meu) {
-        for (let j = inimigos.length-1; j >= 0; j--) {
-          const e = inimigos[j];
-          if (Math.hypot(t.x-e.x, t.y-e.y, t.z-e.z) < 3.2) {
-            e.vida--; tiros.splice(i,1);
-            if (e.vida <= 0) {
-              inimigos.splice(j,1); nascerInimigo();
-              S.abates++; document.getElementById("c3-abates").textContent = S.abates;
-            }
-            break;
-          }
+    /* energia, oxigênio e temperatura: cada sistema ligado cobra */
+    let consumo = 0;
+    for (const c of CONTROLES) if (c.tipo === "chave" && ligadoCtrl[c.id]) consumo += 0.35;
+    for (const id in N.ligado) if (N.ligado[id]) consumo += 0.25;
+    N.energia = Math.max(0, N.energia - consumo * dt * 0.28);
+    if (N.energia <= 0 && N.ligado.bateria) { N.ligado.energia = false; }
+    if (ligadoCtrl.oxigenio) N.oxigenio = Math.min(100, N.oxigenio + dt*3);
+    else N.oxigenio = Math.max(0, N.oxigenio - dt*0.35);
+    const alvoTemp = ligadoCtrl.temperatura ? 22 : (N.velocidade > 150 ? 68 : 6);
+    N.temperatura += (alvoTemp - N.temperatura) * dt * 0.25;
+    if (ligadoCtrl.escudo) N.escudo = Math.min(100, N.escudo + dt*1.4);
+
+    /* pouso: uma descida curta, não um corte seco */
+    if (N.pousado) { N.pousado.t = Math.min(1, N.pousado.t + dt*0.5); }
+
+    /* alienígenas */
+    for (const a of ALIENS) {
+      let dx=N.pos[0]-a.x, dy=N.pos[1]-a.y, dz=N.pos[2]-a.z;
+      const d = Math.hypot(dx,dy,dz)||1;
+      a.giro += dt*0.5;
+      const v = a.hostil ? (d > 60 ? 34 : -20) : (d < 400 ? -14 : 6);
+      a.x += dx/d*v*dt; a.y += dy/d*v*dt; a.z += dz/d*v*dt;
+      if (!a.falou && d < 700 && ligadoCtrl.sensores) {
+        a.falou = true;
+        avisar(a.nome + " (" + a.jeito + "): \u201c" + a.fala + "\u201d", a.hostil ? "erro" : "aviso");
+      }
+      if (a.hostil && d < 300) {
+        a.recarga -= dt;
+        if (a.recarga <= 0) {
+          a.recarga = 3 + Math.random()*2;
+          if (ligadoCtrl.escudo && N.escudo > 0) { N.escudo = Math.max(0, N.escudo - 9); }
+          else { N.casco = Math.max(0, N.casco - 6);
+                 avariar(["motor","sensores","escudos","energia"][Math.floor(Math.random()*4)], 12); }
+          N.tremor = 1;
+          piscarDano();
         }
-      } else if (Math.hypot(t.x-S.pos[0], t.y-S.pos[1], t.z-S.pos[2]) < 2.6) {
-        tiros.splice(i,1);
-        S.casco = Math.max(0, S.casco - 7);
-        S.tremor = 1;
-        const dn = document.getElementById("c3-dano");
-        dn.classList.add("on");
-        setTimeout(()=>dn.classList.remove("on"), 90);
-        const cx = document.getElementById("c3-cx-casco");
-        document.getElementById("c3-casco").textContent = S.casco + "%";
-        cx.classList.toggle("baixo", S.casco <= 35);
-        if (S.casco <= 0) { S.casco = 100; document.getElementById("c3-casco").textContent = "100%"; cx.classList.remove("baixo"); }
       }
     }
 
-    document.getElementById("c3-vel").textContent = Math.round(S.vel + manche.x*0 + 0);
-    const m = document.getElementById("c3-mira");
-    m.style.transform = "translate(-50%,-50%) scale(" + (1 + S.recuo*0.14).toFixed(3) + ")";
+    /* acontecimentos: o espaço não fica só esperando você */
+    proximoEvento -= dt;
+    if (proximoEvento <= 0) { proximoEvento = 40 + Math.random()*50; acontecer(); }
+
+    N.tremor = Math.max(0, N.tremor - dt*3);
+    if (N.escaneando > 0) N.escaneando -= dt;
+    pintarPainel();
   }
 
-  /* ------------------------------------------------------------- desenho */
-  let larg=0, alt=0;
+  function gastarPoucoAPouco(dt) {
+    if (N.combustivelInfinito) return;
+    N.combustivel = Math.max(0, N.combustivel - Math.abs(N.potencia)*dt*0.55);
+    if (N.combustivel <= 0 && N.ligado.motores) {
+      N.ligado.motores = false; N.ligado.estabilizadores = false; N.ligado.controles = false;
+      avisar("COMBUSTÍVEL ACABOU. Motores apagaram.", "erro");
+      pintarControles();
+    }
+  }
+
+  const ACONTECIMENTOS = [
+    () => { avisar("Tempestade solar: sensores embaralhados.", "erro"); avariar("sensores", 25); },
+    () => { avisar("Chuva de micrometeoros!", "erro");
+            if (ligadoCtrl.escudo) N.escudo = Math.max(0, N.escudo-18); else avariar("casco", 14); },
+    () => { avisar("Sinal misterioso em frequência desconhecida.", "aviso"); },
+    () => { avisar("Destroços de uma nave antiga à deriva.", "aviso"); },
+    () => { avisar("Campo gravitacional puxando a nave.", "erro"); N.tremor = 1; },
+    () => { avisar("Anomalia detectada: a leitura não faz sentido.", "aviso"); },
+    () => { avisar("Sobrecarga no barramento.", "erro"); avariar("energia", 20); N.energia = Math.max(0, N.energia-15); },
+    () => { avisar("Nave abandonada: peças aproveitáveis.", "ok");
+            for (const k in N.dano) N.dano[k] = Math.min(100, N.dano[k]+10); }
+  ];
+  function acontecer() { ACONTECIMENTOS[Math.floor(Math.random()*ACONTECIMENTOS.length)](); }
+
+  function piscarDano() {
+    const d = $("c3-dano");
+    if (!d) return;
+    d.classList.add("on");
+    setTimeout(() => d.classList.remove("on"), 110);
+  }
+
+  /* ------------------------------------------------------------ desenho */
+  let larg = 0, alt = 0;
   function medir() {
-    const r = Math.min(devicePixelRatio || 1, 2);   // 2 já basta: acima disso só esquenta o aparelho
+    const r = Math.min(devicePixelRatio || 1, 2);   // acima de 2 só esquenta o aparelho
     larg = Math.floor(innerWidth*r); alt = Math.floor(innerHeight*r);
     cv.width = larg; cv.height = alt;
   }
-
 
   function desenhar() {
     gl.viewport(0,0,larg,alt);
@@ -27919,174 +28723,364 @@ function cabineMontar() {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const FOV = 1.22, TAN = Math.tan(FOV/2), PROP = larg/alt;
-    const proj = M.perspectiva(FOV, PROP, 0.1, 2200);
+    const FOV = 1.20, TAN = Math.tan(FOV/2), PROP = larg/alt;
+    const proj = M.perspectiva(FOV, PROP, 0.5, 90000);
+    const f = frente(), d = direita(), c = cima();
 
-    /* o ceu, antes de tudo */
-    const f0 = frente(), d0 = direita(), c0 = cima();
+    /* ---- câmeras: a de cabine é a nave; as outras afastam e viram ---- */
+    let camGiro = M.transporGiro(N.ori), olho = [N.pos[0], N.pos[1], N.pos[2]];
+    const recuar = (vx,vy,vz,k) => { olho = [olho[0]+vx*k, olho[1]+vy*k, olho[2]+vz*k]; };
+    if (N.camera === 1) recuar(f[0],f[1],f[2], 26);                       // frontal externa
+    else if (N.camera === 2) {                                            // traseira
+      recuar(f[0],f[1],f[2], -40); recuar(c[0],c[1],c[2], 8);
+      camGiro = M.transporGiro(M.mul(N.ori, M.giroY(Math.PI)));
+    } else if (N.camera === 3) {                                          // lateral
+      recuar(d[0],d[1],d[2], 34); recuar(c[0],c[1],c[2], 6);
+      camGiro = M.transporGiro(M.mul(N.ori, M.giroY(-Math.PI/2)));
+    }
+    const tr = N.tremor*0.010;
+    const sacode = M.mul(M.giroX((Math.random()-.5)*tr), M.giroY((Math.random()-.5)*tr));
+    const cam = M.mul(camGiro, M.mover(-olho[0],-olho[1],-olho[2]));
+    const VP = M.mul(M.mul(proj, sacode), cam);
+
+    /* ---- o céu ---- */
     gl.useProgram(progFundo);
-    gl.uniform3f(uFundo.dir, f0[0],f0[1],f0[2]);
-    gl.uniform3f(uFundo.dir2, d0[0],d0[1],d0[2]);
-    gl.uniform3f(uFundo.cima, c0[0],c0[1],c0[2]);
+    gl.uniform3f(uFundo.dir, f[0],f[1],f[2]);
+    gl.uniform3f(uFundo.dir2, d[0],d[1],d[2]);
+    gl.uniform3f(uFundo.cima, c[0],c[1],c[2]);
     gl.uniform1f(uFundo.tan, TAN);
     gl.uniform1f(uFundo.prop, PROP);
     gl.bindVertexArray(vaoVazio);
-    gl.depthMask(false);
-    gl.drawArrays(gl.TRIANGLES,0,3);
-    gl.depthMask(true);
-    /* tremor de dano: a câmera sacode um tico, não a cabine inteira */
-    const tr = S.tremor*0.012;
-    const camGiro = M.transporGiro(S.ori);
-    const cam = M.mul(camGiro, M.mover(-S.pos[0],-S.pos[1],-S.pos[2]));
-    const sacode = M.mul(M.giroX((Math.random()-.5)*tr), M.giroY((Math.random()-.5)*tr));
-    const VP = M.mul(M.mul(proj, sacode), cam);
+    gl.depthMask(false); gl.drawArrays(gl.TRIANGLES,0,3); gl.depthMask(true);
 
-    /* ---- estrelas: giram com a cabeça, mas não se aproximam ---- */
+    /* ---- estrelas de fundo ---- */
     nRiscos = 0;
-    const somenteGiro = M.mul(M.mul(proj,sacode), camGiro);
-    for (const s of estrelas) risco(s.x,s.y,s.z, s.x*1.002,s.y*1.002,s.z*1.002, s.f,s.f*0.95,1, s.f);
-    gl.useProgram(progRisco);
-    gl.uniformMatrix4fv(uRisco.vp,false,somenteGiro);
-    gl.bindVertexArray(riscoVao);
-    gl.bindBuffer(gl.ARRAY_BUFFER,riscoPos); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufPos,0,nRiscos*6);
-    gl.bindBuffer(gl.ARRAY_BUFFER,riscoCor); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufCor,0,nRiscos*6);
-    gl.bindBuffer(gl.ARRAY_BUFFER,riscoForca); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufForca,0,nRiscos*2);
-    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE); gl.depthMask(false);
-    gl.drawArrays(gl.LINES,0,nRiscos*2);
-    gl.depthMask(true); gl.disable(gl.BLEND);
+    for (const e of estrelas) risco(e.x,e.y,e.z, e.x*1.002,e.y*1.002,e.z*1.002, e.f,e.f*0.95,1, e.f);
+    despejar(M.mul(M.mul(proj,sacode), camGiro));
 
-    /* ---- os caças ---- */
+    /* ---- o sistema solar ---- */
+    const s = sistema();
     gl.useProgram(progMalha);
     gl.uniformMatrix4fv(uMalha.vp,false,VP);
-    gl.uniform1f(uMalha.tempo,S.tempo);
-    gl.bindVertexArray(CACA.vao);
-    for (const e of inimigos) {
-      /* aponta o caça para você: é o "vêm mirando em você" */
-      let dx=S.pos[0]-e.x, dy=S.pos[1]-e.y, dz=S.pos[2]-e.z;
-      const d=Math.hypot(dx,dy,dz)||1;
-      const guin = Math.atan2(dx/d, dz/d);
-      const arf = Math.asin(Math.max(-1,Math.min(1,dy/d)));
-      let mo = M.mul(M.mover(e.x,e.y,e.z), M.giroY(guin));
-      mo = M.mul(mo, M.giroX(-arf));
-      mo = M.mul(mo, M.giroZ(Math.sin(e.giro)*0.28));
-      mo = M.mul(mo, M.escala(1.6));
+    gl.uniform1f(uMalha.tempo,N.tempo);
+    gl.uniform1f(uMalha.alerta, 0);
+
+    const por = (malha, x,y,z, r, giroY) => {
+      let mo = M.mover(x,y,z);
+      if (giroY) mo = M.mul(mo, M.giroY(giroY));
+      mo = M.mul(mo, M.escala(r));
       gl.uniformMatrix4fv(uMalha.modelo,false,mo);
-      gl.drawElements(gl.TRIANGLES,CACA.n,gl.UNSIGNED_SHORT,0);
+      gl.bindVertexArray(malha.vao);
+      gl.drawElements(gl.TRIANGLES,malha.n,gl.UNSIGNED_SHORT,0);
+    };
+
+    por(MALHA_SOL, 0,0,0, s.raioEstrela, N.tempo*0.02);
+    for (const p of s.planetas) {
+      por(MALHA_PLANETA[p.tipo.id], p.x,p.y,p.z, p.raio, N.tempo*0.05);
+      for (const l of p.luas) por(MALHA_LUA, l.x,l.y,l.z, l.raio, N.tempo*0.1);
+    }
+    for (const a of s.asteroides) por(ASTEROIDE, a.x,a.y,a.z, a.raio, a.giro);
+    if (s.estacao) por(ESTACAO, s.estacao.x,s.estacao.y,s.estacao.z, 26, s.estacao.giro);
+    for (const a of ALIENS) {
+      let dx=N.pos[0]-a.x, dy=N.pos[1]-a.y, dz=N.pos[2]-a.z;
+      const dd=Math.hypot(dx,dy,dz)||1;
+      let mo = M.mul(M.mover(a.x,a.y,a.z), M.giroY(Math.atan2(dx/dd, dz/dd)));
+      mo = M.mul(mo, M.giroZ(Math.sin(a.giro)*0.2));
+      mo = M.mul(mo, M.escala(7));
+      gl.uniformMatrix4fv(uMalha.modelo,false,mo);
+      gl.bindVertexArray(ALIEN.vao);
+      gl.drawElements(gl.TRIANGLES,ALIEN.n,gl.UNSIGNED_SHORT,0);
     }
 
-    /* ---- poeira e tiros, somados à luz ---- */
+    /* ---- poeira: é o que dá noção de velocidade no vazio ---- */
     nRiscos = 0;
-    const f = frente(), risca = S.vel*0.030;
+    const risca = Math.abs(N.velocidade)*0.06 + 0.4;
     for (const p of poeira) {
-      risco(p.x,p.y,p.z, p.x-f[0]*risca, p.y-f[1]*risca, p.z-f[2]*risca, 0.42,0.66,0.95, 0.55);
+      let dx=p.x-N.pos[0], dy=p.y-N.pos[1], dz=p.z-N.pos[2];
+      if (Math.hypot(dx,dy,dz) > 90) {
+        const dist = 45+Math.random()*45, lx=(Math.random()-.5)*120, ly=(Math.random()-.5)*120;
+        p.x = N.pos[0]+f[0]*dist+d[0]*lx+c[0]*ly;
+        p.y = N.pos[1]+f[1]*dist+d[1]*lx+c[1]*ly;
+        p.z = N.pos[2]+f[2]*dist+d[2]*lx+c[2]*ly;
+      }
+      risco(p.x,p.y,p.z, p.x-f[0]*risca, p.y-f[1]*risca, p.z-f[2]*risca, 0.40,0.62,0.92, 0.5);
     }
-    for (const t of tiros) {
-      const c = t.meu ? [0.35,0.95,1] : [1,0.42,0.30];
-      const L = t.meu ? 5.5 : 3.4;
-      risco(t.x,t.y,t.z, t.x-t.dx*L, t.y-t.dy*L, t.z-t.dz*L, c[0],c[1],c[2], t.meu?1.25:1.05);
+    /* no salto, as estrelas se esticam: é o efeito que diz "isto é rápido" */
+    if (N.salto && N.salto.etapa >= 4) {
+      for (const e of estrelas) {
+        const k = 0.04 + N.salto.t*0.35;
+        risco(e.x,e.y,e.z, e.x*(1-k), e.y*(1-k), e.z*(1-k), 0.6,0.85,1, 1.2);
+      }
     }
-    gl.useProgram(progRisco);
-    gl.uniformMatrix4fv(uRisco.vp,false,VP);
-    gl.bindVertexArray(riscoVao);
-    gl.bindBuffer(gl.ARRAY_BUFFER,riscoPos); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufPos,0,nRiscos*6);
-    gl.bindBuffer(gl.ARRAY_BUFFER,riscoCor); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufCor,0,nRiscos*6);
-    gl.bindBuffer(gl.ARRAY_BUFFER,riscoForca); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufForca,0,nRiscos*2);
-    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE); gl.depthMask(false);
-    gl.drawArrays(gl.LINES,0,nRiscos*2);
-    gl.depthMask(true); gl.disable(gl.BLEND);
+    /* alvo travado: quatro cantos em volta */
+    if (N.alvo) {
+      const o = N.alvo, T = Math.max(o.raio*1.4, 14);
+      for (const [sx,sy] of [[-1,-1],[1,-1],[1,1],[-1,1]]) {
+        const px=o.x+d[0]*T*sx+c[0]*T*sy, py=o.y+d[1]*T*sx+c[1]*T*sy, pz=o.z+d[2]*T*sx+c[2]*T*sy;
+        risco(px,py,pz, px-d[0]*T*sx*0.4, py-d[1]*T*sx*0.4, pz-d[2]*T*sx*0.4, 0.35,1,0.7, 1.1);
+        risco(px,py,pz, px-c[0]*T*sy*0.4, py-c[1]*T*sy*0.4, pz-c[2]*T*sy*0.4, 0.35,1,0.7, 1.1);
+      }
+    }
+    despejar(VP);
 
-    /* ---- a cabine: presa na sua cabeça, desenhada por último ---- */
+    /* ---- a cabine: só na câmera de dentro ---- */
+    if (N.camera !== 0) return;
     gl.clear(gl.DEPTH_BUFFER_BIT);
     gl.useProgram(progMalha);
-    /* ela balança um tico contra a curva: é o peso do corpo na cadeira */
-    const balanco = M.mul(M.giroZ(S.giroZ*0.05), M.giroX(S.giroX*0.035));
+    const balanco = M.mul(M.giroZ(N.giroZ*0.05), M.giroX(N.giroX*0.035));
     gl.uniformMatrix4fv(uMalha.vp,false,M.mul(M.mul(proj,sacode),balanco));
-    gl.uniform1f(uMalha.tempo,S.tempo);
-    /* estica a cabine para as bordas dela baterem com as bordas da tela,
-       seja qual for a proporcao do aparelho */
-    const D = 1.0, sx = TAN*PROP*D, sy = TAN*D;
-    const molde = M.mul(M.mover(0,0,-D), new Float32Array([sx,0,0,0, 0,sy,0,0, 0,0,0.42,0, 0,0,0,1]));
+    gl.uniform1f(uMalha.tempo,N.tempo);
+    /* a luz de alerta acende sozinha quando algo está ruim de verdade */
+    const ruim = N.casco < 45 || N.escudo < 20 || N.energia < 15 ||
+                 Object.keys(N.dano).some(k => N.dano[k] < 45);
+    gl.uniform1f(uMalha.alerta, ruim ? 2.2 : 0);
+
+    const D = 1.0, sx2 = TAN*PROP*D, sy2 = TAN*D;
+    const molde = M.mul(M.mover(0,0,-D), new Float32Array([sx2,0,0,0, 0,sy2,0,0, 0,0,0.42,0, 0,0,0,1]));
     gl.uniformMatrix4fv(uMalha.modelo,false,molde);
     gl.bindVertexArray(CABINE.vao);
     gl.drawElements(gl.TRIANGLES,CABINE.n,gl.UNSIGNED_SHORT,0);
+
+    /* manche e aceleradores: escala IGUAL nos três eixos, senão a escala
+       esticada da cabine entortaria a peça girada */
+    const tam = sy2*0.13;
+    let mm = M.mover(-sx2*0.30, -sy2*1.00, -D + 0.21);
+    mm = M.mul(mm, M.giroX(-manche.y*0.40));
+    mm = M.mul(mm, M.giroZ(-manche.x*0.40));
+    mm = M.mul(mm, M.escala(tam));
+    gl.uniformMatrix4fv(uMalha.modelo,false,mm);
+    gl.bindVertexArray(MANCHE3D.vao);
+    gl.drawElements(gl.TRIANGLES,MANCHE3D.n,gl.UNSIGNED_SHORT,0);
+
+    /* os dois aceleradores correm para a frente conforme a potência */
+    for (const lado of [0, 1]) {
+      let ma = M.mover(sx2*(0.26 + lado*0.09), -sy2*1.02, -D + 0.21);
+      ma = M.mul(ma, M.giroX(-0.55 + N.potencia*0.85));
+      ma = M.mul(ma, M.escala(tam*0.85));
+      gl.uniformMatrix4fv(uMalha.modelo,false,ma);
+      gl.bindVertexArray(ACELERADOR.vao);
+      gl.drawElements(gl.TRIANGLES,ACELERADOR.n,gl.UNSIGNED_SHORT,0);
+    }
     gl.bindVertexArray(null);
   }
 
+  function despejar(vp) {
+    gl.useProgram(progRisco);
+    gl.uniformMatrix4fv(uRisco.vp,false,vp);
+    gl.bindVertexArray(riscoVao);
+    gl.bindBuffer(gl.ARRAY_BUFFER,riscoPos); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufPos,0,nRiscos*6);
+    gl.bindBuffer(gl.ARRAY_BUFFER,riscoCor); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufCor,0,nRiscos*6);
+    gl.bindBuffer(gl.ARRAY_BUFFER,riscoForca); gl.bufferSubData(gl.ARRAY_BUFFER,0,bufForca,0,nRiscos*2);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE); gl.depthMask(false);
+    gl.drawArrays(gl.LINES,0,nRiscos*2);
+    gl.depthMask(true); gl.disable(gl.BLEND);
+    nRiscos = 0;
+  }
 
-  return {
-    passo: passo,
-    desenhar: desenhar,
-    medir: medir,
-    ligar: ligarControles,
-    desligar: desligarControles,
-    estado: S,
-    manche: manche
-  };
+  const poeira = [], estrelas = [];
+  for (let i = 0; i < 420; i++) poeira.push({ x:(Math.random()-.5)*160, y:(Math.random()-.5)*160, z:(Math.random()-.5)*160 });
+  for (let i = 0; i < 420; i++) {
+    const a = Math.random()*Math.PI*2, b2 = Math.acos(2*Math.random()-1), r = 40000;
+    estrelas.push({ x:r*Math.sin(b2)*Math.cos(a), y:r*Math.cos(b2), z:r*Math.sin(b2)*Math.sin(a),
+                    f: 0.25+Math.random()*0.75 });
+  }
+
+  return { passo, desenhar, medir, ligar: ligarControles, desligar: desligarControles,
+           N, CONTROLES, apertar, ligarPasso, SISTEMAS, sistema, travarAlvo, manche, ALIENS,
+           ligadosCtrl: ligadoCtrl };
+}
+
+/* =====================================================================
+   O QUE FICA POR CIMA DO VIDRO
+   Os controles são botões do documento, não geometria: dedo em botão de
+   3 milímetros desenhado em 3D não acerta nunca. A cabine em 3D atrás é
+   que dá a sensação de estar dentro; estes botões é que se usam.
+   ===================================================================== */
+function explPintarControles() {
+  if (!explAPI) return;
+  const grupos = { esq: $("c3-pesq"), cen: $("c3-pcen"), dir: $("c3-pdir") };
+  for (const g in grupos) {
+    const cx = grupos[g];
+    if (!cx) continue;
+    cx.innerHTML = explAPI.CONTROLES.filter(c => c.g === g).map(c => {
+      const ligado = c.passo ? !!explAPI.N.ligado[c.passo] : !!explLigadoCtrl()[c.id];
+      const pode = !c.precisa || !!explAPI.N.ligado[c.precisa] || !!explLigadoCtrl()[c.precisa];
+      return '<button class="ex-bt' + (ligado ? " on" : "") + (pode ? "" : " travado") +
+        (c.tipo === "botao" ? " acao" : "") + '" data-ctrl="' + c.id + '">' +
+        '<i></i><span>' + c.rot + "</span></button>";
+    }).join("");
+    cx.querySelectorAll("[data-ctrl]").forEach(b =>
+      b.addEventListener("click", () => explAPI.apertar(b.getAttribute("data-ctrl"))));
+  }
+}
+function explLigadoCtrl() { return explAPI ? explAPI.ligadosCtrl : {}; }
+
+function explPintarAvisos() {
+  const cx = $("c3-avisos");
+  if (!cx || !explAPI) return;
+  cx.innerHTML = explAPI.N.avisos.map(a =>
+    '<div class="ex-aviso ' + a.tipo + '">' + escaparTexto(a.texto).slice(0,90) + "</div>").join("");
+}
+
+function explPintarPainel() {
+  if (!explAPI) return;
+  const N2 = explAPI.N;
+  const p = (id, v, sufixo) => { const e = $(id); if (e) e.textContent = v + (sufixo || ""); };
+  p("c3-vel", Math.round(Math.abs(N2.velocidade)));
+  p("c3-comb", N2.combustivelInfinito ? "∞" : Math.round(N2.combustivel) + "%");
+  p("c3-ene", Math.round(N2.energia) + "%");
+  p("c3-esc", Math.round(N2.escudo) + "%");
+  p("c3-casco", Math.round(N2.casco) + "%");
+  p("c3-oxi", Math.round(N2.oxigenio) + "%");
+  p("c3-temp", Math.round(N2.temperatura) + "°C");
+  p("c3-sistema", explAPI.sistema().nome);
+  const b = $("c3-pot-b");
+  if (b) b.style.height = Math.max(0, N2.potencia*100) + "%";
+  const sl = $("c3-salto");
+  if (sl) {
+    if (N2.salto) { sl.style.display = "block"; sl.textContent = "SALTO · " + ETAPAS_TXT[N2.salto.etapa]; }
+    else sl.style.display = "none";
+  }
+  explPintarRadar();
+}
+const ETAPAS_TXT = ["DESTINO","CÁLCULO","VERIFICAÇÃO","CARREGANDO","SALTO","CHEGADA"];
+
+/* o radar: um círculo com o que está por perto, virado para onde a nave
+   aponta. Mostrar distância sem direção não ajuda ninguém a chegar. */
+function explPintarRadar() {
+  const cx = $("c3-radar");
+  if (!cx || !explAPI) return;
+  const N2 = explAPI.N;
+  if (!explLigadoCtrl().radar) { cx.innerHTML = '<u class="ex-off">RADAR OFF</u>'; return; }
+  const s = explAPI.sistema();
+  const objetos = [];
+  const juntar = (nome, x, y, z, classe) => objetos.push({ nome, x, y, z, classe });
+  juntar("★", 0,0,0, "sol");
+  for (const pl of s.planetas) juntar("●", pl.x,pl.y,pl.z, "planeta");
+  if (s.estacao) juntar("▣", s.estacao.x,s.estacao.y,s.estacao.z, "estacao");
+  for (const a of explAPI.ALIENS) juntar("▲", a.x,a.y,a.z, a.hostil ? "hostil" : "nave");
+
+  const fr = [-N2.ori[8],-N2.ori[9],-N2.ori[10]], di = [N2.ori[0],N2.ori[1],N2.ori[2]];
+  const ALC = 2600;
+  cx.innerHTML = objetos.map(o => {
+    const dx=o.x-N2.pos[0], dy=o.y-N2.pos[1], dz=o.z-N2.pos[2];
+    const dist = Math.hypot(dx,dy,dz);
+    if (dist > ALC) return "";
+    const ex = (dx*di[0]+dy*di[1]+dz*di[2]) / ALC;
+    const ez = (dx*fr[0]+dy*fr[1]+dz*fr[2]) / ALC;
+    const px = 50 + ex*46, py = 50 - ez*46;
+    return '<i class="' + o.classe + '" style="left:' + px.toFixed(1) + '%;top:' + py.toFixed(1) + '%">' + o.nome + "</i>";
+  }).join("") + '<u class="ex-alc">' + (ALC/1000).toFixed(1) + "k</u>";
+}
+
+/* ---- mapa estelar ---- */
+function explAbrirMapa() {
+  if (!explAPI) return;
+  const cx = $("c3-mapa");
+  if (!cx) return;
+  const N2 = explAPI.N;
+  cx.style.display = "flex";
+  cx.innerHTML = '<div class="ex-mapa-cx"><div class="ex-mapa-h">MAPA ESTELAR</div>' +
+    '<div class="ex-mapa-lista">' +
+    explAPI.SISTEMAS.map((s, i) => {
+      const aqui = i === N2.sistemaAtual;
+      const dest = i === N2.destino;
+      return '<button class="ex-sis' + (aqui ? " aqui" : "") + (dest ? " dest" : "") +
+        '" data-sis="' + i + '"><b>' + escaparTexto(s.nome) + "</b>" +
+        "<em>" + s.planetas.length + " planetas" + (s.estacao ? " · estação" : "") +
+        (aqui ? " · VOCÊ ESTÁ AQUI" : (s.descoberto ? " · visitado" : " · não visitado")) +
+        "</em></button>";
+    }).join("") + "</div>" +
+    '<div class="ex-mapa-pe"><button class="ex-mapa-bt" id="c3-mapa-ir">DEFINIR ROTA</button>' +
+    '<button class="ex-mapa-bt" id="c3-mapa-x">FECHAR</button></div></div>';
+  cx.querySelectorAll("[data-sis]").forEach(b =>
+    b.addEventListener("click", () => {
+      const i = parseInt(b.getAttribute("data-sis"), 10);
+      if (i === N2.sistemaAtual) return;
+      N2.destino = i;
+      explAbrirMapa();
+    }));
+  $("c3-mapa-x").addEventListener("click", () => { cx.style.display = "none"; });
+  $("c3-mapa-ir").addEventListener("click", () => {
+    if (N2.destino == null) return;
+    cx.style.display = "none";
+    explAPI.N.avisos.unshift({ texto: "Rota definida para " + explAPI.SISTEMAS[N2.destino].nome +
+      ". Aperte HYPERDRIVE.", tipo: "ok", t: 0 });
+    explPintarAvisos();
+  });
+}
+
+/* ---------------------------------------------------------------------
+   O AVISO DE PAISAGEM
+   A cabine tem três painéis lado a lado: em pé não cabe, e espremer
+   viraria um amontoado. Então o modo PEDE o aparelho deitado e não
+   deixa fechar o aviso -- deixar entrar em retrato seria entregar uma
+   experiência ruim e fingir que está tudo bem.
+
+   Isto vale SÓ neste modo: o resto do jogo continua em pé como sempre. */
+function explOlharOrientacao() {
+  const av = $("c3-girar");
+  if (!av) return;
+  const retrato = innerHeight > innerWidth;
+  av.classList.toggle("on", retrato && explLigada);
 }
 
 /* ---------------------------------------------------------------------
    entrar e sair                                                        */
-let cabineQuadro = 0, cabineAntes = 0;
-function cabineLaco(agora) {
-  if (!cabineLigada) return;
-  let dt = (agora - cabineAntes) / 1000;
-  cabineAntes = agora;
-  if (dt > 0.05) dt = 0.05;          // voltando de segundo plano, não teleporta
-  try { cabineAPI.passo(dt); cabineAPI.desenhar(); } catch (e) { cabineSair(); return; }
-  cabineQuadro = requestAnimationFrame(cabineLaco);
+let explQuadro = 0, explAntes = 0;
+function explLaco(agora) {
+  if (!explLigada) return;
+  let dt = (agora - explAntes) / 1000;
+  explAntes = agora;
+  if (dt > 0.05) dt = 0.05;        // voltando de segundo plano, não teleporta
+  try { explAPI.passo(dt); explAPI.desenhar(); } catch (e) { explSair(); return; }
+  explQuadro = requestAnimationFrame(explLaco);
 }
 
-function cabineEntrar() {
-  if (!CABINE_PRONTA) {
-    cabineAPI = cabineMontar();
-    CABINE_PRONTA = true;
-    if (!cabineAPI) {
-      const av = $("c3-erro");
-      if (av) av.style.display = "flex";
-    }
+function exploracaoEntrar() {
+  if (!EXPL_PRONTA) {
+    explAPI = explMontar();
+    EXPL_PRONTA = true;
+    if (!explAPI) { const a = $("c3-erro"); if (a) a.style.display = "flex"; }
   }
   S.mode = "cabine";
   showScreen("cabine");
-  if (!cabineAPI) return;            // sem WebGL: fica só o recado na tela
-  cabineLigada = true;
-  cabineAPI.medir();
-  cabineAPI.ligar();
-  cabineAntes = performance.now();
-  cabineQuadro = requestAnimationFrame(cabineLaco);
+  if (!explAPI) return;
+  explLigada = true;
+  explAPI.medir();
+  explAPI.ligar();
+  explPintarControles();
+  explPintarPainel();
+  explPintarAvisos();
+  explOlharOrientacao();
+  explAntes = performance.now();
+  explQuadro = requestAnimationFrame(explLaco);
   try { AudioSys.resume(); } catch (e) {}
 }
 
-function cabineSair() {
-  cabineLigada = false;
-  if (cabineQuadro) cancelAnimationFrame(cabineQuadro);
-  cabineQuadro = 0;
-  if (cabineAPI) cabineAPI.desligar();
+function explSair() {
+  explLigada = false;
+  if (explQuadro) cancelAnimationFrame(explQuadro);
+  explQuadro = 0;
+  if (explAPI) explAPI.desligar();
+  const m = $("c3-mapa"); if (m) m.style.display = "none";
+  explOlharOrientacao();
   goMenu();
 }
 
-addEventListener("resize", () => { if (cabineLigada && cabineAPI) cabineAPI.medir(); });
-/* o celular bloqueando a tela no meio do voo não pode deixar o laço solto */
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && cabineLigada) { cabineAntes = performance.now(); }
+addEventListener("resize", () => {
+  if (explLigada && explAPI) explAPI.medir();
+  explOlharOrientacao();
 });
+addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220));
 
 /* ---------------------------------------------------------------------
-   os botões que abrem e fecham                                         */
-(function ligarBotoesDaCabine() {
+   os botões que abrem e fecham este modo                               */
+(function ligarBotoesDaExploracao() {
   const b = $("btn-cabine");
-  if (b) b.addEventListener("click", () => { AudioSys.resume(); cabineEntrar(); });
+  if (b) b.addEventListener("click", () => { try { AudioSys.resume(); } catch (e) {} exploracaoEntrar(); });
   const v = $("c3-voltar");
-  if (v) v.addEventListener("click", cabineSair);
-  /* as três habilidades do protótipo por enquanto só acendem: o que elas
-     fazem de verdade em 3D ainda vai ser desenhado, e prometer efeito que
-     não existe é pior do que deixar claro que é um começo */
-  document.querySelectorAll(".c3-hab").forEach(h => {
-    h.addEventListener("click", () => {
-      if (!h.classList.contains("pronta")) return;
-      h.classList.remove("pronta");
-      setTimeout(() => h.classList.add("pronta"), h.id === "c3-ult" ? 9000 : 4000);
-    });
-  });
+  if (v) v.addEventListener("click", explSair);
 })();
 /* ---------- Loop ---------- */
 let last = performance.now();
@@ -28665,6 +29659,36 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.8", itens: [
+      "EXPLORAÇÃO ESPACIAL substitui o modo de luta em 3D. Mesma porta no menu (MINHA NAVE), experiência nova: agora você pilota uma nave e explora o espaço, em vez de atirar em caças",
+      "A NAVE COMEÇA DESLIGADA. Você liga em ordem: bateria, energia, computadores, navegação, combustível, bombas, comunicação, motores, estabilizadores e controles. Apertar fora de ordem não pune — a nave explica o que falta antes",
+      "49 CONTROLES QUE FAZEM ALGUMA COISA, em três painéis: SISTEMAS, VOO e NAVE. Radar, scanner, sensores, escudo, mapa estelar, hiperpropulsão, atracar, pousar, decolar, autopiloto, turbo, freio, retro, oxigênio, gravidade, temperatura, diagnóstico, reparo, câmeras, farol, transmitir e mais",
+      "OITO SISTEMAS SOLARES gerados por semente: estrela, planetas em órbita de verdade, luas girando, asteroides e, em alguns, uma estação para atracar (que enche o tanque e conserta a nave)",
+      "OITO TIPOS DE PLANETA — rochoso, desértico, oceânico, congelado, vulcânico, com vegetação, alienígena e com tempestades. Escaneie para descobrir temperatura, gravidade, água e o que há de interessante lá",
+      "HIPERPROPULSÃO com a sequência inteira: DESTINO, CÁLCULO, VERIFICAÇÃO, CARREGANDO, SALTO e CHEGADA — e as estrelas se esticam no salto",
+      "ALIENÍGENAS com jeitos diferentes: pacíficos, comerciantes, exploradores, piratas e misteriosos. Eles falam com você pelo rádio; os piratas atiram",
+      "COMBUSTÍVEL, ENERGIA, ESCUDO, CASCO, OXIGÊNIO E TEMPERATURA de verdade: cada sistema ligado consome, e quando o combustível acaba os motores apagam",
+      "AVARIAS por sistema (motor, energia, escudos, sensores, comunicação, navegação, casco) que atrapalham mesmo — motor avariado puxa a nave para o lado. Dá para diagnosticar e reparar",
+      "ACONTECIMENTOS: tempestade solar, chuva de micrometeoros, sinal misterioso, destroços, campo gravitacional, anomalia, sobrecarga e nave abandonada",
+      "COMBUSTÍVEL INFINITO é uma opção: o botão FUEL MODE alterna entre normal e infinito, e vale só neste modo",
+      "QUATRO CÂMERAS: cabine, externa frontal, externa traseira e lateral",
+      "O MANCHE E OS DOIS ACELERADORES aparecem na cabine e se mexem: o manche com o seu dedo, os aceleradores conforme a potência",
+      "PEDE O CELULAR DEITADO: a cabine tem três painéis lado a lado e em pé não cabe. O aviso mostra o aparelho girando e some sozinho quando você vira — e volta se você virar de novo. Isso vale SÓ neste modo; o resto do jogo continua em pé",
+      "No computador: W e S para potência, C troca a câmera, T trava alvo, R escaneia, M abre o mapa e H salta",
+      "Nada do resto do jogo mudou: fases, naves, loja, amigos, ranking e progressão continuam exatamente como estavam"
+    ] },
+  { v: "7.7", itens: [
+      "CORRIGIDO (grave): o botão AJUSTES sumia do menu para quem tinha VIP perto de vencer. Desde a v7.4 o menu não rola, e o cartão a mais empurrava os botões para fora da tela — onde eram cortados em silêncio. Agora o menu se mede depois de desenhar: se não couber, ele guarda os cartões opcionais (que continuam nas portas PROGRESSO e LOJA), e se mesmo assim não couber ele volta a rolar. Botão fora do alcance do dedo nunca mais",
+      "CABINE — ACERTAR FICOU POSSÍVEL: são 4 caças em vez de 7, nascem mais perto e na sua frente, o alvo do tiro é do tamanho da nave (não de um ponto) e eles atiram bem menos",
+      "OS TIROS INIMIGOS DÁ PARA VER CHEGANDO: cada tiro agora é um núcleo forte com um rastro atrás, e voa mais devagar — dá tempo de desviar",
+      "PAINEL DE HABILIDADES na cabine, com cinco: MIRA (os tiros perseguem o alvo travado), TRIPLO (três canos em leque), ESCUDO (nada te acerta), LENTO (o mundo anda devagar, o seu manche não) e ULT (queima tudo na sua frente)",
+      "A MIRA é interruptor, não gasta e não recarrega: quem quer treinar pontaria deixa desligada, quem só quer voar e ver explosão liga. Com ela, um quadradinho verde mostra o alvo travado",
+      "O MANCHE AGORA EXISTE DENTRO DA CABINE e se mexe junto com o seu dedo — com punho, gatilho vermelho e dois botões acesos",
+      "CABINE MUITO MAIS VIVA: radar com cursor girando, escada de energia, 22 botões piscando em quatro ritmos, seis chavinhas, luzinhas no teto, costelas nos montantes e duas luzes de alerta que acendem sozinhas quando o casco cai de 40%",
+      "OS CAÇAS INIMIGOS foram refeitos: bolha do piloto, asas em duas partes com aleta na ponta, canhões nas asas e chama nos motores",
+      "Faíscas quando o tiro acerta, e uma chuva delas quando a nave explode",
+      "O jogo 2D não mudou em nada: a conta de inimigos da cabine é outra, num arquivo separado"
+    ] },
   { v: "7.6", itens: [
       "CABINE — PRIMEIRA PESSOA (começo): em MINHA NAVE tem uma linha nova, “Cabine · primeira pessoa”. Você pilota por dentro da nave, em 3D de verdade",
       "O manche é um dedo em qualquer lugar da tela: ele nasce onde você encostar, vai para qualquer direção (não só reto para os lados) e a nave inclina para dentro da curva sozinha. Solte e ela endireita",
@@ -29107,7 +30131,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.6";
+const VERSAO = "7.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

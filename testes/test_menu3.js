@@ -83,6 +83,54 @@ const TELAS = [
     if (!r.jogarVisivel) problemas.push(onde + ': o botao JOGAR sumiu');
   }
 
+  /* ---------- o menu CHEIO: todos os cartões opcionais ao mesmo tempo ----------
+     Foi assim que o botão AJUSTES sumiu de verdade, para quem tinha VIP
+     perto de vencer: o cartão a mais empurrou os botões para fora e o
+     overflow escondido comeu eles calado. Todos os testes mediam o menu
+     vazio, então nenhum viu. */
+  {
+    const p = await b.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    p.on('pageerror', e => errs.push('cheio: ' + e.message));
+    await p.goto(JOGO + '?nuvem=http://127.0.0.1:8099');
+    await p.waitForTimeout(1400);
+    await p.evaluate(() => {
+      const el = document.getElementById('abertura'); if (el) { el.className = ''; el.innerHTML = ''; }
+      ROOT.profiles['Davi'] = defaultSave(); ROOT.current = 'Davi';
+      save = ROOT.profiles['Davi']; save.__name = 'Davi'; save.best = 40;
+      save.crystals = 5000; save.pts = 3; save.tutorialFeito = true;
+      save.vipAte = Date.now() + 2 * 24 * 3600 * 1000;   // VIP acabando: o cartão aparece
+      calcStats(); persist(); goMenu();
+    });
+    await p.waitForTimeout(900);
+    out.cheio = await p.evaluate(() => {
+      const olhar = id => {
+        const e = document.getElementById(id);
+        if (!e) return { existe: false };
+        const r = e.getBoundingClientRect();
+        /* "mostrado" separa o que o jogo escondeu de proposito do que o
+           menu cortou sem querer: o SALVAR NA NUVEM so existe dentro do
+           artifact do Claude, e fora dele ficar oculto esta certo. */
+        const mostrado = getComputedStyle(e).display !== 'none' && r.height > 3;
+        return { existe: true, mostrado: mostrado,
+                 alcanca: !mostrado || (r.bottom <= innerHeight && r.top >= 0),
+                 fundo: Math.round(r.bottom) };
+      };
+      return { ajustes: olhar('btn-ajustes'), nuvem: olhar('cloud-btn'),
+               jogar: olhar('btn-play'), tela: innerHeight,
+               rolando: document.getElementById('screen-menu').classList.contains('menu-rola') };
+    });
+    await p.screenshot({ path: 'menu3-cheio.png' });
+    await p.close();
+    const c = out.cheio;
+    if (!c.ajustes.existe || !c.ajustes.alcanca)
+      problemas.push('menu cheio: o botao AJUSTES nao esta ao alcance (fundo ' + c.ajustes.fundo + ' de ' + c.tela + ')');
+    if (!c.nuvem.existe || !c.nuvem.alcanca)
+      problemas.push('menu cheio: o botao SALVAR NA NUVEM aparece mas esta fora do alcance');
+    if (!c.ajustes.mostrado)
+      problemas.push('menu cheio: o AJUSTES foi escondido — ele nunca pode ser sacrificado');
+    if (!c.jogar.alcanca) problemas.push('menu cheio: o JOGAR nao esta ao alcance');
+  }
+
   await b.close();
   out.errs = errs;
   if (errs.length) problemas.push('erros de pagina: ' + errs.join(' | '));

@@ -640,6 +640,11 @@
   }
   #screen-menu.show > *{flex:none}
   .menu-btns .big-btn,.menu-btns .ghost-btn{width:100%}
+  /* cartao que o menu guardou por falta de espaco (ver menuCaber) */
+  #screen-menu .menu-guardado{display:none !important}
+  /* ultimo recurso: se nem guardando couber, o menu volta a rolar --
+     botao que o dedo nao alcanca e sempre pior do que rolagem */
+  #screen-menu.menu-rola{overflow-y:auto}
   #screen-menu.show{gap:clamp(4px,1vh,10px)}
   #screen-menu .brand{
     font-size:clamp(1.05rem,3.3vh,2.2rem);margin-bottom:0;flex:none;
@@ -4403,70 +4408,194 @@
   .hoje-linha.tem{cursor:pointer}
   .hoje-linha.tem b{color:var(--verde)}
 
-  /* ================= CABINE (primeira pessoa) =================
-     A tela da cabine é só o canvas e o que fica por cima do vidro. Ela
+  /* ============ EXPLORAÇÃO ESPACIAL ============
+     A tela deste modo é só o canvas e o que fica por cima do vidro. Ela
      não usa o céu das outras telas: quem pinta o fundo é o 3D.        */
   #screen-cabine{padding:0;gap:0;background:#04060F;overflow:hidden}
   #screen-cabine::before,#screen-cabine::after{display:none}
   #tela3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
   .c3-hud{position:absolute;inset:0;pointer-events:none;z-index:2}
 
-  .c3-mira{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:44px;height:44px}
-  .c3-mira i{position:absolute;background:var(--cyan);box-shadow:0 0 8px rgba(77,232,255,.9);opacity:.85}
-  .c3-mira i:nth-child(1){left:50%;top:0;width:1.5px;height:11px;margin-left:-.75px}
-  .c3-mira i:nth-child(2){left:50%;bottom:0;width:1.5px;height:11px;margin-left:-.75px}
-  .c3-mira i:nth-child(3){top:50%;left:0;height:1.5px;width:11px;margin-top:-.75px}
-  .c3-mira i:nth-child(4){top:50%;right:0;height:1.5px;width:11px;margin-top:-.75px}
+  /* ---- o aviso de girar o aparelho ---- */
+  .ex-girar{
+    position:absolute;inset:0;z-index:20;display:none;
+    align-items:center;justify-content:center;background:#04060F;
+  }
+  .ex-girar.on{display:flex}
+  .ex-girar-cx{text-align:center;padding:26px;max-width:30ch}
+  .ex-girar strong{
+    display:block;font-family:"Russo One",sans-serif;font-size:1rem;line-height:1.4;
+    color:var(--cyan);letter-spacing:.05em;margin-bottom:10px;
+  }
+  .ex-girar span{display:block;font-size:.74rem;color:var(--dim);line-height:1.6}
+  /* o celular girando: a animação mostra o que fazer sem precisar ler */
+  .ex-cel{
+    width:54px;height:92px;margin:0 auto 24px;border-radius:9px;
+    border:2.5px solid var(--ink2);position:relative;
+    animation:exGira 2.6s ease-in-out infinite;
+  }
+  .ex-cel i{
+    position:absolute;left:50%;bottom:5px;width:16px;height:2.5px;margin-left:-8px;
+    background:var(--ink2);border-radius:2px;
+  }
+  @keyframes exGira{
+    0%,26%{transform:rotate(0deg)}
+    54%,84%{transform:rotate(-90deg)}
+    100%{transform:rotate(0deg)}
+  }
+  @media (prefers-reduced-motion:reduce){.ex-cel{animation:none;transform:rotate(-90deg)}}
+
+  /* ---- leitura de voo, no topo ---- */
+  .ex-topo{
+    position:absolute;top:calc(6px + var(--safe-top));left:8px;right:8px;
+    display:flex;gap:5px;flex-wrap:wrap;justify-content:center;
+    font-variant-numeric:tabular-nums;
+  }
+  .ex-cx{
+    background:rgba(6,12,26,.66);border:1px solid rgba(120,200,255,.16);
+    border-radius:8px;padding:3px 8px;text-align:center;min-width:52px;
+  }
+  .ex-cx u{display:block;font-size:.4rem;letter-spacing:.16em;color:var(--fraco);
+    text-decoration:none;font-weight:700}
+  .ex-cx b{display:block;font-family:"Russo One",sans-serif;font-size:.72rem;color:var(--cyan)}
+
+  .ex-salto{
+    position:absolute;top:34%;left:50%;transform:translateX(-50%);
+    font-family:"Russo One",sans-serif;font-size:.95rem;letter-spacing:.18em;
+    color:var(--amber);text-shadow:0 0 18px rgba(255,200,97,.7);
+  }
+
+  /* ---- os três painéis de controle ---- */
+  .ex-painel{
+    position:absolute;bottom:calc(6px + var(--safe-bot));
+    pointer-events:auto;background:rgba(6,11,24,.72);
+    border:1px solid rgba(120,200,255,.18);border-radius:10px;padding:5px 6px 6px;
+    backdrop-filter:blur(5px);
+  }
+  .ex-painel.esq{left:6px;width:23%}
+  .ex-painel.cen{left:50%;transform:translateX(-50%);width:32%}
+  .ex-painel.dir{right:6px;width:23%}
+  .ex-painel-h{
+    font-size:.4rem;letter-spacing:.2em;color:var(--fraco);font-weight:700;
+    text-align:center;margin-bottom:4px;
+  }
+  .ex-bts{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:3px}
+  .ex-bt{
+    position:relative;display:flex;align-items:center;gap:4px;cursor:pointer;
+    padding:4px 5px;border-radius:6px;text-align:left;
+    background:linear-gradient(160deg,rgba(20,32,62,.9),rgba(8,14,30,.9));
+    border:1px solid rgba(232,239,255,.14);color:var(--fraco);
+    font-family:"Chakra Petch",sans-serif;font-size:.4rem;font-weight:700;
+    letter-spacing:.04em;line-height:1.1;
+  }
+  .ex-bt i{
+    flex:none;width:6px;height:6px;border-radius:50%;
+    background:rgba(232,239,255,.18);box-shadow:none;
+  }
+  .ex-bt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ex-bt.on{border-color:rgba(91,240,176,.6);color:var(--verde)}
+  .ex-bt.on i{background:var(--verde);box-shadow:0 0 6px var(--verde)}
+  .ex-bt.acao{border-color:rgba(77,232,255,.28);color:var(--cyan)}
+  .ex-bt.acao i{background:rgba(77,232,255,.5)}
+  .ex-bt.travado{opacity:.38}
+  .ex-bt:active{transform:scale(.94)}
+
+  /* ---- radar ---- */
+  .ex-radar{
+    position:absolute;left:6px;top:calc(52px + var(--safe-top));
+    width:22vh;height:22vh;max-width:150px;max-height:150px;border-radius:50%;
+    background:radial-gradient(circle,rgba(10,40,44,.66),rgba(4,12,18,.72) 72%);
+    border:1px solid rgba(60,220,180,.3);overflow:hidden;
+  }
+  .ex-radar i{
+    position:absolute;transform:translate(-50%,-50%);font-style:normal;
+    font-size:.5rem;color:var(--verde);text-shadow:0 0 5px rgba(91,240,176,.9);
+  }
+  .ex-radar i.sol{color:var(--amber);font-size:.7rem}
+  .ex-radar i.planeta{color:#7FD4FF}
+  .ex-radar i.estacao{color:#FFF}
+  .ex-radar i.hostil{color:var(--magenta);font-size:.62rem}
+  .ex-radar u,.ex-radar .ex-off{
+    position:absolute;left:50%;bottom:4px;transform:translateX(-50%);
+    font-size:.38rem;letter-spacing:.1em;color:var(--fraco);text-decoration:none;
+  }
+  .ex-radar .ex-off{top:50%;bottom:auto;transform:translate(-50%,-50%);color:var(--fraco)}
+
+  /* ---- potência ---- */
+  .ex-pot{
+    position:absolute;right:6px;top:calc(52px + var(--safe-top));
+    width:18px;height:20vh;max-height:140px;border-radius:9px;
+    background:rgba(6,12,26,.66);border:1px solid rgba(120,200,255,.2);
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+  }
+  .ex-pot i{display:block;width:100%;background:linear-gradient(180deg,var(--cyan),var(--verde));
+    height:0;transition:height .12s linear}
+  .ex-pot u{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+    font-size:.34rem;color:var(--fraco);text-decoration:none;letter-spacing:.1em}
+
+  /* ---- recados ---- */
+  .ex-avisos{
+    position:absolute;left:50%;transform:translateX(-50%);top:calc(46px + var(--safe-top));
+    display:flex;flex-direction:column;gap:3px;align-items:center;width:min(56vw,420px);
+  }
+  .ex-aviso{
+    font-size:.52rem;line-height:1.4;padding:3px 9px;border-radius:99px;
+    background:rgba(6,12,26,.8);border:1px solid rgba(120,200,255,.16);color:var(--ink2);
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .ex-aviso.ok{border-color:rgba(91,240,176,.45);color:var(--verde)}
+  .ex-aviso.erro{border-color:rgba(255,77,143,.5);color:var(--magenta)}
+
+  /* ---- mapa estelar ---- */
+  .ex-mapa{
+    position:absolute;inset:0;z-index:14;display:none;
+    align-items:center;justify-content:center;background:rgba(3,6,14,.88);
+  }
+  .ex-mapa-cx{
+    width:min(88vw,520px);max-height:86%;display:flex;flex-direction:column;
+    background:rgba(9,16,34,.96);border:1px solid var(--line2);border-radius:14px;padding:14px;
+  }
+  .ex-mapa-h{font-family:"Russo One",sans-serif;font-size:.8rem;letter-spacing:.16em;
+    color:var(--cyan);text-align:center;margin-bottom:10px}
+  .ex-mapa-lista{overflow-y:auto;display:flex;flex-direction:column;gap:6px;touch-action:pan-y}
+  .ex-sis{
+    text-align:left;padding:8px 11px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+  }
+  .ex-sis b{display:block;font-size:.76rem;color:var(--ink)}
+  .ex-sis em{display:block;font-style:normal;font-size:.56rem;color:var(--dim);margin-top:2px}
+  .ex-sis.aqui{border-color:rgba(91,240,176,.5)}
+  .ex-sis.dest{border-color:var(--amber);background:rgba(255,200,97,.1)}
+  .ex-mapa-pe{display:flex;gap:8px;margin-top:11px}
+  .ex-mapa-bt{
+    flex:1;padding:10px;border-radius:10px;cursor:pointer;
+    background:rgba(77,232,255,.1);border:1px solid var(--line2);color:var(--cyan);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;
+  }
+  .ex-mapa-bt:active{background:rgba(77,232,255,.24)}
+
+  /* ---- mira, manche e aviso de dano ---- */
+  .c3-mira{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:40px;height:40px}
+  .c3-mira i{position:absolute;background:var(--cyan);box-shadow:0 0 7px rgba(77,232,255,.8);opacity:.7}
+  .c3-mira i:nth-child(1){left:50%;top:0;width:1.5px;height:10px;margin-left:-.75px}
+  .c3-mira i:nth-child(2){left:50%;bottom:0;width:1.5px;height:10px;margin-left:-.75px}
+  .c3-mira i:nth-child(3){top:50%;left:0;height:1.5px;width:10px;margin-top:-.75px}
+  .c3-mira i:nth-child(4){top:50%;right:0;height:1.5px;width:10px;margin-top:-.75px}
   .c3-mira b{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;
-    background:var(--amber);border-radius:50%;box-shadow:0 0 7px var(--amber)}
-
-  /* o manche nasce onde o dedo encostar */
-  .c3-manche{position:absolute;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;
-    border:1px solid rgba(77,232,255,.26);
-    background:radial-gradient(circle,rgba(77,232,255,.07),transparent 68%);display:none}
+    background:var(--amber);border-radius:50%;box-shadow:0 0 6px var(--amber)}
+  .c3-manche{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;
+    border:1px solid rgba(77,232,255,.22);
+    background:radial-gradient(circle,rgba(77,232,255,.06),transparent 68%);display:none}
   .c3-manche.on{display:block}
-  .c3-manche u{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;
-    border-radius:50%;border:1.5px solid var(--cyan);background:rgba(77,232,255,.16);
-    box-shadow:0 0 18px rgba(77,232,255,.45)}
-
-  /* habilidades menores, como o modo pede */
-  .c3-habs{position:absolute;right:12px;bottom:calc(14px + var(--safe-bot));
-    display:flex;flex-direction:column-reverse;gap:7px;pointer-events:auto}
-  .c3-hab{width:38px;height:38px;border-radius:11px;cursor:pointer;
-    border:1.5px solid rgba(232,239,255,.2);
-    background:linear-gradient(160deg,rgba(20,34,68,.85),rgba(8,14,34,.85));
-    color:var(--dim);font-size:.86rem;line-height:1;
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .1s,border-color .18s,color .18s}
-  .c3-hab.pronta{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 11px rgba(77,232,255,.35)}
-  .c3-hab:active{transform:scale(.9)}
-  .c3-hab.ult{width:52px;height:52px;border-radius:50%;font-size:.6rem;font-weight:700;
-    border-color:rgba(255,200,97,.5);color:var(--amber);letter-spacing:.06em}
-  .c3-hab.ult.pronta{box-shadow:0 0 20px rgba(255,200,97,.55);border-color:var(--amber)}
-
-  .c3-painel{position:absolute;left:12px;top:calc(12px + var(--safe-top));
-    display:flex;flex-direction:column;gap:7px;font-variant-numeric:tabular-nums}
-  .c3-cx{background:rgba(6,12,26,.55);border:1px solid rgba(120,200,255,.16);
-    border-radius:10px;padding:6px 11px}
-  .c3-cx .rot{font-size:.46rem;letter-spacing:.2em;color:var(--fraco);font-weight:700}
-  .c3-cx .val{font-family:"Russo One",sans-serif;font-size:.92rem;color:var(--cyan);line-height:1.15}
-  .c3-cx.casco .val{color:var(--verde)}
-  .c3-cx.casco.baixo .val{color:var(--magenta)}
-
-  .c3-dica{position:absolute;left:50%;bottom:calc(18px + var(--safe-bot));transform:translateX(-50%);
-    font-size:.6rem;letter-spacing:.06em;color:var(--fraco);text-align:center;line-height:1.7;
-    transition:opacity .6s;max-width:92vw}
-  .c3-dica b{color:var(--cyan);font-weight:600}
-  .c3-dica.some{opacity:0}
-
+  .c3-manche u{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;
+    border-radius:50%;border:1.5px solid var(--cyan);background:rgba(77,232,255,.14);
+    box-shadow:0 0 16px rgba(77,232,255,.4)}
   .c3-dano{position:absolute;inset:0;pointer-events:none;opacity:0;
     box-shadow:inset 0 0 90px rgba(255,77,143,.75);transition:opacity .26s}
   .c3-dano.on{opacity:1;transition:opacity .05s}
-
   .c3-erro{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    padding:28px;text-align:center;font-size:.92rem;color:var(--dim);line-height:1.6;z-index:3}
-
-  .c3-voltar{position:absolute;left:10px;bottom:calc(12px + var(--safe-bot));z-index:4;
-    width:42px;height:42px;border-radius:13px;cursor:pointer;font-size:1.3rem;line-height:1;
-    background:rgba(6,12,26,.6);border:1px solid rgba(120,200,255,.22);color:var(--ink2)}
+    padding:28px;text-align:center;font-size:.9rem;color:var(--dim);line-height:1.6;z-index:3}
+  .c3-voltar{position:absolute;left:8px;bottom:calc(8px + var(--safe-bot));z-index:16;
+    width:36px;height:36px;border-radius:11px;cursor:pointer;font-size:1.15rem;line-height:1;
+    background:rgba(6,12,26,.7);border:1px solid rgba(120,200,255,.22);color:var(--ink2)}
   .c3-voltar:active{transform:scale(.92);border-color:var(--cyan)}
