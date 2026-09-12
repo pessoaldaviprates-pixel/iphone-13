@@ -575,6 +575,17 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.1", itens: [
+      "LIGAR A NAVE virou um toque. Antes eram dez chaves na ordem certa, e cada erro mandava um “antes de MOTORES, ligue BOMBAS”. Agora a nave já entra ligada, e o botão PARTIDA liga ou desliga tudo de uma vez",
+      "Apertar uma chave solta acende sozinho o que ela precisa. A ordem é problema da nave, não seu — as dez chaves continuam ali para quem gosta do ritual",
+      "OS RECADOS PARARAM DE TAPAR A JANELA: no máximo três, e cada um vive cinco segundos. Trocar a câmera, ligar o radar ou frear não mandam recado nenhum — o botão acende, a imagem muda, já se vê",
+      "SETINHA EM CADA PAINEL: um toque no ▾ recolhe o painel até uma barrinha, e a cabine aparece inteira. Outro toque devolve os botões",
+      "BOTÃO DE AÇÕES no canto de cima à direita: fechado é um raio pequeno; aberto, sete botões grandes com CANHÃO, MÍSSIL, MEGA BOOST, TURBO, ESCUDO+, ALVO e EMERGÊNCIA — o que se aperta com pressa, perto do polegar",
+      "AGORA DÁ PARA ATIRAR. Os piratas atiravam desde o começo e você só podia fugir. O canhão acerta o que estiver na mira e recarrega rápido; o míssil perdoa mira torta, machuca três vezes mais e demora para voltar",
+      "MEGA BOOST: empurra 3,6× por sete segundos e cobra caro no combustível. É a carta de fuga quando o casco está indo",
+      "Os tiros aparecem — os seus e os deles. E o painel de cima ganhou ABATES, a conta de quantas naves você derrubou",
+      "Apertar um botão não mexe mais no acelerador. O CANHÃO fica na metade direita da tela, que era a zona do acelerador: a nave acelerava sozinha a cada tiro"
+    ] },
   { v: "8.0", itens: [
       "CORRIGIDO (grave): o celular não virava na EXPLORAÇÃO. A culpa era minha — o jogo estava trancado em retrato no manifesto, então o atalho da tela inicial nunca girava e o aviso “vire o aparelho” virava uma parede: o modo ficava inalcançável",
       "Agora só a exploração pede paisagem, e ela devolve o retrato ao sair. Os outros modos continuam em pé como sempre foram",
@@ -1068,7 +1079,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.0";
+const VERSAO = "8.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

@@ -1472,6 +1472,7 @@
       <div class="ex-cx"><u>CASCO</u><b id="c3-casco">100%</b></div>
       <div class="ex-cx"><u>O₂</u><b id="c3-oxi">100%</b></div>
       <div class="ex-cx"><u>TEMP</u><b id="c3-temp">22°C</b></div>
+      <div class="ex-cx"><u>ABATES</u><b id="c3-abates">0</b></div>
     </div>
 
     <div class="ex-salto" id="c3-salto" style="display:none"></div>
@@ -1490,6 +1491,14 @@
     <div class="c3-manche" id="c3-manche"><u id="c3-manche-u"></u></div>
     <div class="c3-dano" id="c3-dano"></div>
     <div class="c3-erro" id="c3-erro">Este aparelho não abriu o WebGL 2, que é o que desenha o 3D.<br>A exploração precisa dele; o resto do jogo funciona normal.</div>
+  </div>
+
+  <!-- as ações da briga num canto só: pequeno fechado, sete botões
+       grandes aberto. Fica fora do .c3-hud porque o HUD não recebe
+       toque (pointer-events:none) e este recebe. -->
+  <div class="ex-rapido" id="c3-rapido">
+    <button class="ex-rapido-b" id="c3-rapido-b" aria-label="Ações rápidas">⚡</button>
+    <div class="ex-rapido-cx" id="c3-rapido-cx"></div>
   </div>
 
   <div class="ex-mapa" id="c3-mapa" style="display:none"></div>

@@ -4546,6 +4546,26 @@
     font-size:.46rem;letter-spacing:.24em;color:var(--fraco);font-weight:700;
     text-align:center;margin-bottom:7px;
   }
+  /* a barrinha do topo do painel: nome à esquerda, setinha à direita.
+     A setinha é o que deixa fechar o painel e ver a cabine. */
+  .ex-barra{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:8px;margin-bottom:6px;
+  }
+  .ex-barra b{
+    font-size:.44rem;letter-spacing:.22em;color:var(--fraco);font-weight:700;
+    font-family:"Chakra Petch",sans-serif;
+  }
+  .ex-fecha{
+    flex:none;width:30px;height:20px;border-radius:6px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
+    color:var(--dim);font-size:.66rem;
+  }
+  .ex-fecha:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+  /* fechado o painel encolhe até caber só a barra: some da frente sem
+     sumir do jogo, e a janela volta a ser janela */
+  .ex-painel.fechado{width:auto;max-width:none;padding:6px 9px}
+  .ex-painel.fechado .ex-barra{margin-bottom:0}
   /* abas: o que não se usa o tempo todo sai da frente sem sumir do jogo */
   .ex-abas{display:flex;gap:4px;margin-bottom:7px}
   .ex-aba{
@@ -4685,8 +4705,60 @@
     max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
   }
+  .ex-aviso{animation:exAviso .22s ease-out}
+  @keyframes exAviso{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.ex-aviso{animation:none}}
   .ex-aviso.ok{border-color:rgba(91,240,176,.45);color:var(--verde)}
   .ex-aviso.erro{border-color:rgba(255,77,143,.5);color:var(--magenta)}
+
+  /* ------------------------------------------------ ações rápidas
+     Canto de cima à direita: é onde cai o polegar direito de quem
+     segura o aparelho deitado, e é o canto que o HUD deixava vazio.
+     Fechado é um raio de 40px; aberto, uma coluna de botões de 46px
+     de altura -- grandes porque se aperta com pressa.               */
+  .ex-rapido{
+    position:absolute;z-index:13;
+    top:calc(8px + var(--safe-top));right:calc(10px + var(--safe-right,0px));
+    display:flex;flex-direction:column;align-items:flex-end;gap:7px;
+    pointer-events:auto;
+  }
+  .ex-rapido-b{
+    width:40px;height:40px;border-radius:50%;cursor:pointer;line-height:1;
+    font-size:1.05rem;color:var(--amber);
+    background:linear-gradient(165deg,rgba(30,22,8,.9),rgba(8,6,14,.92));
+    border:1px solid rgba(255,196,77,.5);
+    box-shadow:0 4px 16px rgba(0,0,0,.5), 0 0 14px rgba(255,196,77,.22);
+  }
+  .ex-rapido-b.on{color:var(--cyan);border-color:rgba(77,232,255,.55);
+    box-shadow:0 4px 16px rgba(0,0,0,.5), 0 0 14px rgba(77,232,255,.25)}
+  .ex-rapido-b:active{transform:scale(.92)}
+  .ex-rapido-cx{
+    display:none;flex-direction:column;gap:6px;width:104px;
+    background:linear-gradient(170deg,rgba(14,26,50,.66),rgba(5,10,22,.78));
+    border:1px solid rgba(120,200,255,.22);border-radius:13px;padding:7px;
+    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+    box-shadow:0 8px 26px rgba(0,0,0,.5);
+    max-height:calc(100vh - 110px);overflow-y:auto;touch-action:pan-y;
+  }
+  .ex-rapido-cx.on{display:flex}
+  .ex-rb{
+    display:flex;align-items:center;gap:7px;min-height:46px;
+    padding:5px 9px;border-radius:10px;cursor:pointer;text-align:left;
+    background:rgba(255,255,255,.045);border:1px solid rgba(120,200,255,.24);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-weight:700;
+  }
+  .ex-rb b{font-size:1rem;line-height:1;color:var(--cyan);flex:none;width:16px;text-align:center}
+  .ex-rb span{font-size:.52rem;letter-spacing:.08em;line-height:1.15}
+  .ex-rb:active{transform:scale(.95);background:rgba(77,232,255,.16)}
+  /* esfriando: o botão continua ali, só avisa que ainda não recarregou */
+  .ex-rb.esfriando{opacity:.4}
+  @media (max-height:430px){
+    .ex-rapido-cx{width:92px}
+    .ex-rb{min-height:38px}
+    .ex-rb span{font-size:.46rem}
+  }
+  /* em pé a coluna não pode comer a tela toda */
+  #screen-cabine.retrato .ex-rapido-cx{max-height:52vh}
 
   /* ---- mapa estelar ---- */
   .ex-mapa{
@@ -4725,6 +4797,15 @@
   .c3-mira i:nth-child(4){top:50%;right:0;height:1.5px;width:10px;margin-top:-.75px}
   .c3-mira b{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;
     background:var(--amber);border-radius:50%;box-shadow:0 0 6px var(--amber)}
+  /* mira quente: o tiro daqui acerta. É o que ensina a mirar -- sem
+     isto o jogador atira no vazio e acha que a arma está quebrada. */
+  .c3-mira.travada i{background:var(--magenta);box-shadow:0 0 9px var(--magenta);opacity:1}
+  .c3-mira.travada b{background:var(--magenta);box-shadow:0 0 10px var(--magenta);width:5px;height:5px;
+    margin:-2.5px 0 0 -2.5px}
+  .c3-mira.travada{animation:exMira .5s ease-in-out infinite alternate}
+  @keyframes exMira{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.18)}}
+  @media (prefers-reduced-motion:reduce){.c3-mira.travada{animation:none}}
+
   .c3-manche{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;
     border:1px solid rgba(77,232,255,.22);
     background:radial-gradient(circle,rgba(77,232,255,.06),transparent 68%);display:none}

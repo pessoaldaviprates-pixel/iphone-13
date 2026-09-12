@@ -109,6 +109,26 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   tinha custado quatro versões. **Peça nova entra ANTES do `07-extras-2.js`.**
   `testes/confere_versao.py` mede essa distância e o `check.sh` recusa
   publicar se ela passar da conta.
+- **Dez recusas antes de voar.** A exploração pedia dez chaves na ordem
+  certa e recusava cada uma fora de ordem com um "antes de MOTORES, ligue
+  BOMBAS". Parecia ensinar; na prática era adivinhação, e o jogador disse
+  que estava complicado demais. Desde a v8.1 a nave entra ligada, PARTIDA
+  liga ou desliga tudo, e apertar uma chave solta acende sozinha a corrente
+  de que ela depende. **Se o jogo sabe a ordem, ele obedece — não cobra.**
+- **Medir o elemento antes de tirar a classe que o encolhia.** O painel
+  recolhido é `width:auto`, ou seja estreito. `explPintarControles()` media
+  `clientWidth` para decidir quantas colunas cabem, e media ANTES de tirar a
+  classe `fechado`: ao reabrir, o painel se media fechado e voltava com uma
+  coluna a menos — dois botões desapareciam no caminho. A classe sai antes
+  da medida, sempre.
+- **Botão que alterna usado na entrada.** `ligarTudo()` desliga se já está
+  tudo ligado (é o que o botão PARTIDA quer). A nave guarda o estado entre
+  visitas, então chamar a mesma função ao ENTRAR no modo desligava a nave na
+  segunda visita. Entrada não alterna: ela garante o estado (`ligarTudo(true)`).
+- **Dedo em botão também virava manche.** O toque era ouvido na tela inteira,
+  e a metade direita é a zona do acelerador — apertar CANHÃO acelerava a nave
+  a cada tiro. Quem pega o toque tem que perguntar antes se ele caiu num
+  botão.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

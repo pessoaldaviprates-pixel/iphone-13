@@ -541,13 +541,26 @@ function explMontar() {
     salto: null,                // a sequência da hiperpropulsão
     pousado: null,
     recados: [],                // o que a tela de comunicação mostra
-    tempo: 0, avisos: [], tremor: 0
+    tempo: 0, avisos: [], tremor: 0,
+
+    /* combate: os piratas atiravam e não havia como responder. Agora há. */
+    tiros: [],                  // riscos de luz, os meus e os deles
+    recargaTiro: 0, recargaMissil: 0, abatidas: 0, mega: 0
   };
 
   /* ------------------------------------------------------- ligar a nave
-     Dez passos, em ordem. Tentar fora de ordem não trava nem pune: a
-     nave EXPLICA o que falta antes. Errar aqui tem que ensinar, não
-     castigar -- quem nunca ligou uma nave não pode adivinhar a ordem. */
+     Dez passos, em ordem -- mas a ordem é problema DA NAVE, não do
+     jogador.
+
+     Na primeira versão cada passo recusava se o anterior não estivesse
+     ligado, e dizia "antes de MOTORES, ligue BOMBAS". Dez passos, dez
+     recusas: virou adivinhação. Quem abre o modo quer voar, não decorar
+     um encadeamento.
+
+     Agora: a nave entra LIGADA, o botão PARTIDA liga ou desliga tudo de
+     uma vez, e apertar um passo solto acende sozinho o que ele precisa.
+     As chaves continuam existindo para quem gosta do ritual -- o que
+     saiu foi o castigo, não o brinquedo.                              */
   const LIGAR_ORDEM = [
     { id:"bateria",       nome:"BATERIA",        precisa:null,           diz:"Bateria ligada. Há energia para acordar o resto." },
     { id:"energia",       nome:"ENERGIA",        precisa:"bateria",      diz:"Barramento energizado." },
@@ -563,7 +576,7 @@ function explMontar() {
   const PASSO = {};
   for (const p of LIGAR_ORDEM) PASSO[p.id] = p;
 
-  function ligarPasso(id) {
+  function ligarPasso(id, calado) {
     const p = PASSO[id];
     if (!p) return;
     if (N.ligado[id]) {                       // desligar volta atrás em cascata
@@ -571,17 +584,38 @@ function explMontar() {
         const q = LIGAR_ORDEM[i];
         if (q.id === id || dependeDe(q.id, id)) N.ligado[q.id] = false;
       }
-      avisar(p.nome + " desligada.", "aviso");
+      if (!calado) avisar(p.nome + " desligada.", "aviso");
       return;
     }
-    if (p.precisa && !N.ligado[p.precisa]) {
-      avisar("Antes de " + p.nome + ", ligue " + PASSO[p.precisa].nome + ".", "erro");
-      try { AudioSys.deny(); } catch (e) {}
-      return;
-    }
+    /* o que falta, a nave liga sozinha: ninguém tem que adivinhar que
+       MOTORES depende de BOMBAS que dependem de COMBUSTÍVEL */
+    if (p.precisa && !N.ligado[p.precisa]) ligarPasso(p.precisa, true);
     N.ligado[id] = true;
-    avisar(p.diz, "ok");
+    if (!calado) avisar(p.diz, "ok");
     try { AudioSys.gem(); } catch (e) {}
+  }
+
+  /* PARTIDA: um toque acende a nave inteira, na ordem certa, e diz uma
+     frase só no fim. Dez avisos seguidos ninguém lê -- viram poluição. */
+  function ligarTudo(semAlternar) {
+    const faltam = LIGAR_ORDEM.filter(p => !N.ligado[p.id]);
+    /* O BOTÃO alterna: apertar com tudo ligado desliga. A ENTRADA no
+       modo, não: a nave fica ligada entre uma visita e outra, e sem
+       este "semAlternar" voltar ao modo DESLIGARIA a nave em vez de
+       ligá-la -- o contrário do que a entrada quer. */
+    if (!faltam.length) { if (!semAlternar) desligarTudo(); return; }
+    for (const p of LIGAR_ORDEM) N.ligado[p.id] = true;
+    for (const id of ["radar","sensores","escudo","luz","oxigenio","suporte"]) ligadoCtrl[id] = true;
+    avisar("Nave pronta. Boa viagem, piloto.", "ok");
+    try { AudioSys.gem(); } catch (e) {}
+    pintarControles();
+  }
+  function desligarTudo() {
+    for (const p of LIGAR_ORDEM) N.ligado[p.id] = false;
+    for (const c of CONTROLES) if (c.tipo === "chave") ligadoCtrl[c.id] = false;
+    N.potencia = 0;
+    avisar("Nave desligada.", "aviso");
+    pintarControles();
   }
   function dependeDe(quem, de) {
     let p = PASSO[quem];
@@ -590,10 +624,25 @@ function explMontar() {
   }
   const naveViva = () => N.ligado.controles && N.ligado.motores;
 
+  /* ------------------------------------------------------------ avisos
+     Antes ficavam cinco na tela, para sempre, e a maioria era conversa
+     fiada: "CÂMERA: cabine", "RADAR ligado", "Freando". Coisa que o
+     próprio botão já mostra (o LED acende, a imagem muda) não precisa
+     de recado -- só tapa a janela, que é o que tem de bonito aqui.
+
+     Ficou assim: no máximo TRÊS, e cada um vive CINCO SEGUNDOS. Se
+     depois de cinco segundos ainda importa, não era aviso, era painel.  */
+  const AVISO_VIVE = 5;
   function avisar(texto, tipo) {
     N.avisos.unshift({ texto, tipo: tipo || "aviso", t: N.tempo });
-    if (N.avisos.length > 5) N.avisos.pop();
+    if (N.avisos.length > 3) N.avisos.pop();
     pintarAvisos();
+  }
+  /* chamado a cada quadro: tira os vencidos e só repinta quando some um */
+  function envelhecerAvisos() {
+    const antes = N.avisos.length;
+    while (N.avisos.length && N.tempo - N.avisos[N.avisos.length-1].t > AVISO_VIVE) N.avisos.pop();
+    if (N.avisos.length !== antes) pintarAvisos();
   }
 
   /* o módulo fala com o HUD por estas quatro portas; o HUD mora fora
@@ -611,7 +660,12 @@ function explMontar() {
      A lista é dado, não HTML: o painel se desenha a partir dela, e
      acrescentar um controle aqui já faz o botão existir.              */
   const CONTROLES = [
-    /* ---- SISTEMAS (canto inferior esquerdo): dar vida à nave ---- */
+    /* ---- SISTEMAS (canto inferior esquerdo): dar vida à nave ----
+       PARTIDA vem primeiro e ocupa a linha inteira porque é o que 99%
+       das vezes se quer: ligar a nave e ir. As dez chaves embaixo são
+       para quem gosta de ligar na mão. */
+    { id:"ignicao",  rot:"PARTIDA",  ic:"⏻", g:"sis", pag:0, tipo:"botao", grande:true,
+      faz:() => ligarTudo() },
     { id:"bateria",  rot:"BATTERY",  ic:"▣", g:"sis", pag:0, tipo:"chave", passo:"bateria" },
     { id:"energia",  rot:"POWER",    ic:"⚡", g:"sis", pag:0, tipo:"chave", passo:"energia" },
     { id:"computadores", rot:"COMPUTER", ic:"▤", g:"sis", pag:0, tipo:"chave", passo:"computadores" },
@@ -637,11 +691,17 @@ function explMontar() {
     { id:"escanear", rot:"SCAN",     ic:"◎", g:"voo", pag:0, tipo:"botao", precisa:"scanner",
       faz:() => escanearAlvo() },
     { id:"freio",    rot:"BRAKE",    ic:"⊟", g:"voo", pag:0, tipo:"botao", precisa:"motores",
-      faz:() => { N.potencia = 0; avisar("Freando.", "aviso"); } },
+      faz:() => { N.potencia = 0; } },
     { id:"re",       rot:"REVERSE",  ic:"◀", g:"voo", pag:0, tipo:"botao", precisa:"motores",
-      faz:() => { N.potencia = -0.35; avisar("Retro-propulsão.", "aviso"); } },
+      faz:() => { N.potencia = -0.35; } },
     { id:"turbo",    rot:"BOOST",    ic:"▶", g:"voo", pag:0, tipo:"botao", precisa:"motores",
-      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4; avisar("Turbo!", "ok"); } } },
+      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4; } } },
+    { id:"tiro",     rot:"CANHÃO",   ic:"✦", g:"voo", pag:0, tipo:"botao", precisa:"energia",
+      faz:() => atirar(false) },
+    { id:"missil",   rot:"MÍSSIL",   ic:"➤", g:"voo", pag:0, tipo:"botao", precisa:"energia",
+      faz:() => atirar(true) },
+    { id:"mega",     rot:"MEGA BOOST", ic:"⯅", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => megaBoost() },
     { id:"atracar",  rot:"DOCK",     ic:"⊡", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
       faz:() => atracar() },
     { id:"pousar",   rot:"LAND",     ic:"⇩", g:"voo", pag:0, tipo:"botao", grande:true, precisa:"navegacao",
@@ -652,8 +712,7 @@ function explMontar() {
     { id:"decolar",  rot:"TAKE OFF", ic:"⇧", g:"voo", pag:1, tipo:"botao", grande:true,
       faz:() => decolar() },
     { id:"escudoMais", rot:"SHIELD+", ic:"⬢", g:"voo", pag:1, tipo:"botao", precisa:"escudo",
-      faz:() => { N.escudo = Math.min(100, N.escudo + 25); N.energia -= 14;
-                  avisar("Escudo reforçado.", "ok"); } },
+      faz:() => { N.escudo = Math.min(100, N.escudo + 25); N.energia -= 14; } },
     { id:"carga",    rot:"WARP CHARGE", ic:"◑", g:"voo", pag:1, tipo:"chave", precisa:"navegacao" },
     { id:"piloto",   rot:"AUTOPILOT", ic:"⊛", g:"voo", pag:1, tipo:"chave", precisa:"navegacao" },
 
@@ -698,19 +757,29 @@ function explMontar() {
     /* NAVE · CÂMERAS — cada uma tem botão próprio, em vez de um só que
        cicla: ciclar obriga a apertar quatro vezes para voltar */
     { id:"camCabine",rot:"COCKPIT",  ic:"⌂", g:"nave", pag:2, tipo:"botao", grande:true,
-      faz:() => { N.camera = 0; avisar("Câmera: cabine", "aviso"); } },
+      faz:() => { N.camera = 0; } },
     { id:"camFrente",rot:"FRONT",    ic:"▲", g:"nave", pag:2, tipo:"botao", grande:true,
-      faz:() => { N.camera = 1; avisar("Câmera: externa frontal", "aviso"); } },
+      faz:() => { N.camera = 1; } },
     { id:"camTras",  rot:"REAR",     ic:"▼", g:"nave", pag:2, tipo:"botao", grande:true,
-      faz:() => { N.camera = 2; avisar("Câmera: externa traseira", "aviso"); } },
+      faz:() => { N.camera = 2; } },
     { id:"camLado",  rot:"SIDE",     ic:"▶", g:"nave", pag:2, tipo:"botao", grande:true,
-      faz:() => { N.camera = 3; avisar("Câmera: lateral", "aviso"); } },
+      faz:() => { N.camera = 3; } },
     { id:"camera",   rot:"NEXT CAM", ic:"🎥", g:"nave", pag:2, tipo:"botao",
-      faz:() => { N.camera = (N.camera + 1) % 4;
-                  avisar("Câmera: " + ["cabine","externa frontal","externa traseira","lateral"][N.camera], "aviso"); } },
+      faz:() => { N.camera = (N.camera + 1) % 4; } },
     { id:"cameraExt",rot:"EXT CAM",  ic:"⊙", g:"nave", pag:2, tipo:"botao",
       faz:() => { N.camera = N.camera === 0 ? 1 : 0; } }
   ];
+
+  /* ------------------------------------------------- as ações rápidas
+     O que se usa no meio de uma briga não pode estar dentro de uma aba
+     de um painel no rodapé: na hora do aperto o dedo não procura, o
+     dedo acerta. Estes sete moram num botão só, no canto de cima à
+     direita, que abre e fecha -- perto do polegar de quem segura o
+     aparelho deitado, e fora do caminho do resto.
+
+     A lista é de IDs: os botões são os MESMOS controles, então nada
+     fica com dois comportamentos para manter em sincronia.            */
+  const RAPIDOS = ["tiro", "missil", "mega", "turbo", "escudoMais", "alvo", "emergencia"];
 
   /* as abas de cada painel: nome curto, porque aba comprida vira texto
      cortado justo onde o espaço é apertado */
@@ -739,15 +808,18 @@ function explMontar() {
     const c = CONTROLES.filter(x => x.id === id)[0];
     if (!c) return;
     if (c.passo) { ligarPasso(c.passo); pintarControles(); return; }
+    /* Faltou o que este botão precisa? A nave liga sozinha e segue.
+       Antes ela recusava e mandava um "ligue SENSORES antes" -- o
+       jogador apertava dois botões para fazer uma coisa, e aprendia
+       pelo erro uma ordem que a nave já conhecia. */
     if (!controlePode(c)) {
-      const falta = CONTROLES.filter(x => x.id === c.precisa)[0];
-      avisar("Ligue " + (falta ? falta.rot : c.precisa) + " antes.", "erro");
-      try { AudioSys.deny(); } catch (e) {}
-      pintarControles(); return;
+      if (PASSO[c.precisa]) ligarPasso(c.precisa, true);
+      else ligadoCtrl[c.precisa] = true;
     }
     if (c.tipo === "chave") {
+      /* nada de aviso: o LED do próprio botão acende. Recado para dizer
+         o que o botão já mostra é recado a mais. */
       ligadoCtrl[c.id] = !ligadoCtrl[c.id];
-      avisar(c.rot + (ligadoCtrl[c.id] ? " ligado" : " desligado"), "aviso");
     } else if (c.faz) {
       c.faz();
     }
@@ -789,7 +861,8 @@ function explMontar() {
   }
 
   function escanearAlvo() {
-    if (!N.alvo) { avisar("Trave um alvo antes de escanear.", "erro"); return; }
+    if (!N.alvo) travarAlvo();                  // um toque, não dois
+    if (!N.alvo) return;
     if (N.dano.sensores < 30) { avisar("Sensores avariados demais para escanear.", "erro"); return; }
     N.escaneando = 2.2;
     const o = N.alvo;
@@ -804,6 +877,86 @@ function explMontar() {
         avisar(o.nome + " — " + o.tipo + ", raio " + Math.round(o.raio) + " km.", "ok");
       }
     }, 2200);
+  }
+
+  /* -------------------------------------------------------------- armas
+     Os piratas atiravam desde a primeira versão e não havia como
+     responder: dava para fugir e nada mais. Isso não é tensão, é
+     impotência.
+
+     A mira é a própria janela: acerta o que estiver ALINHADO com a
+     frente da nave e ao alcance. Nada de pedir "trave o alvo primeiro"
+     -- travar é para saber o nome, não para poder atirar.             */
+  function alvoNaMira(alcance, precisao) {
+    const f = frente();
+    let melhor = precisao, achado = null;
+    for (const a of ALIENS) {
+      const dx=a.x-N.pos[0], dy=a.y-N.pos[1], dz=a.z-N.pos[2];
+      const d = Math.hypot(dx,dy,dz) || 1;
+      if (d > alcance) continue;
+      const alinhado = (dx*f[0]+dy*f[1]+dz*f[2])/d;
+      if (alinhado > melhor) { melhor = alinhado; achado = a; }
+    }
+    return achado;
+  }
+
+  /* um risco de luz que anda: o dano já foi resolvido no disparo, isto
+     é só o que se vê. Fazer o dano viajar com o risco erraria em
+     velocidade alta e o jogador não entenderia por quê. */
+  function faisca(de, para, cor, forca) {
+    N.tiros.push({ x:de[0], y:de[1], z:de[2],
+                   ax:para[0]-de[0], ay:para[1]-de[1], az:para[2]-de[2],
+                   t:0, cor, forca: forca || 1 });
+    if (N.tiros.length > 40) N.tiros.shift();
+  }
+
+  function atirar(forte) {
+    const recarga = forte ? "recargaMissil" : "recargaTiro";
+    if (N[recarga] > 0) return;
+    if (!N.ligado.energia) { avisar("Sem energia: as armas estão mudas.", "erro"); return; }
+    const custo = forte ? 16 : 3;
+    if (N.energia < custo) { avisar("Energia insuficiente para atirar.", "erro"); return; }
+    N.energia -= custo;
+    N[recarga] = forte ? 3.4 : 0.28;
+
+    /* o míssil persegue: perdoa uma mira torta, e é por isso que é raro */
+    const a = alvoNaMira(forte ? 1600 : 900, forte ? 0.90 : 0.982);
+    const f = frente(), dr = direita();
+    const boca = [N.pos[0]+dr[0]*3, N.pos[1]+dr[1]*3-1, N.pos[2]+dr[2]*3];
+    try { AudioSys.gem(); } catch (e) {}
+
+    if (!a) {
+      /* errou: o risco sai reto e se perde no vazio. Ver o tiro passar
+         longe ensina a mira melhor que qualquer recado escrito. */
+      const longe = 700;
+      faisca(boca, [N.pos[0]+f[0]*longe, N.pos[1]+f[1]*longe, N.pos[2]+f[2]*longe],
+             forte ? [1,.6,.2] : [.45,1,.75], 0.8);
+      return;
+    }
+    faisca(boca, [a.x,a.y,a.z], forte ? [1,.65,.25] : [.4,1,.8], forte ? 2.2 : 1.4);
+    a.vida -= forte ? 58 : 17;
+    N.tremor = Math.max(N.tremor, forte ? 0.5 : 0.16);
+    if (a.vida <= 0) {
+      N.abatidas++;
+      avisar(a.nome + " abatida. " + N.abatidas + " no total.", "ok");
+      if (N.alvo && N.alvo.ref === a) N.alvo = null;
+      for (let i = 0; i < 16; i++) {      // estilhaços
+        const r1 = () => (Math.random()-.5)*18;
+        faisca([a.x,a.y,a.z], [a.x+r1(),a.y+r1(),a.z+r1()], [1,.7,.3], 1.6);
+      }
+      ALIENS.splice(ALIENS.indexOf(a), 1);
+    }
+  }
+
+  /* MEGA BOOST: o turbo normal empurra 2,2x por 4s; este empurra 3,6x
+     por 7s e cobra caro. É a carta de fuga quando o casco está indo. */
+  function megaBoost() {
+    if (!gastar(14)) return;
+    N.potencia = 1;
+    N.turbo = N.tempo + 7;
+    N.mega = N.tempo + 7;
+    avisar("MEGA BOOST!", "ok");
+    N.tremor = 1;
   }
 
   const planetaMaisPerto = () => {
@@ -934,7 +1087,8 @@ function explMontar() {
         jeito: j.jeito, cor: j.cor, fala: j.fala, resposta: j.resposta,
         hostil: j.jeito === "pirata",
         x: Math.cos(a)*d, y: (r()-.5)*200, z: Math.sin(a)*d,
-        giro: r()*6.28, recarga: 2 + r()*3, falou: false
+        giro: r()*6.28, recarga: 2 + r()*3, falou: false,
+        vida: 100
       });
     }
   }
@@ -951,7 +1105,16 @@ function explMontar() {
   const acel = { ativo:false, id:null, oy:0 };
 
   function ondeToca(e) { return e.clientX < innerWidth * 0.55 ? "manche" : "acel"; }
+  /* Dedo em botão é dedo em botão. Sem isto, apertar CANHÃO (que fica na
+     metade direita) também arrastava o acelerador, e a nave acelerava
+     sozinha a cada tiro. */
+  function emBotao(e) {
+    const alvo = e.target;
+    return !!(alvo && alvo.closest &&
+              alvo.closest("button, .ex-painel, .ex-rapido, .ex-sel, .ex-mapa, .ex-girar"));
+  }
   function pegar(e) {
+    if (emBotao(e)) return;
     const t = e.changedTouches ? e.changedTouches[0] : e;
     const id = t.identifier != null ? t.identifier : "mouse";
     if (ondeToca(t) === "manche") {
@@ -1007,6 +1170,9 @@ function explMontar() {
     else if (k === "r") escanearAlvo();
     else if (k === "m") abrirMapa();
     else if (k === "h") comecarSalto();
+    else if (k === " ") atirar(false);
+    else if (k === "f") atirar(true);
+    else if (k === "b") megaBoost();
     else return;
     e.preventDefault();
   }
@@ -1067,7 +1233,8 @@ function explMontar() {
       N.ori = M.mul(N.ori, M.giroZ(N.giroZ*dt));
       M.reendireitar(N.ori);
 
-      const forca = (N.dano.motor/100) * (N.turbo && N.tempo < N.turbo ? 2.2 : 1);
+      const forca = (N.dano.motor/100) *
+                    (N.mega && N.tempo < N.mega ? 3.6 : (N.turbo && N.tempo < N.turbo ? 2.2 : 1));
       const alvoVel = N.potencia * 240 * forca;
       N.velocidade += (alvoVel - N.velocidade) * (1 - Math.pow(0.08, dt));
       const f = frente();
@@ -1093,6 +1260,12 @@ function explMontar() {
     /* pouso: uma descida curta, não um corte seco */
     if (N.pousado) { N.pousado.t = Math.min(1, N.pousado.t + dt*0.5); }
 
+    if (N.recargaTiro > 0) N.recargaTiro -= dt;
+    if (N.recargaMissil > 0) N.recargaMissil -= dt;
+    /* os riscos de tiro vivem meio segundo: passado isso, saem da lista */
+    for (const t of N.tiros) t.t += dt;
+    while (N.tiros.length && N.tiros[0].t > 0.5) N.tiros.shift();
+
     /* alienígenas */
     for (const a of ALIENS) {
       let dx=N.pos[0]-a.x, dy=N.pos[1]-a.y, dz=N.pos[2]-a.z;
@@ -1108,6 +1281,7 @@ function explMontar() {
         a.recarga -= dt;
         if (a.recarga <= 0) {
           a.recarga = 3 + Math.random()*2;
+          faisca([a.x,a.y,a.z], N.pos, [1,.28,.45], 1.6);
           if (ligadoCtrl.escudo && N.escudo > 0) { N.escudo = Math.max(0, N.escudo - 9); }
           else { N.casco = Math.max(0, N.casco - 6);
                  avariar(["motor","sensores","escudos","energia"][Math.floor(Math.random()*4)], 12); }
@@ -1123,6 +1297,7 @@ function explMontar() {
 
     N.tremor = Math.max(0, N.tremor - dt*3);
     if (N.escaneando > 0) N.escaneando -= dt;
+    envelhecerAvisos();
     pintarPainel();
   }
 
@@ -1253,6 +1428,13 @@ function explMontar() {
       }
       risco(p.x,p.y,p.z, p.x-f[0]*risca, p.y-f[1]*risca, p.z-f[2]*risca, 0.40,0.62,0.92, 0.5);
     }
+    /* os tiros: riscos grossos que somem em meio segundo */
+    for (const t of N.tiros) {
+      const k = 1 - t.t/0.5;
+      risco(t.x, t.y, t.z, t.x+t.ax, t.y+t.ay, t.z+t.az,
+            t.cor[0], t.cor[1], t.cor[2], t.forca*k);
+    }
+
     /* no salto, as estrelas se esticam: é o efeito que diz "isto é rápido" */
     if (N.salto && N.salto.etapa >= 4) {
       for (const e of estrelas) {
@@ -1343,6 +1525,10 @@ function explMontar() {
 
   return { passo, desenhar, medir, ligar: ligarControles, desligar: desligarControles,
            N, CONTROLES, apertar, ligarPasso, SISTEMAS, sistema, travarAlvo, manche, ALIENS,
+           atirar, ligarTudo, megaBoost, RAPIDOS,
+           /* a mira acende quando o tiro VAI acertar: sem isto o jogador
+              atira no vazio e não entende por que não acontece nada */
+           miraQuente: () => !!alvoNaMira(900, 0.982),
            ligadosCtrl: ligadoCtrl, ABAS, abaDe,
            trocarAba: (g, i) => { abaDe[g] = i; pintarControles(); } };
 }
@@ -1364,6 +1550,10 @@ function explMontar() {
    a janela e o modo deixa de ser uma cabine para virar um controle
    remoto com um vídeo ao fundo.                                       */
 const EX_PAGINA = {};                       // painel -> página dentro da aba
+/* painel recolhido: fica só a barrinha com o nome e a setinha. A cabine
+   em 3D é o que este modo tem de bonito, e painel que não se pode fechar
+   é cortina pregada na janela. */
+const EX_FECHADO = { sis:false, voo:false, nave:false };
 
 function explPintarControles() {
   if (!explAPI) return;
@@ -1374,13 +1564,20 @@ function explPintarControles() {
   /* 36% da altura para os três painéis JUNTOS com as abas e o passador.
      Acima disso eles comem a janela e o modo deixa de ser uma cabine.
      O desconto de 58px é o que abas + passador + recheio ocupam. */
-  const sobra = Math.min(innerHeight * 0.36, 230) - 58;
+  const sobra = Math.min(innerHeight * 0.36, 230) - 58 - 20;   // -20: a barra da setinha
   const linhas = Math.max(2, Math.floor((sobra + 6) / (alturaBt + 6)));
 
   for (const g in caixas) {
     const cx = caixas[g];
     if (!cx) continue;
     const abas = A.ABAS[g], ativa = A.abaDe[g];
+    /* A CLASSE SAI ANTES DA MEDIDA.
+       Fechado o painel é "width:auto" -- estreito. Se a medida vier
+       antes de tirar a classe, ele se mede fechado e reabre com uma
+       coluna a menos: dois botões desaparecem no caminho de volta.
+       Foi o que aconteceu, e o teste pegou. */
+    const fechado = !!EX_FECHADO[g];
+    cx.classList.toggle("fechado", fechado);
     /* as colunas saem da LARGURA do painel: cada botão precisa de uns
        66px para o rótulo não cortar. Em tela larga cabem três, em tela
        estreita duas -- e o botão nunca encolhe para caber mais um. */
@@ -1403,6 +1600,25 @@ function explPintarControles() {
     let pag = EX_PAGINA[chave] || 0;
     if (pag >= paginas.length) pag = EX_PAGINA[chave] = 0;
 
+    /* a setinha vive numa barra própria com o nome do painel: assim ela
+       existe igual nos três, aberta ou fechada, e fica sempre no mesmo
+       lugar -- botão que muda de lugar o dedo não decora */
+    const NOMES_G = { sis:"SISTEMAS", voo:"VOO", nave:"NAVE" };
+    const barra = '<div class="ex-barra"><b>' + NOMES_G[g] + "</b>" +
+      '<button class="ex-fecha" data-fecha="' + g + '" aria-label="' +
+      (fechado ? "Abrir" : "Fechar") + ' painel ' + NOMES_G[g] + '">' +
+      (fechado ? "▴" : "▾") + "</button></div>";
+
+    if (fechado) {
+      cx.innerHTML = barra;
+      cx.querySelectorAll("[data-fecha]").forEach(b =>
+        b.addEventListener("click", () => {
+          EX_FECHADO[b.getAttribute("data-fecha")] = false;
+          explPintarControles();
+        }));
+      continue;
+    }
+
     const filaAbas = abas.length > 1
       ? '<div class="ex-abas">' + abas.map((nome, k) =>
           '<button class="ex-aba' + (k === ativa ? " on" : "") + '" data-aba="' + g + ":" + k + '">' +
@@ -1415,7 +1631,7 @@ function explPintarControles() {
         '<button class="ex-pag-b" data-pag="' + chave + ":1" + '">›</button></div>'
       : "";
 
-    cx.innerHTML = filaAbas + '<div class="ex-bts" style="grid-template-columns:repeat(' +
+    cx.innerHTML = barra + filaAbas + '<div class="ex-bts" style="grid-template-columns:repeat(' +
       colunas + ',1fr)">' + (paginas[pag] || []).map(c => {
       const ligado = c.passo ? !!A.N.ligado[c.passo] : !!A.ligadosCtrl[c.id];
       const pode = !c.precisa || !!A.N.ligado[c.precisa] || !!A.ligadosCtrl[c.precisa];
@@ -1427,6 +1643,11 @@ function explPintarControles() {
         '<i class="ex-led"></i></button>';
     }).join("") + "</div>" + passador;
 
+    cx.querySelectorAll("[data-fecha]").forEach(b =>
+      b.addEventListener("click", () => {
+        EX_FECHADO[b.getAttribute("data-fecha")] = true;
+        explPintarControles();
+      }));
     cx.querySelectorAll("[data-ctrl]").forEach(b =>
       b.addEventListener("click", () => A.apertar(b.getAttribute("data-ctrl"))));
     cx.querySelectorAll("[data-aba]").forEach(b =>
@@ -1444,6 +1665,52 @@ function explPintarControles() {
         explPintarControles();
       }));
   }
+}
+
+/* ---------------------------------------------------------------------
+   AS AÇÕES RÁPIDAS
+   ---------------------------------------------------------------------
+   Canhão, míssil, mega boost, turbo, escudo, alvo e emergência: é o que
+   se aperta no meio de uma briga. Estavam espalhados em abas de painéis
+   no rodapé, e no aperto ninguém acha.
+
+   Agora moram num botão pequeno no canto de cima à direita: fechado é
+   um raio, aberto é uma coluna de sete botões grandes. Fica aberto até
+   o jogador fechar -- fechar sozinho depois de cada tiro seria pior que
+   não ter.                                                             */
+let EX_RAPIDO_ABERTO = false;
+function explPintarRapido() {
+  const cx = $("c3-rapido-cx"), bt = $("c3-rapido-b");
+  if (!cx || !bt || !explAPI) return;
+  const A = explAPI;
+  cx.classList.toggle("on", EX_RAPIDO_ABERTO);
+  bt.classList.toggle("on", EX_RAPIDO_ABERTO);
+  bt.textContent = EX_RAPIDO_ABERTO ? "✕" : "⚡";
+  if (!EX_RAPIDO_ABERTO) { cx.innerHTML = ""; return; }
+
+  cx.innerHTML = A.RAPIDOS.map(id => {
+    const c = A.CONTROLES.filter(x => x.id === id)[0];
+    if (!c) return "";
+    return '<button class="ex-rb" data-ctrl="' + id + '">' +
+           '<b>' + c.ic + "</b><span>" + escaparTexto(c.rot) + "</span></button>";
+  }).join("");
+  cx.querySelectorAll("[data-ctrl]").forEach(b =>
+    b.addEventListener("click", () => { A.apertar(b.getAttribute("data-ctrl")); explOlharRapido(); }));
+  explOlharRapido();
+}
+
+/* a recarga aparece no botão. Só mexe em classe, nunca em innerHTML:
+   isto roda a cada quadro e refazer HTML 60 vezes por segundo engasga
+   celular fraco -- e engasgo em jogo de tiro é injustiça. */
+function explOlharRapido() {
+  const cx = $("c3-rapido-cx");
+  if (!cx || !EX_RAPIDO_ABERTO || !explAPI) return;
+  const N2 = explAPI.N;
+  const espera = { tiro: N2.recargaTiro, missil: N2.recargaMissil };
+  cx.querySelectorAll("[data-ctrl]").forEach(b => {
+    const id = b.getAttribute("data-ctrl");
+    b.classList.toggle("esfriando", (espera[id] || 0) > 0);
+  });
 }
 
 function explLigadoCtrl() { return explAPI ? explAPI.ligadosCtrl : {}; }
@@ -1466,6 +1733,14 @@ function explPintarPainel() {
   p("c3-casco", Math.round(N2.casco) + "%");
   p("c3-oxi", Math.round(N2.oxigenio) + "%");
   p("c3-temp", Math.round(N2.temperatura) + "°C");
+  p("c3-abates", N2.abatidas);
+  const mira = $("c3-mira");
+  if (mira) {
+    let quente = false;
+    try { quente = explAPI.miraQuente(); } catch (e) {}
+    mira.classList.toggle("travada", quente);
+  }
+  explOlharRapido();
   p("c3-sistema", explAPI.sistema().nome);
   const b = $("c3-pot-b");
   if (b) b.style.height = Math.max(0, N2.potencia*100) + "%";
@@ -1630,7 +1905,13 @@ function exploracaoEntrar() {
   explLigada = true;
   explAPI.medir();
   explAPI.ligar();
+  /* A nave entra LIGADA. Antes era dez chaves na ordem certa antes de a
+     nave sair do lugar, e a primeira coisa que o modo fazia era um
+     teste de paciência. Quem quiser o ritual aperta PARTIDA e desliga
+     tudo -- a escolha ficou, a obrigação saiu. */
+  explAPI.ligarTudo(true);
   explPintarControles();
+  explPintarRapido();
   explPintarPainel();
   explPintarAvisos();
   orientarPara("landscape");
@@ -1667,6 +1948,11 @@ addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220)
   if (b) b.addEventListener("click", () => { try { AudioSys.resume(); } catch (e) {} exploracaoEntrar(); });
   const v = $("c3-voltar");
   if (v) v.addEventListener("click", explSair);
+  const r = $("c3-rapido-b");
+  if (r) r.addEventListener("click", () => {
+    EX_RAPIDO_ABERTO = !EX_RAPIDO_ABERTO;
+    explPintarRapido();
+  });
 })();
 
 /* o jogador escolheu jogar em pé: a cabine se reorganiza em vez de
