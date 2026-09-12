@@ -88,6 +88,19 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   atualizou", pergunte ANTES como ele abre o jogo: pelo cartão da conversa, por
   link, pelo atalho ou pelo app. O conserto é diferente em cada caso, e chutar
   faz perder rodada.
+- **Guarda que guardava o segredo dentro de si.** O
+  `confere_privacidade.py` tinha o CPF escrito dentro dele, como alvo de
+  busca. Quando o histórico do git foi limpo, o `git-filter-repo` trocou o
+  número em **todo** arquivo do repositório — inclusive no próprio guarda, que
+  passou a procurar a palavra "CPF-REMOVIDO" e a aprovar qualquer coisa,
+  calado. Hoje ele procura pelo **formato** de um CPF (com os dígitos
+  verificadores batendo) e não guarda número nenhum. Regra geral: um guarda que
+  precisa conter o segredo para conferir o segredo está errado de nascença.
+- **`scrollHeight` da `.screen` mente.** A nebulosa de fundo
+  (`.screen::before`) tem `inset:-25%`, entra na conta do `scrollHeight` e
+  nunca rolou nada — ela é recortada. Medindo por ele, o menu "estoura 253px"
+  quando na verdade sobram 14. Para saber se algo cabe, meça a borda de baixo
+  do último elemento visível, que é o que o dedo alcança (`test_menu3.js`).
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 
