@@ -867,6 +867,7 @@
       <button class="tile amber" id="btn-shop"><b>⬡</b><span>MELHORIAS</span><i id="menu-up-badge"></i></button>
       <button class="tile" id="btn-hangar"><b>▲</b><span>HANGAR</span><i id="menu-ship-badge"></i></button>
       <button class="tile" id="btn-tree"><b>✦</b><span>HABILIDADES</span><i id="menu-pts-badge"></i></button>
+      <button class="tile" id="btn-cabine"><b>🛸</b><span>CABINE</span><i>NOVO</i></button>
       <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
       <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
     </div>
@@ -1428,6 +1429,32 @@
 </div>
 
 <div id="foto-caixa"></div>
+
+<!-- CABINE: o modo primeira pessoa -->
+<div class="screen" id="screen-cabine">
+  <canvas id="tela3d"></canvas>
+  <div class="c3-hud">
+    <div class="c3-painel">
+      <div class="c3-cx"><div class="rot">VELOCIDADE</div><div class="val" id="c3-vel">0</div></div>
+      <div class="c3-cx casco" id="c3-cx-casco"><div class="rot">CASCO</div><div class="val" id="c3-casco">100%</div></div>
+      <div class="c3-cx"><div class="rot">ABATES</div><div class="val" id="c3-abates">0</div></div>
+    </div>
+    <div class="c3-mira" id="c3-mira"><i></i><i></i><i></i><i></i><b></b></div>
+    <div class="c3-manche" id="c3-manche"><u id="c3-manche-u"></u></div>
+    <div class="c3-habs">
+      <button class="c3-hab ult pronta" id="c3-ult">ULT</button>
+      <button class="c3-hab pronta" id="c3-h1">✦</button>
+      <button class="c3-hab pronta" id="c3-h2">◈</button>
+    </div>
+    <div class="c3-dica" id="c3-dica">
+      Arraste <b>um dedo</b> em qualquer lugar — o manche nasce onde você encostar<br>
+      Solte para endireitar · os canhões atiram sozinhos
+    </div>
+    <div class="c3-dano" id="c3-dano"></div>
+    <div class="c3-erro" id="c3-erro">Este aparelho não abriu o WebGL 2, que é o que desenha o 3D.<br>A cabine precisa dele; o resto do jogo funciona normal.</div>
+  </div>
+  <button class="c3-voltar" id="c3-voltar" aria-label="Voltar ao menu">‹</button>
+</div>
 
 <!-- UMA DAS QUATRO PORTAS -->
 <div class="page" id="screen-porta">

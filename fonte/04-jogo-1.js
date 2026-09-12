@@ -103,7 +103,7 @@ const SCREENS = {
   ajustes: $("screen-ajustes"), missoes: $("screen-missoes"),
   perfil: $("screen-perfil"), conquistas: $("screen-conquistas"), convite: $("screen-convite"),
   comparar: $("screen-comparar"), mapa: $("screen-mapa"), cla: $("screen-cla"),
-  porta: $("screen-porta"),
+  porta: $("screen-porta"), cabine: $("screen-cabine"),
   arena: $("screen-arena"), ranked: $("screen-ranked"), construtor: $("screen-construtor"),
   pause: $("screen-pause"), victory: $("screen-victory"), over: $("screen-over")
 };

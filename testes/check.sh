@@ -25,4 +25,6 @@ if [ -d "$JOGO/fonte" ]; then
   }
   echo "FONTE OK"
 fi
+python3 "$AQUI/confere_versao.py" || exit 1
+
 echo "CONFIG OK"

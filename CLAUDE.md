@@ -101,6 +101,14 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   nunca rolou nada — ela é recortada. Medindo por ele, o menu "estoura 253px"
   quando na verdade sobram 14. Para saber se algo cabe, meça a borda de baixo
   do último elemento visível, que é o que o dedo alcança (`test_menu3.js`).
+- **Arquivo novo depois do `const VERSAO` cega o jogo.** O aviso de versão
+  funciona pedindo ao servidor só o pedaço final da página e lendo o
+  `const VERSAO` de lá. Quando a cabine 3D entrou em `fonte/ordem.txt` DEPOIS
+  do `07-extras-2.js`, o número foi parar a 41 KB do fim — fora do pedaço de
+  40 KB que o jogo pedia — e a checagem morreu calada, reabrindo o bug que
+  tinha custado quatro versões. **Peça nova entra ANTES do `07-extras-2.js`.**
+  `testes/confere_versao.py` mede essa distância e o `check.sh` recusa
+  publicar se ela passar da conta.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

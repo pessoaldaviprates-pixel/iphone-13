@@ -575,6 +575,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.6", itens: [
+      "CABINE — PRIMEIRA PESSOA (começo): em MINHA NAVE tem uma linha nova, “Cabine · primeira pessoa”. Você pilota por dentro da nave, em 3D de verdade",
+      "O manche é um dedo em qualquer lugar da tela: ele nasce onde você encostar, vai para qualquer direção (não só reto para os lados) e a nave inclina para dentro da curva sozinha. Solte e ela endireita",
+      "Por dentro tem a moldura do vidro, o painel com os botões piscando, as duas telinhas e a ponta do manche. Lá fora, a nebulosa ao fundo, poeira riscando conforme você vira, e caças que giram para mirar em você e atiram",
+      "Os botões de habilidade ficam menores na cabine, para não tapar o vidro",
+      "É um COMEÇO e está honesto sobre isso: as habilidades ainda só acendem, as suas 120 naves ainda não estão em 3D e os chefes também não. O jogo normal continua igualzinho — a cabine é uma porta a mais, não uma troca",
+      "Feito em WebGL escrito à mão, sem biblioteca nenhuma: o jogo continua sendo um arquivo só que funciona sem internet. Quem nunca abrir a cabine não paga nada por ela"
+    ] },
   { v: "7.5", itens: [
       "CORRIGIDO: quem tem VIP não ficava dourado no ranking. O ranking já sabia desenhar o nome dourado com a coroa, mas o jogo nunca mandava para a nuvem quem era VIP — o desenho esperava uma informação que ninguém enviava. Agora quem paga aparece dourado para todo mundo",
       "CORRIGIDO: a moldura do apelido não decorava nada. Dava para escolher no perfil e ela ficava salva, mas não era usada em lugar nenhum: nem no seu nome no menu, nem no perfil, nem no ranking. Agora a moldura escolhida aparece nos três, e também para os outros jogadores",
@@ -1009,7 +1017,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.5";
+const VERSAO = "7.6";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
@@ -1101,7 +1109,14 @@ async function limparTudoERecarregar() {
    PEDAÇO FINAL dela (onde mora o "const VERSAO") e compara com o número
    que está rodando. Não precisa de arquivo nenhum do lado do servidor:
    funciona no artifact, no GitHub Pages e em qualquer lugar que sirva o
-   arquivo. São uns 40 KB, não os 3 MB da página inteira.
+   arquivo. São uns 80 KB, não os 3 MB da página inteira.
+
+   O tamanho do pedaço é uma promessa que a ordem dos arquivos tem que
+   cumprir: se o "const VERSAO" ficar mais longe do fim do que isto, o
+   jogo para de enxergar a si mesmo e volta a ficar preso numa cópia
+   velha, em silêncio. Aconteceu quando a cabine 3D entrou depois dele e
+   empurrou o número para 41 KB do fim. Por isso o check.sh mede essa
+   distância e recusa publicar se ela passar da conta.
 
    Se o servidor não entender o pedido de pedaço (alguns comprimem a
    resposta, e aí o pedaço não abre), uma vez por dia o jogo baixa a
@@ -1124,7 +1139,7 @@ async function versaoNoServidor() {
 
   /* 1) só o fim do arquivo: barato o bastante para fazer sempre */
   try {
-    const r = await fetch(alvo, { cache: "no-store", headers: { Range: "bytes=-40000" } });
+    const r = await fetch(alvo, { cache: "no-store", headers: { Range: "bytes=-80000" } });
     if (r.ok || r.status === 206) {
       const v = versaoDoTexto(await r.text());
       if (v) return v;
