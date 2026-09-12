@@ -238,7 +238,8 @@ async function renderRanking(recarregar) {
     const cor = tab.id === "pvp" ? corDoRank(p.rank || 0) : "var(--amber)";
     row.innerHTML =
       '<div class="rank-pos">' + (i + 1) + "</div>" +
-      '<div class="rank-info"><div class="rank-nome' + (p.vip ? " vip" : "") + '">' +
+      '<div class="rank-info"><div class="rank-nome moldurado' + (p.vip ? " vip" : "") +
+        classeDaMoldura(p.moldura) + '">' +
         escaparTexto(p.tag || p.nome) + (p.vip ? " 👑" : "") +
         (p.id === meuId ? " (você)" : "") + "</div>" +
       '<div class="rank-meta">' + tab.meta(p) + "</div></div>" +
@@ -1036,7 +1037,9 @@ function perfilRender() {
   const linha = (rot, val) =>
     '<div class="perf-linha"><span>' + rot + "</span><b>" + val + "</b></div>";
   cx.innerHTML =
-    '<div class="perf-capa"><div class="perf-nome">' + escaparTexto(minhaTag()) +
+    '<div class="perf-capa"><div class="perf-nome moldurado' +
+      (function () { try { return classeDaMoldura(molduraAtual()); } catch (e) { return ""; } })() +
+      '">' + escaparTexto(minhaTag()) +
       (temVip() ? ' <em class="perf-vip">👑 VIP</em>' : "") + "</div>" +
       '<div class="perf-sub">' + escaparTexto((rankDe(save.rank || 0) || {}).nome || "") +
       " · piloto desde " + (save.desde ? new Date(save.desde).toLocaleDateString("pt-BR") : "hoje") +

@@ -4114,6 +4114,32 @@
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
 
+  /* As regras acima pintam o <span> de dentro do seletor de molduras.
+     Mas no ranking, no menu e no perfil quem carrega a classe e o
+     PROPRIO elemento do nome -- ele nao tem span dentro. A classe
+     .moldurado marca esse caso e repete as mesmas cores. Sem isto, o
+     jogador escolhia uma moldura e nada acontecia em lugar nenhum. */
+  .moldurado.mold-bronze{color:#C77B3F;text-shadow:0 0 8px rgba(199,123,63,.5)}
+  .moldurado.mold-prata{color:#C8D4E8;text-shadow:0 0 8px rgba(200,212,232,.5)}
+  .moldurado.mold-ouro{color:var(--amber);text-shadow:0 0 10px rgba(255,193,69,.6)}
+  .moldurado.mold-chefe{color:var(--magenta);text-shadow:0 0 10px rgba(255,77,143,.6)}
+  .moldurado.mold-estrela{color:var(--violet);text-shadow:0 0 10px rgba(181,123,255,.6)}
+  .moldurado.mold-duelo{color:var(--danger);text-shadow:0 0 10px rgba(255,92,92,.6)}
+  .moldurado.mold-prest{
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:none;
+  }
+  .moldurado.mold-dono{
+    background:linear-gradient(90deg,var(--amber),#fff,var(--amber));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:none;
+  }
+  /* Quem tem VIP e moldura ve a moldura, e a coroa ao lado ja diz que e
+     VIP. Isso sai de graca pela ordem do arquivo: .rank-nome.vip esta la
+     em cima e estas regras aqui embaixo, com a mesma forca -- a ultima
+     ganha. Nao precisa de !important nem de seletor mais pesado. */
+
   .oferta{border-color:rgba(255,200,97,.5);background:linear-gradient(150deg,rgba(255,200,97,.14),rgba(255,255,255,.02))}
   .of-selo{font-size:.52rem;letter-spacing:.2em;color:var(--amber);margin-bottom:6px}
   .oferta b{display:block;font-size:.82rem}

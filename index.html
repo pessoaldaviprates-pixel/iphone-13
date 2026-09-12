@@ -4132,6 +4132,32 @@
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
 
+  /* As regras acima pintam o <span> de dentro do seletor de molduras.
+     Mas no ranking, no menu e no perfil quem carrega a classe e o
+     PROPRIO elemento do nome -- ele nao tem span dentro. A classe
+     .moldurado marca esse caso e repete as mesmas cores. Sem isto, o
+     jogador escolhia uma moldura e nada acontecia em lugar nenhum. */
+  .moldurado.mold-bronze{color:#C77B3F;text-shadow:0 0 8px rgba(199,123,63,.5)}
+  .moldurado.mold-prata{color:#C8D4E8;text-shadow:0 0 8px rgba(200,212,232,.5)}
+  .moldurado.mold-ouro{color:var(--amber);text-shadow:0 0 10px rgba(255,193,69,.6)}
+  .moldurado.mold-chefe{color:var(--magenta);text-shadow:0 0 10px rgba(255,77,143,.6)}
+  .moldurado.mold-estrela{color:var(--violet);text-shadow:0 0 10px rgba(181,123,255,.6)}
+  .moldurado.mold-duelo{color:var(--danger);text-shadow:0 0 10px rgba(255,92,92,.6)}
+  .moldurado.mold-prest{
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:none;
+  }
+  .moldurado.mold-dono{
+    background:linear-gradient(90deg,var(--amber),#fff,var(--amber));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:none;
+  }
+  /* Quem tem VIP e moldura ve a moldura, e a coroa ao lado ja diz que e
+     VIP. Isso sai de graca pela ordem do arquivo: .rank-nome.vip esta la
+     em cima e estas regras aqui embaixo, com a mesma forca -- a ultima
+     ganha. Nao precisa de !important nem de seletor mais pesado. */
+
   .oferta{border-color:rgba(255,200,97,.5);background:linear-gradient(150deg,rgba(255,200,97,.14),rgba(255,255,255,.02))}
   .of-selo{font-size:.52rem;letter-spacing:.2em;color:var(--amber);margin-bottom:6px}
   .oferta b{display:block;font-size:.82rem}
@@ -6878,6 +6904,13 @@ async function nuvemEnviar(forcar) {
     arenaOnda: save.arenaOnda || 0,
     arenaMortos: save.arenaMortos || 0,
     arenaChefes: save.arenaChefes || 0,
+    /* O ranking ja sabia desenhar o nome dourado com coroa para quem tem
+       VIP, e a moldura escolhida no perfil ja ficava salva -- mas nenhum
+       dos dois saia daqui. O desenho esperava um dado que ninguem
+       enviava, entao o VIP de quem pagou nunca aparecia para os outros e
+       a moldura nao decorava nada. */
+    vip: (function () { try { return !!temVip(); } catch (e) { return false; } })(),
+    moldura: (function () { try { return molduraAtual(); } catch (e) { return "nenhuma"; } })(),
     atualizado: agora
   };
   await nuvemReq("pilotos/" + nuvemId(save.__name), {
@@ -9103,6 +9136,9 @@ function refreshMenu() {
   } catch (e) {}
   const h = $("menu-hello");
   h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
+  /* a moldura escolhida no perfil aparece no nome aqui do menu: antes
+     ela era salva e nunca vestida em lugar nenhum */
+  try { vestirMoldura(h); } catch (e) {}
   document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
   // presente do VIP: uma vez por dia, ao abrir o menu
   try {
@@ -17831,7 +17867,8 @@ async function renderRanking(recarregar) {
     const cor = tab.id === "pvp" ? corDoRank(p.rank || 0) : "var(--amber)";
     row.innerHTML =
       '<div class="rank-pos">' + (i + 1) + "</div>" +
-      '<div class="rank-info"><div class="rank-nome' + (p.vip ? " vip" : "") + '">' +
+      '<div class="rank-info"><div class="rank-nome moldurado' + (p.vip ? " vip" : "") +
+        classeDaMoldura(p.moldura) + '">' +
         escaparTexto(p.tag || p.nome) + (p.vip ? " 👑" : "") +
         (p.id === meuId ? " (você)" : "") + "</div>" +
       '<div class="rank-meta">' + tab.meta(p) + "</div></div>" +
@@ -18629,7 +18666,9 @@ function perfilRender() {
   const linha = (rot, val) =>
     '<div class="perf-linha"><span>' + rot + "</span><b>" + val + "</b></div>";
   cx.innerHTML =
-    '<div class="perf-capa"><div class="perf-nome">' + escaparTexto(minhaTag()) +
+    '<div class="perf-capa"><div class="perf-nome moldurado' +
+      (function () { try { return classeDaMoldura(molduraAtual()); } catch (e) { return ""; } })() +
+      '">' + escaparTexto(minhaTag()) +
       (temVip() ? ' <em class="perf-vip">👑 VIP</em>' : "") + "</div>" +
       '<div class="perf-sub">' + escaparTexto((rankDe(save.rank || 0) || {}).nome || "") +
       " · piloto desde " + (save.desde ? new Date(save.desde).toLocaleDateString("pt-BR") : "hoje") +
@@ -20493,12 +20532,32 @@ const MOLDURAS = [
   { id: "dono",    nome: "Criador",     req: () => contaDeDono(save.__name) }
 ];
 function molduraAtual() { return save.moldura || "nenhuma"; }
+/* A moldura de OUTRO jogador vem da nuvem, entao e texto que um estranho
+   escreveu. Nunca entra num atributo de classe sem passar por aqui: so
+   sai uma moldura que existe de verdade na lista, ou nada. */
+function classeDaMoldura(id) {
+  const ok = MOLDURAS.some(m => m.id === id && m.id !== "nenhuma");
+  return ok ? " mold-" + id : "";
+}
+/* poe a moldura do proprio jogador num elemento da tela */
+function vestirMoldura(el, id) {
+  if (!el) return;
+  MOLDURAS.forEach(m => el.classList.remove("mold-" + m.id));
+  el.classList.add("moldurado");
+  const c = classeDaMoldura(id === undefined ? molduraAtual() : id).trim();
+  if (c) el.classList.add(c);
+}
 function molduraUsar(id) {
   const m = MOLDURAS.filter(x => x.id === id)[0];
   if (!m || !m.req()) return false;
   save.moldura = id;
   persist();
-  try { nuvemEnviar(true); refreshMenu(); } catch (e) {}
+  try {
+    nuvemEnviar(true);
+    refreshMenu();
+    vestirMoldura($("menu-hello"));
+    vestirMoldura($("perf-nome"));
+  } catch (e) {}
   return true;
 }
 function moldurasRender() {
@@ -27793,6 +27852,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.5", itens: [
+      "CORRIGIDO: quem tem VIP não ficava dourado no ranking. O ranking já sabia desenhar o nome dourado com a coroa, mas o jogo nunca mandava para a nuvem quem era VIP — o desenho esperava uma informação que ninguém enviava. Agora quem paga aparece dourado para todo mundo",
+      "CORRIGIDO: a moldura do apelido não decorava nada. Dava para escolher no perfil e ela ficava salva, mas não era usada em lugar nenhum: nem no seu nome no menu, nem no perfil, nem no ranking. Agora a moldura escolhida aparece nos três, e também para os outros jogadores",
+      "As nove molduras continuam as mesmas (Bronze, Prata, Ouro, Caçador, Constelação, Duelista, Renascido, Criador) — o que mudou é que agora elas aparecem de verdade"
+    ] },
   { v: "7.4", itens: [
       "O MENU CABE NA TELA: acabou a rolagem. Antes o conteúdo do menu dava mais de 1000 pixels numa tela de 568, e quem tinha celular pequeno via metade e precisava arrastar para achar o resto dos botões",
       "Os botões agora são do tamanho da sua tela. As quatro portas dividem entre si o espaço que sobra: em celular grande ficam folgadas, em pequeno encolhem juntas — e nunca abaixo de 44 pixels, que é o mínimo para o dedo acertar",
@@ -28222,7 +28286,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.4";
+const VERSAO = "7.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

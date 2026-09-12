@@ -204,6 +204,9 @@ function refreshMenu() {
   } catch (e) {}
   const h = $("menu-hello");
   h.childNodes[0] ? (h.childNodes[0].nodeValue = minhaTag()) : (h.textContent = minhaTag());
+  /* a moldura escolhida no perfil aparece no nome aqui do menu: antes
+     ela era salva e nunca vestida em lugar nenhum */
+  try { vestirMoldura(h); } catch (e) {}
   document.querySelector(".piloto-cartao").classList.toggle("vip", temVip());
   // presente do VIP: uma vez por dia, ao abrir o menu
   try {

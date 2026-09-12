@@ -941,12 +941,32 @@ const MOLDURAS = [
   { id: "dono",    nome: "Criador",     req: () => contaDeDono(save.__name) }
 ];
 function molduraAtual() { return save.moldura || "nenhuma"; }
+/* A moldura de OUTRO jogador vem da nuvem, entao e texto que um estranho
+   escreveu. Nunca entra num atributo de classe sem passar por aqui: so
+   sai uma moldura que existe de verdade na lista, ou nada. */
+function classeDaMoldura(id) {
+  const ok = MOLDURAS.some(m => m.id === id && m.id !== "nenhuma");
+  return ok ? " mold-" + id : "";
+}
+/* poe a moldura do proprio jogador num elemento da tela */
+function vestirMoldura(el, id) {
+  if (!el) return;
+  MOLDURAS.forEach(m => el.classList.remove("mold-" + m.id));
+  el.classList.add("moldurado");
+  const c = classeDaMoldura(id === undefined ? molduraAtual() : id).trim();
+  if (c) el.classList.add(c);
+}
 function molduraUsar(id) {
   const m = MOLDURAS.filter(x => x.id === id)[0];
   if (!m || !m.req()) return false;
   save.moldura = id;
   persist();
-  try { nuvemEnviar(true); refreshMenu(); } catch (e) {}
+  try {
+    nuvemEnviar(true);
+    refreshMenu();
+    vestirMoldura($("menu-hello"));
+    vestirMoldura($("perf-nome"));
+  } catch (e) {}
   return true;
 }
 function moldurasRender() {

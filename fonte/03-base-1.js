@@ -842,6 +842,13 @@ async function nuvemEnviar(forcar) {
     arenaOnda: save.arenaOnda || 0,
     arenaMortos: save.arenaMortos || 0,
     arenaChefes: save.arenaChefes || 0,
+    /* O ranking ja sabia desenhar o nome dourado com coroa para quem tem
+       VIP, e a moldura escolhida no perfil ja ficava salva -- mas nenhum
+       dos dois saia daqui. O desenho esperava um dado que ninguem
+       enviava, entao o VIP de quem pagou nunca aparecia para os outros e
+       a moldura nao decorava nada. */
+    vip: (function () { try { return !!temVip(); } catch (e) { return false; } })(),
+    moldura: (function () { try { return molduraAtual(); } catch (e) { return "nenhuma"; } })(),
     atualizado: agora
   };
   await nuvemReq("pilotos/" + nuvemId(save.__name), {

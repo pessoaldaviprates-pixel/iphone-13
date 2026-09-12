@@ -575,6 +575,11 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.5", itens: [
+      "CORRIGIDO: quem tem VIP não ficava dourado no ranking. O ranking já sabia desenhar o nome dourado com a coroa, mas o jogo nunca mandava para a nuvem quem era VIP — o desenho esperava uma informação que ninguém enviava. Agora quem paga aparece dourado para todo mundo",
+      "CORRIGIDO: a moldura do apelido não decorava nada. Dava para escolher no perfil e ela ficava salva, mas não era usada em lugar nenhum: nem no seu nome no menu, nem no perfil, nem no ranking. Agora a moldura escolhida aparece nos três, e também para os outros jogadores",
+      "As nove molduras continuam as mesmas (Bronze, Prata, Ouro, Caçador, Constelação, Duelista, Renascido, Criador) — o que mudou é que agora elas aparecem de verdade"
+    ] },
   { v: "7.4", itens: [
       "O MENU CABE NA TELA: acabou a rolagem. Antes o conteúdo do menu dava mais de 1000 pixels numa tela de 568, e quem tinha celular pequeno via metade e precisava arrastar para achar o resto dos botões",
       "Os botões agora são do tamanho da sua tela. As quatro portas dividem entre si o espaço que sobra: em celular grande ficam folgadas, em pequeno encolhem juntas — e nunca abaixo de 44 pixels, que é o mínimo para o dedo acertar",
@@ -1004,7 +1009,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.4";
+const VERSAO = "7.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
