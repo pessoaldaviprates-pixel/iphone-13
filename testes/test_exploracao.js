@@ -44,9 +44,69 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   out.dentro = await p.evaluate(() => ({
     modo: S.mode, ligada: explLigada,
     semWebgl: getComputedStyle(document.getElementById('c3-erro')).display !== 'none',
-    controles: document.querySelectorAll('#screen-cabine [data-ctrl]').length,
+    total: explAPI.CONTROLES.length,
+    visiveis: document.querySelectorAll('#screen-cabine [data-ctrl]').length,
     sistema: document.getElementById('c3-sistema').textContent
   }));
+
+  /* ---- as abas: mostrar menos de cada vez é o pedido, mas NENHUM
+     controle pode ficar inalcançável. O teste passeia por todas as abas
+     de todos os painéis e junta o que apareceu; no fim tem que dar a
+     lista inteira. É a diferença entre "organizado" e "escondido". ---- */
+  out.abas = await p.evaluate(async () => {
+    const vistos = new Set();
+    const paineis = Object.keys(explAPI.ABAS);
+    const contas = {};
+    for (const g of paineis) {
+      contas[g] = [];
+      const sel = g === 'sis' ? '#c3-pesq' : g === 'voo' ? '#c3-pcen' : '#c3-pdir';
+      for (let k = 0; k < explAPI.ABAS[g].length; k++) {
+        explAPI.trocarAba(g, k);
+        /* dentro da aba ainda há PÁGINAS: o passador ‹ 1/3 › diz quantas.
+           Andar só pelas abas deixaria de fora tudo o que está na página
+           2 em diante -- e foi exatamente o que aconteceu na primeira
+           versão deste teste. */
+        const pager = document.querySelector(sel + ' .ex-pag u');
+        const quantas = pager ? parseInt(pager.textContent.split('/')[1], 10) : 1;
+        for (let pg = 0; pg < quantas; pg++) {
+          [...document.querySelectorAll(sel + ' [data-ctrl]')]
+            .forEach(b => vistos.add(b.getAttribute('data-ctrl')));
+          contas[g].push(document.querySelectorAll(sel + ' [data-ctrl]').length);
+          if (quantas > 1) document.querySelectorAll(sel + ' .ex-pag-b')[1].click();
+        }
+      }
+      explAPI.trocarAba(g, 0);
+    }
+    const faltando = explAPI.CONTROLES.map(c => c.id).filter(id => !vistos.has(id));
+    return { alcancados: vistos.size, faltando, porAba: contas };
+  });
+
+  /* ---- nenhum botão encostando, cortado ou fora da tela ---- */
+  out.layout = await p.evaluate(() => {
+    const bts = [...document.querySelectorAll('#screen-cabine [data-ctrl]')];
+    const rs = bts.map(b => b.getBoundingClientRect());
+    let encostando = 0, forinhas = 0, pequenos = 0, cortados = 0;
+    for (let i = 0; i < rs.length; i++) {
+      const r = rs[i];
+      if (r.right > innerWidth + 1 || r.left < -1 || r.bottom > innerHeight + 1 || r.top < -1) forinhas++;
+      if (r.height < 34 || r.width < 34) pequenos++;
+      const t = bts[i].querySelector('span');
+      if (t && t.scrollWidth > t.clientWidth + 1) cortados++;
+      for (let j = i+1; j < rs.length; j++) {
+        const q = rs[j];
+        const juntos = !(r.right <= q.left || q.right <= r.left || r.bottom <= q.top || q.bottom <= r.top);
+        if (juntos) encostando++;
+      }
+    }
+    /* os painéis não podem se tocar nem colar na borda */
+    const pr = ['#c3-pesq','#c3-pcen','#c3-pdir'].map(s2 =>
+      document.querySelector(s2).closest('.ex-painel').getBoundingClientRect());
+    const vao1 = Math.round(pr[1].left - pr[0].right);
+    const vao2 = Math.round(pr[2].left - pr[1].right);
+    const bordaE = Math.round(pr[0].left), bordaD = Math.round(innerWidth - pr[2].right);
+    return { encostando, forinhas, pequenos, cortados, vao1, vao2, bordaE, bordaD,
+             alturaPaineis: Math.round(innerHeight - pr[1].top) };
+  });
   if (out.dentro.semWebgl) { problemas.push('o WebGL nao abriu no navegador de teste'); }
 
   /* ---- a sequência de ligar: fora de ordem tem que EXPLICAR ---- */
@@ -195,10 +255,22 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   out.errs = errs;
 
   const erro = m => problemas.push(m);
+  const innerHeightEsperado = 390;   // a viewport deitada deste teste
   if (out.antes.montada) erro('o 3D nasceu antes de alguem entrar');
   if (!out.linha || !/Explora/i.test(out.linha)) erro('a linha do modo nao diz Exploracao: ' + out.linha);
   if (out.dentro.modo !== 'cabine') erro('o botao nao levou ao modo');
-  if (out.dentro.controles < 40) erro('so ' + out.dentro.controles + ' controles (o pedido era 40+)');
+  if (out.dentro.total < 40) erro('so ' + out.dentro.total + ' controles no total (o pedido era 40+)');
+  if (out.abas.faltando.length) erro('controles inalcancaveis por nenhuma aba: ' + out.abas.faltando.join(', '));
+  if (out.abas.alcancados < out.dentro.total) erro('nem todo controle aparece em alguma aba');
+  const L = out.layout;
+  if (L.encostando) erro(L.encostando + ' pares de botoes encostando');
+  if (L.forinhas) erro(L.forinhas + ' botoes fora da tela');
+  if (L.pequenos) erro(L.pequenos + ' botoes menores que 34px (alvo de toque)');
+  if (L.cortados) erro(L.cortados + ' rotulos de botao cortados');
+  if (L.vao1 < 10 || L.vao2 < 10) erro('os paineis quase se encostam (vaos ' + L.vao1 + ' e ' + L.vao2 + 'px)');
+  if (L.bordaE < 8 || L.bordaD < 8) erro('os paineis estao colados na borda da tela');
+  if (L.alturaPaineis > innerHeightEsperado * 0.46)
+    erro('os paineis comem ' + L.alturaPaineis + 'px da tela: sobra pouco para a cabine');
   if (out.foraDeOrdem.ligou) erro('ligou os motores fora de ordem');
   if (out.foraDeOrdem.tipo !== 'erro') erro('ligar fora de ordem nao explicou o problema');
   if (out.ligando.ligados !== 10) erro('a sequencia de ligar tem ' + out.ligando.ligados + ' de 10');

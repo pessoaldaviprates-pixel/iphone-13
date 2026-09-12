@@ -4465,17 +4465,29 @@
 
   /* ---- leitura de voo, no topo ---- */
   .ex-topo{
-    position:absolute;top:calc(6px + var(--safe-top));left:8px;right:8px;
-    display:flex;gap:5px;flex-wrap:wrap;justify-content:center;
+    /* faixa no topo, separada dos controles físicos lá embaixo:
+       informação de um lado, botão do outro. */
+    position:absolute;top:calc(8px + var(--safe-top));left:50%;transform:translateX(-50%);
+    display:flex;gap:7px;justify-content:center;max-width:94vw;
     font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,rgba(8,16,32,.72),rgba(5,10,22,.55));
+    border:1px solid rgba(120,200,255,.18);border-radius:12px;padding:6px 10px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
   }
-  .ex-cx{
-    background:rgba(6,12,26,.66);border:1px solid rgba(120,200,255,.16);
-    border-radius:8px;padding:3px 8px;text-align:center;min-width:52px;
+  .ex-cx{text-align:center;min-width:56px;padding:0 5px;position:relative}
+  .ex-cx + .ex-cx::before{
+    content:"";position:absolute;left:-4px;top:14%;bottom:14%;width:1px;
+    background:rgba(120,200,255,.16);
   }
   .ex-cx u{display:block;font-size:.4rem;letter-spacing:.16em;color:var(--fraco);
     text-decoration:none;font-weight:700}
-  .ex-cx b{display:block;font-family:"Russo One",sans-serif;font-size:.72rem;color:var(--cyan)}
+  .ex-cx b{display:block;font-family:"Russo One",sans-serif;font-size:.84rem;color:var(--cyan)}
+  @media (max-width:700px){
+    .ex-cx{min-width:46px}
+    .ex-cx b{font-size:.72rem}
+    .ex-cx u{font-size:.38rem;letter-spacing:.12em}
+  }
 
   .ex-salto{
     position:absolute;top:34%;left:50%;transform:translateX(-50%);
@@ -4483,83 +4495,174 @@
     color:var(--amber);text-shadow:0 0 18px rgba(255,200,97,.7);
   }
 
-  /* ---- os três painéis de controle ---- */
+  /* ---- os três painéis de controle ----
+     A versão anterior espremia 49 botões minúsculos numa faixa colada no
+     rodapé: virou grade de planilha, não cabine. O conserto não foi
+     diminuir mais, foi o contrário — botões grandes, abas para o que não
+     se usa sempre, e VÃO DE VERDADE entre os painéis. É justamente nesses
+     vãos que o manche e os aceleradores 3D aparecem, então o espaço em
+     branco aqui não é sobra: é onde a cabine se mostra.               */
   .ex-painel{
-    position:absolute;bottom:calc(6px + var(--safe-bot));
-    pointer-events:auto;background:rgba(6,11,24,.72);
-    border:1px solid rgba(120,200,255,.18);border-radius:10px;padding:5px 6px 6px;
-    backdrop-filter:blur(5px);
+    position:absolute;bottom:calc(12px + var(--safe-bot));
+    pointer-events:auto;
+    background:linear-gradient(170deg,rgba(14,26,50,.60),rgba(5,10,22,.72));
+    border:1px solid rgba(120,200,255,.22);
+    border-radius:14px;padding:8px 9px 10px;
+    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+    box-shadow:0 8px 26px rgba(0,0,0,.45), inset 0 1px 0 rgba(160,220,255,.12);
   }
-  .ex-painel.esq{left:6px;width:23%}
-  .ex-painel.cen{left:50%;transform:translateX(-50%);width:32%}
-  .ex-painel.dir{right:6px;width:23%}
+  /* fiozinho de luz no topo: faz o painel parecer encaixado na cabine
+     em vez de um retângulo jogado por cima */
+  .ex-painel::before{
+    content:"";position:absolute;top:0;left:16%;right:16%;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(120,220,255,.75),transparent);
+  }
+  .ex-painel.esq{left:14px;width:25%;max-width:250px}
+  .ex-painel.cen{left:50%;transform:translateX(-50%);width:28%;max-width:320px}
+  .ex-painel.dir{right:14px;width:25%;max-width:250px}
+
   .ex-painel-h{
-    font-size:.4rem;letter-spacing:.2em;color:var(--fraco);font-weight:700;
-    text-align:center;margin-bottom:4px;
+    font-size:.46rem;letter-spacing:.24em;color:var(--fraco);font-weight:700;
+    text-align:center;margin-bottom:7px;
   }
-  .ex-bts{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:3px}
+  /* abas: o que não se usa o tempo todo sai da frente sem sumir do jogo */
+  .ex-abas{display:flex;gap:4px;margin-bottom:7px}
+  .ex-aba{
+    flex:1;padding:4px 2px;border-radius:7px;cursor:pointer;
+    background:rgba(255,255,255,.03);border:1px solid rgba(120,200,255,.14);
+    color:var(--fraco);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.42rem;letter-spacing:.1em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .ex-aba.on{background:rgba(77,232,255,.14);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .ex-aba:active{transform:scale(.95)}
+
+  .ex-bts{display:grid;gap:6px}
+  /* o passador de página: só aparece onde a aba não coube numa tela só */
+  .ex-pag{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+  .ex-pag u{font-size:.42rem;letter-spacing:.1em;color:var(--fraco);text-decoration:none}
+  .ex-pag-b{
+    width:26px;height:22px;border-radius:7px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.7rem;
+  }
+  .ex-pag-b:active{background:rgba(77,232,255,.18);color:var(--cyan)}
+
+  /* botão: alvo de toque confortável, ícone, rótulo legível e um LED de
+     estado. O texto encolhe antes de cortar. */
   .ex-bt{
-    position:relative;display:flex;align-items:center;gap:4px;cursor:pointer;
-    padding:4px 5px;border-radius:6px;text-align:left;
-    background:linear-gradient(160deg,rgba(20,32,62,.9),rgba(8,14,30,.9));
-    border:1px solid rgba(232,239,255,.14);color:var(--fraco);
-    font-family:"Chakra Petch",sans-serif;font-size:.4rem;font-weight:700;
-    letter-spacing:.04em;line-height:1.1;
+    position:relative;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:3px;
+    padding:6px 4px 7px;border-radius:10px;cursor:pointer;
+    background:linear-gradient(165deg,rgba(26,42,78,.85),rgba(9,16,34,.9));
+    border:1px solid rgba(232,239,255,.14);color:var(--dim);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;
+    transition:transform .1s,border-color .16s,color .16s,box-shadow .18s;
   }
-  .ex-bt i{
-    flex:none;width:6px;height:6px;border-radius:50%;
-    background:rgba(232,239,255,.18);box-shadow:none;
+  .ex-bt .ex-ic{font-size:.86rem;line-height:1;font-weight:400;opacity:.9}
+  .ex-bt span{
+    font-size:.42rem;letter-spacing:.06em;line-height:1.1;text-align:center;
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
-  .ex-bt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ex-bt.on{border-color:rgba(91,240,176,.6);color:var(--verde)}
-  .ex-bt.on i{background:var(--verde);box-shadow:0 0 6px var(--verde)}
-  .ex-bt.acao{border-color:rgba(77,232,255,.28);color:var(--cyan)}
-  .ex-bt.acao i{background:rgba(77,232,255,.5)}
-  .ex-bt.travado{opacity:.38}
+  .ex-bt .ex-led{
+    position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;
+    background:rgba(232,239,255,.16);
+  }
+  .ex-bt.on{
+    border-color:rgba(91,240,176,.55);color:var(--verde);
+    background:linear-gradient(165deg,rgba(18,58,46,.88),rgba(7,22,20,.9));
+  }
+  .ex-bt.on .ex-led{background:var(--verde);box-shadow:0 0 7px var(--verde)}
+  .ex-bt.acao{border-color:rgba(77,232,255,.3);color:var(--cyan)}
+  .ex-bt.acao .ex-led{background:rgba(77,232,255,.45)}
+  .ex-bt.grande{grid-column:span 2}
+  .ex-painel.cen .ex-bt.grande{grid-column:span 3}
+  .ex-bt.grande .ex-ic{font-size:1.05rem}
+  .ex-bt.grande span{font-size:.48rem}
+  .ex-bt.travado{opacity:.34}
   .ex-bt:active{transform:scale(.94)}
+  .ex-bt:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+  /* responsivo: em tela curta o remédio é MENOS botão visível (as abas já
+     fazem isso), não botão menor. Aqui só o respiro se ajusta. */
+  /* Em tela baixa (celular deitado) quem encolhe é o que NÃO é botão:
+     recheio, abas e passador. O botão continua do tamanho do dedo --
+     essa é a regra do modo inteiro. */
+  @media (max-height:460px){
+    .ex-painel{bottom:calc(8px + var(--safe-bot));padding:5px 6px 6px;border-radius:12px}
+    .ex-bt .ex-ic{font-size:.74rem}
+    .ex-bt span{font-size:.39rem}
+    .ex-bt{padding:4px 3px 5px;gap:2px}
+    .ex-bts{gap:5px}
+    .ex-abas{gap:3px;margin-bottom:5px}
+    .ex-aba{padding:3px 2px;font-size:.4rem}
+    .ex-painel-h{margin-bottom:5px;font-size:.42rem}
+    .ex-pag{margin-top:4px;gap:6px}
+    .ex-pag-b{height:18px;width:24px;font-size:.62rem}
+  }
+  @media (min-width:1000px){
+    .ex-painel.esq{left:28px;width:20%}
+    .ex-painel.dir{right:28px;width:20%}
+    .ex-painel.cen{width:26%}
+    .ex-bt .ex-ic{font-size:1rem}
+    .ex-bt span{font-size:.5rem}
+  }
 
   /* ---- radar ---- */
   .ex-radar{
-    position:absolute;left:6px;top:calc(52px + var(--safe-top));
+    position:absolute;left:14px;top:calc(64px + var(--safe-top));
     width:22vh;height:22vh;max-width:150px;max-height:150px;border-radius:50%;
-    background:radial-gradient(circle,rgba(10,40,44,.66),rgba(4,12,18,.72) 72%);
-    border:1px solid rgba(60,220,180,.3);overflow:hidden;
+    background:radial-gradient(circle,rgba(10,40,44,.60),rgba(4,12,18,.70) 72%);
+    border:1px solid rgba(60,220,180,.30);overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,.4), inset 0 0 22px rgba(60,220,180,.08);
   }
   .ex-radar i{
     position:absolute;transform:translate(-50%,-50%);font-style:normal;
     font-size:.5rem;color:var(--verde);text-shadow:0 0 5px rgba(91,240,176,.9);
   }
-  .ex-radar i.sol{color:var(--amber);font-size:.7rem}
+  .ex-radar i.sol{color:var(--amber);font-size:.72rem}
   .ex-radar i.planeta{color:#7FD4FF}
   .ex-radar i.estacao{color:#FFF}
-  .ex-radar i.hostil{color:var(--magenta);font-size:.62rem}
+  .ex-radar i.hostil{color:var(--magenta);font-size:.64rem}
   .ex-radar u,.ex-radar .ex-off{
-    position:absolute;left:50%;bottom:4px;transform:translateX(-50%);
+    position:absolute;left:50%;bottom:5px;transform:translateX(-50%);
     font-size:.38rem;letter-spacing:.1em;color:var(--fraco);text-decoration:none;
   }
-  .ex-radar .ex-off{top:50%;bottom:auto;transform:translate(-50%,-50%);color:var(--fraco)}
+  .ex-radar .ex-off{top:50%;bottom:auto;transform:translate(-50%,-50%)}
 
-  /* ---- potência ---- */
+  /* ---- o acelerador ----
+     Um controle de verdade, com área própria e arrasto. Não é um botão
+     escrito BOOST: acelerador de nave se empurra, e a alavanca 3D lá na
+     cabine acompanha o que esta barra mostra.                          */
   .ex-pot{
-    position:absolute;right:6px;top:calc(52px + var(--safe-top));
-    width:18px;height:20vh;max-height:140px;border-radius:9px;
-    background:rgba(6,12,26,.66);border:1px solid rgba(120,200,255,.2);
+    position:absolute;right:14px;top:calc(64px + var(--safe-top));
+    width:30px;height:26vh;max-height:190px;border-radius:15px;
+    background:linear-gradient(180deg,rgba(8,16,32,.72),rgba(5,10,22,.72));
+    border:1px solid rgba(120,200,255,.22);
     display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(160,220,255,.12);
   }
-  .ex-pot i{display:block;width:100%;background:linear-gradient(180deg,var(--cyan),var(--verde));
-    height:0;transition:height .12s linear}
-  .ex-pot u{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
-    font-size:.34rem;color:var(--fraco);text-decoration:none;letter-spacing:.1em}
+  .ex-pot i{
+    display:block;width:100%;height:0;
+    background:linear-gradient(180deg,var(--cyan),var(--verde));
+    transition:height .12s linear;
+  }
+  .ex-pot u{
+    position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+    font-size:.36rem;color:var(--fraco);text-decoration:none;letter-spacing:.12em;
+  }
 
-  /* ---- recados ---- */
+  /* ---- recados do rádio e dos sistemas ---- */
   .ex-avisos{
-    position:absolute;left:50%;transform:translateX(-50%);top:calc(46px + var(--safe-top));
-    display:flex;flex-direction:column;gap:3px;align-items:center;width:min(56vw,420px);
+    position:absolute;left:50%;transform:translateX(-50%);top:calc(66px + var(--safe-top));
+    display:flex;flex-direction:column;gap:4px;align-items:center;width:min(52vw,420px);
+    pointer-events:none;
   }
   .ex-aviso{
-    font-size:.52rem;line-height:1.4;padding:3px 9px;border-radius:99px;
-    background:rgba(6,12,26,.8);border:1px solid rgba(120,200,255,.16);color:var(--ink2);
+    font-size:.54rem;line-height:1.4;padding:4px 11px;border-radius:99px;
+    background:rgba(6,12,26,.82);border:1px solid rgba(120,200,255,.18);color:var(--ink2);
     max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
   }
   .ex-aviso.ok{border-color:rgba(91,240,176,.45);color:var(--verde)}
   .ex-aviso.erro{border-color:rgba(255,77,143,.5);color:var(--magenta)}
@@ -4571,24 +4674,24 @@
   }
   .ex-mapa-cx{
     width:min(88vw,520px);max-height:86%;display:flex;flex-direction:column;
-    background:rgba(9,16,34,.96);border:1px solid var(--line2);border-radius:14px;padding:14px;
+    background:rgba(9,16,34,.96);border:1px solid var(--line2);border-radius:16px;padding:16px;
   }
   .ex-mapa-h{font-family:"Russo One",sans-serif;font-size:.8rem;letter-spacing:.16em;
-    color:var(--cyan);text-align:center;margin-bottom:10px}
-  .ex-mapa-lista{overflow-y:auto;display:flex;flex-direction:column;gap:6px;touch-action:pan-y}
+    color:var(--cyan);text-align:center;margin-bottom:12px}
+  .ex-mapa-lista{overflow-y:auto;display:flex;flex-direction:column;gap:7px;touch-action:pan-y}
   .ex-sis{
-    text-align:left;padding:8px 11px;border-radius:9px;cursor:pointer;
+    text-align:left;padding:10px 13px;border-radius:10px;cursor:pointer;
     background:rgba(255,255,255,.04);border:1px solid var(--line);
   }
-  .ex-sis b{display:block;font-size:.76rem;color:var(--ink)}
-  .ex-sis em{display:block;font-style:normal;font-size:.56rem;color:var(--dim);margin-top:2px}
+  .ex-sis b{display:block;font-size:.78rem;color:var(--ink)}
+  .ex-sis em{display:block;font-style:normal;font-size:.58rem;color:var(--dim);margin-top:3px}
   .ex-sis.aqui{border-color:rgba(91,240,176,.5)}
   .ex-sis.dest{border-color:var(--amber);background:rgba(255,200,97,.1)}
-  .ex-mapa-pe{display:flex;gap:8px;margin-top:11px}
+  .ex-mapa-pe{display:flex;gap:9px;margin-top:13px}
   .ex-mapa-bt{
-    flex:1;padding:10px;border-radius:10px;cursor:pointer;
+    flex:1;padding:12px;border-radius:11px;cursor:pointer;
     background:rgba(77,232,255,.1);border:1px solid var(--line2);color:var(--cyan);
-    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.08em;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.08em;
   }
   .ex-mapa-bt:active{background:rgba(77,232,255,.24)}
 
@@ -6079,9 +6182,9 @@
     <div class="ex-salto" id="c3-salto" style="display:none"></div>
 
     <!-- os três painéis de controle -->
-    <div class="ex-painel esq"><div class="ex-painel-h">SISTEMAS</div><div class="ex-bts" id="c3-pesq"></div></div>
-    <div class="ex-painel cen"><div class="ex-painel-h">VOO</div><div class="ex-bts" id="c3-pcen"></div></div>
-    <div class="ex-painel dir"><div class="ex-painel-h">NAVE</div><div class="ex-bts" id="c3-pdir"></div></div>
+    <div class="ex-painel esq" id="c3-pesq"></div>
+    <div class="ex-painel cen" id="c3-pcen"></div>
+    <div class="ex-painel dir" id="c3-pdir"></div>
 
     <!-- radar, potência e recados -->
     <div class="ex-radar" id="c3-radar"></div>
@@ -28187,91 +28290,115 @@ function explMontar() {
      A lista é dado, não HTML: o painel se desenha a partir dela, e
      acrescentar um controle aqui já faz o botão existir.              */
   const CONTROLES = [
-    /* ---- painel esquerdo: dar vida à nave ---- */
-    { id:"bateria",  rot:"BATTERY",   g:"esq", tipo:"chave", passo:"bateria" },
-    { id:"energia",  rot:"POWER",     g:"esq", tipo:"chave", passo:"energia" },
-    { id:"computadores", rot:"COMPUTER", g:"esq", tipo:"chave", passo:"computadores" },
-    { id:"combustivel", rot:"FUEL",   g:"esq", tipo:"chave", passo:"combustivel" },
-    { id:"bombas",   rot:"FUEL PUMP", g:"esq", tipo:"chave", passo:"bombas" },
-    { id:"motores",  rot:"ENGINE",    g:"esq", tipo:"chave", passo:"motores" },
-    { id:"estabilizadores", rot:"STABILIZER", g:"esq", tipo:"chave", passo:"estabilizadores" },
-    { id:"controles",rot:"CONTROLS",  g:"esq", tipo:"chave", passo:"controles" },
-    { id:"navegacao",rot:"NAV",       g:"esq", tipo:"chave", passo:"navegacao" },
-    { id:"comunicacao", rot:"COMMS",  g:"esq", tipo:"chave", passo:"comunicacao" },
+    /* ---- SISTEMAS (canto inferior esquerdo): dar vida à nave ---- */
+    { id:"bateria",  rot:"BATTERY",  ic:"▣", g:"sis", pag:0, tipo:"chave", passo:"bateria" },
+    { id:"energia",  rot:"POWER",    ic:"⚡", g:"sis", pag:0, tipo:"chave", passo:"energia" },
+    { id:"computadores", rot:"COMPUTER", ic:"▤", g:"sis", pag:0, tipo:"chave", passo:"computadores" },
+    { id:"combustivel", rot:"FUEL",  ic:"◧", g:"sis", pag:0, tipo:"chave", passo:"combustivel" },
+    { id:"bombas",   rot:"FUEL PUMP",ic:"◍", g:"sis", pag:0, tipo:"chave", passo:"bombas" },
+    { id:"motores",  rot:"ENGINE",   ic:"◈", g:"sis", pag:0, tipo:"chave", passo:"motores" },
+    { id:"estabilizadores", rot:"STABILIZER", ic:"⊞", g:"sis", pag:0, tipo:"chave", passo:"estabilizadores" },
+    { id:"navegacao",rot:"NAV",      ic:"✦", g:"sis", pag:0, tipo:"chave", passo:"navegacao" },
+    { id:"comunicacao", rot:"COMMS", ic:"◇", g:"sis", pag:0, tipo:"chave", passo:"comunicacao" },
+    { id:"controles",rot:"CONTROLS", ic:"◉", g:"sis", pag:0, tipo:"chave", passo:"controles" },
 
-    /* ---- painel central: voar ---- */
-    { id:"radar",    rot:"RADAR",     g:"cen", tipo:"chave", precisa:"computadores" },
-    { id:"scanner",  rot:"SCANNER",   g:"cen", tipo:"chave", precisa:"computadores" },
-    { id:"sensores", rot:"SENSORS",   g:"cen", tipo:"chave", precisa:"computadores" },
-    { id:"escudo",   rot:"SHIELD",    g:"cen", tipo:"chave", precisa:"energia" },
-    { id:"escudoMais", rot:"SHIELD+", g:"cen", tipo:"botao", precisa:"escudo",
+    /* ---- VOO (centro inferior): o painel mais usado, botões maiores ---- */
+    { id:"radar",    rot:"RADAR",    ic:"◉", g:"voo", pag:0, tipo:"chave", precisa:"computadores" },
+    { id:"scanner",  rot:"SCANNER",  ic:"⌁", g:"voo", pag:0, tipo:"chave", precisa:"computadores" },
+    { id:"sensores", rot:"SENSORS",  ic:"⋈", g:"voo", pag:0, tipo:"chave", precisa:"computadores" },
+    { id:"escudo",   rot:"SHIELD",   ic:"⬡", g:"voo", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"mapa",     rot:"STAR MAP", ic:"✧", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
+      faz:() => abrirMapa() },
+    { id:"hiper",    rot:"HYPERDRIVE", ic:"⟫", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
+      faz:() => comecarSalto() },
+    { id:"alvo",     rot:"TARGET",   ic:"⊕", g:"voo", pag:0, tipo:"botao", precisa:"sensores",
+      faz:() => { travarAlvo(); } },
+    { id:"escanear", rot:"SCAN",     ic:"◎", g:"voo", pag:0, tipo:"botao", precisa:"scanner",
+      faz:() => escanearAlvo() },
+    { id:"freio",    rot:"BRAKE",    ic:"⊟", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => { N.potencia = 0; avisar("Freando.", "aviso"); } },
+    { id:"re",       rot:"REVERSE",  ic:"◀", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => { N.potencia = -0.35; avisar("Retro-propulsão.", "aviso"); } },
+    { id:"turbo",    rot:"BOOST",    ic:"▶", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4; avisar("Turbo!", "ok"); } } },
+    { id:"atracar",  rot:"DOCK",     ic:"⊡", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
+      faz:() => atracar() },
+    { id:"pousar",   rot:"LAND",     ic:"⇩", g:"voo", pag:0, tipo:"botao", grande:true, precisa:"navegacao",
+      faz:() => pousar() },
+
+    /* VOO · auxiliar: o que se usa de vez em quando não precisa roubar
+       espaço do que se usa sempre */
+    { id:"decolar",  rot:"TAKE OFF", ic:"⇧", g:"voo", pag:1, tipo:"botao", grande:true,
+      faz:() => decolar() },
+    { id:"escudoMais", rot:"SHIELD+", ic:"⬢", g:"voo", pag:1, tipo:"botao", precisa:"escudo",
       faz:() => { N.escudo = Math.min(100, N.escudo + 25); N.energia -= 14;
                   avisar("Escudo reforçado.", "ok"); } },
-    { id:"mapa",     rot:"STAR MAP",  g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => abrirMapa() },
-    { id:"hiper",    rot:"HYPERDRIVE",g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => comecarSalto() },
-    { id:"carga",    rot:"WARP CHARGE", g:"cen", tipo:"chave", precisa:"navegacao" },
-    { id:"alvo",     rot:"TARGET",    g:"cen", tipo:"botao", precisa:"sensores",
-      faz:() => { travarAlvo(); } },
-    { id:"escanear", rot:"SCAN",      g:"cen", tipo:"botao", precisa:"scanner",
-      faz:() => escanearAlvo() },
-    { id:"piloto",   rot:"AUTOPILOT", g:"cen", tipo:"chave", precisa:"navegacao" },
-    { id:"freio",    rot:"BRAKE",     g:"cen", tipo:"botao", precisa:"motores",
-      faz:() => { N.potencia = 0; avisar("Freando.", "aviso"); } },
-    { id:"re",       rot:"REVERSE",   g:"cen", tipo:"botao", precisa:"motores",
-      faz:() => { N.potencia = -0.35; avisar("Retro-propulsão.", "aviso"); } },
-    { id:"turbo",    rot:"BOOST",     g:"cen", tipo:"botao", precisa:"motores",
-      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4;
-                  avisar("Turbo!", "ok"); } } },
-    { id:"atracar",  rot:"DOCK",      g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => atracar() },
-    { id:"pousar",   rot:"LAND",      g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => pousar() },
-    { id:"decolar",  rot:"TAKE OFF",  g:"cen", tipo:"botao",
-      faz:() => decolar() },
+    { id:"carga",    rot:"WARP CHARGE", ic:"◑", g:"voo", pag:1, tipo:"chave", precisa:"navegacao" },
+    { id:"piloto",   rot:"AUTOPILOT", ic:"⊛", g:"voo", pag:1, tipo:"chave", precisa:"navegacao" },
 
-    /* ---- painel direito: manter a nave viva ---- */
-    { id:"luz",      rot:"CABIN LIGHT", g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"luzEmerg", rot:"EMERG LIGHT", g:"dir", tipo:"chave", precisa:"bateria" },
-    { id:"oxigenio", rot:"OXYGEN",    g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"suporte",  rot:"LIFE SUPP", g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"temperatura", rot:"TEMP",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"gravidade",rot:"GRAVITY",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"diagnostico", rot:"DIAGNOSTIC", g:"dir", tipo:"botao", precisa:"computadores",
+    /* ---- NAVE (canto inferior direito) · GERAL ---- */
+    { id:"luz",      rot:"CABIN LIGHT", ic:"☀", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"oxigenio", rot:"OXYGEN",   ic:"◌", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"suporte",  rot:"LIFE SUPP",ic:"♥", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"temperatura", rot:"TEMP",  ic:"◭", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"gravidade",rot:"GRAVITY",  ic:"⊝", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"diagnostico", rot:"DIAGNOSTIC", ic:"⌸", g:"nave", pag:0, tipo:"botao", precisa:"computadores",
       faz:() => diagnosticar() },
-    { id:"reparo",   rot:"REPAIR",    g:"dir", tipo:"botao", precisa:"computadores",
+    { id:"reparo",   rot:"REPAIR",   ic:"⚒", g:"nave", pag:0, tipo:"botao", precisa:"computadores",
       faz:() => reparar() },
-    { id:"emergencia", rot:"EMERGENCY", g:"dir", tipo:"botao", precisa:"bateria",
+    { id:"emergencia", rot:"EMERGENCY", ic:"✚", g:"nave", pag:0, tipo:"botao", precisa:"bateria",
       faz:() => { N.escudo = Math.min(100, N.escudo + 40); N.oxigenio = 100;
                   avisar("Sistema de emergência: escudo e oxigênio restaurados.", "ok"); } },
-    { id:"farol",    rot:"BEACON",    g:"dir", tipo:"chave", precisa:"comunicacao" },
-    { id:"transmitir", rot:"TRANSMIT",g:"dir", tipo:"botao", precisa:"comunicacao",
+
+    /* NAVE · AVANÇADO */
+    { id:"luzEmerg", rot:"EMERG LIGHT", ic:"⚠", g:"nave", pag:1, tipo:"chave", precisa:"bateria" },
+    { id:"farol",    rot:"BEACON",   ic:"◈", g:"nave", pag:1, tipo:"chave", precisa:"comunicacao" },
+    { id:"transmitir", rot:"TRANSMIT", ic:"◇", g:"nave", pag:1, tipo:"botao", precisa:"comunicacao",
       faz:() => transmitir() },
-    { id:"porta",    rot:"DOOR",      g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"cargaPorao", rot:"CARGO",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"furtivo",  rot:"STEALTH",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"combate",  rot:"COMBAT",    g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"camera",   rot:"CAMERA",    g:"dir", tipo:"botao",
-      faz:() => { N.camera = (N.camera + 1) % 4;
-                  avisar("Câmera: " + ["cabine","externa frontal","externa traseira","lateral"][N.camera], "aviso"); } },
-    { id:"cameraExt",rot:"EXT CAM",   g:"dir", tipo:"botao",
-      faz:() => { N.camera = N.camera === 0 ? 1 : 0; } },
-    { id:"estado",   rot:"SHIP STATUS", g:"dir", tipo:"botao", precisa:"computadores",
+    { id:"porta",    rot:"DOOR",     ic:"⊓", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"cargaPorao", rot:"CARGO",  ic:"▥", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"furtivo",  rot:"STEALTH",  ic:"◐", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"combate",  rot:"COMBAT",   ic:"⚔", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"estado",   rot:"SHIP STATUS", ic:"▦", g:"nave", pag:1, tipo:"botao", precisa:"computadores",
       faz:() => estadoDaNave() },
-    { id:"varreduraGrav", rot:"GRAV SCAN", g:"dir", tipo:"botao", precisa:"sensores",
+    { id:"modoComb", rot:"FUEL MODE",ic:"∞", g:"nave", pag:1, tipo:"botao",
+      faz:() => { N.combustivelInfinito = !N.combustivelInfinito;
+                  avisar("Combustível: " + (N.combustivelInfinito ? "INFINITO" : "NORMAL"), "ok"); } },
+    { id:"varreduraGrav", rot:"GRAV SCAN", ic:"⊙", g:"nave", pag:1, tipo:"botao", precisa:"sensores",
       faz:() => { const p = planetaMaisPerto();
                   avisar(p ? ("Gravidade em " + p.nome + ": " + p.gravidade + " g")
                            : "Nada com massa por perto.", "aviso"); } },
-    { id:"varreduraPlan", rot:"PLANET SCAN", g:"dir", tipo:"botao", precisa:"scanner",
+    { id:"varreduraPlan", rot:"PLANET SCAN", ic:"◍", g:"nave", pag:1, tipo:"botao", precisa:"scanner",
       faz:() => { const p = planetaMaisPerto(); if (p) { N.alvo = p; escanearAlvo(); }
                   else avisar("Nenhum planeta ao alcance.", "erro"); } },
-    { id:"autoPouso",rot:"AUTO LAND", g:"dir", tipo:"botao", precisa:"navegacao",
+    { id:"autoPouso",rot:"AUTO LAND",ic:"⇓", g:"nave", pag:1, tipo:"botao", precisa:"navegacao",
       faz:() => { const p = planetaMaisPerto(); if (p) { N.alvo = p; pousar(); } } },
-    { id:"modoComb", rot:"FUEL MODE", g:"dir", tipo:"botao",
-      faz:() => { N.combustivelInfinito = !N.combustivelInfinito;
-                  avisar("Combustível: " + (N.combustivelInfinito ? "INFINITO" : "NORMAL"), "ok"); } }
+
+    /* NAVE · CÂMERAS — cada uma tem botão próprio, em vez de um só que
+       cicla: ciclar obriga a apertar quatro vezes para voltar */
+    { id:"camCabine",rot:"COCKPIT",  ic:"⌂", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 0; avisar("Câmera: cabine", "aviso"); } },
+    { id:"camFrente",rot:"FRONT",    ic:"▲", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 1; avisar("Câmera: externa frontal", "aviso"); } },
+    { id:"camTras",  rot:"REAR",     ic:"▼", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 2; avisar("Câmera: externa traseira", "aviso"); } },
+    { id:"camLado",  rot:"SIDE",     ic:"▶", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 3; avisar("Câmera: lateral", "aviso"); } },
+    { id:"camera",   rot:"NEXT CAM", ic:"🎥", g:"nave", pag:2, tipo:"botao",
+      faz:() => { N.camera = (N.camera + 1) % 4;
+                  avisar("Câmera: " + ["cabine","externa frontal","externa traseira","lateral"][N.camera], "aviso"); } },
+    { id:"cameraExt",rot:"EXT CAM",  ic:"⊙", g:"nave", pag:2, tipo:"botao",
+      faz:() => { N.camera = N.camera === 0 ? 1 : 0; } }
   ];
+
+  /* as abas de cada painel: nome curto, porque aba comprida vira texto
+     cortado justo onde o espaço é apertado */
+  const ABAS = {
+    sis: ["SISTEMAS"],
+    voo: ["PRINCIPAL", "AUXILIAR"],
+    nave: ["GERAL", "AVANÇADO", "CÂMERAS"]
+  };
+  const abaDe = { sis: 0, voo: 0, nave: 0 };
 
   /* gastar combustível num lugar só: assim o modo INFINITO é uma linha,
      e não um "if" espalhado por dez lugares onde um sempre escapa */
@@ -28843,8 +28970,16 @@ function explMontar() {
 
     /* manche e aceleradores: escala IGUAL nos três eixos, senão a escala
        esticada da cabine entortaria a peça girada */
-    const tam = sy2*0.13;
-    let mm = M.mover(-sx2*0.30, -sy2*1.00, -D + 0.21);
+    /* O manche e os aceleradores são postos nos VÃOS entre os painéis do
+       HUD, não atrás deles: controle físico escondido debaixo de menu é
+       a mesma coisa que não existir. Os vãos ficam em ±30% da largura,
+       que é onde os painéis não chegam. */
+    /* Grandes o bastante para aparecerem DE VERDADE nos vãos entre os
+       painéis. Na primeira tentativa eles cabiam no vão mas eram tão
+       pequenos que ninguém via -- controle físico que não se vê é a
+       mesma coisa que não existir. */
+    const tam = sy2*0.30;
+    let mm = M.mover(-sx2*0.30, -sy2*1.06, -D + 0.21);
     mm = M.mul(mm, M.giroX(-manche.y*0.40));
     mm = M.mul(mm, M.giroZ(-manche.x*0.40));
     mm = M.mul(mm, M.escala(tam));
@@ -28854,9 +28989,9 @@ function explMontar() {
 
     /* os dois aceleradores correm para a frente conforme a potência */
     for (const lado of [0, 1]) {
-      let ma = M.mover(sx2*(0.26 + lado*0.09), -sy2*1.02, -D + 0.21);
+      let ma = M.mover(sx2*(0.27 + lado*0.085), -sy2*1.06, -D + 0.21);
       ma = M.mul(ma, M.giroX(-0.55 + N.potencia*0.85));
-      ma = M.mul(ma, M.escala(tam*0.85));
+      ma = M.mul(ma, M.escala(tam*0.72));
       gl.uniformMatrix4fv(uMalha.modelo,false,ma);
       gl.bindVertexArray(ACELERADOR.vao);
       gl.drawElements(gl.TRIANGLES,ACELERADOR.n,gl.UNSIGNED_SHORT,0);
@@ -28887,7 +29022,8 @@ function explMontar() {
 
   return { passo, desenhar, medir, ligar: ligarControles, desligar: desligarControles,
            N, CONTROLES, apertar, ligarPasso, SISTEMAS, sistema, travarAlvo, manche, ALIENS,
-           ligadosCtrl: ligadoCtrl };
+           ligadosCtrl: ligadoCtrl, ABAS, abaDe,
+           trocarAba: (g, i) => { abaDe[g] = i; pintarControles(); } };
 }
 
 /* =====================================================================
@@ -28896,23 +29032,99 @@ function explMontar() {
    3 milímetros desenhado em 3D não acerta nunca. A cabine em 3D atrás é
    que dá a sensação de estar dentro; estes botões é que se usam.
    ===================================================================== */
+/* ---------------------------------------------------------------------
+   OS PAINÉIS SE MEDEM
+   ---------------------------------------------------------------------
+   A regra é: botão grande e espaçado sempre; quem cede é a QUANTIDADE
+   visível, nunca o tamanho. Então aqui a altura disponível decide quantas
+   linhas cabem, e o que sobra vira página, com um passador ‹ 1/2 ›.
+
+   O limite de 42% da altura não é estética: acima disso os painéis comem
+   a janela e o modo deixa de ser uma cabine para virar um controle
+   remoto com um vídeo ao fundo.                                       */
+const EX_PAGINA = {};                       // painel -> página dentro da aba
+
 function explPintarControles() {
   if (!explAPI) return;
-  const grupos = { esq: $("c3-pesq"), cen: $("c3-pcen"), dir: $("c3-pdir") };
-  for (const g in grupos) {
-    const cx = grupos[g];
+  const A = explAPI;
+  const caixas = { sis: $("c3-pesq"), voo: $("c3-pcen"), nave: $("c3-pdir") };
+  const baixo = innerHeight < 460;
+  const alturaBt = baixo ? 34 : 44;
+  /* 36% da altura para os três painéis JUNTOS com as abas e o passador.
+     Acima disso eles comem a janela e o modo deixa de ser uma cabine.
+     O desconto de 58px é o que abas + passador + recheio ocupam. */
+  const sobra = Math.min(innerHeight * 0.36, 230) - 58;
+  const linhas = Math.max(2, Math.floor((sobra + 6) / (alturaBt + 6)));
+
+  for (const g in caixas) {
+    const cx = caixas[g];
     if (!cx) continue;
-    cx.innerHTML = explAPI.CONTROLES.filter(c => c.g === g).map(c => {
-      const ligado = c.passo ? !!explAPI.N.ligado[c.passo] : !!explLigadoCtrl()[c.id];
-      const pode = !c.precisa || !!explAPI.N.ligado[c.precisa] || !!explLigadoCtrl()[c.precisa];
+    const abas = A.ABAS[g], ativa = A.abaDe[g];
+    /* as colunas saem da LARGURA do painel: cada botão precisa de uns
+       66px para o rótulo não cortar. Em tela larga cabem três, em tela
+       estreita duas -- e o botão nunca encolhe para caber mais um. */
+    const largPainel = cx.clientWidth || 180;
+    const colunas = g === "voo" ? 3 : Math.max(2, Math.min(3, Math.floor(largPainel / 66)));
+    const porPag = linhas * colunas;
+
+    const todos = A.CONTROLES.filter(c => c.g === g && (c.pag || 0) === ativa);
+    /* o botão largo ocupa a linha inteira: conta como a linha toda */
+    const paginas = [];
+    let atual = [], peso = 0;
+    for (const c of todos) {
+      const custo = c.grande ? colunas : 1;
+      if (peso + custo > porPag && atual.length) { paginas.push(atual); atual = []; peso = 0; }
+      atual.push(c); peso += custo;
+    }
+    if (atual.length) paginas.push(atual);
+
+    const chave = g + ":" + ativa;
+    let pag = EX_PAGINA[chave] || 0;
+    if (pag >= paginas.length) pag = EX_PAGINA[chave] = 0;
+
+    const filaAbas = abas.length > 1
+      ? '<div class="ex-abas">' + abas.map((nome, k) =>
+          '<button class="ex-aba' + (k === ativa ? " on" : "") + '" data-aba="' + g + ":" + k + '">' +
+          escaparTexto(nome) + "</button>").join("") + "</div>"
+      : '<div class="ex-painel-h">' + escaparTexto(abas[0]) + "</div>";
+
+    const passador = paginas.length > 1
+      ? '<div class="ex-pag"><button class="ex-pag-b" data-pag="' + chave + ":-1" + '">‹</button>' +
+        "<u>" + (pag+1) + "/" + paginas.length + "</u>" +
+        '<button class="ex-pag-b" data-pag="' + chave + ":1" + '">›</button></div>'
+      : "";
+
+    cx.innerHTML = filaAbas + '<div class="ex-bts" style="grid-template-columns:repeat(' +
+      colunas + ',1fr)">' + (paginas[pag] || []).map(c => {
+      const ligado = c.passo ? !!A.N.ligado[c.passo] : !!A.ligadosCtrl[c.id];
+      const pode = !c.precisa || !!A.N.ligado[c.precisa] || !!A.ligadosCtrl[c.precisa];
       return '<button class="ex-bt' + (ligado ? " on" : "") + (pode ? "" : " travado") +
-        (c.tipo === "botao" ? " acao" : "") + '" data-ctrl="' + c.id + '">' +
-        '<i></i><span>' + c.rot + "</span></button>";
-    }).join("");
+        (c.tipo === "botao" ? " acao" : "") + (c.grande ? " grande" : "") +
+        '" style="min-height:' + alturaBt + 'px" data-ctrl="' + c.id + '">' +
+        '<b class="ex-ic">' + c.ic + "</b>" +
+        '<span>' + escaparTexto(c.rot) + "</span>" +
+        '<i class="ex-led"></i></button>';
+    }).join("") + "</div>" + passador;
+
     cx.querySelectorAll("[data-ctrl]").forEach(b =>
-      b.addEventListener("click", () => explAPI.apertar(b.getAttribute("data-ctrl"))));
+      b.addEventListener("click", () => A.apertar(b.getAttribute("data-ctrl"))));
+    cx.querySelectorAll("[data-aba]").forEach(b =>
+      b.addEventListener("click", () => {
+        const [gg, k] = b.getAttribute("data-aba").split(":");
+        EX_PAGINA[gg + ":" + k] = 0;
+        A.trocarAba(gg, parseInt(k, 10));
+      }));
+    cx.querySelectorAll("[data-pag]").forEach(b =>
+      b.addEventListener("click", () => {
+        const partes = b.getAttribute("data-pag").split(":");
+        const ch = partes[0] + ":" + partes[1], passo = parseInt(partes[2], 10);
+        const quantas = paginas.length;
+        EX_PAGINA[ch] = ((EX_PAGINA[ch] || 0) + passo + quantas) % quantas;
+        explPintarControles();
+      }));
   }
 }
+
 function explLigadoCtrl() { return explAPI ? explAPI.ligadosCtrl : {}; }
 
 function explPintarAvisos() {
@@ -29069,7 +29281,7 @@ function explSair() {
 }
 
 addEventListener("resize", () => {
-  if (explLigada && explAPI) explAPI.medir();
+  if (explLigada && explAPI) { explAPI.medir(); explPintarControles(); }
   explOlharOrientacao();
 });
 addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220));
@@ -29659,6 +29871,19 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.9", itens: [
+      "EXPLORAÇÃO: a interface foi refeita inteira. Estava apertada — 49 botões minúsculos espremidos numa faixa colada no rodapé, parecendo planilha em vez de cabine",
+      "Os botões ficaram GRANDES, com ícone, rótulo legível e uma luzinha de estado. Nenhum encosta no outro",
+      "Os três painéis agora têm espaço de verdade entre eles e não colam nas bordas. E é justamente nesses vãos que o manche e os aceleradores aparecem — o espaço vazio não é sobra, é onde a cabine se mostra",
+      "ABAS em vez de amontoado: VOO tem PRINCIPAL e AUXILIAR, NAVE tem GERAL, AVANÇADO e CÂMERAS. O que não se usa sempre sai da frente sem sumir do jogo",
+      "Os painéis SE MEDEM: a altura da sua tela decide quantas linhas cabem, e o que não couber vira página com um passador ‹ 1/2 ›. Em tela menor aparecem MENOS botões — nunca botões menores",
+      "As colunas também se medem pela largura, para o rótulo nunca cortar",
+      "A CABINE GANHOU A TELA: os painéis ocupavam 70% da altura, agora ocupam 37%. Dá para ver o vidro, o espaço, os planetas e o console",
+      "O HUD de voo virou uma faixa no topo, separada dos controles físicos: informação de um lado, botão do outro",
+      "Cada câmera tem botão próprio agora (COCKPIT, FRONT, REAR, SIDE) em vez de um só que ciclava",
+      "O acelerador virou um controle com área própria, maior, do lado da mão direita",
+      "Nada de funcionalidade mudou: os 53 controles continuam existindo e todos continuam alcançáveis"
+    ] },
   { v: "7.8", itens: [
       "EXPLORAÇÃO ESPACIAL substitui o modo de luta em 3D. Mesma porta no menu (MINHA NAVE), experiência nova: agora você pilota uma nave e explora o espaço, em vez de atirar em caças",
       "A NAVE COMEÇA DESLIGADA. Você liga em ordem: bateria, energia, computadores, navegação, combustível, bombas, comunicação, motores, estabilizadores e controles. Apertar fora de ordem não pune — a nave explica o que falta antes",
@@ -30131,7 +30356,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.8";
+const VERSAO = "7.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

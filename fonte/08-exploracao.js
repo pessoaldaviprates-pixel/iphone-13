@@ -611,91 +611,115 @@ function explMontar() {
      A lista é dado, não HTML: o painel se desenha a partir dela, e
      acrescentar um controle aqui já faz o botão existir.              */
   const CONTROLES = [
-    /* ---- painel esquerdo: dar vida à nave ---- */
-    { id:"bateria",  rot:"BATTERY",   g:"esq", tipo:"chave", passo:"bateria" },
-    { id:"energia",  rot:"POWER",     g:"esq", tipo:"chave", passo:"energia" },
-    { id:"computadores", rot:"COMPUTER", g:"esq", tipo:"chave", passo:"computadores" },
-    { id:"combustivel", rot:"FUEL",   g:"esq", tipo:"chave", passo:"combustivel" },
-    { id:"bombas",   rot:"FUEL PUMP", g:"esq", tipo:"chave", passo:"bombas" },
-    { id:"motores",  rot:"ENGINE",    g:"esq", tipo:"chave", passo:"motores" },
-    { id:"estabilizadores", rot:"STABILIZER", g:"esq", tipo:"chave", passo:"estabilizadores" },
-    { id:"controles",rot:"CONTROLS",  g:"esq", tipo:"chave", passo:"controles" },
-    { id:"navegacao",rot:"NAV",       g:"esq", tipo:"chave", passo:"navegacao" },
-    { id:"comunicacao", rot:"COMMS",  g:"esq", tipo:"chave", passo:"comunicacao" },
+    /* ---- SISTEMAS (canto inferior esquerdo): dar vida à nave ---- */
+    { id:"bateria",  rot:"BATTERY",  ic:"▣", g:"sis", pag:0, tipo:"chave", passo:"bateria" },
+    { id:"energia",  rot:"POWER",    ic:"⚡", g:"sis", pag:0, tipo:"chave", passo:"energia" },
+    { id:"computadores", rot:"COMPUTER", ic:"▤", g:"sis", pag:0, tipo:"chave", passo:"computadores" },
+    { id:"combustivel", rot:"FUEL",  ic:"◧", g:"sis", pag:0, tipo:"chave", passo:"combustivel" },
+    { id:"bombas",   rot:"FUEL PUMP",ic:"◍", g:"sis", pag:0, tipo:"chave", passo:"bombas" },
+    { id:"motores",  rot:"ENGINE",   ic:"◈", g:"sis", pag:0, tipo:"chave", passo:"motores" },
+    { id:"estabilizadores", rot:"STABILIZER", ic:"⊞", g:"sis", pag:0, tipo:"chave", passo:"estabilizadores" },
+    { id:"navegacao",rot:"NAV",      ic:"✦", g:"sis", pag:0, tipo:"chave", passo:"navegacao" },
+    { id:"comunicacao", rot:"COMMS", ic:"◇", g:"sis", pag:0, tipo:"chave", passo:"comunicacao" },
+    { id:"controles",rot:"CONTROLS", ic:"◉", g:"sis", pag:0, tipo:"chave", passo:"controles" },
 
-    /* ---- painel central: voar ---- */
-    { id:"radar",    rot:"RADAR",     g:"cen", tipo:"chave", precisa:"computadores" },
-    { id:"scanner",  rot:"SCANNER",   g:"cen", tipo:"chave", precisa:"computadores" },
-    { id:"sensores", rot:"SENSORS",   g:"cen", tipo:"chave", precisa:"computadores" },
-    { id:"escudo",   rot:"SHIELD",    g:"cen", tipo:"chave", precisa:"energia" },
-    { id:"escudoMais", rot:"SHIELD+", g:"cen", tipo:"botao", precisa:"escudo",
+    /* ---- VOO (centro inferior): o painel mais usado, botões maiores ---- */
+    { id:"radar",    rot:"RADAR",    ic:"◉", g:"voo", pag:0, tipo:"chave", precisa:"computadores" },
+    { id:"scanner",  rot:"SCANNER",  ic:"⌁", g:"voo", pag:0, tipo:"chave", precisa:"computadores" },
+    { id:"sensores", rot:"SENSORS",  ic:"⋈", g:"voo", pag:0, tipo:"chave", precisa:"computadores" },
+    { id:"escudo",   rot:"SHIELD",   ic:"⬡", g:"voo", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"mapa",     rot:"STAR MAP", ic:"✧", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
+      faz:() => abrirMapa() },
+    { id:"hiper",    rot:"HYPERDRIVE", ic:"⟫", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
+      faz:() => comecarSalto() },
+    { id:"alvo",     rot:"TARGET",   ic:"⊕", g:"voo", pag:0, tipo:"botao", precisa:"sensores",
+      faz:() => { travarAlvo(); } },
+    { id:"escanear", rot:"SCAN",     ic:"◎", g:"voo", pag:0, tipo:"botao", precisa:"scanner",
+      faz:() => escanearAlvo() },
+    { id:"freio",    rot:"BRAKE",    ic:"⊟", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => { N.potencia = 0; avisar("Freando.", "aviso"); } },
+    { id:"re",       rot:"REVERSE",  ic:"◀", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => { N.potencia = -0.35; avisar("Retro-propulsão.", "aviso"); } },
+    { id:"turbo",    rot:"BOOST",    ic:"▶", g:"voo", pag:0, tipo:"botao", precisa:"motores",
+      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4; avisar("Turbo!", "ok"); } } },
+    { id:"atracar",  rot:"DOCK",     ic:"⊡", g:"voo", pag:0, tipo:"botao", precisa:"navegacao",
+      faz:() => atracar() },
+    { id:"pousar",   rot:"LAND",     ic:"⇩", g:"voo", pag:0, tipo:"botao", grande:true, precisa:"navegacao",
+      faz:() => pousar() },
+
+    /* VOO · auxiliar: o que se usa de vez em quando não precisa roubar
+       espaço do que se usa sempre */
+    { id:"decolar",  rot:"TAKE OFF", ic:"⇧", g:"voo", pag:1, tipo:"botao", grande:true,
+      faz:() => decolar() },
+    { id:"escudoMais", rot:"SHIELD+", ic:"⬢", g:"voo", pag:1, tipo:"botao", precisa:"escudo",
       faz:() => { N.escudo = Math.min(100, N.escudo + 25); N.energia -= 14;
                   avisar("Escudo reforçado.", "ok"); } },
-    { id:"mapa",     rot:"STAR MAP",  g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => abrirMapa() },
-    { id:"hiper",    rot:"HYPERDRIVE",g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => comecarSalto() },
-    { id:"carga",    rot:"WARP CHARGE", g:"cen", tipo:"chave", precisa:"navegacao" },
-    { id:"alvo",     rot:"TARGET",    g:"cen", tipo:"botao", precisa:"sensores",
-      faz:() => { travarAlvo(); } },
-    { id:"escanear", rot:"SCAN",      g:"cen", tipo:"botao", precisa:"scanner",
-      faz:() => escanearAlvo() },
-    { id:"piloto",   rot:"AUTOPILOT", g:"cen", tipo:"chave", precisa:"navegacao" },
-    { id:"freio",    rot:"BRAKE",     g:"cen", tipo:"botao", precisa:"motores",
-      faz:() => { N.potencia = 0; avisar("Freando.", "aviso"); } },
-    { id:"re",       rot:"REVERSE",   g:"cen", tipo:"botao", precisa:"motores",
-      faz:() => { N.potencia = -0.35; avisar("Retro-propulsão.", "aviso"); } },
-    { id:"turbo",    rot:"BOOST",     g:"cen", tipo:"botao", precisa:"motores",
-      faz:() => { if (gastar(6)) { N.potencia = 1; N.turbo = N.tempo + 4;
-                  avisar("Turbo!", "ok"); } } },
-    { id:"atracar",  rot:"DOCK",      g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => atracar() },
-    { id:"pousar",   rot:"LAND",      g:"cen", tipo:"botao", precisa:"navegacao",
-      faz:() => pousar() },
-    { id:"decolar",  rot:"TAKE OFF",  g:"cen", tipo:"botao",
-      faz:() => decolar() },
+    { id:"carga",    rot:"WARP CHARGE", ic:"◑", g:"voo", pag:1, tipo:"chave", precisa:"navegacao" },
+    { id:"piloto",   rot:"AUTOPILOT", ic:"⊛", g:"voo", pag:1, tipo:"chave", precisa:"navegacao" },
 
-    /* ---- painel direito: manter a nave viva ---- */
-    { id:"luz",      rot:"CABIN LIGHT", g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"luzEmerg", rot:"EMERG LIGHT", g:"dir", tipo:"chave", precisa:"bateria" },
-    { id:"oxigenio", rot:"OXYGEN",    g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"suporte",  rot:"LIFE SUPP", g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"temperatura", rot:"TEMP",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"gravidade",rot:"GRAVITY",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"diagnostico", rot:"DIAGNOSTIC", g:"dir", tipo:"botao", precisa:"computadores",
+    /* ---- NAVE (canto inferior direito) · GERAL ---- */
+    { id:"luz",      rot:"CABIN LIGHT", ic:"☀", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"oxigenio", rot:"OXYGEN",   ic:"◌", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"suporte",  rot:"LIFE SUPP",ic:"♥", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"temperatura", rot:"TEMP",  ic:"◭", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"gravidade",rot:"GRAVITY",  ic:"⊝", g:"nave", pag:0, tipo:"chave", precisa:"energia" },
+    { id:"diagnostico", rot:"DIAGNOSTIC", ic:"⌸", g:"nave", pag:0, tipo:"botao", precisa:"computadores",
       faz:() => diagnosticar() },
-    { id:"reparo",   rot:"REPAIR",    g:"dir", tipo:"botao", precisa:"computadores",
+    { id:"reparo",   rot:"REPAIR",   ic:"⚒", g:"nave", pag:0, tipo:"botao", precisa:"computadores",
       faz:() => reparar() },
-    { id:"emergencia", rot:"EMERGENCY", g:"dir", tipo:"botao", precisa:"bateria",
+    { id:"emergencia", rot:"EMERGENCY", ic:"✚", g:"nave", pag:0, tipo:"botao", precisa:"bateria",
       faz:() => { N.escudo = Math.min(100, N.escudo + 40); N.oxigenio = 100;
                   avisar("Sistema de emergência: escudo e oxigênio restaurados.", "ok"); } },
-    { id:"farol",    rot:"BEACON",    g:"dir", tipo:"chave", precisa:"comunicacao" },
-    { id:"transmitir", rot:"TRANSMIT",g:"dir", tipo:"botao", precisa:"comunicacao",
+
+    /* NAVE · AVANÇADO */
+    { id:"luzEmerg", rot:"EMERG LIGHT", ic:"⚠", g:"nave", pag:1, tipo:"chave", precisa:"bateria" },
+    { id:"farol",    rot:"BEACON",   ic:"◈", g:"nave", pag:1, tipo:"chave", precisa:"comunicacao" },
+    { id:"transmitir", rot:"TRANSMIT", ic:"◇", g:"nave", pag:1, tipo:"botao", precisa:"comunicacao",
       faz:() => transmitir() },
-    { id:"porta",    rot:"DOOR",      g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"cargaPorao", rot:"CARGO",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"furtivo",  rot:"STEALTH",   g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"combate",  rot:"COMBAT",    g:"dir", tipo:"chave", precisa:"energia" },
-    { id:"camera",   rot:"CAMERA",    g:"dir", tipo:"botao",
-      faz:() => { N.camera = (N.camera + 1) % 4;
-                  avisar("Câmera: " + ["cabine","externa frontal","externa traseira","lateral"][N.camera], "aviso"); } },
-    { id:"cameraExt",rot:"EXT CAM",   g:"dir", tipo:"botao",
-      faz:() => { N.camera = N.camera === 0 ? 1 : 0; } },
-    { id:"estado",   rot:"SHIP STATUS", g:"dir", tipo:"botao", precisa:"computadores",
+    { id:"porta",    rot:"DOOR",     ic:"⊓", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"cargaPorao", rot:"CARGO",  ic:"▥", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"furtivo",  rot:"STEALTH",  ic:"◐", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"combate",  rot:"COMBAT",   ic:"⚔", g:"nave", pag:1, tipo:"chave", precisa:"energia" },
+    { id:"estado",   rot:"SHIP STATUS", ic:"▦", g:"nave", pag:1, tipo:"botao", precisa:"computadores",
       faz:() => estadoDaNave() },
-    { id:"varreduraGrav", rot:"GRAV SCAN", g:"dir", tipo:"botao", precisa:"sensores",
+    { id:"modoComb", rot:"FUEL MODE",ic:"∞", g:"nave", pag:1, tipo:"botao",
+      faz:() => { N.combustivelInfinito = !N.combustivelInfinito;
+                  avisar("Combustível: " + (N.combustivelInfinito ? "INFINITO" : "NORMAL"), "ok"); } },
+    { id:"varreduraGrav", rot:"GRAV SCAN", ic:"⊙", g:"nave", pag:1, tipo:"botao", precisa:"sensores",
       faz:() => { const p = planetaMaisPerto();
                   avisar(p ? ("Gravidade em " + p.nome + ": " + p.gravidade + " g")
                            : "Nada com massa por perto.", "aviso"); } },
-    { id:"varreduraPlan", rot:"PLANET SCAN", g:"dir", tipo:"botao", precisa:"scanner",
+    { id:"varreduraPlan", rot:"PLANET SCAN", ic:"◍", g:"nave", pag:1, tipo:"botao", precisa:"scanner",
       faz:() => { const p = planetaMaisPerto(); if (p) { N.alvo = p; escanearAlvo(); }
                   else avisar("Nenhum planeta ao alcance.", "erro"); } },
-    { id:"autoPouso",rot:"AUTO LAND", g:"dir", tipo:"botao", precisa:"navegacao",
+    { id:"autoPouso",rot:"AUTO LAND",ic:"⇓", g:"nave", pag:1, tipo:"botao", precisa:"navegacao",
       faz:() => { const p = planetaMaisPerto(); if (p) { N.alvo = p; pousar(); } } },
-    { id:"modoComb", rot:"FUEL MODE", g:"dir", tipo:"botao",
-      faz:() => { N.combustivelInfinito = !N.combustivelInfinito;
-                  avisar("Combustível: " + (N.combustivelInfinito ? "INFINITO" : "NORMAL"), "ok"); } }
+
+    /* NAVE · CÂMERAS — cada uma tem botão próprio, em vez de um só que
+       cicla: ciclar obriga a apertar quatro vezes para voltar */
+    { id:"camCabine",rot:"COCKPIT",  ic:"⌂", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 0; avisar("Câmera: cabine", "aviso"); } },
+    { id:"camFrente",rot:"FRONT",    ic:"▲", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 1; avisar("Câmera: externa frontal", "aviso"); } },
+    { id:"camTras",  rot:"REAR",     ic:"▼", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 2; avisar("Câmera: externa traseira", "aviso"); } },
+    { id:"camLado",  rot:"SIDE",     ic:"▶", g:"nave", pag:2, tipo:"botao", grande:true,
+      faz:() => { N.camera = 3; avisar("Câmera: lateral", "aviso"); } },
+    { id:"camera",   rot:"NEXT CAM", ic:"🎥", g:"nave", pag:2, tipo:"botao",
+      faz:() => { N.camera = (N.camera + 1) % 4;
+                  avisar("Câmera: " + ["cabine","externa frontal","externa traseira","lateral"][N.camera], "aviso"); } },
+    { id:"cameraExt",rot:"EXT CAM",  ic:"⊙", g:"nave", pag:2, tipo:"botao",
+      faz:() => { N.camera = N.camera === 0 ? 1 : 0; } }
   ];
+
+  /* as abas de cada painel: nome curto, porque aba comprida vira texto
+     cortado justo onde o espaço é apertado */
+  const ABAS = {
+    sis: ["SISTEMAS"],
+    voo: ["PRINCIPAL", "AUXILIAR"],
+    nave: ["GERAL", "AVANÇADO", "CÂMERAS"]
+  };
+  const abaDe = { sis: 0, voo: 0, nave: 0 };
 
   /* gastar combustível num lugar só: assim o modo INFINITO é uma linha,
      e não um "if" espalhado por dez lugares onde um sempre escapa */
@@ -1267,8 +1291,16 @@ function explMontar() {
 
     /* manche e aceleradores: escala IGUAL nos três eixos, senão a escala
        esticada da cabine entortaria a peça girada */
-    const tam = sy2*0.13;
-    let mm = M.mover(-sx2*0.30, -sy2*1.00, -D + 0.21);
+    /* O manche e os aceleradores são postos nos VÃOS entre os painéis do
+       HUD, não atrás deles: controle físico escondido debaixo de menu é
+       a mesma coisa que não existir. Os vãos ficam em ±30% da largura,
+       que é onde os painéis não chegam. */
+    /* Grandes o bastante para aparecerem DE VERDADE nos vãos entre os
+       painéis. Na primeira tentativa eles cabiam no vão mas eram tão
+       pequenos que ninguém via -- controle físico que não se vê é a
+       mesma coisa que não existir. */
+    const tam = sy2*0.30;
+    let mm = M.mover(-sx2*0.30, -sy2*1.06, -D + 0.21);
     mm = M.mul(mm, M.giroX(-manche.y*0.40));
     mm = M.mul(mm, M.giroZ(-manche.x*0.40));
     mm = M.mul(mm, M.escala(tam));
@@ -1278,9 +1310,9 @@ function explMontar() {
 
     /* os dois aceleradores correm para a frente conforme a potência */
     for (const lado of [0, 1]) {
-      let ma = M.mover(sx2*(0.26 + lado*0.09), -sy2*1.02, -D + 0.21);
+      let ma = M.mover(sx2*(0.27 + lado*0.085), -sy2*1.06, -D + 0.21);
       ma = M.mul(ma, M.giroX(-0.55 + N.potencia*0.85));
-      ma = M.mul(ma, M.escala(tam*0.85));
+      ma = M.mul(ma, M.escala(tam*0.72));
       gl.uniformMatrix4fv(uMalha.modelo,false,ma);
       gl.bindVertexArray(ACELERADOR.vao);
       gl.drawElements(gl.TRIANGLES,ACELERADOR.n,gl.UNSIGNED_SHORT,0);
@@ -1311,7 +1343,8 @@ function explMontar() {
 
   return { passo, desenhar, medir, ligar: ligarControles, desligar: desligarControles,
            N, CONTROLES, apertar, ligarPasso, SISTEMAS, sistema, travarAlvo, manche, ALIENS,
-           ligadosCtrl: ligadoCtrl };
+           ligadosCtrl: ligadoCtrl, ABAS, abaDe,
+           trocarAba: (g, i) => { abaDe[g] = i; pintarControles(); } };
 }
 
 /* =====================================================================
@@ -1320,23 +1353,99 @@ function explMontar() {
    3 milímetros desenhado em 3D não acerta nunca. A cabine em 3D atrás é
    que dá a sensação de estar dentro; estes botões é que se usam.
    ===================================================================== */
+/* ---------------------------------------------------------------------
+   OS PAINÉIS SE MEDEM
+   ---------------------------------------------------------------------
+   A regra é: botão grande e espaçado sempre; quem cede é a QUANTIDADE
+   visível, nunca o tamanho. Então aqui a altura disponível decide quantas
+   linhas cabem, e o que sobra vira página, com um passador ‹ 1/2 ›.
+
+   O limite de 42% da altura não é estética: acima disso os painéis comem
+   a janela e o modo deixa de ser uma cabine para virar um controle
+   remoto com um vídeo ao fundo.                                       */
+const EX_PAGINA = {};                       // painel -> página dentro da aba
+
 function explPintarControles() {
   if (!explAPI) return;
-  const grupos = { esq: $("c3-pesq"), cen: $("c3-pcen"), dir: $("c3-pdir") };
-  for (const g in grupos) {
-    const cx = grupos[g];
+  const A = explAPI;
+  const caixas = { sis: $("c3-pesq"), voo: $("c3-pcen"), nave: $("c3-pdir") };
+  const baixo = innerHeight < 460;
+  const alturaBt = baixo ? 34 : 44;
+  /* 36% da altura para os três painéis JUNTOS com as abas e o passador.
+     Acima disso eles comem a janela e o modo deixa de ser uma cabine.
+     O desconto de 58px é o que abas + passador + recheio ocupam. */
+  const sobra = Math.min(innerHeight * 0.36, 230) - 58;
+  const linhas = Math.max(2, Math.floor((sobra + 6) / (alturaBt + 6)));
+
+  for (const g in caixas) {
+    const cx = caixas[g];
     if (!cx) continue;
-    cx.innerHTML = explAPI.CONTROLES.filter(c => c.g === g).map(c => {
-      const ligado = c.passo ? !!explAPI.N.ligado[c.passo] : !!explLigadoCtrl()[c.id];
-      const pode = !c.precisa || !!explAPI.N.ligado[c.precisa] || !!explLigadoCtrl()[c.precisa];
+    const abas = A.ABAS[g], ativa = A.abaDe[g];
+    /* as colunas saem da LARGURA do painel: cada botão precisa de uns
+       66px para o rótulo não cortar. Em tela larga cabem três, em tela
+       estreita duas -- e o botão nunca encolhe para caber mais um. */
+    const largPainel = cx.clientWidth || 180;
+    const colunas = g === "voo" ? 3 : Math.max(2, Math.min(3, Math.floor(largPainel / 66)));
+    const porPag = linhas * colunas;
+
+    const todos = A.CONTROLES.filter(c => c.g === g && (c.pag || 0) === ativa);
+    /* o botão largo ocupa a linha inteira: conta como a linha toda */
+    const paginas = [];
+    let atual = [], peso = 0;
+    for (const c of todos) {
+      const custo = c.grande ? colunas : 1;
+      if (peso + custo > porPag && atual.length) { paginas.push(atual); atual = []; peso = 0; }
+      atual.push(c); peso += custo;
+    }
+    if (atual.length) paginas.push(atual);
+
+    const chave = g + ":" + ativa;
+    let pag = EX_PAGINA[chave] || 0;
+    if (pag >= paginas.length) pag = EX_PAGINA[chave] = 0;
+
+    const filaAbas = abas.length > 1
+      ? '<div class="ex-abas">' + abas.map((nome, k) =>
+          '<button class="ex-aba' + (k === ativa ? " on" : "") + '" data-aba="' + g + ":" + k + '">' +
+          escaparTexto(nome) + "</button>").join("") + "</div>"
+      : '<div class="ex-painel-h">' + escaparTexto(abas[0]) + "</div>";
+
+    const passador = paginas.length > 1
+      ? '<div class="ex-pag"><button class="ex-pag-b" data-pag="' + chave + ":-1" + '">‹</button>' +
+        "<u>" + (pag+1) + "/" + paginas.length + "</u>" +
+        '<button class="ex-pag-b" data-pag="' + chave + ":1" + '">›</button></div>'
+      : "";
+
+    cx.innerHTML = filaAbas + '<div class="ex-bts" style="grid-template-columns:repeat(' +
+      colunas + ',1fr)">' + (paginas[pag] || []).map(c => {
+      const ligado = c.passo ? !!A.N.ligado[c.passo] : !!A.ligadosCtrl[c.id];
+      const pode = !c.precisa || !!A.N.ligado[c.precisa] || !!A.ligadosCtrl[c.precisa];
       return '<button class="ex-bt' + (ligado ? " on" : "") + (pode ? "" : " travado") +
-        (c.tipo === "botao" ? " acao" : "") + '" data-ctrl="' + c.id + '">' +
-        '<i></i><span>' + c.rot + "</span></button>";
-    }).join("");
+        (c.tipo === "botao" ? " acao" : "") + (c.grande ? " grande" : "") +
+        '" style="min-height:' + alturaBt + 'px" data-ctrl="' + c.id + '">' +
+        '<b class="ex-ic">' + c.ic + "</b>" +
+        '<span>' + escaparTexto(c.rot) + "</span>" +
+        '<i class="ex-led"></i></button>';
+    }).join("") + "</div>" + passador;
+
     cx.querySelectorAll("[data-ctrl]").forEach(b =>
-      b.addEventListener("click", () => explAPI.apertar(b.getAttribute("data-ctrl"))));
+      b.addEventListener("click", () => A.apertar(b.getAttribute("data-ctrl"))));
+    cx.querySelectorAll("[data-aba]").forEach(b =>
+      b.addEventListener("click", () => {
+        const [gg, k] = b.getAttribute("data-aba").split(":");
+        EX_PAGINA[gg + ":" + k] = 0;
+        A.trocarAba(gg, parseInt(k, 10));
+      }));
+    cx.querySelectorAll("[data-pag]").forEach(b =>
+      b.addEventListener("click", () => {
+        const partes = b.getAttribute("data-pag").split(":");
+        const ch = partes[0] + ":" + partes[1], passo = parseInt(partes[2], 10);
+        const quantas = paginas.length;
+        EX_PAGINA[ch] = ((EX_PAGINA[ch] || 0) + passo + quantas) % quantas;
+        explPintarControles();
+      }));
   }
 }
+
 function explLigadoCtrl() { return explAPI ? explAPI.ligadosCtrl : {}; }
 
 function explPintarAvisos() {
@@ -1493,7 +1602,7 @@ function explSair() {
 }
 
 addEventListener("resize", () => {
-  if (explLigada && explAPI) explAPI.medir();
+  if (explLigada && explAPI) { explAPI.medir(); explPintarControles(); }
   explOlharOrientacao();
 });
 addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220));

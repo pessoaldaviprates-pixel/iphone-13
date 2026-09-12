@@ -575,6 +575,19 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "7.9", itens: [
+      "EXPLORAÇÃO: a interface foi refeita inteira. Estava apertada — 49 botões minúsculos espremidos numa faixa colada no rodapé, parecendo planilha em vez de cabine",
+      "Os botões ficaram GRANDES, com ícone, rótulo legível e uma luzinha de estado. Nenhum encosta no outro",
+      "Os três painéis agora têm espaço de verdade entre eles e não colam nas bordas. E é justamente nesses vãos que o manche e os aceleradores aparecem — o espaço vazio não é sobra, é onde a cabine se mostra",
+      "ABAS em vez de amontoado: VOO tem PRINCIPAL e AUXILIAR, NAVE tem GERAL, AVANÇADO e CÂMERAS. O que não se usa sempre sai da frente sem sumir do jogo",
+      "Os painéis SE MEDEM: a altura da sua tela decide quantas linhas cabem, e o que não couber vira página com um passador ‹ 1/2 ›. Em tela menor aparecem MENOS botões — nunca botões menores",
+      "As colunas também se medem pela largura, para o rótulo nunca cortar",
+      "A CABINE GANHOU A TELA: os painéis ocupavam 70% da altura, agora ocupam 37%. Dá para ver o vidro, o espaço, os planetas e o console",
+      "O HUD de voo virou uma faixa no topo, separada dos controles físicos: informação de um lado, botão do outro",
+      "Cada câmera tem botão próprio agora (COCKPIT, FRONT, REAR, SIDE) em vez de um só que ciclava",
+      "O acelerador virou um controle com área própria, maior, do lado da mão direita",
+      "Nada de funcionalidade mudou: os 53 controles continuam existindo e todos continuam alcançáveis"
+    ] },
   { v: "7.8", itens: [
       "EXPLORAÇÃO ESPACIAL substitui o modo de luta em 3D. Mesma porta no menu (MINHA NAVE), experiência nova: agora você pilota uma nave e explora o espaço, em vez de atirar em caças",
       "A NAVE COMEÇA DESLIGADA. Você liga em ordem: bateria, energia, computadores, navegação, combustível, bombas, comunicação, motores, estabilizadores e controles. Apertar fora de ordem não pune — a nave explica o que falta antes",
@@ -1047,7 +1060,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "7.8";
+const VERSAO = "7.9";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
