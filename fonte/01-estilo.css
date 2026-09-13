@@ -5264,7 +5264,12 @@
     border:1px solid rgba(120,200,255,.16);overflow:hidden;
   }
   .est-cab{
-    display:flex;align-items:center;gap:9px;flex:none;padding:11px 13px;
+    display:flex;align-items:center;gap:9px;flex:none;
+    /* o espaço à direita é o do ✕, que flutua por cima da estação inteira.
+       Sem ele, o último botão do cabeçalho (o SAIR de um grupo) fica
+       DEBAIXO do ✕ no celular: o dedo mira em sair do grupo e fecha a
+       estação. Foi medido, não chutado. */
+    padding:11px 56px 11px 13px;
     border-bottom:1px solid rgba(120,200,255,.14);background:rgba(8,14,30,.5);
   }
   .est-abrir-lado{
@@ -5427,6 +5432,12 @@
   .est-nao{background:rgba(255,77,143,.12);border-color:rgba(255,77,143,.36);color:var(--magenta)}
   .est-chamar{background:rgba(77,232,255,.12);border-color:rgba(77,232,255,.34);color:var(--cyan)}
 
+  /* NO CELULAR, TODO BOTÃO DA ESTAÇÃO TEM QUE CABER NO DEDO.
+     Os botões do cabeçalho ("quem está", "renomear", "sair"), o + das
+     seções, o ⋯ de cada mensagem e o ✕ das janelinhas nasceram com 20 a
+     26px — tamanho de quem desenha olhando para um monitor com o mouse
+     na mão. No dedo, 24px é errar. O próprio teste do jogo usa 34px como
+     a régua, e aqui é a mesma. */
   /* ---- o botão flutuante ---- */
   .est-flutua{
     position:fixed;z-index:40;display:none;
@@ -5455,4 +5466,21 @@
     .estacao.lado-aberto .est-lado{display:block}
     .est-abrir-lado{display:block}
     .est-fechar{top:calc(12px + var(--safe-top));right:10px}
+
+    /* NA TELA ESTREITA, TODO BOTÃO TEM QUE CABER NO DEDO.
+       Os botões do cabeçalho ("quem está", "renomear", "sair"), o + das
+       seções, o ⋯ de cada mensagem e o ✕ das janelinhas nasceram com 20
+       a 26px — tamanho de quem desenha olhando para um monitor com o
+       mouse na mão. No dedo, 24px é errar. A régua é 34px, a mesma que o
+       resto do jogo usa.
+
+       A conta é pela LARGURA, e não por "tem toque": o hover:none nem
+       sempre é verdade (um Chromium emulando celular continua dizendo
+       que tem mouse), e aí a regra não valia justamente onde precisava. */
+    .est-cab-b{min-height:34px;padding:7px 11px}
+    .est-mais{width:30px;height:30px;font-size:.86rem}
+    .est-msg-b{width:34px;height:34px}
+    .est-jan-x{width:34px;height:34px}
+    .est-emojis button{min-height:34px}
+    .est-sim,.est-nao,.est-chamar{min-height:34px}
   }

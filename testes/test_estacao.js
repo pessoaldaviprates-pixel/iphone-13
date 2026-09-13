@@ -284,6 +284,41 @@ async function piloto(ctx, nome) {
              naLista: document.querySelectorAll('#est-lado [data-dest^="grupo|"]').length };
   }, idTito);
 
+  /* ---- NO CELULAR: a gaveta, e nada debaixo do ✕ ----
+     O ✕ flutua por cima da estação inteira. O cabeçalho de um grupo tem
+     três botões, e o último (SAIR) ficava DEBAIXO dele: o dedo mirava em
+     sair do grupo e fechava a estação. Achado medindo, não olhando. */
+  await a.setViewportSize({ width: 390, height: 844 });
+  await a.waitForTimeout(600);
+  out.celular = await a.evaluate(async () => {
+    const gid = await estGrupoCriar('Grupo com nome bem comprido mesmo', []);
+    if (gid) await estAbrir({ tipo: 'grupo', id: gid, nome: EST.grupos[gid].nome });
+    await new Promise(r => setTimeout(r, 700));
+    const x = document.getElementById('est-fechar').getBoundingClientRect();
+    const colide = [...document.querySelectorAll('.est-cab-acoes .est-cab-b')].filter(e => {
+      const q = e.getBoundingClientRect();
+      return q.right > x.left - 2 && q.top < x.bottom && q.bottom > x.top;
+    }).map(e => e.textContent);
+    const est = document.getElementById('estacao');
+    const fora = [...est.querySelectorAll('button,input')].filter(e => {
+      const q = e.getBoundingClientRect();
+      return q.width > 2 && q.height > 2 &&
+             (q.right > innerWidth + 1 || q.left < -1 || q.bottom > innerHeight + 1);
+    }).length;
+    const pequenos = [...est.querySelectorAll('button')].filter(e => {
+      const q = e.getBoundingClientRect(); return q.height > 2 && q.height < 30;
+    }).length;
+    const lado = document.getElementById('est-lado');
+    const gavetaFechada = getComputedStyle(lado).display === 'none';
+    document.getElementById('est-abrir-lado').click();
+    const gavetaAbre = getComputedStyle(lado).display !== 'none';
+    est.classList.remove('lado-aberto');
+    return { colide, fora, pequenos, gavetaFechada, gavetaAbre,
+             botaoDaGaveta: getComputedStyle(document.getElementById('est-abrir-lado')).display !== 'none' };
+  });
+  await a.setViewportSize({ width: 1280, height: 800 });
+  await a.waitForTimeout(500);
+
   /* ---- 5. ATALHO DE TECLADO, SELO E FECHAR ---- */
   await a.evaluate(() => estacaoFechar());
   await a.waitForTimeout(400);
@@ -412,6 +447,13 @@ async function piloto(ctx, nome) {
   if (out.grupo.depoisDeTirar !== 1) erro('tirar do grupo nao pegou');
   if (!out.grupo.mandou) erro('nao deu para falar no grupo');
   if (!out.grupo.naLista) erro('o grupo nao aparece na barra');
+  const C = out.celular;
+  if (C.colide.length) erro('no celular, ' + C.colide.join(' e ') + ' fica(m) debaixo do X de fechar');
+  if (C.fora) erro('no celular, ' + C.fora + ' botoes/campos fora da tela');
+  if (C.pequenos) erro('no celular, ' + C.pequenos + ' botoes menores que o dedo alcanca');
+  if (!C.gavetaFechada) erro('no celular a barra devia comecar fechada');
+  if (!C.gavetaAbre) erro('no celular a gaveta nao abre');
+  if (!C.botaoDaGaveta) erro('no celular falta o botao que abre a gaveta');
   if (out.fechou.aberta) erro('fechar nao fechou');
   if (!out.fechou.fluxoSolto) erro('fechar NAO soltou o fluxo: a conexao fica presa a toa');
   if (out.fechou.relogio !== true && out.fechou.relogio !== null) erro('fechar nao parou o relogio');

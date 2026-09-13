@@ -16,9 +16,12 @@ const fim=c=>{process.exit(c);};
   await p.waitForTimeout(800);
 
   /* 1) o botão novo existe e leva ao multijogador */
-  /* desde a v7.0 o botao mora dentro da porta COM AMIGOS: o teste entra
-     pelo mesmo caminho que o dedo do jogador faz. */
-  await p.tap('[data-porta="online"]'); await p.waitForTimeout(500);
+  /* Desde a v8.2 ele mora dentro de JOGAR, junto dos outros jeitos de
+     entrar numa partida. Ate a v8.1 ficava numa porta chamada COM
+     AMIGOS, do lado de "conversar com amigos" -- dois assuntos
+     diferentes com o mesmo nome, e por isso ninguem achava. O teste
+     entra pelo mesmo caminho que o dedo do jogador faz. */
+  await p.tap('#btn-play'); await p.waitForTimeout(500);
   out.botao = await p.evaluate(()=>{
     const l = document.querySelector('[data-ir="btn-multi"]');
     return { existe: !!l, texto: l ? l.textContent.replace(/\s+/g,' ').trim() : null,
