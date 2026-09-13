@@ -1835,3 +1835,83 @@ function draw() {
   }
 }
 
+
+/* =====================================================================
+   AS FILAS DE ABAS NO COMPUTADOR
+   ---------------------------------------------------------------------
+   As filas de abas do jogo (as do painel, as das tabelas, os filtros do
+   hangar, as categorias do catálogo…) rolam de lado quando não cabem. No
+   celular isso funciona: o dedo arrasta.
+
+   No computador não funcionava NADA. A barra de rolagem está escondida
+   de propósito (uma barra cinza no meio da interface fica feia), a roda
+   do mouse rola a página em vez da fila, e o teclado passava por cima
+   sem levar a aba escolhida para dentro da vista. Resultado: as abas que
+   não coubessem na largura simplesmente não existiam para quem joga no
+   computador -- sem erro nenhum, sem aviso, só sumidas.
+
+   Três consertos, num lugar só e para TODAS as filas:
+
+   1. A RODA DO MOUSE rola a fila de lado. O ouvinte é delegado no
+      documento: fila que nascer depois (o catálogo se redesenha
+      inteiro) já nasce funcionando, sem ninguém precisar lembrar de
+      registrar a nova.
+   2. AS SETAS DO TECLADO andam de aba em aba, e Home/End vão aos
+      extremos.
+   3. QUEM RECEBE O FOCO entra na vista sozinho -- senão o Tab levava o
+      foco para uma aba invisível fora da tela.
+
+   E o CSS devolve uma barrinha fina onde existe mouse: escondê-la faz
+   sentido no celular, onde ninguém a usaria; no computador ela é a
+   única pista de que tem mais coisa para o lado.                      */
+const FILAS_QUE_ROLAM =
+  ".abas,.adm-abas,.cn-filtros,.hangar-filtros,.areas,.dif-linha," +
+  ".comp-abas,.cat-abas,.msg-rapidas,.sub-abas";
+
+function filaDe(el) {
+  return el && el.closest ? el.closest(FILAS_QUE_ROLAM) : null;
+}
+/* só conta como "rola" quem tem mais conteúdo do que largura: numa fila
+   que cabe inteira, a roda tem que continuar rolando a PÁGINA */
+function filaRola(f) {
+  return !!f && f.scrollWidth > f.clientWidth + 1;
+}
+
+addEventListener("wheel", e => {
+  const f = filaDe(e.target);
+  if (!filaRola(f)) return;
+  /* mouse comum manda deltaY; trackpad de lado manda deltaX. Vale o
+     maior dos dois, senão o gesto diagonal do trackpad briga consigo. */
+  const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  if (!d) return;
+  const antes = f.scrollLeft;
+  f.scrollLeft += d;
+  /* só segura a rolagem da página se a fila REALMENTE andou: chegando na
+     ponta, a roda volta a ser da página, que é o que a pessoa espera */
+  if (f.scrollLeft !== antes) e.preventDefault();
+}, { passive: false });
+
+addEventListener("keydown", e => {
+  if (["ArrowLeft", "ArrowRight", "Home", "End"].indexOf(e.key) < 0) return;
+  const ativo = document.activeElement;
+  const f = filaDe(ativo);
+  if (!f) return;
+  const bts = [].slice.call(f.querySelectorAll("button:not([disabled])"));
+  if (bts.length < 2) return;
+  const i = bts.indexOf(ativo);
+  if (i < 0) return;
+  let alvo = i;
+  if (e.key === "ArrowLeft") alvo = (i - 1 + bts.length) % bts.length;
+  else if (e.key === "ArrowRight") alvo = (i + 1) % bts.length;
+  else if (e.key === "Home") alvo = 0;
+  else alvo = bts.length - 1;
+  bts[alvo].focus();
+  e.preventDefault();
+});
+
+/* o foco nunca pode ficar fora da vista */
+addEventListener("focusin", e => {
+  const f = filaDe(e.target);
+  if (!filaRola(f)) return;
+  try { e.target.scrollIntoView({ inline: "nearest", block: "nearest" }); } catch (er) {}
+});

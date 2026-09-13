@@ -84,6 +84,48 @@
   .cn-filtros::-webkit-scrollbar,.abas::-webkit-scrollbar,
   .adm-abas::-webkit-scrollbar,.hangar-filtros::-webkit-scrollbar,
   .dif-linha::-webkit-scrollbar{display:none}
+  /* ONDE EXISTE MOUSE, A BARRINHA VOLTA.
+     Escondê-la faz sentido no celular: ninguém arrasta uma barra de 4px
+     com o dedo, e ela só sujaria a tela. No computador é o contrário --
+     é a ÚNICA pista de que tem mais aba para o lado, e a única forma de
+     arrastar. Sem ela, a aba que não coubesse simplesmente não existia
+     para quem joga no computador. */
+  @media (hover:hover) and (pointer:fine) {
+    .cn-filtros,.abas,.adm-abas,.hangar-filtros,.areas,.dif-linha,
+    .comp-abas,.cat-abas{
+      scrollbar-width:thin;
+      scrollbar-color:rgba(120,200,255,.35) transparent;
+      padding-bottom:6px;
+    }
+    .cn-filtros::-webkit-scrollbar,.abas::-webkit-scrollbar,
+    .adm-abas::-webkit-scrollbar,.hangar-filtros::-webkit-scrollbar,
+    .dif-linha::-webkit-scrollbar,.comp-abas::-webkit-scrollbar,
+    .cat-abas::-webkit-scrollbar{display:block;height:6px}
+    .cn-filtros::-webkit-scrollbar-thumb,.abas::-webkit-scrollbar-thumb,
+    .adm-abas::-webkit-scrollbar-thumb,.hangar-filtros::-webkit-scrollbar-thumb,
+    .dif-linha::-webkit-scrollbar-thumb,.comp-abas::-webkit-scrollbar-thumb,
+    .cat-abas::-webkit-scrollbar-thumb{
+      background:rgba(120,200,255,.35);border-radius:99px;
+    }
+    .cn-filtros::-webkit-scrollbar-track,.abas::-webkit-scrollbar-track,
+    .adm-abas::-webkit-scrollbar-track,.hangar-filtros::-webkit-scrollbar-track,
+    .dif-linha::-webkit-scrollbar-track,.comp-abas::-webkit-scrollbar-track,
+    .cat-abas::-webkit-scrollbar-track{background:transparent}
+    /* o menu do painel é uma coluna no computador: barra horizontal ali
+       não faz sentido nenhum */
+    @media (min-width:900px){
+      #screen-adm .adm-abas{scrollbar-width:none;padding-bottom:0}
+      #screen-adm .adm-abas::-webkit-scrollbar{display:none}
+    }
+  }
+  /* a aba com foco de teclado tem que SE VER: no computador dá para
+     chegar nela sem tocar no mouse */
+  .abas button:focus-visible,.adm-aba:focus-visible,.cat-aba:focus-visible,
+  .hangar-filtros button:focus-visible,.cn-filtros button:focus-visible,
+  .comp-abas button:focus-visible,.sub-aba:focus-visible,
+  .dif-linha button:focus-visible{
+    outline:2px solid var(--cyan);outline-offset:2px;
+  }
   #game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
   button{font-family:inherit;color:inherit}
   input{
