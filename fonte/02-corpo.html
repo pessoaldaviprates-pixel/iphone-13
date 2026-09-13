@@ -857,7 +857,19 @@
   <div class="menu-btns">
     <button class="big-btn" id="btn-play">▶ JOGAR</button>
 
-    <!-- as quatro portas: é o menu que o jogador vê -->
+    <!-- A BUSCA. Comprimir o menu escondeu as coisas de quem ainda não
+         sabia onde elas ficavam. Escrever "arena" traz a linha da arena
+         aqui, dizendo em que porta ela mora — leva e ensina o caminho. -->
+    <div class="menu-busca-cx">
+      <b>🔎</b>
+      <input id="menu-busca" type="search" autocomplete="off" autocorrect="off"
+             spellcheck="false" placeholder="procurar: fases, amigo, arena, loja…"
+             aria-label="Procurar no menu">
+      <button id="menu-busca-x" style="display:none" aria-label="Limpar a busca">✕</button>
+    </div>
+    <div id="menu-achados" style="display:none"></div>
+
+    <!-- as portas: é o menu que o jogador vê -->
     <div class="portas" id="menu-portas"></div>
 
     <!-- os botões de antes continuam aqui, escondidos. As portas apertam
@@ -870,6 +882,10 @@
       <button class="tile" id="btn-cabine"><b>🛸</b><span>EXPLORAÇÃO</span><i>NOVO</i></button>
       <button class="tile" id="btn-reliquias"><b>◈</b><span>RELÍQUIAS</span><i id="menu-amu-badge"></i></button>
       <button class="tile ouro" id="btn-loja"><b>👑</b><span>LOJA</span><i id="menu-loja-badge"></i></button>
+      <!-- a jornada em si. O botão grande do topo abre a PORTA "JOGAR",
+           que reúne todos os jeitos de jogar; esta é a linha de dentro
+           que entra nas fases. -->
+      <button class="tile" id="btn-jornada"><b>▶</b><span>JORNADA</span><i></i></button>
     </div>
 
     <div class="menu-secao escondida" id="menu-online-h">ONLINE</div>

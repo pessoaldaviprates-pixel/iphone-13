@@ -575,6 +575,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.2", itens: [
+      "O MENU FICOU SINCRONIZADO: tudo tem a mesma cara e mora onde você imagina. Tinha gente que não achava as coisas depois que os botões foram comprimidos",
+      "JOGAR agora reúne TODOS os jeitos de jogar num lugar só: Jornada, Jogar com amigo, Ranqueada, Arena infinita, Maratona de chefes e Sala de treino",
+      "Antes, “jogar com amigo” ficava numa porta chamada COM AMIGOS junto de “conversar com amigos” — duas coisas bem diferentes com o mesmo nome. Agora quem quer jogar aperta JOGAR, e pronto",
+      "A porta AMIGOS ficou só com o que é de amigo mesmo: amigos, esquadrão, ranking e convidar",
+      "E TEM BUSCA. Escreva “arena”, “chefe”, “duelo” ou “loja” lá em cima e a linha aparece na hora — dizendo em que porta ela mora, para da próxima vez você ir direto. Funciona sem acento e sem se importar com maiúscula",
+      "A EXPLORAÇÃO ESPACIAL está guardada por enquanto, para a gente caprichar no menu primeiro. Nada foi apagado: ela volta inteira, com a cabine, o canhão e tudo"
+    ] },
   { v: "8.1", itens: [
       "LIGAR A NAVE virou um toque. Antes eram dez chaves na ordem certa, e cada erro mandava um “antes de MOTORES, ligue BOMBAS”. Agora a nave já entra ligada, e o botão PARTIDA liga ou desliga tudo de uma vez",
       "Apertar uma chave solta acende sozinho o que ela precisa. A ordem é problema da nave, não seu — as dez chaves continuam ali para quem gosta do ritual",
@@ -1079,7 +1087,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.1";
+const VERSAO = "8.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

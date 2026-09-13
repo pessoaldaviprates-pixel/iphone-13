@@ -21,6 +21,8 @@ const { chromium } = require('playwright');
 
   // 1) tela de fases: 120 botões, só a fase 1 liberada
   await page.tap('#btn-play');
+  await page.waitForTimeout(400);
+  await page.evaluate(() => document.querySelector('[data-ir="btn-jornada"]').click());
   await page.waitForTimeout(500);
   out.faseButtons = await page.evaluate(() => document.querySelectorAll('.fase-btn').length);
   out.unlocked = await page.evaluate(() => document.querySelectorAll('.fase-btn.next').length);
@@ -46,6 +48,8 @@ const { chromium } = require('playwright');
   await page.tap('#btn-vic-menu');
   await page.waitForTimeout(300);
   await page.tap('#btn-play');
+  await page.waitForTimeout(400);
+  await page.evaluate(() => document.querySelector('[data-ir="btn-jornada"]').click());
   await page.waitForTimeout(400);
   out.fase2Unlocked = await page.evaluate(() => {
     const next = document.querySelector('.fase-btn.next');

@@ -14,7 +14,7 @@
 cd "$(dirname "$0")" || exit 1
 
 PRINCIPAIS="check test_v60 test_v61 test_v62 test_v63 test_v64 test_v65 \
-test_v66 test_v67 test_v68 test_v69 test_v70 test_v71 test_v72 test_chefes test_menu2 test_versao test_app test_web test_menu3 test_vip test_exploracao test_idioma test_pix test_menu test_geral test_loja \
+test_v66 test_v67 test_v68 test_v69 test_v70 test_v71 test_v72 test_chefes test_menu2 test_versao test_app test_web test_menu3 test_menu4 test_vip test_exploracao test_idioma test_pix test_menu test_geral test_loja \
 test_hab test_adm test_compra"
 
 TODOS="check $(ls test_*.js 2>/dev/null | sed 's/\.js$//' | tr '\n' ' ')"

@@ -735,7 +735,50 @@ async function reembolsosRender() {
    nada; quem não sabia agora tem só quatro escolhas de cada vez.
    ===================================================================== */
 
+/* =====================================================================
+   v8.2 — O MENU SINCRONIZADO
+   ---------------------------------------------------------------------
+   A v7.0 comprimiu 19 botões em quatro portas. Resolveu o amontoado e
+   criou outro problema: o jogador disse que tem gente que NÃO ACHA as
+   coisas. Comprimir esconde; esconder sem uma forma de procurar é só
+   trocar um problema por outro.
+
+   Duas mudanças, e a ideia por trás das duas é a mesma — tudo com a
+   mesma cara e no lugar que a pessoa já imagina:
+
+   1. JOGAR virou uma porta como as outras, e dentro dela está TUDO o
+      que é entrar numa partida: jornada, com amigo, ranqueada, arena,
+      maratona e treino. Antes "jogar com amigo" morava numa porta
+      chamada COM AMIGOS junto de "conversar com amigos" -- duas coisas
+      diferentes com o mesmo nome. Quem quer jogar aperta JOGAR.
+   2. Um campo de BUSCA no topo: escreveu "arena", a linha da arena
+      aparece ali mesmo, já dizendo em que porta ela mora. Ninguém mais
+      precisa adivinhar atrás de qual porta está o que procura.
+
+   As portas continuam apertando os MESMOS botões antigos, escondidos no
+   HTML. Nada foi reescrito; o que mudou foi onde cada coisa aparece.
+   ===================================================================== */
+
 const PORTAS = [
+  /* JOGAR é a porta herói: ela tem o botão grande e brilhante do topo,
+     então não se repete na fileira das outras. Mas é uma porta igual às
+     demais por dentro -- é isso que faz o menu inteiro ter uma cara só. */
+  {
+    id: "jogar", nome: "JOGAR", icone: "▶", cor: "cyan", heroi: true,
+    nota: () => {
+      try { return "fase " + (save.best || 0) + " de " + TOTAL_FASES + " · sozinho, em dupla ou na arena"; }
+      catch (e) { return "sozinho, em dupla ou na arena"; }
+    },
+    pip: () => 0,
+    itens: [
+      { botao: "btn-jornada",  icone: "▶", nome: "Jornada",      nota: "as 270 fases, no seu tempo" },
+      { botao: "btn-multi",    icone: "🤝", nome: "Jogar com amigo", nota: "jornada em dupla, duelo, sala" },
+      { botao: "btn-ranked",   icone: "⚔", nome: "Ranqueada",    nota: "o jogo acha alguém do seu nível" },
+      { botao: "btn-arena",    icone: "∞", nome: "Arena infinita", nota: "uma arena para todo mundo" },
+      { botao: "btn-bossrush", icone: "☠", nome: "Maratona de chefes", nota: "5 chefes seguidos" },
+      { botao: "btn-treino",   icone: "🎯", nome: "Sala de treino", nota: "alvos parados, nada machuca", ondeEsta: "hangar" }
+    ]
+  },
   {
     id: "nave", nome: "MINHA NAVE", icone: "▲", cor: "cyan",
     nota: () => {
@@ -753,31 +796,29 @@ const PORTAS = [
       { botao: "btn-tree",      icone: "✦", nome: "Habilidades",  nota: "a árvore de pontos" },
       { botao: "btn-reliquias", icone: "◈", nome: "Relíquias",    nota: "amuletos e baús" },
       { botao: "btn-comparar",  icone: "📊", nome: "Comparar naves", nota: "as 120 lado a lado", ondeEsta: "hangar" },
-      { botao: "btn-treino",    icone: "🎯", nome: "Sala de treino", nota: "alvos parados, nada machuca", ondeEsta: "hangar" },
+      /* guardada: o botão está com display:none enquanto a chave
+         EXPLORACAO_LIGADA estiver desligada, e a porta pula o que está
+         escondido. A linha volta sozinha quando o modo voltar. */
       { botao: "btn-cabine",    icone: "🛸", nome: "Exploração espacial", nota: "pilotar a nave por dentro, em 3D" }
     ]
   },
   {
-    id: "online", nome: "COM AMIGOS", icone: "🤝", cor: "verde",
+    id: "online", nome: "AMIGOS", icone: "👥", cor: "verde",
     nota: () => {
       try {
         const n = Object.keys((typeof AM !== "undefined" && AM.lista) || {}).length;
-        return n ? n + (n === 1 ? " amigo" : " amigos") + " · dupla, duelo e arena"
-                 : "jogar junto, duelo e ranqueada";
-      } catch (e) { return "jogar junto, duelo e ranqueada"; }
+        return n ? n + (n === 1 ? " amigo" : " amigos") + " · esquadrão e ranking"
+                 : "adicionar, conversar, esquadrão";
+      } catch (e) { return "adicionar, conversar, esquadrão"; }
     },
     pip: () => {
       try { return Object.keys((AM && AM.pedidos) || {}).length; } catch (e) { return 0; }
     },
     itens: [
-      { botao: "btn-multi",    icone: "🤝", nome: "Jogar com amigo", nota: "jornada em dupla, duelo, sala" },
-      { botao: "btn-ranked",   icone: "⚔", nome: "Ranqueada",       nota: "o jogo acha alguém do seu nível" },
-      { botao: "btn-arena",    icone: "∞", nome: "Arena infinita",  nota: "uma arena para todo mundo" },
-      { botao: "btn-bossrush", icone: "☠", nome: "Maratona de chefes", nota: "5 chefes seguidos" },
-      { botao: "btn-amigos",   icone: "👥", nome: "Amigos",          nota: "conversar e adicionar" },
-      { botao: "btn-cla",      icone: "✦", nome: "Esquadrão",       nota: "o seu time, com ranking somado" },
-      { botao: "btn-convite",  icone: "🎟", nome: "Convidar",        nota: "cristais para os dois" },
-      { botao: "btn-rank",     icone: "🏆", nome: "Ranking",         nota: "quem está na frente" }
+      { botao: "btn-amigos",   icone: "👥", nome: "Amigos",     nota: "conversar e adicionar" },
+      { botao: "btn-cla",      icone: "✦", nome: "Esquadrão",  nota: "o seu time, com ranking somado" },
+      { botao: "btn-rank",     icone: "🏆", nome: "Ranking",    nota: "quem está na frente" },
+      { botao: "btn-convite",  icone: "🎟", nome: "Convidar",   nota: "cristais para os dois" }
     ]
   },
   {
@@ -815,7 +856,8 @@ let portaAberta = null;
 function portaRender() {
   const cx = $("menu-portas");
   if (!cx) return;
-  cx.innerHTML = PORTAS.filter(p => p.id !== "loja" || lojaDeDinheiroLigada()).map(p => {
+  cx.innerHTML = PORTAS.filter(p => !p.heroi)
+    .filter(p => p.id !== "loja" || lojaDeDinheiroLigada()).map(p => {
     let nota = "", pip = 0;
     try { nota = p.nota(); } catch (e) {}
     try { pip = p.pip ? p.pip() : 0; } catch (e) {}
@@ -828,6 +870,13 @@ function portaRender() {
   }).join("");
   cx.querySelectorAll("[data-porta]").forEach(b =>
     b.addEventListener("click", () => portaAbrir(b.getAttribute("data-porta"))));
+
+  /* Voltando ao menu, a busca começa limpa. Achar um menu SEM as portas
+     porque sobrou um texto de dois minutos atrás parece jogo quebrado --
+     e quem procura de novo digita de novo, que custa três letras. */
+  const campo = $("menu-busca");
+  if (campo && campo.value) campo.value = "";
+  buscaRender();
 }
 
 function portaAbrir(id) {
@@ -846,6 +895,42 @@ function portaAbrir(id) {
   portaCorpoRender();
 }
 
+/* Um lugar só decide se uma linha aparece. A porta e a busca chamam
+   ESTA função -- se fossem duas regras parecidas, um dia a busca acharia
+   algo que a porta esconde, e o jogador cairia numa tela travada. */
+function portaItemVisivel(it) {
+  const b = $(it.botao);
+  if (!b) return false;
+  /* respeita quem o jogo já escondia (atalho travado, sem permissão,
+     modo guardado) */
+  const estilo = b.getAttribute("style") || "";
+  if (estilo.indexOf("display: none") >= 0 || estilo.indexOf("display:none") >= 0) return false;
+  return true;
+}
+
+/* o desenho de UMA linha, igual na porta e na busca: mesmo ícone, mesmo
+   tamanho, mesma seta. É isso que faz o menu inteiro parecer uma coisa
+   só em vez de três telas parecidas. */
+function portaLinhaHTML(it, ondeMora) {
+  const b = $(it.botao);
+  /* o selo que o jogo já escreve no botão antigo continua valendo */
+  let selo = "";
+  try {
+    const i = b.querySelector("i");
+    const t = i && i.textContent ? i.textContent.trim() : "";
+    /* selo e aviso curto: um numero, um recorde, um "NOVO". Alguns botoes
+       antigos usam o mesmo <i> para escrever um subtitulo inteiro, e isso
+       nao cabe na linha nem faz falta: a linha ja tem a frase dela. */
+    if (t && t.length <= 14) selo = t;
+  } catch (e) {}
+  return '<button class="porta-linha" data-ir="' + it.botao + '">' +
+    '<b class="porta-ic pequeno">' + it.icone + "</b>" +
+    '<span class="porta-txt"><strong>' + escaparTexto(it.nome) + "</strong>" +
+    "<em>" + escaparTexto(it.nota) + (ondeMora ? " · em " + escaparTexto(ondeMora) : "") + "</em></span>" +
+    (selo ? '<i class="porta-selo">' + escaparTexto(selo) + "</i>" : "") +
+    '<span class="porta-seta">›</span></button>';
+}
+
 function portaCorpoRender() {
   const p = portaAberta;
   if (!p) return;
@@ -853,34 +938,9 @@ function portaCorpoRender() {
   if (tit) tit.textContent = p.nome;
   const cx = $("porta-corpo");
   if (!cx) return;
-  const visivel = it => {
-    const b = $(it.botao);
-    if (!b) return false;
-    /* respeita quem o jogo já escondia (atalho travado, sem permissão) */
-    const estilo = b.getAttribute("style") || "";
-    if (estilo.indexOf("display: none") >= 0 || estilo.indexOf("display:none") >= 0) return false;
-    return true;
-  };
+  const visivel = portaItemVisivel;
   const itens = p.itens.filter(visivel);
-  cx.innerHTML = itens.map(it => {
-    const b = $(it.botao);
-    /* o selo que o jogo já escreve no botão antigo continua valendo */
-    let selo = "";
-    try {
-      const i = b.querySelector("i");
-      const t = i && i.textContent ? i.textContent.trim() : "";
-      /* selo e aviso curto: um numero, um recorde, um "NOVO". Alguns botoes
-         antigos usam o mesmo <i> para escrever um subtitulo inteiro, e isso
-         nao cabe na linha nem faz falta: a linha ja tem a frase dela. */
-      if (t && t.length <= 14) selo = t;
-    } catch (e) {}
-    return '<button class="porta-linha" data-ir="' + it.botao + '">' +
-      '<b class="porta-ic pequeno">' + it.icone + "</b>" +
-      '<span class="porta-txt"><strong>' + escaparTexto(it.nome) + "</strong>" +
-      "<em>" + escaparTexto(it.nota) + "</em></span>" +
-      (selo ? '<i class="porta-selo">' + escaparTexto(selo) + "</i>" : "") +
-      '<span class="porta-seta">›</span></button>';
-  }).join("") +
+  cx.innerHTML = itens.map(it => portaLinhaHTML(it)).join("") +
   (p.id === "nave" ? '<p class="adm-note" style="margin-top:12px">Tudo o que mexe na sua nave ' +
     "está aqui dentro — era isso que enchia o menu de botão.</p>" : "");
   cx.querySelectorAll("[data-ir]").forEach(b =>
@@ -889,6 +949,82 @@ function portaCorpoRender() {
       if (alvo) alvo.click();
     }));
 }
+
+/* =====================================================================
+   A BUSCA DO MENU
+   ---------------------------------------------------------------------
+   O problema que ela resolve: comprimir 19 botões em portas arrumou a
+   tela e escondeu as coisas. Quem já sabia onde ficava tudo não sentiu;
+   quem não sabia passou a caçar porta por porta.
+
+   Escrever "arena" mostra a linha da arena ali mesmo, dizendo em que
+   porta ela mora -- então além de levar, ela ENSINA o caminho, e da
+   segunda vez a pessoa vai direto.
+
+   Procura sem acento e sem maiúscula, no nome E na frase: quem escreve
+   "chefe" acha a Maratona de chefes, e quem escreve "duelo" acha o
+   Jogar com amigo, que é onde o duelo mora.                           */
+function semAcento(t) {
+  try { return (t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+  catch (e) { return (t || "").toLowerCase(); }
+}
+
+/* todas as linhas de todas as portas, com o nome da porta junto */
+function buscaTudo() {
+  const fora = [];
+  for (const p of PORTAS) {
+    if (p.id === "loja" && !lojaDeDinheiroLigada()) continue;
+    if (p.direto) {
+      fora.push({ it: { botao: p.direto, icone: p.icone, nome: p.nome, nota: "" }, porta: p.nome });
+      continue;
+    }
+    for (const it of p.itens || []) fora.push({ it, porta: p.nome });
+  }
+  return fora;
+}
+
+function buscaRender() {
+  const campo = $("menu-busca"), saida = $("menu-achados"), portas = $("menu-portas");
+  if (!campo || !saida || !portas) return;
+  const q = semAcento(campo.value).trim();
+  const limpar = $("menu-busca-x");
+  if (limpar) limpar.style.display = q ? "block" : "none";
+
+  if (!q) {                       // campo vazio: o menu é o menu de sempre
+    saida.style.display = "none";
+    saida.innerHTML = "";
+    portas.style.display = "";
+    return;
+  }
+  const achados = buscaTudo().filter(x =>
+    portaItemVisivel(x.it) &&
+    (semAcento(x.it.nome).indexOf(q) >= 0 || semAcento(x.it.nota).indexOf(q) >= 0 ||
+     semAcento(x.porta).indexOf(q) >= 0));
+
+  portas.style.display = "none";
+  saida.style.display = "block";
+  saida.innerHTML = achados.length
+    ? achados.map(x => portaLinhaHTML(x.it, x.porta)).join("")
+    : '<p class="adm-note">Não achei nada com “' + escaparTexto(campo.value) +
+      "”. Tente o nome do modo: fases, amigo, arena, chefe, loja…</p>";
+  saida.querySelectorAll("[data-ir]").forEach(b =>
+    b.addEventListener("click", () => {
+      const alvo = $(b.getAttribute("data-ir"));
+      if (alvo) alvo.click();
+    }));
+}
+
+(function ligarBusca() {
+  const campo = $("menu-busca");
+  if (campo) campo.addEventListener("input", buscaRender);
+  const x = $("menu-busca-x");
+  if (x) x.addEventListener("click", () => {
+    const c = $("menu-busca");
+    if (c) { c.value = ""; c.blur(); }
+    buscaRender();
+    try { menuCaber(); } catch (e) {}
+  });
+})();
 
 /* o "hoje" junta o que era três cartões soltos no menu */
 function hojeRender() {

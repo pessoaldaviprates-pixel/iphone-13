@@ -107,7 +107,11 @@ const JOGO = 'file://' + WWW;
   }
   await p.evaluate(() => goMenu());
   await p.waitForTimeout(300);
+  /* JOGAR abre a porta com os jeitos de jogar; a JORNADA é a primeira
+     linha de lá. Antes o botao ia direto para as fases. */
   await p.tap('#btn-play');
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-ir="btn-jornada"]').click());
   await p.waitForTimeout(1200);
   out.jogar = await p.evaluate(() => S.mode);
   await p.screenshot({ path: 'app-menu.png' });

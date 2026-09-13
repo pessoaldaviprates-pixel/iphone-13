@@ -30,6 +30,80 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   await p.evaluate(() => idiomaUsar('pt'));
 
   out.antes = await p.evaluate(() => ({ montada: EXPL_PRONTA, ligada: explLigada }));
+  out.chave = await p.evaluate(() => (typeof EXPLORACAO_LIGADA !== 'undefined') && EXPLORACAO_LIGADA);
+
+  /* =====================================================================
+     MODO GUARDADO
+     O jogador pediu para guardar a exploração enquanto arrumamos o menu.
+     Guardar não é apagar: o código continua no jogo, e este teste
+     continua aqui inteiro. Com a chave desligada ele cobra o que
+     "guardado" tem que significar -- a linha não aparece, o 3D nunca é
+     montado, e o resto do jogo segue intacto. Ligando a chave, o teste
+     volta a cobrar o modo inteiro, sem ninguém precisar reescrevê-lo.
+     ===================================================================== */
+  if (!out.chave) {
+    await p.evaluate(() => { portaAbrir('nave'); });
+    await p.waitForTimeout(400);
+    out.guardada = await p.evaluate(() => ({
+      linhaNoMenu: document.querySelectorAll('[data-ir="btn-cabine"]').length,
+      botaoEscondido: getComputedStyle(document.getElementById('btn-cabine')).display === 'none',
+      montada: EXPL_PRONTA, ligada: explLigada
+    }));
+    /* a busca não pode achar o que a porta esconde: achar e cair numa
+       tela que não existe é pior que não achar */
+    out.buscaGuardada = await p.evaluate(() => {
+      goMenu();
+      const c = document.getElementById('menu-busca');
+      c.value = 'explor'; c.dispatchEvent(new Event('input'));
+      const n = document.querySelectorAll('#menu-achados [data-ir="btn-cabine"]').length;
+      c.value = ''; c.dispatchEvent(new Event('input'));
+      return n;
+    });
+
+    /* e o jogo continua inteiro */
+    out.jogoInteiro = {};
+    for (const [nome, porta, texto] of [
+      ['hangar','nave','Hangar'], ['habilidades','nave','Habilidades'],
+      ['mapa','progresso','Mapa'], ['amigos','online','Amigos']
+    ]) {
+      await p.evaluate(x => { goMenu(); portaAbrir(x); }, porta);
+      await p.waitForTimeout(350);
+      await p.evaluate(t => {
+        const l = [...document.querySelectorAll('.porta-linha')].filter(e => e.textContent.indexOf(t) >= 0)[0];
+        if (l) l.click();
+      }, texto);
+      await p.waitForTimeout(500);
+      out.jogoInteiro[nome] = await p.evaluate(() => S.mode);
+    }
+    await p.evaluate(() => goMenu());
+    await p.waitForTimeout(300);
+    await p.tap('#btn-play');
+    await p.waitForTimeout(500);
+    await p.evaluate(() => document.querySelector('[data-ir="btn-jornada"]').click());
+    await p.waitForTimeout(1200);
+    out.jogo2d = await p.evaluate(() => ({ modo: S.mode, fase: S.fase }));
+    await p.evaluate(() => { startGame(1); });
+    await p.waitForTimeout(1500);
+    out.jogando = await p.evaluate(() => ({ modo: S.mode, vivo: player.alive }));
+
+    await b.close();
+    out.errs = errs;
+    const gerro = m => problemas.push(m);
+    if (out.guardada.linhaNoMenu) gerro('a linha da exploracao ainda aparece no menu');
+    if (!out.guardada.botaoEscondido) gerro('o botao da exploracao nao esta escondido');
+    if (out.guardada.montada) gerro('o 3D foi montado mesmo com o modo guardado');
+    if (out.guardada.ligada) gerro('o modo guardado esta rodando');
+    if (out.buscaGuardada) gerro('a busca acha a exploracao guardada: levaria a uma tela morta');
+    for (const k of ['hangar','habilidades','mapa','amigos'])
+      if (!out.jogoInteiro[k] || out.jogoInteiro[k] === 'menu') gerro('QUEBROU o caminho para ' + k);
+    if (out.jogo2d.modo !== 'levels') gerro('QUEBROU a tela de fases');
+    if (out.jogando.modo !== 'playing') gerro('QUEBROU o jogo 2D');
+    if (errs.length) gerro('erros de pagina: ' + errs.join(' | '));
+    console.log(JSON.stringify(out, null, 1));
+    if (problemas.length) { console.log('FALHOU: ' + problemas.join('; ')); process.exit(1); }
+    console.log('OK: exploracao GUARDADA (codigo intacto, fora do menu) e o resto do jogo inteiro');
+    return;
+  }
 
   /* ---- entra pelo caminho do dedo ---- */
   await p.evaluate(() => { portaAbrir('nave'); });
@@ -457,6 +531,8 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   await p.evaluate(() => goMenu());
   await p.waitForTimeout(300);
   await p.tap('#btn-play');
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-ir="btn-jornada"]').click());
   await p.waitForTimeout(1200);
   out.jogo2d = await p.evaluate(() => ({ modo: S.mode, fase: S.fase }));
   await p.evaluate(() => { startGame(1); });

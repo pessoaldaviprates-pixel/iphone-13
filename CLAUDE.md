@@ -129,6 +129,25 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   e a metade direita é a zona do acelerador — apertar CANHÃO acelerava a nave
   a cada tiro. Quem pega o toque tem que perguntar antes se ele caiu num
   botão.
+- **Comprimir sem uma busca é só esconder melhor.** A v7.0 trocou 19
+  botões por quatro portas. Arrumou a tela e criou outro problema: quem
+  não sabia onde as coisas ficavam passou a caçar porta por porta. A v8.2
+  reagrupou pelo que a pessoa QUER fazer (JOGAR reúne jornada, dupla,
+  ranqueada, arena, maratona e treino — antes "jogar com amigo" morava
+  numa porta chamada COM AMIGOS junto de "conversar com amigos") e pôs uma
+  busca no topo do menu. **Toda vez que esconder alguma coisa, dê também
+  um jeito de procurá-la.**
+- **Uma regra só decide o que aparece.** A porta e a busca chamam a mesma
+  `portaItemVisivel()` e desenham pela mesma `portaLinhaHTML()`. Se fossem
+  duas regras parecidas, um dia a busca acharia o que a porta esconde e o
+  jogador cairia numa tela morta — é exatamente o que `test_menu4.js` e
+  `test_exploracao.js` conferem com o modo guardado.
+- **Guardar não é apagar.** A exploração espacial inteira (motor 3D,
+  cabine, combate) está no jogo, desligada por `EXPLORACAO_LIGADA` em
+  `fonte/08-exploracao.js`. Desligada, o botão fica `display:none`, a porta
+  pula o que está escondido, a busca não acha e o 3D nunca é montado.
+  Religar é trocar `false` por `true` — e `test_exploracao.js` cobra as
+  duas metades: guardado, que some direito; ligado, que funciona inteiro.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

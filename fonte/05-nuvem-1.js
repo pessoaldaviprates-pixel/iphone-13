@@ -125,7 +125,14 @@ try {
 } catch (e) {}
 
 /* ---------- Navegação ---------- */
-$("btn-play").addEventListener("click", () => { AudioSys.resume(); S.mode = "levels"; renderLevels(); showScreen("levels"); });
+/* A JORNADA. Quem entra nas fases é este botão, escondido no HTML: o
+   JOGAR grande do topo abre a porta que reúne TODOS os jeitos de jogar
+   (jornada, com amigo, ranqueada, arena, maratona, treino), e a primeira
+   linha de lá aperta este. Antes "jogar com amigo" morava numa porta
+   chamada COM AMIGOS, junto de "conversar com amigos": duas coisas
+   diferentes com o mesmo nome, e ninguém achava. */
+$("btn-jornada").addEventListener("click", () => { AudioSys.resume(); S.mode = "levels"; renderLevels(); showScreen("levels"); });
+$("btn-play").addEventListener("click", () => { AudioSys.resume(); portaAbrir("jogar"); });
 $("btn-shop").addEventListener("click", () => { AudioSys.resume(); S.mode = "shop"; renderShop(); showScreen("shop"); });
 $("btn-hangar").addEventListener("click", () => { AudioSys.resume(); S.mode = "hangar"; renderHangar(true); showScreen("hangar"); });
 $("btn-reliquias").addEventListener("click", () => { AudioSys.resume(); S.mode = "reliquias"; renderReliquias(); showScreen("reliquias"); });

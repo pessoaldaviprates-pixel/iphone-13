@@ -16,6 +16,21 @@
    ===================================================================== */
 let EXPL_PRONTA = false, explLigada = false, explAPI = null;
 
+/* ---------------------------------------------------------------------
+   A CHAVE DA EXPLORAÇÃO
+   ---------------------------------------------------------------------
+   O jogador pediu para GUARDAR este modo enquanto arrumamos o menu --
+   guardar, não jogar fora. Então nada foi apagado: o motor 3D, a
+   cabine, os controles, o combate e os testes continuam todos aqui.
+
+   Desligada, a linha some do menu (o botão fica display:none e a porta
+   já pula o que está escondido) e o 3D nunca é montado, então não custa
+   um byte de memória a quem não usa.
+
+   Para religar: troque false por true. É tudo.                        */
+const EXPLORACAO_LIGADA = false;
+
+
 function explMontar() {
   const cv = $("tela3d");
   if (!cv) return null;
@@ -1945,6 +1960,16 @@ addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220)
    os botões que abrem e fecham este modo                               */
 (function ligarBotoesDaExploracao() {
   const b = $("btn-cabine");
+  /* GUARDADA, não apagada. O modo inteiro continua aqui, testado e
+     montado junto com o jogo; só não aparece no menu enquanto a chave
+     estiver desligada. Religar é trocar false por true na linha do
+     EXPLORACAO_LIGADA lá em cima -- e o botão volta para dentro da
+     porta MINHA NAVE sozinho, porque quem esconde a linha é o próprio
+     display:none deste botão. */
+  if (!EXPLORACAO_LIGADA) {
+    if (b) b.style.display = "none";
+    return;
+  }
   if (b) b.addEventListener("click", () => { try { AudioSys.resume(); } catch (e) {} exploracaoEntrar(); });
   const v = $("c3-voltar");
   if (v) v.addEventListener("click", explSair);

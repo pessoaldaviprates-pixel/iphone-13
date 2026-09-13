@@ -4350,6 +4350,31 @@
   /* ---------- v7.0: as quatro portas ---------- */
   .escondida{display:none !important}
 
+  /* ---- a busca do menu ----
+     Slim de propósito: o menu é apertado (já sumiu botão de AJUSTES por
+     estourar a tela), então ela custa 34px e nada mais. */
+  .menu-busca-cx{
+    display:flex;align-items:center;gap:7px;width:100%;
+    height:34px;padding:0 10px;margin-bottom:8px;border-radius:10px;
+    background:rgba(255,255,255,.045);border:1px solid rgba(120,200,255,.2);
+  }
+  .menu-busca-cx b{font-size:.72rem;line-height:1;opacity:.75;flex:none}
+  .menu-busca-cx input{
+    flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);
+    font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.72rem;
+  }
+  .menu-busca-cx input::placeholder{color:var(--fraco);font-weight:500}
+  .menu-busca-cx input::-webkit-search-cancel-button{display:none}
+  .menu-busca-cx:focus-within{border-color:rgba(77,232,255,.55);background:rgba(77,232,255,.07)}
+  #menu-busca-x{
+    flex:none;width:24px;height:24px;border-radius:7px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.2);
+    color:var(--dim);font-size:.64rem;
+  }
+  #menu-busca-x:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+  /* os achados usam a MESMA linha das portas: uma cara só no menu todo */
+  #menu-achados{display:flex;flex-direction:column;gap:7px;width:100%}
+
   .portas{display:flex;flex-direction:column;gap:9px;width:100%}
   .porta{
     display:flex;align-items:center;gap:13px;text-align:left;position:relative;

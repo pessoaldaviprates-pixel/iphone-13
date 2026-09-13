@@ -103,6 +103,8 @@ const { chromium } = require('playwright');
   await p.evaluate(() => { goMenu(); });
   await p.waitForTimeout(400);
   await p.tap('#btn-play');
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-ir="btn-jornada"]').click());
   await p.waitForTimeout(1500);
   out.jogar = await p.evaluate(() => ({ modo: S.mode, fase: S.fase }));
 
