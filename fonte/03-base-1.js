@@ -1023,11 +1023,24 @@ async function nuvemComandoPendente(id) {
   return nuvemReq("presentes/" + id);
 }
 
+/* ---------------------------------------------------------------------
+   PRESENTE É PRESENTE; RETIRADA É RETIRADA
+   ---------------------------------------------------------------------
+   Os dois vinham pelo mesmo cano e saíam na mesma caixinha de presente:
+   a pessoa via a caixa brilhar, o som de baú, e abria para descobrir
+   que tinha PERDIDO as naves. É de rir, mas do lado de lá não tem graça
+   nenhuma -- e foi por isso que o dono pediu para tirar na hora.
+
+   Agora saem separados: o que dá vai na caixa; o que tira vira um
+   recado seco, sem festa, sem som de prêmio. Quem administra decide o
+   que acontece, mas quem joga merece saber o que foi, sem deboche.    */
 function aplicarPresente(p, g) {
   const partes = [];
-  const itens = [];              // {icone, texto, ruim}
+  const itens = [];              // o que GANHOU -> a caixa de presente
+  const tirados = [];            // o que PERDEU -> um recado seco
   let tirou = false;
-  const anota = (icone, texto, ruim) => itens.push({ icone, texto, ruim: !!ruim });
+  const anota = (icone, texto, ruim) =>
+    (ruim ? tirados : itens).push({ icone, texto, ruim: !!ruim });
 
   /* compra entregue pela loja: VIP com dias, passes e naves */
   if (g.compra) {
@@ -1142,6 +1155,93 @@ function aplicarPresente(p, g) {
     partes.push("aeronave " + SHIPS[ex].name);
     anota("★", "Aeronave exclusiva " + SHIPS[ex].name);
   }
+  /* ------------------------------------------------------------------
+     O QUE O CATÁLOGO DÁ, ITEM A ITEM
+     Antes só existia o atacado ("todas as naves", "3 lendários"). Estes
+     são os presentes escolhidos a dedo: uma nave, um amuleto, uma
+     moldura. É o que dá para dar de prêmio sem estragar o progresso da
+     pessoa entregando o jogo inteiro de uma vez.
+     ------------------------------------------------------------------ */
+  if (g.darNaves && g.darNaves.length) {
+    p.ships = p.ships || [0];
+    const nomes = [];
+    for (const i of g.darNaves) {
+      const n = +i;
+      if (!SHIPS[n]) continue;
+      if (p.ships.indexOf(n) < 0) p.ships.push(n);
+      nomes.push((SHIPS[n] || {}).name || ("Nave " + n));
+    }
+    if (nomes.length) {
+      partes.push(nomes.join(", "));
+      anota("✈", nomes.length === 1 ? nomes[0] : nomes.length + " naves");
+    }
+  }
+  if (g.darAmuletos && g.darAmuletos.length) {
+    for (const a of g.darAmuletos) {
+      const tipo = a && a.tipo ? a.tipo : a;
+      const rar = a && typeof a.rar === "number" ? a.rar : 3;
+      admDarAmuleto(p, tipo, rar);
+      const esp = AMULET_SPECIALS.filter(x => x.id === tipo)[0];
+      const com = AMULET_TYPES.filter(x => x.id === tipo)[0];
+      const alvo = esp || com;
+      anota(alvo ? (alvo.icon) : "◈", alvo ? (esp ? alvo.name : alvo.name +
+            " (" + ["comum", "raro", "épico", "lendário"][rar] + ")") : "Amuleto");
+    }
+    partes.push(g.darAmuletos.length + " amuleto(s)");
+  }
+  if (g.darHab && g.darHab.ramo) {
+    p.skills = p.skills || {};
+    const ate = Math.max(1, Math.min(40, g.darHab.ate | 0));
+    for (let t = 1; t <= ate; t++) p.skills[g.darHab.ramo + t] = true;
+    p.pts = Math.max(p.pts || 0, ate);
+    partes.push("habilidades até " + ate);
+    anota("✦", "Habilidades abertas até o nível " + ate);
+  }
+  if (g.darUp) {
+    p.upgrades = p.upgrades || {};
+    for (const k in g.darUp) {
+      const u = UPGRADES.filter(x => x.id === k)[0];
+      if (!u) continue;
+      p.upgrades[k] = Math.max(0, Math.min(u.max, g.darUp[k] | 0));
+    }
+    partes.push("melhorias");
+    anota("⬡", "Melhorias melhoradas");
+  }
+  if (g.darPecas && g.darPecas.parte) {
+    p.parts = p.parts || {};
+    const nivel = Math.max(0, Math.min(PART_MAX, g.darPecas.nivel | 0));
+    for (const i of (p.ships || [0])) {
+      p.parts[i] = p.parts[i] || {};
+      p.parts[i][g.darPecas.parte] = nivel;
+    }
+    const pc = PARTS.filter(x => x.id === g.darPecas.parte)[0];
+    partes.push("peça " + (pc ? pc.name : g.darPecas.parte));
+    anota(pc ? pc.icon : "⚙", (pc ? pc.name : "Peça") + " no nível " + nivel + " em todas as naves");
+  }
+  if (g.darMolduras && g.darMolduras.length) {
+    /* a moldura normalmente se ganha cumprindo uma condição. Dada pelo
+       painel, ela entra numa lista de liberadas -- senão o jogo olharia
+       a condição, veria que não bate e a devolveria travada. */
+    p.moldurasDadas = p.moldurasDadas || [];
+    const nomes = [];
+    for (const id of g.darMolduras) {
+      const m = MOLDURAS.filter(x => x.id === id)[0];
+      if (!m || m.id === "nenhuma") continue;
+      if (p.moldurasDadas.indexOf(id) < 0) p.moldurasDadas.push(id);
+      nomes.push(m.nome);
+    }
+    if (nomes.length) {
+      partes.push("moldura " + nomes.join(", "));
+      anota("🖼", "Moldura " + nomes.join(", "));
+    }
+  }
+  if (g.darEmotes && g.darEmotes.length) {
+    p.emotes = p.emotes || [];
+    for (const id of g.darEmotes) if (p.emotes.indexOf(id) < 0) p.emotes.push(id);
+    partes.push(g.darEmotes.length + " emote(s)");
+    anota("💬", g.darEmotes.length + " emote(s)");
+  }
+
   // remoções escolhidas uma a uma pelo administrador
   if (g.remNaves && g.remNaves.length) {
     const fora = {};
@@ -1230,7 +1330,7 @@ function aplicarPresente(p, g) {
   }
 
   if (p.ships.indexOf(p.ship) < 0) p.ship = p.ships[0];
-  return { texto: partes.join(", "), tirou, itens };
+  return { texto: partes.join(", "), tirou, itens, tirados };
 }
 
 /* o presente pode trazer uma aeronave exclusiva ou várias */
@@ -1262,6 +1362,10 @@ async function nuvemVerificarPresentes() {
     presenteGuardado = (presenteGuardado || []).concat(r.itens);
     if (S.mode === "menu") mostrarCaixaPresente();
   }
+  /* o que foi TIRADO não entra na caixa: vira um aviso seco, sem som de
+     prêmio e sem embrulho. Ninguém deve abrir um presente para
+     descobrir que perdeu alguma coisa. */
+  if (r.tirados && r.tirados.length) avisarRetirada(r.tirados);
   // se chegou no meio de uma partida, apenas uma faixa discreta:
   // a caixa fica guardada e abre quando a pessoa voltar ao menu
   if (S.mode === "playing" && r.itens && r.itens.length) {
@@ -1432,6 +1536,7 @@ async function checarPresenteGeral(d) {
     presenteGuardado = (presenteGuardado || []).concat(r.itens);
     if (S.mode === "menu") setTimeout(mostrarCaixaPresente, 400);
   }
+  if (r.tirados && r.tirados.length) avisarRetirada(r.tirados);
   nuvemEnviar(true);
 }
 

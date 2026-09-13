@@ -941,6 +941,14 @@ const MOLDURAS = [
   { id: "dono",    nome: "Criador",     req: () => contaDeDono(save.__name) }
 ];
 function molduraAtual() { return save.moldura || "nenhuma"; }
+/* Uma moldura pode ter sido GANHA (a condição bate) ou DADA pelo painel.
+   As duas valem, e a conta é feita aqui para a tela de escolha, o painel
+   e a nuvem nunca discordarem sobre o que a pessoa tem. */
+function molduraLiberada(m) {
+  if (!m) return false;
+  if ((save.moldurasDadas || []).indexOf(m.id) >= 0) return true;
+  try { return !!m.req(); } catch (e) { return false; }
+}
 /* A moldura de OUTRO jogador vem da nuvem, entao e texto que um estranho
    escreveu. Nunca entra num atributo de classe sem passar por aqui: so
    sai uma moldura que existe de verdade na lista, ou nada. */
@@ -958,7 +966,7 @@ function vestirMoldura(el, id) {
 }
 function molduraUsar(id) {
   const m = MOLDURAS.filter(x => x.id === id)[0];
-  if (!m || !m.req()) return false;
+  if (!m || !molduraLiberada(m)) return false;
   save.moldura = id;
   persist();
   try {
@@ -976,7 +984,7 @@ function moldurasRender() {
     '<div class="aj-titulo">🖼 MOLDURA DO APELIDO</div>' +
     '<div class="mold-grade">' +
       MOLDURAS.map(m => {
-        const tem = m.req();
+        const tem = molduraLiberada(m);
         return '<button class="mold-cx mold-' + m.id + (molduraAtual() === m.id ? " on" : "") +
           (tem ? "" : " travada") + '" data-mold="' + m.id + '"' + (tem ? "" : " disabled") + ">" +
           "<span>" + escaparTexto(minhaTag()).slice(0, 8) + "</span>" +

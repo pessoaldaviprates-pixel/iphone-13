@@ -4866,6 +4866,280 @@
     background:rgba(6,12,26,.7);border:1px solid rgba(120,200,255,.22);color:var(--ink2)}
   .c3-voltar:active{transform:scale(.92);border-color:var(--cyan)}
 
+  /* =====================================================================
+     O PAINEL NO COMPUTADOR
+     ---------------------------------------------------------------------
+     O painel nasceu para caber num celular: uma coluna, abas rolando de
+     lado, um cartão embaixo do outro. Num monitor isso vira uma tira
+     estreita no meio da tela com muito vazio dos lados, e o dono rola
+     sem parar para achar as coisas.
+
+     Daqui para cima ele vira um painel de verdade: MENU FIXO À ESQUERDA
+     (as abas, que no celular rolam de lado, aqui cabem todas de uma vez
+     e ficam sempre visíveis), NÚMEROS EM CIMA e o conteúdo em duas
+     colunas.
+
+     Nada disso muda no celular: é tudo dentro desta media query. O
+     celular ganha o dele depois, com calma.
+     ===================================================================== */
+  @media (min-width: 900px) {
+    #screen-adm .scroll{
+      display:grid;
+      grid-template-columns:214px minmax(0,1fr);
+      grid-template-areas:"lado topo" "lado corpo";
+      align-content:start;
+      gap:0 18px;
+      max-width:1380px;margin:0 auto;width:100%;
+      padding:16px 20px 28px;
+    }
+    /* logado fora: o cartão de senha toma a tela toda e nada mais existe */
+    #adm-pass-row{grid-area:1/1/-1/-1;max-width:420px;margin:8vh auto 0}
+    #screen-adm .adm-abas{grid-area:lado}
+    #adm-quem{grid-area:topo}
+    #adm-panel{grid-area:corpo;min-width:0}
+    #adm-vazio{grid-area:corpo}
+
+    /* ---- a coluna da esquerda: o menu ---- */
+    #screen-adm .adm-abas.on{
+      display:flex;flex-direction:column;align-items:stretch;
+      gap:3px;overflow:visible;
+      position:sticky;top:14px;align-self:start;
+      padding:12px 10px;border-radius:16px;
+      background:linear-gradient(175deg,rgba(14,26,50,.55),rgba(5,10,22,.7));
+      border:1px solid rgba(120,200,255,.16);
+    }
+    #screen-adm .adm-aba{
+      display:flex;align-items:center;gap:9px;
+      width:100%;text-align:left;white-space:nowrap;
+      padding:10px 12px;border-radius:10px;
+      font-size:.68rem;letter-spacing:.06em;
+      border:1px solid transparent;background:none;color:var(--dim);
+    }
+    #screen-adm .adm-aba:hover{background:rgba(255,255,255,.05);color:var(--ink2)}
+    /* a aba aberta é uma pílula cheia: dá para achar sem procurar */
+    #screen-adm .adm-aba.on{
+      background:linear-gradient(100deg,rgba(77,232,255,.20),rgba(195,77,255,.16));
+      border-color:rgba(77,232,255,.45);color:var(--ink);
+      box-shadow:0 4px 16px rgba(0,0,0,.35), inset 0 1px 0 rgba(160,220,255,.16);
+    }
+    #screen-adm .adm-aba i{
+      margin-left:auto;font-style:normal;font-size:.56rem;
+      background:var(--magenta);color:#07101F;border-radius:99px;padding:1px 6px;
+    }
+    /* a marca e o rodapé do menu, desenhados pelo JS */
+    .adm-marca{
+      display:flex;align-items:center;gap:9px;padding:4px 10px 14px;
+      border-bottom:1px solid rgba(120,200,255,.14);margin-bottom:10px;
+    }
+    .adm-marca b{
+      width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;
+      background:linear-gradient(145deg,var(--cyan),#C34DFF);color:#04060F;font-size:.9rem;
+    }
+    .adm-marca span{display:block;font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.08em}
+    .adm-marca em{display:block;font-style:normal;font-size:.5rem;letter-spacing:.2em;color:var(--fraco)}
+    .adm-lado-pe{
+      margin-top:12px;padding:12px 11px;border-radius:12px;
+      background:linear-gradient(160deg,rgba(195,77,255,.18),rgba(77,232,255,.10));
+      border:1px solid rgba(195,77,255,.3);
+    }
+    .adm-lado-pe b{display:block;font-family:"Russo One",sans-serif;font-size:1.1rem;color:var(--cyan)}
+    .adm-lado-pe span{display:block;font-size:.54rem;letter-spacing:.14em;color:var(--dim);margin-top:2px}
+
+    /* ---- a faixa de cima: quem sou eu ---- */
+    #adm-quem{margin:0 0 16px;padding:12px 16px}
+
+
+  }
+
+  /* ---- o aviso de retirada: o oposto da caixa de presente ---- */
+  .retirada{
+    position:fixed;inset:0;z-index:70;display:none;
+    align-items:center;justify-content:center;padding:22px;
+    background:rgba(3,6,14,.86);backdrop-filter:blur(4px);
+  }
+  .retirada.on{display:flex}
+  .retirada-cx{
+    width:min(360px,100%);padding:20px;border-radius:16px;text-align:center;
+    background:linear-gradient(165deg,rgba(40,12,26,.95),rgba(10,6,16,.97));
+    border:1px solid rgba(255,77,143,.4);
+  }
+  .retirada-cx > b{
+    display:block;font-family:"Russo One",sans-serif;font-size:.84rem;
+    letter-spacing:.1em;color:var(--magenta);margin-bottom:14px;
+  }
+  .retirada-item{
+    display:flex;align-items:center;gap:10px;text-align:left;
+    padding:9px 11px;margin-bottom:7px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,77,143,.22);
+  }
+  .retirada-item b{font-size:.9rem;flex:none}
+  .retirada-item span{font-size:.72rem;line-height:1.4;color:var(--ink2)}
+  #retirada-ok{width:100%;margin-top:10px}
+
+  /* ---- o catálogo: tudo o que dá para dar, por categoria ---- */
+  .cat-topo{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+  .cat-abas{
+    display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .cat-abas::-webkit-scrollbar{display:none}
+  .cat-aba{
+    flex:none;padding:7px 11px;border-radius:99px;cursor:pointer;white-space:nowrap;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.58rem;letter-spacing:.08em;
+  }
+  .cat-aba.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  #cat-busca{width:100%}
+  .cat-conta{font-size:.56rem;letter-spacing:.08em;color:var(--fraco);margin-bottom:8px}
+  .cat-grade{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px;
+    max-height:46vh;overflow-y:auto;padding-right:2px;
+  }
+  .cat-item{
+    display:flex;align-items:center;gap:9px;text-align:left;min-height:48px;
+    padding:8px 10px;border-radius:10px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+  }
+  .cat-item b{font-size:.95rem;flex:none;width:20px;text-align:center;color:var(--cyan)}
+  .cat-item span{min-width:0;flex:1}
+  .cat-item strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;
+    color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cat-item em{
+    display:block;font-style:normal;font-size:.54rem;color:var(--dim);margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cat-item.ouro{border-color:rgba(255,193,69,.4)}
+  .cat-item.ouro b{color:var(--amber)}
+  .cat-item:active{transform:scale(.97);background:rgba(77,232,255,.14)}
+
+  /* ---- o modo de entrega do painel ---- */
+  .adm-modo{display:flex;gap:6px;margin-bottom:10px}
+  .adm-modo-b{
+    flex:1;padding:9px 8px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.08em;
+  }
+  .adm-modo-b.on{
+    background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan);
+  }
+  .adm-modo-b:active{transform:scale(.97)}
+
+  /* o painel só aparece depois de entrar. Quem manda é a classe, para o
+     computador poder trocar o display por "grid" sem brigar com o JS. */
+  #adm-panel{display:none}
+  #adm-panel.on{display:block}
+
+  /* ---- os quatro números (valem em qualquer tamanho) ---- */
+  .adm-numeros-topo{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;
+  }
+  .num-card{
+    position:relative;overflow:hidden;
+    padding:13px 14px 12px;border-radius:14px;
+    background:linear-gradient(165deg,rgba(14,26,50,.6),rgba(5,10,22,.72));
+    border:1px solid rgba(120,200,255,.18);
+  }
+  /* o primeiro é o que importa mais, então é o único cheio de cor */
+  .num-card.forte{
+    background:linear-gradient(150deg,#6B2BD9,#3B1B8C 60%,#25136B);
+    border-color:rgba(195,77,255,.5);
+    box-shadow:0 8px 26px rgba(107,43,217,.28);
+  }
+  .num-rot{
+    display:flex;align-items:center;gap:6px;
+    font-size:.48rem;letter-spacing:.18em;color:var(--fraco);font-weight:700;
+  }
+  .num-card.forte .num-rot{color:rgba(255,255,255,.78)}
+  .num-card b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.45rem;
+    line-height:1.1;margin-top:5px;color:var(--cyan);
+  }
+  .num-card.forte b{color:#FFF;text-shadow:0 0 18px rgba(195,77,255,.6)}
+  .num-card em{
+    display:block;font-style:normal;font-size:.52rem;color:var(--dim);margin-top:3px;
+  }
+  /* as barrinhas: doze leituras de quantos estavam jogando, sem biblioteca */
+  .num-barras{
+    display:flex;align-items:flex-end;gap:3px;height:26px;margin-top:7px;
+  }
+  .num-barras i{
+    flex:1;min-width:2px;border-radius:2px 2px 0 0;
+    background:linear-gradient(180deg,#FFF,rgba(255,255,255,.35));
+    opacity:.85;
+  }
+
+  @media (min-width: 900px) {
+    .adm-numeros-topo{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:0}
+    .num-card{padding:15px 16px 14px}
+    .num-card b{font-size:1.9rem}
+  }
+
+  /* ---- a tabela de jogadores ---- */
+  .vivo-cabecalho{display:none}
+  @media (min-width: 900px) {
+    /* no computador as colunas viram colunas de verdade, com cabeçalho.
+       No celular continuam empilhadas, que é onde coluna não cabe. */
+    .vivo-cabecalho{
+      display:grid;grid-template-columns:14px minmax(0,1fr) 64px 110px 60px 34px;
+      gap:10px;align-items:center;
+      padding:0 12px 7px;margin-top:10px;
+      border-bottom:1px solid rgba(120,200,255,.14);
+    }
+    .vivo-cabecalho span{
+      font-size:.46rem;letter-spacing:.18em;color:var(--fraco);font-weight:700;
+    }
+    .vivo-cabecalho span:first-child{grid-column:1/3}
+    .vivo-cabecalho span:nth-child(2){text-align:right}
+    .vivo-cabecalho span:nth-child(3){text-align:right}
+    .vivo-cabecalho span:nth-child(4){text-align:center}
+    .vivo-row{
+      display:grid;grid-template-columns:14px minmax(0,1fr) 64px 110px 60px 34px;
+      gap:10px;align-items:center;
+    }
+    .vivo-col{font-size:.7rem;color:var(--ink2);text-align:right;white-space:nowrap}
+    .vivo-col.vivo-gem{color:var(--amber)}
+    .vivo-ver{text-align:center}
+  }
+  /* no celular as colunas extras somem: a linha já diz fase e cristais */
+  @media (max-width: 899px) { .vivo-col{display:none} }
+
+  /* =====================================================================
+     A GRADE DO PAINEL NO COMPUTADOR
+     ---------------------------------------------------------------------
+     Isto mora no FIM do arquivo de propósito. O painel tem, mais acima,
+     um "#adm-panel.on{display:block}" para o celular. Mesma
+     especificidade: quem vem depois vence. Escrito lá em cima, o
+     display:grid perdia para o block e o layout de duas colunas nascia
+     morto -- sem erro nenhum, só um painel estreito no meio do monitor.
+     ===================================================================== */
+  @media (min-width: 900px) {
+    /* o max-width:520px do celular é o que fazia o painel virar uma tira
+       no meio da tela. Aqui os cartões usam a largura que têm. */
+    #adm-panel.on{
+      display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);
+      gap:16px;align-content:start;align-items:start;
+    }
+    #adm-panel > .adm-card,
+    #adm-panel > .adm-numeros-topo{margin:0;max-width:none}
+    /* a fileira de números atravessa as duas colunas */
+    #adm-panel > #adm-topo-num{grid-column:1/-1}
+    /* a lista à esquerda, as ações de quem você tocar à direita: escolher
+       e agir sem a tela pular */
+    #adm-panel > #adm-vivo{grid-column:1/2}
+    #adm-panel > #adm-nuvem{grid-column:2/3;position:sticky;top:14px;align-self:start}
+  }
+  /* monitor estreito: lado a lado apertado é pior que empilhado */
+  @media (min-width: 900px) and (max-width: 1150px) {
+    #adm-panel.on{grid-template-columns:minmax(0,1fr)}
+    #adm-panel > #adm-vivo,#adm-panel > #adm-nuvem{grid-column:1/-1}
+    #adm-panel > #adm-nuvem{position:static}
+  }
+
+
 </style>
 </head>
 <body>
@@ -4931,6 +5205,16 @@
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
 <div id="presente-jogo"></div>
+<!-- O AVISO DE RETIRADA. Seco de propósito: sem brilho, sem som de
+     prêmio, sem embrulho. É a notícia de que alguma coisa saiu da conta,
+     e notícia assim se dá de frente, não dentro de uma caixinha. -->
+<div class="retirada" id="retirada-aviso">
+  <div class="retirada-cx">
+    <b>O administrador mexeu na sua conta</b>
+    <div id="retirada-itens"></div>
+    <button class="adm-btn" id="retirada-ok">ENTENDI</button>
+  </div>
+</div>
 <div id="atualiza-box">
   <span id="atualiza-txt">Nova versão disponível</span>
   <button id="atualiza-btn">ATUALIZAR</button>
@@ -5098,7 +5382,7 @@
 
     <div class="adm-abas" id="adm-abas"></div>
 
-    <div id="adm-panel" style="display:none">
+    <div id="adm-panel">
 
       <div class="adm-card" id="adm-enviar" style="display:none">
         <div class="adm-h gold">🎁 ENVIAR PASS</div>
@@ -5319,30 +5603,71 @@
         <div class="mundo-agora" id="mundo-agora"></div>
       </div>
 
-      <div class="adm-card" id="adm-vivo" style="display:none">
-        <div class="adm-h gold">
-          <span class="pulso"></span> AO VIVO
-          <span class="vivo-cont" id="vivo-cont"></span>
+      <!-- OS NÚMEROS DO TOPO. Quatro cartões, o jeito de bater o olho e
+           saber como o jogo está sem ler lista nenhuma. -->
+      <div class="adm-numeros-topo" id="adm-topo-num" data-disp="grid" style="display:none">
+        <div class="num-card forte">
+          <span class="num-rot"><span class="pulso"></span>JOGANDO AGORA</span>
+          <b id="num-agora">0</b>
+          <div class="num-barras" id="num-barras"></div>
         </div>
-        <p class="adm-note" style="max-width:none">Quem está com o jogo aberto agora, em que tela, desde quando e com qual versão.</p>
-        <div class="vivo-lista" id="vivo-lista"></div>
-        <div class="adm-grid" style="margin-top:10px">
-          <button class="adm-btn" id="vivo-atualizar">ATUALIZAR AGORA</button>
-          <button class="adm-btn" id="vivo-auto">⏸ PAUSAR</button>
+        <div class="num-card">
+          <span class="num-rot">PILOTOS</span>
+          <b id="num-pilotos">0</b>
+          <em id="num-pilotos-pe">—</em>
+        </div>
+        <div class="num-card">
+          <span class="num-rot">VIERAM HOJE</span>
+          <b id="num-hoje">0</b>
+          <em id="num-hoje-pe">—</em>
+        </div>
+        <div class="num-card">
+          <span class="num-rot">NA VERSÃO VELHA</span>
+          <b id="num-velha">0</b>
+          <em id="num-velha-pe">—</em>
         </div>
       </div>
 
-      <div class="adm-card" id="adm-nuvem" style="display:none">
-        <div class="adm-h gold">JOGADORES ONLINE</div>
-        <div class="adm-row">
-          <input id="adm-nuvem-busca" placeholder="Buscar jogador pelo nome" autocomplete="off">
-          <button class="adm-btn" id="adm-nuvem-load">ATUALIZAR</button>
+      <!-- UMA LISTA SÓ DE JOGADORES.
+           Eram dois cartões lendo o MESMO lugar da nuvem: "AO VIVO" e
+           "JOGADORES ONLINE". Duas listas da mesma coisa, cada uma com
+           metade da informação, e o dono tinha que escolher em qual
+           olhar. Agora é uma: quem está com o jogo aberto vem em cima,
+           com a luz acesa e a tela em que está. -->
+      <div class="adm-card" id="adm-vivo" style="display:none">
+        <div class="adm-h gold">
+          <span class="pulso"></span> JOGADORES
+          <span class="vivo-cont" id="vivo-cont"></span>
         </div>
-        <div class="profile-list" id="adm-nuvem-lista" style="margin-top:10px"></div>
-        <div id="adm-nuvem-sel" style="display:none;margin-top:12px">
+        <div class="adm-row">
+          <input id="adm-nuvem-busca" placeholder="Procurar pelo nome" autocomplete="off">
+          <button class="adm-btn" id="adm-nuvem-load">ATUALIZAR</button>
+          <button class="adm-btn" id="vivo-auto">⏸ PAUSAR</button>
+        </div>
+        <div class="vivo-cabecalho">
+          <span>PILOTO</span><span>FASE</span><span>CRISTAIS</span><span>VERSÃO</span>
+        </div>
+        <div class="vivo-lista" id="vivo-lista"></div>
+        <button class="adm-btn" id="vivo-atualizar" style="display:none">ATUALIZAR AGORA</button>
+        <div class="profile-list" id="adm-nuvem-lista" style="display:none"></div>
+      </div>
+
+      <div class="adm-card" id="adm-nuvem" style="display:none">
+        <div id="adm-nuvem-sel" style="display:none">
           <div class="adm-h gold" id="adm-nuvem-alvo"></div>
           <div class="adm-stats" id="adm-nuvem-stats"></div>
           <div class="adm-note" id="adm-nuvem-pendente" style="margin-bottom:10px"></div>
+
+          <!-- COMO O QUE VOCÊ TOCAR É ENTREGUE.
+               Antes TUDO ia para a caixa: você tocava em DAR, não
+               acontecia nada visível, e ainda tinha que ir à abinha
+               CAIXA, escrever um recado e enviar. Três telas para dar
+               10 mil cristais. Agora o normal é NA HORA, e o pacote
+               (com recado, para presente de verdade) é uma escolha. -->
+          <div class="adm-modo" id="adm-modo">
+            <button class="adm-modo-b on" data-modo="agora">⚡ NA HORA</button>
+            <button class="adm-modo-b" data-modo="caixa">📦 JUNTAR NUM PACOTE</button>
+          </div>
 
           <div class="sub-abas" id="acao-abas"></div>
 
@@ -5384,12 +5709,15 @@
               <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
               <button class="adm-btn gold wide" id="adm-nuvem-privada">🚽 TRONO REAL (PRIVADA)</button>
             </div>
-            <p class="adm-note" style="margin-top:10px">Tudo o que você tocar aqui entra na <b>CAIXA</b>. Vá até a abinha 📦 CAIXA para escrever o recado e enviar.</p>
+            <p class="adm-note" id="dar-nota" style="margin-top:10px"></p>
           </div>
 
           <!-- ═══ TIRAR ═══ -->
           <div class="sub-pane" id="pane-tirar" style="display:none">
             <div class="adm-h red">TIRAR</div>
+            <p class="adm-note" style="margin-bottom:10px">Tirar é <b>sempre na hora</b> e nunca vira presente —
+              seria estranho a pessoa abrir uma caixinha para descobrir que perdeu as naves.
+              Toque duas vezes para confirmar.</p>
             <div class="adm-grid">
               <button class="adm-btn danger" id="adm-nuvem-gem-zero">ZERAR CRISTAIS</button>
               <button class="adm-btn danger" id="adm-nuvem-naves-zero">TIRAR AS NAVES</button>
@@ -5414,6 +5742,20 @@
             </div>
           </div>
 
+          <!-- ═══ CATÁLOGO ═══
+               Tudo o que existe no jogo, por categoria, com busca.
+               Antes só dava para dar "todas as naves" ou "3 lendários" —
+               ou tudo, ou nada. Aqui dá para dar UMA nave, UM amuleto,
+               UMA moldura, para a pessoa certa. -->
+          <div class="sub-pane" id="pane-catalogo" style="display:none">
+            <div class="cat-topo">
+              <div class="cat-abas" id="cat-abas"></div>
+              <input id="cat-busca" placeholder="Procurar pelo nome…" autocomplete="off">
+            </div>
+            <div class="cat-conta" id="cat-conta"></div>
+            <div class="cat-grade" id="cat-grade"></div>
+          </div>
+
           <!-- ═══ INVENTÁRIO ═══ -->
           <div class="sub-pane" id="pane-inv" style="display:none">
             <div class="adm-h">
@@ -5429,7 +5771,7 @@
           <div class="sub-pane" id="pane-caixa" style="display:none">
             <div class="adm-h gold">📦 O QUE VAI NA CAIXA</div>
             <div class="caixa-adm" id="caixa-adm">
-              <div class="caixa-vazia" id="caixa-vazia">Vazia. Vá na abinha 🎁 DAR ou ✕ TIRAR e toque no que quiser mandar.</div>
+              <div class="caixa-vazia" id="caixa-vazia">Vazia. Ligue <b>📦 JUNTAR NUM PACOTE</b> lá em cima e toque no que quiser mandar na abinha 🎁 DAR.<br><br>Tirar não entra em pacote: tirar é sempre na hora.</div>
               <div id="caixa-itens"></div>
             </div>
             <div class="cx-recado">
@@ -7622,11 +7964,24 @@ async function nuvemComandoPendente(id) {
   return nuvemReq("presentes/" + id);
 }
 
+/* ---------------------------------------------------------------------
+   PRESENTE É PRESENTE; RETIRADA É RETIRADA
+   ---------------------------------------------------------------------
+   Os dois vinham pelo mesmo cano e saíam na mesma caixinha de presente:
+   a pessoa via a caixa brilhar, o som de baú, e abria para descobrir
+   que tinha PERDIDO as naves. É de rir, mas do lado de lá não tem graça
+   nenhuma -- e foi por isso que o dono pediu para tirar na hora.
+
+   Agora saem separados: o que dá vai na caixa; o que tira vira um
+   recado seco, sem festa, sem som de prêmio. Quem administra decide o
+   que acontece, mas quem joga merece saber o que foi, sem deboche.    */
 function aplicarPresente(p, g) {
   const partes = [];
-  const itens = [];              // {icone, texto, ruim}
+  const itens = [];              // o que GANHOU -> a caixa de presente
+  const tirados = [];            // o que PERDEU -> um recado seco
   let tirou = false;
-  const anota = (icone, texto, ruim) => itens.push({ icone, texto, ruim: !!ruim });
+  const anota = (icone, texto, ruim) =>
+    (ruim ? tirados : itens).push({ icone, texto, ruim: !!ruim });
 
   /* compra entregue pela loja: VIP com dias, passes e naves */
   if (g.compra) {
@@ -7741,6 +8096,93 @@ function aplicarPresente(p, g) {
     partes.push("aeronave " + SHIPS[ex].name);
     anota("★", "Aeronave exclusiva " + SHIPS[ex].name);
   }
+  /* ------------------------------------------------------------------
+     O QUE O CATÁLOGO DÁ, ITEM A ITEM
+     Antes só existia o atacado ("todas as naves", "3 lendários"). Estes
+     são os presentes escolhidos a dedo: uma nave, um amuleto, uma
+     moldura. É o que dá para dar de prêmio sem estragar o progresso da
+     pessoa entregando o jogo inteiro de uma vez.
+     ------------------------------------------------------------------ */
+  if (g.darNaves && g.darNaves.length) {
+    p.ships = p.ships || [0];
+    const nomes = [];
+    for (const i of g.darNaves) {
+      const n = +i;
+      if (!SHIPS[n]) continue;
+      if (p.ships.indexOf(n) < 0) p.ships.push(n);
+      nomes.push((SHIPS[n] || {}).name || ("Nave " + n));
+    }
+    if (nomes.length) {
+      partes.push(nomes.join(", "));
+      anota("✈", nomes.length === 1 ? nomes[0] : nomes.length + " naves");
+    }
+  }
+  if (g.darAmuletos && g.darAmuletos.length) {
+    for (const a of g.darAmuletos) {
+      const tipo = a && a.tipo ? a.tipo : a;
+      const rar = a && typeof a.rar === "number" ? a.rar : 3;
+      admDarAmuleto(p, tipo, rar);
+      const esp = AMULET_SPECIALS.filter(x => x.id === tipo)[0];
+      const com = AMULET_TYPES.filter(x => x.id === tipo)[0];
+      const alvo = esp || com;
+      anota(alvo ? (alvo.icon) : "◈", alvo ? (esp ? alvo.name : alvo.name +
+            " (" + ["comum", "raro", "épico", "lendário"][rar] + ")") : "Amuleto");
+    }
+    partes.push(g.darAmuletos.length + " amuleto(s)");
+  }
+  if (g.darHab && g.darHab.ramo) {
+    p.skills = p.skills || {};
+    const ate = Math.max(1, Math.min(40, g.darHab.ate | 0));
+    for (let t = 1; t <= ate; t++) p.skills[g.darHab.ramo + t] = true;
+    p.pts = Math.max(p.pts || 0, ate);
+    partes.push("habilidades até " + ate);
+    anota("✦", "Habilidades abertas até o nível " + ate);
+  }
+  if (g.darUp) {
+    p.upgrades = p.upgrades || {};
+    for (const k in g.darUp) {
+      const u = UPGRADES.filter(x => x.id === k)[0];
+      if (!u) continue;
+      p.upgrades[k] = Math.max(0, Math.min(u.max, g.darUp[k] | 0));
+    }
+    partes.push("melhorias");
+    anota("⬡", "Melhorias melhoradas");
+  }
+  if (g.darPecas && g.darPecas.parte) {
+    p.parts = p.parts || {};
+    const nivel = Math.max(0, Math.min(PART_MAX, g.darPecas.nivel | 0));
+    for (const i of (p.ships || [0])) {
+      p.parts[i] = p.parts[i] || {};
+      p.parts[i][g.darPecas.parte] = nivel;
+    }
+    const pc = PARTS.filter(x => x.id === g.darPecas.parte)[0];
+    partes.push("peça " + (pc ? pc.name : g.darPecas.parte));
+    anota(pc ? pc.icon : "⚙", (pc ? pc.name : "Peça") + " no nível " + nivel + " em todas as naves");
+  }
+  if (g.darMolduras && g.darMolduras.length) {
+    /* a moldura normalmente se ganha cumprindo uma condição. Dada pelo
+       painel, ela entra numa lista de liberadas -- senão o jogo olharia
+       a condição, veria que não bate e a devolveria travada. */
+    p.moldurasDadas = p.moldurasDadas || [];
+    const nomes = [];
+    for (const id of g.darMolduras) {
+      const m = MOLDURAS.filter(x => x.id === id)[0];
+      if (!m || m.id === "nenhuma") continue;
+      if (p.moldurasDadas.indexOf(id) < 0) p.moldurasDadas.push(id);
+      nomes.push(m.nome);
+    }
+    if (nomes.length) {
+      partes.push("moldura " + nomes.join(", "));
+      anota("🖼", "Moldura " + nomes.join(", "));
+    }
+  }
+  if (g.darEmotes && g.darEmotes.length) {
+    p.emotes = p.emotes || [];
+    for (const id of g.darEmotes) if (p.emotes.indexOf(id) < 0) p.emotes.push(id);
+    partes.push(g.darEmotes.length + " emote(s)");
+    anota("💬", g.darEmotes.length + " emote(s)");
+  }
+
   // remoções escolhidas uma a uma pelo administrador
   if (g.remNaves && g.remNaves.length) {
     const fora = {};
@@ -7829,7 +8271,7 @@ function aplicarPresente(p, g) {
   }
 
   if (p.ships.indexOf(p.ship) < 0) p.ship = p.ships[0];
-  return { texto: partes.join(", "), tirou, itens };
+  return { texto: partes.join(", "), tirou, itens, tirados };
 }
 
 /* o presente pode trazer uma aeronave exclusiva ou várias */
@@ -7861,6 +8303,10 @@ async function nuvemVerificarPresentes() {
     presenteGuardado = (presenteGuardado || []).concat(r.itens);
     if (S.mode === "menu") mostrarCaixaPresente();
   }
+  /* o que foi TIRADO não entra na caixa: vira um aviso seco, sem som de
+     prêmio e sem embrulho. Ninguém deve abrir um presente para
+     descobrir que perdeu alguma coisa. */
+  if (r.tirados && r.tirados.length) avisarRetirada(r.tirados);
   // se chegou no meio de uma partida, apenas uma faixa discreta:
   // a caixa fica guardada e abre quando a pessoa voltar ao menu
   if (S.mode === "playing" && r.itens && r.itens.length) {
@@ -8031,6 +8477,7 @@ async function checarPresenteGeral(d) {
     presenteGuardado = (presenteGuardado || []).concat(r.itens);
     if (S.mode === "menu") setTimeout(mostrarCaixaPresente, 400);
   }
+  if (r.tirados && r.tirados.length) avisarRetirada(r.tirados);
   nuvemEnviar(true);
 }
 
@@ -10382,7 +10829,8 @@ function admOpen() {
   $("adm-search").value = "";
   admMsg("");
   $("adm-pass-row").style.display = "flex";
-  $("adm-panel").style.display = "none";
+  $("adm-panel").style.display = "";
+  $("adm-panel").classList.remove("on");
   $("adm-sel-box").style.display = "none";
   $("adm-pass-note").textContent =
     "O dono entra com o nick e a senha mestra. Quem está na equipe entra " +
@@ -10617,7 +11065,8 @@ $("quem-sair").addEventListener("click", () => {
   admEsquecer();
   PERM.entrou = false; PERM.dono = false; PERM.permissoes = {};
   $("adm-abas").classList.remove("on");
-  $("adm-panel").style.display = "none";
+  $("adm-panel").style.display = "";
+  $("adm-panel").classList.remove("on");
   $("adm-quem").style.display = "none";
   $("adm-pass-row").style.display = "";
   $("adm-pass").value = "";
@@ -10630,7 +11079,12 @@ $("quem-sair").addEventListener("click", () => {
    --------------------------------------------------------------------- */
 function abrirPainelComo() {
   $("adm-pass-row").style.display = "none";
-  $("adm-panel").style.display = "block";
+  /* classe, não estilo em linha: no computador o painel é uma GRADE
+     (menu à esquerda, duas colunas de conteúdo), e um display:block
+     escrito aqui venceria o CSS e desmontaria o layout inteiro sem
+     erro nenhum -- foi exatamente o que aconteceu. */
+  $("adm-panel").style.display = "";
+  $("adm-panel").classList.add("on");
   $("adm-quem").style.display = "block";
   $("adm-nick").value = "";
   $("adm-pass").value = "";
@@ -11067,9 +11521,9 @@ function admCaixaConversa(id) {
 
 const ABAS_ADM = [
   { id: "jogadores", nome: "👤 JOGADORES", perms: ["verLista"],
-    cartoes: ["adm-vivo", "adm-nuvem"] },
+    cartoes: ["adm-topo-num", "adm-vivo"] },
   { id: "acoes",     nome: "⚡ AÇÕES",     perms: ["darCoisas", "darRaros", "invVer", "invTirar", "zerar", "presGeral"],
-    cartoes: ["adm-nuvem"] },
+    cartoes: ["adm-vivo", "adm-nuvem"] },
   { id: "mundo",     nome: "🌍 MUNDO",     perms: ["recados", "eventos", "boosts", "trolls"],
     cartoes: ["adm-agora", "adm-atualiza", "adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls"] },
   { id: "sugestoes", nome: "💡 SUGESTÕES", perms: ["sugVer"],
@@ -11087,6 +11541,7 @@ let abaAdm = "";
 
 const SUB_ACOES = [
   { id: "dar",    nome: "🎁 DAR",         pane: "pane-dar",   perms: ["darCoisas", "darRaros"] },
+  { id: "catalogo", nome: "📚 CATÁLOGO",  pane: "pane-catalogo", perms: ["darCoisas", "darRaros"] },
   { id: "tirar",  nome: "✕ TIRAR",        pane: "pane-tirar", perms: ["invTirar", "zerar"] },
   { id: "inv",    nome: "🎒 INVENTÁRIO",  pane: "pane-inv",   perms: ["invVer"] },
   { id: "caixa",  nome: "📦 CAIXA",       pane: "pane-caixa", perms: ["darCoisas", "darRaros", "invTirar", "presGeral"] }
@@ -11096,6 +11551,19 @@ let subAcao = "dar";
 function abasLiberadas() { return ABAS_ADM.filter(a => a.perms.some(pode)); }
 function subsLiberadas() { return SUB_ACOES.filter(a => a.perms.some(pode)); }
 
+/* o rodapé do menu: quantos estão com o jogo aberto agora. É o mesmo
+   número do cartão de cima, e vem do mesmo lugar -- fica visível em
+   qualquer aba, para o dono não precisar voltar à aba JOGADORES só para
+   saber se tem alguém no jogo. */
+function admLadoPeAtualizar() {
+  const pe = document.querySelector(".adm-lado-pe b");
+  if (!pe) return;
+  let n = 0;
+  try { n = Object.keys(vivoDados).map(id => vivoDados[id]).filter(p => p && p.nome && estaOnline(p)).length; }
+  catch (e) {}
+  pe.textContent = n;
+}
+
 function renderAbasAdm() {
   const cx = $("adm-abas");
   const libs = abasLiberadas();
@@ -11103,6 +11571,16 @@ function renderAbasAdm() {
   cx.classList.add("on");
   if (!libs.some(a => a.id === abaAdm)) abaAdm = libs[0].id;
   cx.innerHTML = "";
+  /* A MARCA E O RESUMO só existem no computador, onde o menu é uma
+     coluna fixa. No celular as abas rolam de lado e um cabeçalho ali
+     dentro roubaria o espaço da primeira aba -- por isso o CSS esconde
+     os dois abaixo de 900px em vez de o JS decidir: quem sabe a largura
+     da tela é o CSS, e assim a conta é feita uma vez só. */
+  const marca = document.createElement("div");
+  marca.className = "adm-marca";
+  marca.innerHTML = "<b>▲</b><span>NEON<em>PAINEL</em></span>";
+  cx.appendChild(marca);
+
   for (const a of libs) {
     const b = document.createElement("button");
     b.className = "adm-aba" + (abaAdm === a.id ? " on" : "");
@@ -11110,10 +11588,22 @@ function renderAbasAdm() {
     b.addEventListener("click", () => {
       abaAdm = a.id;
       renderAbasAdm();
-      try { cx.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) {}
+      /* no computador o menu é fixo à esquerda: rolar até ele jogaria a
+         tela para o lado errado. Lá quem tem que aparecer é o conteúdo. */
+      try {
+        const alvo = innerWidth >= 900 ? $("adm-panel") : cx;
+        if (alvo) alvo.scrollIntoView({ block: "start", behavior: "smooth" });
+      } catch (e) {}
     });
     cx.appendChild(b);
   }
+
+  const pe = document.createElement("div");
+  pe.className = "adm-lado-pe";
+  pe.innerHTML = "<b>0</b><span>COM O JOGO ABERTO</span>";
+  cx.appendChild(pe);
+  admLadoPeAtualizar();
+
   mostrarAba();
 }
 function sugNovas() {
@@ -11140,23 +11630,32 @@ function mostrarAba() {
     const el = $(id);
     if (!el) continue;
     const naAba = atual && atual.cartoes.indexOf(id) >= 0;
-    el.style.display = (naAba && permiteCartao(id)) ? "block" : "none";
+    /* alguns cartões não são "block": a fileira de números é uma grade.
+       Guardar o display certo no próprio elemento evita um "if" com o id
+       escrito aqui dentro, que é o tipo de coisa que some quando alguém
+       renomeia o cartão. */
+    el.style.display = (naAba && permiteCartao(id)) ? (el.getAttribute("data-disp") || "block") : "none";
   }
-  // o cartão de jogadores serve às duas abas, mas com caras diferentes
+  /* A LISTA É UMA SÓ, E APARECE NAS DUAS ABAS.
+     Antes eram dois cartões lendo o mesmo lugar da nuvem, cada um com
+     metade da informação. Agora JOGADORES mostra a tabela, e AÇÕES
+     mostra a MESMA tabela com o painel de ações embaixo de quem você
+     tocar -- escolher e agir na mesma tela, sem ir e voltar. */
   const sel = $("adm-nuvem-sel");
-  const lista = $("adm-nuvem-lista");
-  const busca = $("adm-nuvem-busca");
   if (abaAdm === "acoes") {
-    if (busca && busca.parentElement) busca.parentElement.style.display = "";
-    if (lista) lista.style.display = "";
     if (sel) sel.style.display = admNuvemAlvo ? "block" : "none";
-    const cab = document.querySelector("#adm-nuvem .adm-h");
-    if (cab) cab.textContent = admNuvemAlvo ? "AÇÕES EM QUEM VOCÊ ESCOLHEU" : "ESCOLHA UM JOGADOR";
+    const cab = document.querySelector("#adm-vivo .adm-h");
+    if (cab) cab.innerHTML = '<span class="pulso"></span> ' +
+      (admNuvemAlvo ? "JOGADORES · agindo em " + escaparTexto(admNuvemAlvo.nome) : "ESCOLHA UM JOGADOR") +
+      ' <span class="vivo-cont" id="vivo-cont"></span>';
+    try { vivoRender(); } catch (e) {}
     renderSubAcoes();
   } else if (abaAdm === "jogadores") {
     if (sel) sel.style.display = "none";
-    const cab = document.querySelector("#adm-nuvem .adm-h");
-    if (cab) cab.textContent = "JOGADORES ONLINE";
+    const cab = document.querySelector("#adm-vivo .adm-h");
+    if (cab) cab.innerHTML = '<span class="pulso"></span> JOGADORES' +
+      ' <span class="vivo-cont" id="vivo-cont"></span>';
+    try { vivoRender(); } catch (e) {}
   }
   const vazio = $("adm-vazio");
   if (vazio) vazio.style.display = abasLiberadas().length ? "none" : "block";
@@ -11194,6 +11693,7 @@ function renderSubAcoes() {
     const p = $(a.pane);
     if (p) p.style.display = (a.id === subAcao && libs.some(x => x.id === a.id)) ? "block" : "none";
   }
+  if (subAcao === "catalogo") { try { catRender(); } catch (e) {} }
 }
 
 /* cada cartão e cada botão só aparece se a permissão estiver ligada */
@@ -11218,6 +11718,7 @@ const CARTOES_PERM = {
   "adm-agora":   ["recados", "eventos", "boosts", "trolls"],
   "adm-vivo":    "verLista",
   "adm-nuvem":   "verLista",
+  "adm-topo-num": "verLista",
   "adm-local":   "backup",
   "adm-todos":   "backup",
   "adm-backup":  "backup"
@@ -12177,20 +12678,80 @@ function vivoDesligar() {
   if (vivoFechar) { vivoFechar(); vivoFechar = null; }
   if (vivoRelogio) { clearInterval(vivoRelogio); vivoRelogio = null; }
 }
+/* ---------------------------------------------------------------------
+   OS QUATRO NÚMEROS DO TOPO
+   ---------------------------------------------------------------------
+   Antes, para saber como o jogo ia, o dono tinha que apertar ATUALIZAR
+   NÚMEROS lá embaixo e ler um relatório. Agora bate o olho: quantos
+   estão jogando AGORA, quantos pilotos existem, quantos vieram hoje e
+   quantos ainda estão numa versão velha -- que é o número que mais dói,
+   porque é gente que não recebeu nenhum conserto.
+
+   Sai da MESMA lista que a tabela: sem nova busca na nuvem e sem risco
+   de o topo dizer uma coisa e a lista dizer outra.                     */
+function admNumerosTopo(todos) {
+  const cx = $("adm-topo-num");
+  if (!cx) return;
+  const agora = todos.filter(estaOnline).length;
+  const dia = 86400000;
+  const hoje = todos.filter(p => Date.now() - (p.atualizado || 0) < dia).length;
+  const velha = todos.filter(p => versaoNumero(p.versao || "0") < versaoNumero(VERSAO)).length;
+  const por = (id, v) => { const e = $(id); if (e) e.textContent = v; };
+  por("num-agora", agora);
+  por("num-pilotos", fmt(todos.length));
+  por("num-pilotos-pe", agora ? agora + " com o jogo aberto" : "ninguém agora");
+  por("num-hoje", fmt(hoje));
+  por("num-hoje-pe", todos.length ? Math.round(hoje / todos.length * 100) + "% de quem existe" : "—");
+  por("num-velha", fmt(velha));
+  por("num-velha-pe", velha ? "não receberam os consertos" : "todos na " + VERSAO);
+  const v = $("num-velha");
+  if (v) v.style.color = velha ? "var(--magenta)" : "var(--verde)";
+
+  /* barrinhas: as últimas 12 leituras de quantos estavam jogando. É o
+     gráfico do cartão da referência, sem biblioteca nenhuma. */
+  /* SEMPRE doze barras. A leitura nova entra pela direita e as que
+     faltam ficam rasteiras à esquerda: o cartão tem a mesma cara desde
+     o primeiro segundo, e a história vai empurrando. Começar com uma
+     barra só deixava aquela barra ocupando o cartão inteiro, o que
+     parece defeito em vez de "ainda não tenho história". */
+  admHistorico.push(agora);
+  while (admHistorico.length > 12) admHistorico.shift();
+  while (admHistorico.length < 12) admHistorico.unshift(0);
+  const alto = Math.max(1, ...admHistorico);
+  const bar = $("num-barras");
+  if (bar) {
+    bar.innerHTML = admHistorico.map(n =>
+      '<i style="height:' + Math.max(8, Math.round(n / alto * 100)) + '%"></i>').join("");
+  }
+}
+let admHistorico = [];
+
 function vivoRender() {
   const box = $("vivo-lista");
   if (!box) return;
-  const lista = Object.keys(vivoDados)
+  const todos = Object.keys(vivoDados)
     .map(id => Object.assign({ id }, vivoDados[id]))
     .filter(p => p && p.nome)
     .sort((a, b) => (estaOnline(b) ? 1 : 0) - (estaOnline(a) ? 1 : 0) ||
                     (b.atualizado || 0) - (a.atualizado || 0));
-  const ligados = lista.filter(estaOnline).length;
-  $("vivo-cont").textContent = ligados + " de " + lista.length + " com o jogo aberto";
+  /* esta lista é a ÚNICA lista de jogadores do painel. O resto do painel
+     ainda pergunta por admNuvemLista, então ela sai daqui -- uma lista
+     só, uma verdade só. */
+  if (todos.length) admNuvemLista = todos;
+  const busca = (($("adm-nuvem-busca") || {}).value || "").trim().toLowerCase();
+  const lista = busca
+    ? todos.filter(p => String(p.nome).toLowerCase().indexOf(busca) >= 0)
+    : todos;
+  const ligados = todos.filter(estaOnline).length;
+  $("vivo-cont").textContent = ligados + " de " + todos.length + " com o jogo aberto";
+  try { admNumerosTopo(todos); } catch (e) {}
+  try { admLadoPeAtualizar(); } catch (e) {}
   box.innerHTML = "";
   if (!lista.length) {
-    box.innerHTML = '<div class="adm-vazio"><b>👀</b>Ninguém apareceu ainda.<br>' +
-      "As pessoas entram nesta lista assim que abrem o jogo com internet.</div>";
+    box.innerHTML = '<div class="adm-vazio"><b>👀</b>' +
+      (todos.length ? "Nenhum jogador com esse nome."
+                    : "Ninguém apareceu ainda.<br>As pessoas entram nesta lista assim que abrem o jogo com internet.") +
+      "</div>";
     return;
   }
   for (const p of lista.slice(0, 60)) {
@@ -12201,15 +12762,18 @@ function vivoRender() {
                     (admNuvemAlvo && admNuvemAlvo.id === p.id ? " sel" : "");
     const ver = String(p.versao || "?");
     const velha = ver !== VERSAO;
+    const fora = ficaDeForaDoRanking(p);
     row.innerHTML =
       '<span class="vivo-luz"></span>' +
       '<div class="vivo-txt">' +
-        '<div class="vivo-nome">' + escaparTexto(p.nome) + "</div>" +
-        '<div class="vivo-onde">' + escaparTexto(on ? (p.onde || "No jogo") : "Fechado") + "</div>" +
-        '<div class="vivo-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
+        '<div class="vivo-nome">' + escaparTexto(p.nome) +
+          (fora ? ' <em class="selo-oculto">fora do placar</em>' : "") + "</div>" +
+        '<div class="vivo-onde">' + escaparTexto(on ? (p.onde || "No jogo") : "Fechado") +
           " · " + (on ? "aberto há " + duracao(p.entrou) : "visto " + tempoRelativo(p.atualizado)) +
         "</div>" +
       "</div>" +
+      '<span class="vivo-col vivo-fase">' + (p.fase || 0) + "</span>" +
+      '<span class="vivo-col vivo-gem">◆ ' + fmt(p.cristais || 0) + "</span>" +
       '<span class="vivo-ver' + (velha ? " velha" : "") + '">v' + escaparTexto(ver) + "</span>";
     const olho = document.createElement("button");
     olho.className = "vivo-olho";
@@ -12241,13 +12805,21 @@ let admNuvemLista = [];
 let admNuvemAlvo = null;
 
 async function admNuvemCarregar() {
-  const el = $("adm-nuvem-lista");
-  el.innerHTML = '<div class="adm-note">Buscando jogadores…</div>';
   admNuvemLista = await nuvemListar();
-  admNuvemRender();
+  /* a lista viva desenha a partir de vivoDados; alimenta os dois para
+     que o botão ATUALIZAR funcione mesmo antes de o fluxo abrir */
+  for (const p of admNuvemLista) if (p && p.id) vivoDados[p.id] = p;
+  vivoRender();
 }
-function admNuvemRender() {
+/* Uma lista só: quem pedia admNuvemRender() agora repinta a lista viva.
+   Manter duas telas da mesma coisa era o que fazia o painel parecer
+   grande e confuso -- e obrigava a olhar em dois lugares para saber uma
+   coisa só. */
+function admNuvemRender() { vivoRender(); }
+
+function admNuvemRenderAntigo() {
   const el = $("adm-nuvem-lista");
+  if (!el) return;
   const busca = ($("adm-nuvem-busca").value || "").trim().toLowerCase();
   const lista = admNuvemLista.filter(p => !busca || String(p.nome).toLowerCase().indexOf(busca) >= 0);
   el.innerHTML = "";
@@ -12640,20 +13212,12 @@ function invRender() {
     const dica = document.createElement("p");
     dica.className = "adm-note";
     dica.style.marginTop = "8px";
+    /* o botão "pôr na caixa em vez de tirar agora" saiu daqui: tirar é
+       sempre na hora, e ter as duas saídas era a própria confusão */
     dica.innerHTML = n
-      ? "<b>" + n + "</b> item(ns) marcado(s). <b>TIRAR AGORA</b> já apaga da conta. " +
-        "Se preferir juntar com outras coisas num pacote só, use PÔR NA CAIXA."
+      ? "<b>" + n + "</b> item(ns) marcado(s). <b>TIRAR AGORA</b> apaga da conta na hora."
       : "Toque no <b>✕</b> de cada item para marcar o que quer tirar.";
     box.appendChild(dica);
-
-    const caixa = document.createElement("button");
-    caixa.className = "adm-btn";
-    caixa.style.marginTop = "8px";
-    caixa.style.width = "100%";
-    caixa.textContent = "📦 PÔR NA CAIXA EM VEZ DE TIRAR AGORA";
-    caixa.disabled = !n;
-    caixa.addEventListener("click", invMandarParaCaixa);
-    box.appendChild(caixa);
   }
 }
 function invMontarRetirada() {
@@ -12693,30 +13257,56 @@ async function invTirarAgora() {
   admMsg("Pronto: os itens saíram da conta.");
   AudioSys.buy();
 }
-function invMandarParaCaixa() {
-  const sv = invSave();
-  const naves = Object.keys(invMarcado.naves).map(Number);
-  const amuletos = Object.keys(invMarcado.amuletos).map(Number);
-  const hab = Object.keys(invMarcado.hab);
-  const pecas = Object.keys(invMarcado.pecas).map(Number);
-  const ups = {};
-  for (const u of UPGRADES) {
-    const atual = (sv.upgrades || {})[u.id] || 0;
-    if (invNiveis[u.id] !== undefined && invNiveis[u.id] !== atual) ups[u.id] = invNiveis[u.id];
-  }
-  let n = 0;
-  if (naves.length)    { porNaCaixa({ remNaves: naves },       "Tirar naves"); n++; }
-  if (amuletos.length) { porNaCaixa({ remAmuletos: amuletos }, "Tirar amuletos"); n++; }
-  if (hab.length)      { porNaCaixa({ remHab: hab },           "Tirar habilidades"); n++; }
-  if (pecas.length)    { porNaCaixa({ remPecas: pecas },       "Tirar peças"); n++; }
-  if (Object.keys(ups).length) { porNaCaixa({ remUp: ups },    "Ajustar melhorias"); n++; }
-  if (!n) { admMsg("Marque alguma coisa primeiro."); AudioSys.deny(); return; }
-  invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
-  invNiveis = {};
-  invRender();
-  $("caixa-adm").scrollIntoView({ block: "center", behavior: "smooth" });
-}
+/* invMandarParaCaixa() foi embora: tirar coisa de alguém não é presente,
+   então não passa mais pela caixa. O caminho é um só, o TIRAR AGORA. */
 $("inv-abrir").addEventListener("click", invCarregar);
+
+/* =====================================================================
+   COMO O QUE VOCÊ TOCAR É ENTREGUE
+   ---------------------------------------------------------------------
+   Antes TUDO ia para a caixa: você tocava em DAR e nada visível
+   acontecia -- o item ficava guardado esperando você ir até a abinha
+   CAIXA, escrever um recado e enviar. Três telas para dar dez mil
+   cristais, e a queixa foi exatamente essa: "tá muito complicado dar
+   coisas".
+
+   Agora o normal é NA HORA. O pacote continua existindo, porque
+   presente com recado é outra coisa e vale a pena -- mas virou escolha,
+   não pedágio.                                                        */
+let admModo = "agora";                 // "agora" | "caixa"
+
+function admModoRender() {
+  const cx = $("adm-modo");
+  if (!cx) return;
+  cx.querySelectorAll("[data-modo]").forEach(b =>
+    b.classList.toggle("on", b.getAttribute("data-modo") === admModo));
+  const nota = $("dar-nota");
+  if (nota) {
+    nota.innerHTML = admModo === "agora"
+      ? "Tudo o que você tocar aqui <b>cai na conta na hora</b>."
+      : "Tudo o que você tocar aqui vai para a <b>caixa</b>. " +
+        "Termine na abinha 📦 CAIXA: escreva o recado e envie.";
+  }
+}
+(function ligarModo() {
+  const cx = $("adm-modo");
+  if (!cx) return;
+  cx.querySelectorAll("[data-modo]").forEach(b =>
+    b.addEventListener("click", () => {
+      admModo = b.getAttribute("data-modo");
+      admModoRender();
+      renderCaixaAdm();
+    }));
+  admModoRender();
+})();
+
+/* O caminho ÚNICO de dar. Cada botão de DAR chama esta função e ela
+   decide -- em vez de vinte botões cada um sabendo do modo, que é como
+   um deles um dia ficaria para trás. */
+function admDar(presente, msg) {
+  if (admModo === "caixa") { porNaCaixa(presente, msg); return; }
+  admNuvemPresente(presente, msg);
+}
 
 /* ----- caixa montada pelo administrador ----- */
 let caixaAdm = {};
@@ -12772,7 +13362,25 @@ function renderCaixaAdm() {
     ? "📦 ENVIAR (" + chaves.length + ")" : "📦 ENVIAR A CAIXA";
   try { if (abaAdm === "acoes") renderSubAcoes(); } catch (e) {}
 }
+/* o que é RETIRADA nunca entra na caixa. Uma lista só, aqui, porque
+   espalhar essa regra por vinte botões é garantir que um dia um deles
+   escape e alguém receba uma caixinha de presente para descobrir que
+   perdeu as naves. */
+const CHAVES_DE_TIRAR = ["remNaves", "remAmuletos", "remHab", "remUp", "remPecas",
+                         "tirarCristais", "tirarNaves", "zerarFases", "zerarHabilidades",
+                         "zerarAmuletos", "zerarTudo", "limparNaves"];
+function ehRetirada(presente) {
+  if (!presente) return false;
+  if (presente.setCristais === 0) return true;
+  return CHAVES_DE_TIRAR.some(k => presente[k] !== undefined);
+}
+
 function porNaCaixa(presente, msg) {
+  if (ehRetirada(presente)) {
+    admMsg("Tirar é sempre na hora — não vai em pacote de presente.");
+    try { AudioSys.deny(); } catch (e) {}
+    return;
+  }
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
   for (const k in presente) {
     if (k === "cristais" && caixaAdm.cristais) caixaAdm.cristais += presente[k];
@@ -12945,51 +13553,54 @@ async function admNuvemPresente(presente, msg) {
   vibrate(20);
   admNuvemSelecionar(admNuvemAlvo);
 }
-/* ações destrutivas pedem dois toques */
+/* Ações destrutivas pedem dois toques e acontecem NA HORA.
+   Antes iam para a caixa e chegavam embrulhadas de presente, o que é o
+   contrário do que tirar significa. Os dois toques ficam: o perigo aqui
+   é o dedo escorregar, não a demora. */
 let admNuvemConfirmar = null;
 function admNuvemPerigo(chave, presente, msg, aviso) {
   if (admNuvemConfirmar !== chave) {
     admNuvemConfirmar = chave;
-    admMsg("Toque de novo para pôr na caixa: " + aviso);
+    admMsg("Toque de novo para " + aviso + " AGORA.");
     setTimeout(() => { if (admNuvemConfirmar === chave) admNuvemConfirmar = null; }, 4000);
     return;
   }
   admNuvemConfirmar = null;
-  porNaCaixa(presente, msg);
+  admNuvemPresente(presente, msg);
 }
 $("adm-nuvem-load").addEventListener("click", admNuvemCarregar);
-$("adm-nuvem-busca").addEventListener("input", admNuvemRender);
-/* dar — tudo vai para a caixa, e a caixa é enviada de uma vez */
+$("adm-nuvem-busca").addEventListener("input", vivoRender);
+/* dar — o caminho é um só: admDar() decide entre a hora e o pacote */
 $("adm-nuvem-dar").addEventListener("click", () =>
-  porNaCaixa({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais"));
+  admDar({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais"));
 $("adm-nuvem-set").addEventListener("click", () =>
-  porNaCaixa({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Definir cristais"));
+  admDar({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Definir cristais"));
 $("adm-nuvem-fase-set").addEventListener("click", () =>
-  porNaCaixa({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Definir fase"));
+  admDar({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Definir fase"));
 $("adm-nuvem-naves").addEventListener("click", () =>
-  porNaCaixa({ naves: true }, "Naves"));
+  admDar({ naves: true }, "Naves"));
 $("adm-nuvem-fases").addEventListener("click", () =>
-  porNaCaixa({ fases: true }, "Fases"));
+  admDar({ fases: true }, "Fases"));
 $("adm-nuvem-hab").addEventListener("click", () =>
-  porNaCaixa({ habilidades: true }, "Habilidades"));
+  admDar({ habilidades: true }, "Habilidades"));
 $("adm-nuvem-melhorias").addEventListener("click", () =>
-  porNaCaixa({ melhorias: true }, "Melhorias"));
+  admDar({ melhorias: true }, "Melhorias"));
 $("adm-nuvem-lend").addEventListener("click", () =>
-  porNaCaixa({ lendarios: true }, "Lendários"));
+  admDar({ lendarios: true }, "Lendários"));
 $("adm-nuvem-tudo").addEventListener("click", () =>
-  porNaCaixa({ tudo: true }, "Tudo"));
+  admDar({ tudo: true }, "Tudo"));
 $("adm-nuvem-rank").addEventListener("click", () => {
   const v = parseInt($("adm-nuvem-rank-sel").value, 10) || 0;
-  porNaCaixa({ setRank: v }, "Rank " + nomeDoRank(v));
+  admDar({ setRank: v }, "Rank " + nomeDoRank(v));
 });
 $("adm-nuvem-maverick").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: MAVERICK }, "Maverick"));
+  admDar({ exclusiva: MAVERICK }, "Maverick"));
 $("adm-nuvem-b2").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: B2 }, "B-2 Spirit"));
+  admDar({ exclusiva: B2 }, "B-2 Spirit"));
 $("adm-nuvem-omega").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: OMEGA }, "Ômega-9 Arsenal"));
+  admDar({ exclusiva: OMEGA }, "Ômega-9 Arsenal"));
 $("adm-nuvem-privada").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: PRIVADA }, "Trono Real"));
+  admDar({ exclusiva: PRIVADA }, "Trono Real"));
 
 /* tirar e zerar (dois toques) */
 $("adm-nuvem-gem-zero").addEventListener("click", () =>
@@ -13007,9 +13618,9 @@ $("adm-nuvem-zerar").addEventListener("click", () =>
 
 /* outros */
 $("adm-nuvem-god-on").addEventListener("click", () =>
-  porNaCaixa({ god: true }, "Invencibilidade"));
+  admDar({ god: true }, "Invencibilidade"));
 $("adm-nuvem-god-off").addEventListener("click", () =>
-  porNaCaixa({ god: false }, "Tirar invencibilidade"));
+  admDar({ god: false }, "Tirar invencibilidade"));
 /* esconder (ou trazer de volta) um piloto das tabelas, sem apagar nada */
 $("adm-nuvem-ocultar").addEventListener("click", async () => {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador."); return; }
@@ -13042,7 +13653,8 @@ function admNuvemAtualizarBotaoOcultar() {
                  : "Tira ou devolve este piloto às tabelas do ranking.";
 }
 $("adm-nuvem-naves-criadas").addEventListener("click", () =>
-  porNaCaixa({ limparNaves: true }, "Desfazer naves montadas"));
+  admNuvemPerigo("montadas", { limparNaves: true }, "Naves montadas desfeitas",
+                 "desfazer as naves montadas"));
 $("adm-nuvem-cancelar").addEventListener("click", async () => {
   if (!admNuvemAlvo) return;
   await nuvemCancelarComando(admNuvemAlvo.id);
@@ -13349,6 +13961,155 @@ $("adm-import").addEventListener("click", () => {
   }
 });
 
+
+/* =====================================================================
+   O CATÁLOGO — DAR QUALQUER COISA, POR CATEGORIA
+   ---------------------------------------------------------------------
+   Até aqui o painel dava por atacado: "todas as naves", "3 lendários",
+   "dar tudo". Ou tudo, ou nada. Não dava para dar UMA nave para quem
+   ajudou, UM amuleto de prêmio, ou a moldura de Duelista para quem
+   ganhou um campeonato — e é justamente isso que se quer dar.
+
+   Aqui está tudo o que o jogo tem, separado por categoria e com busca.
+   A lista não é escrita à mão: ela SAI das mesmas tabelas que o jogo
+   usa (SHIPS, AMULET_TYPES, PASSES, MOLDURAS…). Nave nova que entrar no
+   jogo aparece aqui sozinha — uma lista copiada a mão nasceria
+   desatualizada no dia seguinte.
+   ===================================================================== */
+const CATEGORIAS = [
+  { id: "naves", nome: "NAVES", ic: "✈", itens: () =>
+      SHIPS.map((s, i) => ({ chave: "nave" + i, nome: s.name || ("Nave " + i), ic: "✈",
+                             nota: "nave " + (i + 1), dar: { darNaves: [i] } })) },
+
+  { id: "exclusivas", nome: "EXCLUSIVAS", ic: "★", itens: () =>
+      [[MAVERICK, "Maverick"], [B2, "B-2 Spirit"], [OMEGA, "Ômega-9 Arsenal"], [PRIVADA, "Trono Real"]]
+        .filter(x => SHIPS[x[0]])
+        .map(x => ({ chave: "ex" + x[0], nome: x[1], ic: "★", ouro: true,
+                     nota: "aeronave exclusiva", dar: { exclusiva: x[0] } })) },
+
+  { id: "amuletos", nome: "AMULETOS", ic: "◈", itens: () => {
+      const fora = [];
+      /* os lendários vêm sempre no topo: são o que se dá de prêmio */
+      for (const a of AMULET_SPECIALS)
+        fora.push({ chave: "am" + a.id, nome: a.name, ic: a.icon, ouro: true,
+                    nota: "lendário", dar: { darAmuletos: [{ tipo: a.id, rar: 3 }] } });
+      /* os comuns, uma linha por raridade: dar um "de dano" sem escolher
+         a raridade daria sempre o mais fraco, que não é presente */
+      const RAR = ["comum", "raro", "épico", "lendário"];
+      for (const t of AMULET_TYPES)
+        for (let r = 0; r < 4; r++)
+          fora.push({ chave: "am" + t.id + r, nome: t.name, ic: t.icon,
+                      nota: RAR[r], dar: { darAmuletos: [{ tipo: t.id, rar: r }] } });
+      return fora;
+    } },
+
+  { id: "habilidades", nome: "HABILIDADES", ic: "✦", itens: () => {
+      const ramos = [["atk", "Ataque"], ["def", "Defesa"], ["res", "Resistência"]];
+      const fora = [];
+      for (const [id, nome] of ramos)
+        for (const ate of [10, 20, 30, 40])
+          fora.push({ chave: "hab" + id + ate, nome: nome + " até " + ate, ic: "✦",
+                      nota: "abre os " + ate + " primeiros", dar: { darHab: { ramo: id, ate } } });
+      fora.push({ chave: "habtudo", nome: "Todas as habilidades", ic: "✦", ouro: true,
+                  nota: "os 120 pontos", dar: { habilidades: true } });
+      return fora;
+    } },
+
+  { id: "melhorias", nome: "MELHORIAS", ic: "⬡", itens: () =>
+      UPGRADES.map(u => ({ chave: "up" + u.id, nome: u.name || u.nome || u.id, ic: "⬡",
+                           nota: "no máximo", dar: { darUp: { [u.id]: u.max } } }))
+        .concat([{ chave: "uptudo", nome: "Tudo no máximo", ic: "⬡", ouro: true,
+                   nota: "melhorias e peças", dar: { melhorias: true } }]) },
+
+  { id: "pecas", nome: "PEÇAS", ic: "⚙", itens: () =>
+      PARTS.map(pt => ({ chave: "pc" + pt.id, nome: pt.name, ic: pt.icon,
+                         nota: "no máximo, em todas as naves",
+                         dar: { darPecas: { parte: pt.id, nivel: PART_MAX } } })) },
+
+  { id: "passes", nome: "PASSES", ic: "🎟", itens: () =>
+      (typeof PASSES !== "undefined" ? PASSES : []).map(pa =>
+        ({ chave: "pa" + pa.id, nome: pa.nome, ic: pa.icone, ouro: true,
+           nota: pa.desc, dar: { compra: { passes: [pa.id] } } })) },
+
+  { id: "vip", nome: "VIP", ic: "👑", itens: () =>
+      [7, 15, 30, 90, 180, 365].map(d =>
+        ({ chave: "vip" + d, nome: "VIP por " + d + " dias", ic: "👑", ouro: true,
+           nota: d >= 365 ? "um ano" : d + " dias", dar: { compra: { vipDias: d } } })) },
+
+  { id: "molduras", nome: "MOLDURAS", ic: "🖼", itens: () =>
+      MOLDURAS.filter(m => m.id !== "nenhuma").map(m =>
+        ({ chave: "mo" + m.id, nome: m.nome, ic: "🖼",
+           nota: "moldura do apelido", dar: { darMolduras: [m.id] } })) },
+
+  { id: "ranks", nome: "RANKS", ic: "🏅", itens: () =>
+      RANKS.map((r, i) => ({ chave: "rk" + i, nome: r.nome, ic: r.sim,
+                             nota: r.min + " pontos", dar: { setRank: r.min } })) },
+
+  { id: "emotes", nome: "EMOTES", ic: "💬", itens: () =>
+      (typeof EMOTES !== "undefined" ? EMOTES : []).map(e =>
+        ({ chave: "em" + e.id, nome: e.nome, ic: e.txt,
+           nota: "emote", dar: { darEmotes: [e.id] } })) },
+
+  { id: "cristais", nome: "CRISTAIS", ic: "◆", itens: () =>
+      [1000, 5000, 10000, 50000, 100000, 500000].map(n =>
+        ({ chave: "cr" + n, nome: fmt(n) + " cristais", ic: "◆",
+           nota: "soma ao que a pessoa já tem", dar: { cristais: n } })) }
+];
+
+let catAba = "naves";
+
+function catRender() {
+  const abas = $("cat-abas"), grade = $("cat-grade"), conta = $("cat-conta");
+  if (!abas || !grade) return;
+
+  abas.innerHTML = CATEGORIAS.map(c =>
+    '<button class="cat-aba' + (c.id === catAba ? " on" : "") + '" data-cat="' + c.id + '">' +
+    c.ic + " " + escaparTexto(c.nome) + "</button>").join("");
+  abas.querySelectorAll("[data-cat]").forEach(b =>
+    b.addEventListener("click", () => { catAba = b.getAttribute("data-cat"); catRender(); }));
+
+  const cat = CATEGORIAS.filter(c => c.id === catAba)[0];
+  if (!cat) return;
+  let itens = [];
+  try { itens = cat.itens() || []; } catch (e) { itens = []; }
+
+  const q = semAcento(($("cat-busca") || {}).value || "").trim();
+  if (q) itens = itens.filter(it =>
+    semAcento(it.nome).indexOf(q) >= 0 || semAcento(it.nota || "").indexOf(q) >= 0);
+
+  if (conta) {
+    conta.textContent = itens.length
+      ? itens.length + (itens.length === 1 ? " item" : " itens") +
+        (admModo === "caixa" ? " · vão para a caixa" : " · caem na conta na hora")
+      : "Nada com esse nome nesta categoria.";
+  }
+
+  /* 400 naves numa grade só travam celular fraco. Mostra 120 e deixa a
+     busca fazer o resto -- que é o que a pessoa faz mesmo quando procura
+     uma nave específica. */
+  const CABE = 120;
+  const mostra = itens.slice(0, CABE);
+  grade.innerHTML = mostra.map((it, i) =>
+    '<button class="cat-item' + (it.ouro ? " ouro" : "") + '" data-i="' + i + '">' +
+    '<b>' + it.ic + "</b>" +
+    '<span><strong>' + escaparTexto(it.nome) + "</strong>" +
+    "<em>" + escaparTexto(it.nota || "") + "</em></span></button>").join("") +
+    (itens.length > CABE
+      ? '<p class="adm-note" style="grid-column:1/-1">Mostrando ' + CABE + " de " +
+        itens.length + ". Use a busca para achar o resto.</p>"
+      : "");
+
+  grade.querySelectorAll("[data-i]").forEach(b =>
+    b.addEventListener("click", () => {
+      const it = mostra[parseInt(b.getAttribute("data-i"), 10)];
+      if (!it) return;
+      admDar(it.dar, it.nome);
+    }));
+}
+(function ligarCatalogo() {
+  const c = $("cat-busca");
+  if (c) c.addEventListener("input", catRender);
+})();
 /* =====================================================================
    AMIGOS — pedidos, lista e conversa
    ---------------------------------------------------------------------
@@ -21127,6 +21888,14 @@ const MOLDURAS = [
   { id: "dono",    nome: "Criador",     req: () => contaDeDono(save.__name) }
 ];
 function molduraAtual() { return save.moldura || "nenhuma"; }
+/* Uma moldura pode ter sido GANHA (a condição bate) ou DADA pelo painel.
+   As duas valem, e a conta é feita aqui para a tela de escolha, o painel
+   e a nuvem nunca discordarem sobre o que a pessoa tem. */
+function molduraLiberada(m) {
+  if (!m) return false;
+  if ((save.moldurasDadas || []).indexOf(m.id) >= 0) return true;
+  try { return !!m.req(); } catch (e) { return false; }
+}
 /* A moldura de OUTRO jogador vem da nuvem, entao e texto que um estranho
    escreveu. Nunca entra num atributo de classe sem passar por aqui: so
    sai uma moldura que existe de verdade na lista, ou nada. */
@@ -21144,7 +21913,7 @@ function vestirMoldura(el, id) {
 }
 function molduraUsar(id) {
   const m = MOLDURAS.filter(x => x.id === id)[0];
-  if (!m || !m.req()) return false;
+  if (!m || !molduraLiberada(m)) return false;
   save.moldura = id;
   persist();
   try {
@@ -21162,7 +21931,7 @@ function moldurasRender() {
     '<div class="aj-titulo">🖼 MOLDURA DO APELIDO</div>' +
     '<div class="mold-grade">' +
       MOLDURAS.map(m => {
-        const tem = m.req();
+        const tem = molduraLiberada(m);
         return '<button class="mold-cx mold-' + m.id + (molduraAtual() === m.id ? " on" : "") +
           (tem ? "" : " travada") + '" data-mold="' + m.id + '"' + (tem ? "" : " disabled") + ">" +
           "<span>" + escaparTexto(minhaTag()).slice(0, 8) + "</span>" +
@@ -30491,6 +31260,29 @@ document.querySelector("#sugestao-box .sg-fundo").addEventListener("click", fech
 let presenteGuardado = null;
 let recadoDoPresente = "";      // o que o administrador escreveu junto do presente
 
+/* ---------------------------------------------------------------------
+   O AVISO DE RETIRADA
+   ---------------------------------------------------------------------
+   O contrário da caixa de presente, e de propósito: aparece de uma vez,
+   sem brilho, sem som de baú, sem "toque para abrir". A pessoa perdeu
+   alguma coisa -- a tela tem que dizer isso e sair da frente, não fazer
+   festa.                                                              */
+function avisarRetirada(lista) {
+  if (!lista || !lista.length) return;
+  const cx = $("retirada-aviso"), box = $("retirada-itens");
+  if (!cx || !box) return;
+  box.innerHTML = lista.map(it =>
+    '<div class="retirada-item"><b>' + (it.icone || "⚠") + "</b>" +
+    "<span>" + escaparTexto(it.texto) + "</span></div>").join("");
+  cx.classList.add("on");
+  /* vibra curto e grave: é aviso, não prêmio */
+  vibrate(60);
+}
+(function ligarRetirada() {
+  const b = $("retirada-ok");
+  if (b) b.addEventListener("click", () => $("retirada-aviso").classList.remove("on"));
+})();
+
 function mostrarCaixaPresente() {
   if (!presenteGuardado || !presenteGuardado.length) return;
   if (S.mode !== "menu") return;             // só no menu, nunca sobre o login
@@ -30591,6 +31383,15 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.3", itens: [
+      "O PAINEL DO DONO no computador virou um painel de verdade: menu fixo à esquerda, os números em cima e a lista de jogadores do lado das ações — escolher e agir sem a tela pular. No celular continua como estava; o dele vem depois",
+      "UMA LISTA DE JOGADORES, não duas. Eram dois cartões lendo o mesmo lugar, cada um com metade da informação",
+      "QUATRO NÚMEROS no topo: quem está jogando agora (com um gráfico das últimas leituras), quantos pilotos existem, quantos vieram hoje e quantos ainda estão numa versão velha",
+      "DAR VIROU UM TOQUE. Antes tudo ia para uma caixa e você tinha que ir a outra abinha, escrever um recado e enviar. Agora cai na conta na hora — e o pacote com recado virou uma escolha, não um pedágio",
+      "TIRAR É NA HORA e nunca mais chega como presente. Chegava embrulhado, com som de baú: a pessoa abria a caixinha para descobrir que tinha perdido as naves. Agora é um aviso seco, sem festa",
+      "CATÁLOGO NOVO: dá para dar QUALQUER coisa do jogo, item a item, por categoria — as 120 naves uma a uma, as exclusivas, 88 amuletos, habilidades, melhorias, peças, passes, VIP, molduras, ranks, emotes e cristais. Com busca",
+      "As molduras do apelido agora podem ser DADAS pelo painel, além de conquistadas"
+    ] },
   { v: "8.2", itens: [
       "O MENU FICOU SINCRONIZADO: tudo tem a mesma cara e mora onde você imagina. Tinha gente que não achava as coisas depois que os botões foram comprimidos",
       "JOGAR agora reúne TODOS os jeitos de jogar num lugar só: Jornada, Jogar com amigo, Ranqueada, Arena infinita, Maratona de chefes e Sala de treino",
@@ -31103,7 +31904,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.2";
+const VERSAO = "8.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

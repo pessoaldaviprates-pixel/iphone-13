@@ -913,7 +913,8 @@ function admOpen() {
   $("adm-search").value = "";
   admMsg("");
   $("adm-pass-row").style.display = "flex";
-  $("adm-panel").style.display = "none";
+  $("adm-panel").style.display = "";
+  $("adm-panel").classList.remove("on");
   $("adm-sel-box").style.display = "none";
   $("adm-pass-note").textContent =
     "O dono entra com o nick e a senha mestra. Quem está na equipe entra " +
@@ -1148,7 +1149,8 @@ $("quem-sair").addEventListener("click", () => {
   admEsquecer();
   PERM.entrou = false; PERM.dono = false; PERM.permissoes = {};
   $("adm-abas").classList.remove("on");
-  $("adm-panel").style.display = "none";
+  $("adm-panel").style.display = "";
+  $("adm-panel").classList.remove("on");
   $("adm-quem").style.display = "none";
   $("adm-pass-row").style.display = "";
   $("adm-pass").value = "";
@@ -1161,7 +1163,12 @@ $("quem-sair").addEventListener("click", () => {
    --------------------------------------------------------------------- */
 function abrirPainelComo() {
   $("adm-pass-row").style.display = "none";
-  $("adm-panel").style.display = "block";
+  /* classe, não estilo em linha: no computador o painel é uma GRADE
+     (menu à esquerda, duas colunas de conteúdo), e um display:block
+     escrito aqui venceria o CSS e desmontaria o layout inteiro sem
+     erro nenhum -- foi exatamente o que aconteceu. */
+  $("adm-panel").style.display = "";
+  $("adm-panel").classList.add("on");
   $("adm-quem").style.display = "block";
   $("adm-nick").value = "";
   $("adm-pass").value = "";
@@ -1598,9 +1605,9 @@ function admCaixaConversa(id) {
 
 const ABAS_ADM = [
   { id: "jogadores", nome: "👤 JOGADORES", perms: ["verLista"],
-    cartoes: ["adm-vivo", "adm-nuvem"] },
+    cartoes: ["adm-topo-num", "adm-vivo"] },
   { id: "acoes",     nome: "⚡ AÇÕES",     perms: ["darCoisas", "darRaros", "invVer", "invTirar", "zerar", "presGeral"],
-    cartoes: ["adm-nuvem"] },
+    cartoes: ["adm-vivo", "adm-nuvem"] },
   { id: "mundo",     nome: "🌍 MUNDO",     perms: ["recados", "eventos", "boosts", "trolls"],
     cartoes: ["adm-agora", "adm-atualiza", "adm-mundo", "adm-eventos", "adm-boosts", "adm-trolls"] },
   { id: "sugestoes", nome: "💡 SUGESTÕES", perms: ["sugVer"],
@@ -1618,6 +1625,7 @@ let abaAdm = "";
 
 const SUB_ACOES = [
   { id: "dar",    nome: "🎁 DAR",         pane: "pane-dar",   perms: ["darCoisas", "darRaros"] },
+  { id: "catalogo", nome: "📚 CATÁLOGO",  pane: "pane-catalogo", perms: ["darCoisas", "darRaros"] },
   { id: "tirar",  nome: "✕ TIRAR",        pane: "pane-tirar", perms: ["invTirar", "zerar"] },
   { id: "inv",    nome: "🎒 INVENTÁRIO",  pane: "pane-inv",   perms: ["invVer"] },
   { id: "caixa",  nome: "📦 CAIXA",       pane: "pane-caixa", perms: ["darCoisas", "darRaros", "invTirar", "presGeral"] }
@@ -1627,6 +1635,19 @@ let subAcao = "dar";
 function abasLiberadas() { return ABAS_ADM.filter(a => a.perms.some(pode)); }
 function subsLiberadas() { return SUB_ACOES.filter(a => a.perms.some(pode)); }
 
+/* o rodapé do menu: quantos estão com o jogo aberto agora. É o mesmo
+   número do cartão de cima, e vem do mesmo lugar -- fica visível em
+   qualquer aba, para o dono não precisar voltar à aba JOGADORES só para
+   saber se tem alguém no jogo. */
+function admLadoPeAtualizar() {
+  const pe = document.querySelector(".adm-lado-pe b");
+  if (!pe) return;
+  let n = 0;
+  try { n = Object.keys(vivoDados).map(id => vivoDados[id]).filter(p => p && p.nome && estaOnline(p)).length; }
+  catch (e) {}
+  pe.textContent = n;
+}
+
 function renderAbasAdm() {
   const cx = $("adm-abas");
   const libs = abasLiberadas();
@@ -1634,6 +1655,16 @@ function renderAbasAdm() {
   cx.classList.add("on");
   if (!libs.some(a => a.id === abaAdm)) abaAdm = libs[0].id;
   cx.innerHTML = "";
+  /* A MARCA E O RESUMO só existem no computador, onde o menu é uma
+     coluna fixa. No celular as abas rolam de lado e um cabeçalho ali
+     dentro roubaria o espaço da primeira aba -- por isso o CSS esconde
+     os dois abaixo de 900px em vez de o JS decidir: quem sabe a largura
+     da tela é o CSS, e assim a conta é feita uma vez só. */
+  const marca = document.createElement("div");
+  marca.className = "adm-marca";
+  marca.innerHTML = "<b>▲</b><span>NEON<em>PAINEL</em></span>";
+  cx.appendChild(marca);
+
   for (const a of libs) {
     const b = document.createElement("button");
     b.className = "adm-aba" + (abaAdm === a.id ? " on" : "");
@@ -1641,10 +1672,22 @@ function renderAbasAdm() {
     b.addEventListener("click", () => {
       abaAdm = a.id;
       renderAbasAdm();
-      try { cx.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) {}
+      /* no computador o menu é fixo à esquerda: rolar até ele jogaria a
+         tela para o lado errado. Lá quem tem que aparecer é o conteúdo. */
+      try {
+        const alvo = innerWidth >= 900 ? $("adm-panel") : cx;
+        if (alvo) alvo.scrollIntoView({ block: "start", behavior: "smooth" });
+      } catch (e) {}
     });
     cx.appendChild(b);
   }
+
+  const pe = document.createElement("div");
+  pe.className = "adm-lado-pe";
+  pe.innerHTML = "<b>0</b><span>COM O JOGO ABERTO</span>";
+  cx.appendChild(pe);
+  admLadoPeAtualizar();
+
   mostrarAba();
 }
 function sugNovas() {
@@ -1671,23 +1714,32 @@ function mostrarAba() {
     const el = $(id);
     if (!el) continue;
     const naAba = atual && atual.cartoes.indexOf(id) >= 0;
-    el.style.display = (naAba && permiteCartao(id)) ? "block" : "none";
+    /* alguns cartões não são "block": a fileira de números é uma grade.
+       Guardar o display certo no próprio elemento evita um "if" com o id
+       escrito aqui dentro, que é o tipo de coisa que some quando alguém
+       renomeia o cartão. */
+    el.style.display = (naAba && permiteCartao(id)) ? (el.getAttribute("data-disp") || "block") : "none";
   }
-  // o cartão de jogadores serve às duas abas, mas com caras diferentes
+  /* A LISTA É UMA SÓ, E APARECE NAS DUAS ABAS.
+     Antes eram dois cartões lendo o mesmo lugar da nuvem, cada um com
+     metade da informação. Agora JOGADORES mostra a tabela, e AÇÕES
+     mostra a MESMA tabela com o painel de ações embaixo de quem você
+     tocar -- escolher e agir na mesma tela, sem ir e voltar. */
   const sel = $("adm-nuvem-sel");
-  const lista = $("adm-nuvem-lista");
-  const busca = $("adm-nuvem-busca");
   if (abaAdm === "acoes") {
-    if (busca && busca.parentElement) busca.parentElement.style.display = "";
-    if (lista) lista.style.display = "";
     if (sel) sel.style.display = admNuvemAlvo ? "block" : "none";
-    const cab = document.querySelector("#adm-nuvem .adm-h");
-    if (cab) cab.textContent = admNuvemAlvo ? "AÇÕES EM QUEM VOCÊ ESCOLHEU" : "ESCOLHA UM JOGADOR";
+    const cab = document.querySelector("#adm-vivo .adm-h");
+    if (cab) cab.innerHTML = '<span class="pulso"></span> ' +
+      (admNuvemAlvo ? "JOGADORES · agindo em " + escaparTexto(admNuvemAlvo.nome) : "ESCOLHA UM JOGADOR") +
+      ' <span class="vivo-cont" id="vivo-cont"></span>';
+    try { vivoRender(); } catch (e) {}
     renderSubAcoes();
   } else if (abaAdm === "jogadores") {
     if (sel) sel.style.display = "none";
-    const cab = document.querySelector("#adm-nuvem .adm-h");
-    if (cab) cab.textContent = "JOGADORES ONLINE";
+    const cab = document.querySelector("#adm-vivo .adm-h");
+    if (cab) cab.innerHTML = '<span class="pulso"></span> JOGADORES' +
+      ' <span class="vivo-cont" id="vivo-cont"></span>';
+    try { vivoRender(); } catch (e) {}
   }
   const vazio = $("adm-vazio");
   if (vazio) vazio.style.display = abasLiberadas().length ? "none" : "block";
@@ -1725,6 +1777,7 @@ function renderSubAcoes() {
     const p = $(a.pane);
     if (p) p.style.display = (a.id === subAcao && libs.some(x => x.id === a.id)) ? "block" : "none";
   }
+  if (subAcao === "catalogo") { try { catRender(); } catch (e) {} }
 }
 
 /* cada cartão e cada botão só aparece se a permissão estiver ligada */
@@ -1749,6 +1802,7 @@ const CARTOES_PERM = {
   "adm-agora":   ["recados", "eventos", "boosts", "trolls"],
   "adm-vivo":    "verLista",
   "adm-nuvem":   "verLista",
+  "adm-topo-num": "verLista",
   "adm-local":   "backup",
   "adm-todos":   "backup",
   "adm-backup":  "backup"

@@ -475,6 +475,29 @@ document.querySelector("#sugestao-box .sg-fundo").addEventListener("click", fech
 let presenteGuardado = null;
 let recadoDoPresente = "";      // o que o administrador escreveu junto do presente
 
+/* ---------------------------------------------------------------------
+   O AVISO DE RETIRADA
+   ---------------------------------------------------------------------
+   O contrário da caixa de presente, e de propósito: aparece de uma vez,
+   sem brilho, sem som de baú, sem "toque para abrir". A pessoa perdeu
+   alguma coisa -- a tela tem que dizer isso e sair da frente, não fazer
+   festa.                                                              */
+function avisarRetirada(lista) {
+  if (!lista || !lista.length) return;
+  const cx = $("retirada-aviso"), box = $("retirada-itens");
+  if (!cx || !box) return;
+  box.innerHTML = lista.map(it =>
+    '<div class="retirada-item"><b>' + (it.icone || "⚠") + "</b>" +
+    "<span>" + escaparTexto(it.texto) + "</span></div>").join("");
+  cx.classList.add("on");
+  /* vibra curto e grave: é aviso, não prêmio */
+  vibrate(60);
+}
+(function ligarRetirada() {
+  const b = $("retirada-ok");
+  if (b) b.addEventListener("click", () => $("retirada-aviso").classList.remove("on"));
+})();
+
 function mostrarCaixaPresente() {
   if (!presenteGuardado || !presenteGuardado.length) return;
   if (S.mode !== "menu") return;             // só no menu, nunca sobre o login
@@ -575,6 +598,15 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.3", itens: [
+      "O PAINEL DO DONO no computador virou um painel de verdade: menu fixo à esquerda, os números em cima e a lista de jogadores do lado das ações — escolher e agir sem a tela pular. No celular continua como estava; o dele vem depois",
+      "UMA LISTA DE JOGADORES, não duas. Eram dois cartões lendo o mesmo lugar, cada um com metade da informação",
+      "QUATRO NÚMEROS no topo: quem está jogando agora (com um gráfico das últimas leituras), quantos pilotos existem, quantos vieram hoje e quantos ainda estão numa versão velha",
+      "DAR VIROU UM TOQUE. Antes tudo ia para uma caixa e você tinha que ir a outra abinha, escrever um recado e enviar. Agora cai na conta na hora — e o pacote com recado virou uma escolha, não um pedágio",
+      "TIRAR É NA HORA e nunca mais chega como presente. Chegava embrulhado, com som de baú: a pessoa abria a caixinha para descobrir que tinha perdido as naves. Agora é um aviso seco, sem festa",
+      "CATÁLOGO NOVO: dá para dar QUALQUER coisa do jogo, item a item, por categoria — as 120 naves uma a uma, as exclusivas, 88 amuletos, habilidades, melhorias, peças, passes, VIP, molduras, ranks, emotes e cristais. Com busca",
+      "As molduras do apelido agora podem ser DADAS pelo painel, além de conquistadas"
+    ] },
   { v: "8.2", itens: [
       "O MENU FICOU SINCRONIZADO: tudo tem a mesma cara e mora onde você imagina. Tinha gente que não achava as coisas depois que os botões foram comprimidos",
       "JOGAR agora reúne TODOS os jeitos de jogar num lugar só: Jornada, Jogar com amigo, Ranqueada, Arena infinita, Maratona de chefes e Sala de treino",
@@ -1087,7 +1119,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.2";
+const VERSAO = "8.3";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

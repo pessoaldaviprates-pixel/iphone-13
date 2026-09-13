@@ -4847,3 +4847,277 @@
     width:36px;height:36px;border-radius:11px;cursor:pointer;font-size:1.15rem;line-height:1;
     background:rgba(6,12,26,.7);border:1px solid rgba(120,200,255,.22);color:var(--ink2)}
   .c3-voltar:active{transform:scale(.92);border-color:var(--cyan)}
+
+  /* =====================================================================
+     O PAINEL NO COMPUTADOR
+     ---------------------------------------------------------------------
+     O painel nasceu para caber num celular: uma coluna, abas rolando de
+     lado, um cartão embaixo do outro. Num monitor isso vira uma tira
+     estreita no meio da tela com muito vazio dos lados, e o dono rola
+     sem parar para achar as coisas.
+
+     Daqui para cima ele vira um painel de verdade: MENU FIXO À ESQUERDA
+     (as abas, que no celular rolam de lado, aqui cabem todas de uma vez
+     e ficam sempre visíveis), NÚMEROS EM CIMA e o conteúdo em duas
+     colunas.
+
+     Nada disso muda no celular: é tudo dentro desta media query. O
+     celular ganha o dele depois, com calma.
+     ===================================================================== */
+  @media (min-width: 900px) {
+    #screen-adm .scroll{
+      display:grid;
+      grid-template-columns:214px minmax(0,1fr);
+      grid-template-areas:"lado topo" "lado corpo";
+      align-content:start;
+      gap:0 18px;
+      max-width:1380px;margin:0 auto;width:100%;
+      padding:16px 20px 28px;
+    }
+    /* logado fora: o cartão de senha toma a tela toda e nada mais existe */
+    #adm-pass-row{grid-area:1/1/-1/-1;max-width:420px;margin:8vh auto 0}
+    #screen-adm .adm-abas{grid-area:lado}
+    #adm-quem{grid-area:topo}
+    #adm-panel{grid-area:corpo;min-width:0}
+    #adm-vazio{grid-area:corpo}
+
+    /* ---- a coluna da esquerda: o menu ---- */
+    #screen-adm .adm-abas.on{
+      display:flex;flex-direction:column;align-items:stretch;
+      gap:3px;overflow:visible;
+      position:sticky;top:14px;align-self:start;
+      padding:12px 10px;border-radius:16px;
+      background:linear-gradient(175deg,rgba(14,26,50,.55),rgba(5,10,22,.7));
+      border:1px solid rgba(120,200,255,.16);
+    }
+    #screen-adm .adm-aba{
+      display:flex;align-items:center;gap:9px;
+      width:100%;text-align:left;white-space:nowrap;
+      padding:10px 12px;border-radius:10px;
+      font-size:.68rem;letter-spacing:.06em;
+      border:1px solid transparent;background:none;color:var(--dim);
+    }
+    #screen-adm .adm-aba:hover{background:rgba(255,255,255,.05);color:var(--ink2)}
+    /* a aba aberta é uma pílula cheia: dá para achar sem procurar */
+    #screen-adm .adm-aba.on{
+      background:linear-gradient(100deg,rgba(77,232,255,.20),rgba(195,77,255,.16));
+      border-color:rgba(77,232,255,.45);color:var(--ink);
+      box-shadow:0 4px 16px rgba(0,0,0,.35), inset 0 1px 0 rgba(160,220,255,.16);
+    }
+    #screen-adm .adm-aba i{
+      margin-left:auto;font-style:normal;font-size:.56rem;
+      background:var(--magenta);color:#07101F;border-radius:99px;padding:1px 6px;
+    }
+    /* a marca e o rodapé do menu, desenhados pelo JS */
+    .adm-marca{
+      display:flex;align-items:center;gap:9px;padding:4px 10px 14px;
+      border-bottom:1px solid rgba(120,200,255,.14);margin-bottom:10px;
+    }
+    .adm-marca b{
+      width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;
+      background:linear-gradient(145deg,var(--cyan),#C34DFF);color:#04060F;font-size:.9rem;
+    }
+    .adm-marca span{display:block;font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.08em}
+    .adm-marca em{display:block;font-style:normal;font-size:.5rem;letter-spacing:.2em;color:var(--fraco)}
+    .adm-lado-pe{
+      margin-top:12px;padding:12px 11px;border-radius:12px;
+      background:linear-gradient(160deg,rgba(195,77,255,.18),rgba(77,232,255,.10));
+      border:1px solid rgba(195,77,255,.3);
+    }
+    .adm-lado-pe b{display:block;font-family:"Russo One",sans-serif;font-size:1.1rem;color:var(--cyan)}
+    .adm-lado-pe span{display:block;font-size:.54rem;letter-spacing:.14em;color:var(--dim);margin-top:2px}
+
+    /* ---- a faixa de cima: quem sou eu ---- */
+    #adm-quem{margin:0 0 16px;padding:12px 16px}
+
+
+  }
+
+  /* ---- o aviso de retirada: o oposto da caixa de presente ---- */
+  .retirada{
+    position:fixed;inset:0;z-index:70;display:none;
+    align-items:center;justify-content:center;padding:22px;
+    background:rgba(3,6,14,.86);backdrop-filter:blur(4px);
+  }
+  .retirada.on{display:flex}
+  .retirada-cx{
+    width:min(360px,100%);padding:20px;border-radius:16px;text-align:center;
+    background:linear-gradient(165deg,rgba(40,12,26,.95),rgba(10,6,16,.97));
+    border:1px solid rgba(255,77,143,.4);
+  }
+  .retirada-cx > b{
+    display:block;font-family:"Russo One",sans-serif;font-size:.84rem;
+    letter-spacing:.1em;color:var(--magenta);margin-bottom:14px;
+  }
+  .retirada-item{
+    display:flex;align-items:center;gap:10px;text-align:left;
+    padding:9px 11px;margin-bottom:7px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,77,143,.22);
+  }
+  .retirada-item b{font-size:.9rem;flex:none}
+  .retirada-item span{font-size:.72rem;line-height:1.4;color:var(--ink2)}
+  #retirada-ok{width:100%;margin-top:10px}
+
+  /* ---- o catálogo: tudo o que dá para dar, por categoria ---- */
+  .cat-topo{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+  .cat-abas{
+    display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .cat-abas::-webkit-scrollbar{display:none}
+  .cat-aba{
+    flex:none;padding:7px 11px;border-radius:99px;cursor:pointer;white-space:nowrap;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.58rem;letter-spacing:.08em;
+  }
+  .cat-aba.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  #cat-busca{width:100%}
+  .cat-conta{font-size:.56rem;letter-spacing:.08em;color:var(--fraco);margin-bottom:8px}
+  .cat-grade{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px;
+    max-height:46vh;overflow-y:auto;padding-right:2px;
+  }
+  .cat-item{
+    display:flex;align-items:center;gap:9px;text-align:left;min-height:48px;
+    padding:8px 10px;border-radius:10px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+  }
+  .cat-item b{font-size:.95rem;flex:none;width:20px;text-align:center;color:var(--cyan)}
+  .cat-item span{min-width:0;flex:1}
+  .cat-item strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;
+    color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cat-item em{
+    display:block;font-style:normal;font-size:.54rem;color:var(--dim);margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cat-item.ouro{border-color:rgba(255,193,69,.4)}
+  .cat-item.ouro b{color:var(--amber)}
+  .cat-item:active{transform:scale(.97);background:rgba(77,232,255,.14)}
+
+  /* ---- o modo de entrega do painel ---- */
+  .adm-modo{display:flex;gap:6px;margin-bottom:10px}
+  .adm-modo-b{
+    flex:1;padding:9px 8px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.08em;
+  }
+  .adm-modo-b.on{
+    background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan);
+  }
+  .adm-modo-b:active{transform:scale(.97)}
+
+  /* o painel só aparece depois de entrar. Quem manda é a classe, para o
+     computador poder trocar o display por "grid" sem brigar com o JS. */
+  #adm-panel{display:none}
+  #adm-panel.on{display:block}
+
+  /* ---- os quatro números (valem em qualquer tamanho) ---- */
+  .adm-numeros-topo{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;
+  }
+  .num-card{
+    position:relative;overflow:hidden;
+    padding:13px 14px 12px;border-radius:14px;
+    background:linear-gradient(165deg,rgba(14,26,50,.6),rgba(5,10,22,.72));
+    border:1px solid rgba(120,200,255,.18);
+  }
+  /* o primeiro é o que importa mais, então é o único cheio de cor */
+  .num-card.forte{
+    background:linear-gradient(150deg,#6B2BD9,#3B1B8C 60%,#25136B);
+    border-color:rgba(195,77,255,.5);
+    box-shadow:0 8px 26px rgba(107,43,217,.28);
+  }
+  .num-rot{
+    display:flex;align-items:center;gap:6px;
+    font-size:.48rem;letter-spacing:.18em;color:var(--fraco);font-weight:700;
+  }
+  .num-card.forte .num-rot{color:rgba(255,255,255,.78)}
+  .num-card b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.45rem;
+    line-height:1.1;margin-top:5px;color:var(--cyan);
+  }
+  .num-card.forte b{color:#FFF;text-shadow:0 0 18px rgba(195,77,255,.6)}
+  .num-card em{
+    display:block;font-style:normal;font-size:.52rem;color:var(--dim);margin-top:3px;
+  }
+  /* as barrinhas: doze leituras de quantos estavam jogando, sem biblioteca */
+  .num-barras{
+    display:flex;align-items:flex-end;gap:3px;height:26px;margin-top:7px;
+  }
+  .num-barras i{
+    flex:1;min-width:2px;border-radius:2px 2px 0 0;
+    background:linear-gradient(180deg,#FFF,rgba(255,255,255,.35));
+    opacity:.85;
+  }
+
+  @media (min-width: 900px) {
+    .adm-numeros-topo{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:0}
+    .num-card{padding:15px 16px 14px}
+    .num-card b{font-size:1.9rem}
+  }
+
+  /* ---- a tabela de jogadores ---- */
+  .vivo-cabecalho{display:none}
+  @media (min-width: 900px) {
+    /* no computador as colunas viram colunas de verdade, com cabeçalho.
+       No celular continuam empilhadas, que é onde coluna não cabe. */
+    .vivo-cabecalho{
+      display:grid;grid-template-columns:14px minmax(0,1fr) 64px 110px 60px 34px;
+      gap:10px;align-items:center;
+      padding:0 12px 7px;margin-top:10px;
+      border-bottom:1px solid rgba(120,200,255,.14);
+    }
+    .vivo-cabecalho span{
+      font-size:.46rem;letter-spacing:.18em;color:var(--fraco);font-weight:700;
+    }
+    .vivo-cabecalho span:first-child{grid-column:1/3}
+    .vivo-cabecalho span:nth-child(2){text-align:right}
+    .vivo-cabecalho span:nth-child(3){text-align:right}
+    .vivo-cabecalho span:nth-child(4){text-align:center}
+    .vivo-row{
+      display:grid;grid-template-columns:14px minmax(0,1fr) 64px 110px 60px 34px;
+      gap:10px;align-items:center;
+    }
+    .vivo-col{font-size:.7rem;color:var(--ink2);text-align:right;white-space:nowrap}
+    .vivo-col.vivo-gem{color:var(--amber)}
+    .vivo-ver{text-align:center}
+  }
+  /* no celular as colunas extras somem: a linha já diz fase e cristais */
+  @media (max-width: 899px) { .vivo-col{display:none} }
+
+  /* =====================================================================
+     A GRADE DO PAINEL NO COMPUTADOR
+     ---------------------------------------------------------------------
+     Isto mora no FIM do arquivo de propósito. O painel tem, mais acima,
+     um "#adm-panel.on{display:block}" para o celular. Mesma
+     especificidade: quem vem depois vence. Escrito lá em cima, o
+     display:grid perdia para o block e o layout de duas colunas nascia
+     morto -- sem erro nenhum, só um painel estreito no meio do monitor.
+     ===================================================================== */
+  @media (min-width: 900px) {
+    /* o max-width:520px do celular é o que fazia o painel virar uma tira
+       no meio da tela. Aqui os cartões usam a largura que têm. */
+    #adm-panel.on{
+      display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);
+      gap:16px;align-content:start;align-items:start;
+    }
+    #adm-panel > .adm-card,
+    #adm-panel > .adm-numeros-topo{margin:0;max-width:none}
+    /* a fileira de números atravessa as duas colunas */
+    #adm-panel > #adm-topo-num{grid-column:1/-1}
+    /* a lista à esquerda, as ações de quem você tocar à direita: escolher
+       e agir sem a tela pular */
+    #adm-panel > #adm-vivo{grid-column:1/2}
+    #adm-panel > #adm-nuvem{grid-column:2/3;position:sticky;top:14px;align-self:start}
+  }
+  /* monitor estreito: lado a lado apertado é pior que empilhado */
+  @media (min-width: 900px) and (max-width: 1150px) {
+    #adm-panel.on{grid-template-columns:minmax(0,1fr)}
+    #adm-panel > #adm-vivo,#adm-panel > #adm-nuvem{grid-column:1/-1}
+    #adm-panel > #adm-nuvem{position:static}
+  }
+

@@ -647,20 +647,80 @@ function vivoDesligar() {
   if (vivoFechar) { vivoFechar(); vivoFechar = null; }
   if (vivoRelogio) { clearInterval(vivoRelogio); vivoRelogio = null; }
 }
+/* ---------------------------------------------------------------------
+   OS QUATRO NÚMEROS DO TOPO
+   ---------------------------------------------------------------------
+   Antes, para saber como o jogo ia, o dono tinha que apertar ATUALIZAR
+   NÚMEROS lá embaixo e ler um relatório. Agora bate o olho: quantos
+   estão jogando AGORA, quantos pilotos existem, quantos vieram hoje e
+   quantos ainda estão numa versão velha -- que é o número que mais dói,
+   porque é gente que não recebeu nenhum conserto.
+
+   Sai da MESMA lista que a tabela: sem nova busca na nuvem e sem risco
+   de o topo dizer uma coisa e a lista dizer outra.                     */
+function admNumerosTopo(todos) {
+  const cx = $("adm-topo-num");
+  if (!cx) return;
+  const agora = todos.filter(estaOnline).length;
+  const dia = 86400000;
+  const hoje = todos.filter(p => Date.now() - (p.atualizado || 0) < dia).length;
+  const velha = todos.filter(p => versaoNumero(p.versao || "0") < versaoNumero(VERSAO)).length;
+  const por = (id, v) => { const e = $(id); if (e) e.textContent = v; };
+  por("num-agora", agora);
+  por("num-pilotos", fmt(todos.length));
+  por("num-pilotos-pe", agora ? agora + " com o jogo aberto" : "ninguém agora");
+  por("num-hoje", fmt(hoje));
+  por("num-hoje-pe", todos.length ? Math.round(hoje / todos.length * 100) + "% de quem existe" : "—");
+  por("num-velha", fmt(velha));
+  por("num-velha-pe", velha ? "não receberam os consertos" : "todos na " + VERSAO);
+  const v = $("num-velha");
+  if (v) v.style.color = velha ? "var(--magenta)" : "var(--verde)";
+
+  /* barrinhas: as últimas 12 leituras de quantos estavam jogando. É o
+     gráfico do cartão da referência, sem biblioteca nenhuma. */
+  /* SEMPRE doze barras. A leitura nova entra pela direita e as que
+     faltam ficam rasteiras à esquerda: o cartão tem a mesma cara desde
+     o primeiro segundo, e a história vai empurrando. Começar com uma
+     barra só deixava aquela barra ocupando o cartão inteiro, o que
+     parece defeito em vez de "ainda não tenho história". */
+  admHistorico.push(agora);
+  while (admHistorico.length > 12) admHistorico.shift();
+  while (admHistorico.length < 12) admHistorico.unshift(0);
+  const alto = Math.max(1, ...admHistorico);
+  const bar = $("num-barras");
+  if (bar) {
+    bar.innerHTML = admHistorico.map(n =>
+      '<i style="height:' + Math.max(8, Math.round(n / alto * 100)) + '%"></i>').join("");
+  }
+}
+let admHistorico = [];
+
 function vivoRender() {
   const box = $("vivo-lista");
   if (!box) return;
-  const lista = Object.keys(vivoDados)
+  const todos = Object.keys(vivoDados)
     .map(id => Object.assign({ id }, vivoDados[id]))
     .filter(p => p && p.nome)
     .sort((a, b) => (estaOnline(b) ? 1 : 0) - (estaOnline(a) ? 1 : 0) ||
                     (b.atualizado || 0) - (a.atualizado || 0));
-  const ligados = lista.filter(estaOnline).length;
-  $("vivo-cont").textContent = ligados + " de " + lista.length + " com o jogo aberto";
+  /* esta lista é a ÚNICA lista de jogadores do painel. O resto do painel
+     ainda pergunta por admNuvemLista, então ela sai daqui -- uma lista
+     só, uma verdade só. */
+  if (todos.length) admNuvemLista = todos;
+  const busca = (($("adm-nuvem-busca") || {}).value || "").trim().toLowerCase();
+  const lista = busca
+    ? todos.filter(p => String(p.nome).toLowerCase().indexOf(busca) >= 0)
+    : todos;
+  const ligados = todos.filter(estaOnline).length;
+  $("vivo-cont").textContent = ligados + " de " + todos.length + " com o jogo aberto";
+  try { admNumerosTopo(todos); } catch (e) {}
+  try { admLadoPeAtualizar(); } catch (e) {}
   box.innerHTML = "";
   if (!lista.length) {
-    box.innerHTML = '<div class="adm-vazio"><b>👀</b>Ninguém apareceu ainda.<br>' +
-      "As pessoas entram nesta lista assim que abrem o jogo com internet.</div>";
+    box.innerHTML = '<div class="adm-vazio"><b>👀</b>' +
+      (todos.length ? "Nenhum jogador com esse nome."
+                    : "Ninguém apareceu ainda.<br>As pessoas entram nesta lista assim que abrem o jogo com internet.") +
+      "</div>";
     return;
   }
   for (const p of lista.slice(0, 60)) {
@@ -671,15 +731,18 @@ function vivoRender() {
                     (admNuvemAlvo && admNuvemAlvo.id === p.id ? " sel" : "");
     const ver = String(p.versao || "?");
     const velha = ver !== VERSAO;
+    const fora = ficaDeForaDoRanking(p);
     row.innerHTML =
       '<span class="vivo-luz"></span>' +
       '<div class="vivo-txt">' +
-        '<div class="vivo-nome">' + escaparTexto(p.nome) + "</div>" +
-        '<div class="vivo-onde">' + escaparTexto(on ? (p.onde || "No jogo") : "Fechado") + "</div>" +
-        '<div class="vivo-meta">Fase ' + (p.fase || 0) + " · ◆ " + fmt(p.cristais || 0) +
+        '<div class="vivo-nome">' + escaparTexto(p.nome) +
+          (fora ? ' <em class="selo-oculto">fora do placar</em>' : "") + "</div>" +
+        '<div class="vivo-onde">' + escaparTexto(on ? (p.onde || "No jogo") : "Fechado") +
           " · " + (on ? "aberto há " + duracao(p.entrou) : "visto " + tempoRelativo(p.atualizado)) +
         "</div>" +
       "</div>" +
+      '<span class="vivo-col vivo-fase">' + (p.fase || 0) + "</span>" +
+      '<span class="vivo-col vivo-gem">◆ ' + fmt(p.cristais || 0) + "</span>" +
       '<span class="vivo-ver' + (velha ? " velha" : "") + '">v' + escaparTexto(ver) + "</span>";
     const olho = document.createElement("button");
     olho.className = "vivo-olho";
@@ -711,13 +774,21 @@ let admNuvemLista = [];
 let admNuvemAlvo = null;
 
 async function admNuvemCarregar() {
-  const el = $("adm-nuvem-lista");
-  el.innerHTML = '<div class="adm-note">Buscando jogadores…</div>';
   admNuvemLista = await nuvemListar();
-  admNuvemRender();
+  /* a lista viva desenha a partir de vivoDados; alimenta os dois para
+     que o botão ATUALIZAR funcione mesmo antes de o fluxo abrir */
+  for (const p of admNuvemLista) if (p && p.id) vivoDados[p.id] = p;
+  vivoRender();
 }
-function admNuvemRender() {
+/* Uma lista só: quem pedia admNuvemRender() agora repinta a lista viva.
+   Manter duas telas da mesma coisa era o que fazia o painel parecer
+   grande e confuso -- e obrigava a olhar em dois lugares para saber uma
+   coisa só. */
+function admNuvemRender() { vivoRender(); }
+
+function admNuvemRenderAntigo() {
   const el = $("adm-nuvem-lista");
+  if (!el) return;
   const busca = ($("adm-nuvem-busca").value || "").trim().toLowerCase();
   const lista = admNuvemLista.filter(p => !busca || String(p.nome).toLowerCase().indexOf(busca) >= 0);
   el.innerHTML = "";
@@ -1110,20 +1181,12 @@ function invRender() {
     const dica = document.createElement("p");
     dica.className = "adm-note";
     dica.style.marginTop = "8px";
+    /* o botão "pôr na caixa em vez de tirar agora" saiu daqui: tirar é
+       sempre na hora, e ter as duas saídas era a própria confusão */
     dica.innerHTML = n
-      ? "<b>" + n + "</b> item(ns) marcado(s). <b>TIRAR AGORA</b> já apaga da conta. " +
-        "Se preferir juntar com outras coisas num pacote só, use PÔR NA CAIXA."
+      ? "<b>" + n + "</b> item(ns) marcado(s). <b>TIRAR AGORA</b> apaga da conta na hora."
       : "Toque no <b>✕</b> de cada item para marcar o que quer tirar.";
     box.appendChild(dica);
-
-    const caixa = document.createElement("button");
-    caixa.className = "adm-btn";
-    caixa.style.marginTop = "8px";
-    caixa.style.width = "100%";
-    caixa.textContent = "📦 PÔR NA CAIXA EM VEZ DE TIRAR AGORA";
-    caixa.disabled = !n;
-    caixa.addEventListener("click", invMandarParaCaixa);
-    box.appendChild(caixa);
   }
 }
 function invMontarRetirada() {
@@ -1163,30 +1226,56 @@ async function invTirarAgora() {
   admMsg("Pronto: os itens saíram da conta.");
   AudioSys.buy();
 }
-function invMandarParaCaixa() {
-  const sv = invSave();
-  const naves = Object.keys(invMarcado.naves).map(Number);
-  const amuletos = Object.keys(invMarcado.amuletos).map(Number);
-  const hab = Object.keys(invMarcado.hab);
-  const pecas = Object.keys(invMarcado.pecas).map(Number);
-  const ups = {};
-  for (const u of UPGRADES) {
-    const atual = (sv.upgrades || {})[u.id] || 0;
-    if (invNiveis[u.id] !== undefined && invNiveis[u.id] !== atual) ups[u.id] = invNiveis[u.id];
-  }
-  let n = 0;
-  if (naves.length)    { porNaCaixa({ remNaves: naves },       "Tirar naves"); n++; }
-  if (amuletos.length) { porNaCaixa({ remAmuletos: amuletos }, "Tirar amuletos"); n++; }
-  if (hab.length)      { porNaCaixa({ remHab: hab },           "Tirar habilidades"); n++; }
-  if (pecas.length)    { porNaCaixa({ remPecas: pecas },       "Tirar peças"); n++; }
-  if (Object.keys(ups).length) { porNaCaixa({ remUp: ups },    "Ajustar melhorias"); n++; }
-  if (!n) { admMsg("Marque alguma coisa primeiro."); AudioSys.deny(); return; }
-  invMarcado = { naves: {}, amuletos: {}, hab: {}, pecas: {} };
-  invNiveis = {};
-  invRender();
-  $("caixa-adm").scrollIntoView({ block: "center", behavior: "smooth" });
-}
+/* invMandarParaCaixa() foi embora: tirar coisa de alguém não é presente,
+   então não passa mais pela caixa. O caminho é um só, o TIRAR AGORA. */
 $("inv-abrir").addEventListener("click", invCarregar);
+
+/* =====================================================================
+   COMO O QUE VOCÊ TOCAR É ENTREGUE
+   ---------------------------------------------------------------------
+   Antes TUDO ia para a caixa: você tocava em DAR e nada visível
+   acontecia -- o item ficava guardado esperando você ir até a abinha
+   CAIXA, escrever um recado e enviar. Três telas para dar dez mil
+   cristais, e a queixa foi exatamente essa: "tá muito complicado dar
+   coisas".
+
+   Agora o normal é NA HORA. O pacote continua existindo, porque
+   presente com recado é outra coisa e vale a pena -- mas virou escolha,
+   não pedágio.                                                        */
+let admModo = "agora";                 // "agora" | "caixa"
+
+function admModoRender() {
+  const cx = $("adm-modo");
+  if (!cx) return;
+  cx.querySelectorAll("[data-modo]").forEach(b =>
+    b.classList.toggle("on", b.getAttribute("data-modo") === admModo));
+  const nota = $("dar-nota");
+  if (nota) {
+    nota.innerHTML = admModo === "agora"
+      ? "Tudo o que você tocar aqui <b>cai na conta na hora</b>."
+      : "Tudo o que você tocar aqui vai para a <b>caixa</b>. " +
+        "Termine na abinha 📦 CAIXA: escreva o recado e envie.";
+  }
+}
+(function ligarModo() {
+  const cx = $("adm-modo");
+  if (!cx) return;
+  cx.querySelectorAll("[data-modo]").forEach(b =>
+    b.addEventListener("click", () => {
+      admModo = b.getAttribute("data-modo");
+      admModoRender();
+      renderCaixaAdm();
+    }));
+  admModoRender();
+})();
+
+/* O caminho ÚNICO de dar. Cada botão de DAR chama esta função e ela
+   decide -- em vez de vinte botões cada um sabendo do modo, que é como
+   um deles um dia ficaria para trás. */
+function admDar(presente, msg) {
+  if (admModo === "caixa") { porNaCaixa(presente, msg); return; }
+  admNuvemPresente(presente, msg);
+}
 
 /* ----- caixa montada pelo administrador ----- */
 let caixaAdm = {};
@@ -1242,7 +1331,25 @@ function renderCaixaAdm() {
     ? "📦 ENVIAR (" + chaves.length + ")" : "📦 ENVIAR A CAIXA";
   try { if (abaAdm === "acoes") renderSubAcoes(); } catch (e) {}
 }
+/* o que é RETIRADA nunca entra na caixa. Uma lista só, aqui, porque
+   espalhar essa regra por vinte botões é garantir que um dia um deles
+   escape e alguém receba uma caixinha de presente para descobrir que
+   perdeu as naves. */
+const CHAVES_DE_TIRAR = ["remNaves", "remAmuletos", "remHab", "remUp", "remPecas",
+                         "tirarCristais", "tirarNaves", "zerarFases", "zerarHabilidades",
+                         "zerarAmuletos", "zerarTudo", "limparNaves"];
+function ehRetirada(presente) {
+  if (!presente) return false;
+  if (presente.setCristais === 0) return true;
+  return CHAVES_DE_TIRAR.some(k => presente[k] !== undefined);
+}
+
 function porNaCaixa(presente, msg) {
+  if (ehRetirada(presente)) {
+    admMsg("Tirar é sempre na hora — não vai em pacote de presente.");
+    try { AudioSys.deny(); } catch (e) {}
+    return;
+  }
   if (!admNuvemAlvo) { admMsg("Escolha um jogador online."); return; }
   for (const k in presente) {
     if (k === "cristais" && caixaAdm.cristais) caixaAdm.cristais += presente[k];
@@ -1415,51 +1522,54 @@ async function admNuvemPresente(presente, msg) {
   vibrate(20);
   admNuvemSelecionar(admNuvemAlvo);
 }
-/* ações destrutivas pedem dois toques */
+/* Ações destrutivas pedem dois toques e acontecem NA HORA.
+   Antes iam para a caixa e chegavam embrulhadas de presente, o que é o
+   contrário do que tirar significa. Os dois toques ficam: o perigo aqui
+   é o dedo escorregar, não a demora. */
 let admNuvemConfirmar = null;
 function admNuvemPerigo(chave, presente, msg, aviso) {
   if (admNuvemConfirmar !== chave) {
     admNuvemConfirmar = chave;
-    admMsg("Toque de novo para pôr na caixa: " + aviso);
+    admMsg("Toque de novo para " + aviso + " AGORA.");
     setTimeout(() => { if (admNuvemConfirmar === chave) admNuvemConfirmar = null; }, 4000);
     return;
   }
   admNuvemConfirmar = null;
-  porNaCaixa(presente, msg);
+  admNuvemPresente(presente, msg);
 }
 $("adm-nuvem-load").addEventListener("click", admNuvemCarregar);
-$("adm-nuvem-busca").addEventListener("input", admNuvemRender);
-/* dar — tudo vai para a caixa, e a caixa é enviada de uma vez */
+$("adm-nuvem-busca").addEventListener("input", vivoRender);
+/* dar — o caminho é um só: admDar() decide entre a hora e o pacote */
 $("adm-nuvem-dar").addEventListener("click", () =>
-  porNaCaixa({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais"));
+  admDar({ cristais: admNum("adm-nuvem-gem", 0) }, "Cristais"));
 $("adm-nuvem-set").addEventListener("click", () =>
-  porNaCaixa({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Definir cristais"));
+  admDar({ setCristais: Math.max(0, admNum("adm-nuvem-gem", 0)) }, "Definir cristais"));
 $("adm-nuvem-fase-set").addEventListener("click", () =>
-  porNaCaixa({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Definir fase"));
+  admDar({ setFase: clamp(admNum("adm-nuvem-fase", 0), 0, TOTAL_FASES) }, "Definir fase"));
 $("adm-nuvem-naves").addEventListener("click", () =>
-  porNaCaixa({ naves: true }, "Naves"));
+  admDar({ naves: true }, "Naves"));
 $("adm-nuvem-fases").addEventListener("click", () =>
-  porNaCaixa({ fases: true }, "Fases"));
+  admDar({ fases: true }, "Fases"));
 $("adm-nuvem-hab").addEventListener("click", () =>
-  porNaCaixa({ habilidades: true }, "Habilidades"));
+  admDar({ habilidades: true }, "Habilidades"));
 $("adm-nuvem-melhorias").addEventListener("click", () =>
-  porNaCaixa({ melhorias: true }, "Melhorias"));
+  admDar({ melhorias: true }, "Melhorias"));
 $("adm-nuvem-lend").addEventListener("click", () =>
-  porNaCaixa({ lendarios: true }, "Lendários"));
+  admDar({ lendarios: true }, "Lendários"));
 $("adm-nuvem-tudo").addEventListener("click", () =>
-  porNaCaixa({ tudo: true }, "Tudo"));
+  admDar({ tudo: true }, "Tudo"));
 $("adm-nuvem-rank").addEventListener("click", () => {
   const v = parseInt($("adm-nuvem-rank-sel").value, 10) || 0;
-  porNaCaixa({ setRank: v }, "Rank " + nomeDoRank(v));
+  admDar({ setRank: v }, "Rank " + nomeDoRank(v));
 });
 $("adm-nuvem-maverick").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: MAVERICK }, "Maverick"));
+  admDar({ exclusiva: MAVERICK }, "Maverick"));
 $("adm-nuvem-b2").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: B2 }, "B-2 Spirit"));
+  admDar({ exclusiva: B2 }, "B-2 Spirit"));
 $("adm-nuvem-omega").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: OMEGA }, "Ômega-9 Arsenal"));
+  admDar({ exclusiva: OMEGA }, "Ômega-9 Arsenal"));
 $("adm-nuvem-privada").addEventListener("click", () =>
-  porNaCaixa({ exclusiva: PRIVADA }, "Trono Real"));
+  admDar({ exclusiva: PRIVADA }, "Trono Real"));
 
 /* tirar e zerar (dois toques) */
 $("adm-nuvem-gem-zero").addEventListener("click", () =>
@@ -1477,9 +1587,9 @@ $("adm-nuvem-zerar").addEventListener("click", () =>
 
 /* outros */
 $("adm-nuvem-god-on").addEventListener("click", () =>
-  porNaCaixa({ god: true }, "Invencibilidade"));
+  admDar({ god: true }, "Invencibilidade"));
 $("adm-nuvem-god-off").addEventListener("click", () =>
-  porNaCaixa({ god: false }, "Tirar invencibilidade"));
+  admDar({ god: false }, "Tirar invencibilidade"));
 /* esconder (ou trazer de volta) um piloto das tabelas, sem apagar nada */
 $("adm-nuvem-ocultar").addEventListener("click", async () => {
   if (!admNuvemAlvo) { admMsg("Escolha um jogador."); return; }
@@ -1512,7 +1622,8 @@ function admNuvemAtualizarBotaoOcultar() {
                  : "Tira ou devolve este piloto às tabelas do ranking.";
 }
 $("adm-nuvem-naves-criadas").addEventListener("click", () =>
-  porNaCaixa({ limparNaves: true }, "Desfazer naves montadas"));
+  admNuvemPerigo("montadas", { limparNaves: true }, "Naves montadas desfeitas",
+                 "desfazer as naves montadas"));
 $("adm-nuvem-cancelar").addEventListener("click", async () => {
   if (!admNuvemAlvo) return;
   await nuvemCancelarComando(admNuvemAlvo.id);
@@ -1819,3 +1930,152 @@ $("adm-import").addEventListener("click", () => {
   }
 });
 
+
+/* =====================================================================
+   O CATÁLOGO — DAR QUALQUER COISA, POR CATEGORIA
+   ---------------------------------------------------------------------
+   Até aqui o painel dava por atacado: "todas as naves", "3 lendários",
+   "dar tudo". Ou tudo, ou nada. Não dava para dar UMA nave para quem
+   ajudou, UM amuleto de prêmio, ou a moldura de Duelista para quem
+   ganhou um campeonato — e é justamente isso que se quer dar.
+
+   Aqui está tudo o que o jogo tem, separado por categoria e com busca.
+   A lista não é escrita à mão: ela SAI das mesmas tabelas que o jogo
+   usa (SHIPS, AMULET_TYPES, PASSES, MOLDURAS…). Nave nova que entrar no
+   jogo aparece aqui sozinha — uma lista copiada a mão nasceria
+   desatualizada no dia seguinte.
+   ===================================================================== */
+const CATEGORIAS = [
+  { id: "naves", nome: "NAVES", ic: "✈", itens: () =>
+      SHIPS.map((s, i) => ({ chave: "nave" + i, nome: s.name || ("Nave " + i), ic: "✈",
+                             nota: "nave " + (i + 1), dar: { darNaves: [i] } })) },
+
+  { id: "exclusivas", nome: "EXCLUSIVAS", ic: "★", itens: () =>
+      [[MAVERICK, "Maverick"], [B2, "B-2 Spirit"], [OMEGA, "Ômega-9 Arsenal"], [PRIVADA, "Trono Real"]]
+        .filter(x => SHIPS[x[0]])
+        .map(x => ({ chave: "ex" + x[0], nome: x[1], ic: "★", ouro: true,
+                     nota: "aeronave exclusiva", dar: { exclusiva: x[0] } })) },
+
+  { id: "amuletos", nome: "AMULETOS", ic: "◈", itens: () => {
+      const fora = [];
+      /* os lendários vêm sempre no topo: são o que se dá de prêmio */
+      for (const a of AMULET_SPECIALS)
+        fora.push({ chave: "am" + a.id, nome: a.name, ic: a.icon, ouro: true,
+                    nota: "lendário", dar: { darAmuletos: [{ tipo: a.id, rar: 3 }] } });
+      /* os comuns, uma linha por raridade: dar um "de dano" sem escolher
+         a raridade daria sempre o mais fraco, que não é presente */
+      const RAR = ["comum", "raro", "épico", "lendário"];
+      for (const t of AMULET_TYPES)
+        for (let r = 0; r < 4; r++)
+          fora.push({ chave: "am" + t.id + r, nome: t.name, ic: t.icon,
+                      nota: RAR[r], dar: { darAmuletos: [{ tipo: t.id, rar: r }] } });
+      return fora;
+    } },
+
+  { id: "habilidades", nome: "HABILIDADES", ic: "✦", itens: () => {
+      const ramos = [["atk", "Ataque"], ["def", "Defesa"], ["res", "Resistência"]];
+      const fora = [];
+      for (const [id, nome] of ramos)
+        for (const ate of [10, 20, 30, 40])
+          fora.push({ chave: "hab" + id + ate, nome: nome + " até " + ate, ic: "✦",
+                      nota: "abre os " + ate + " primeiros", dar: { darHab: { ramo: id, ate } } });
+      fora.push({ chave: "habtudo", nome: "Todas as habilidades", ic: "✦", ouro: true,
+                  nota: "os 120 pontos", dar: { habilidades: true } });
+      return fora;
+    } },
+
+  { id: "melhorias", nome: "MELHORIAS", ic: "⬡", itens: () =>
+      UPGRADES.map(u => ({ chave: "up" + u.id, nome: u.name || u.nome || u.id, ic: "⬡",
+                           nota: "no máximo", dar: { darUp: { [u.id]: u.max } } }))
+        .concat([{ chave: "uptudo", nome: "Tudo no máximo", ic: "⬡", ouro: true,
+                   nota: "melhorias e peças", dar: { melhorias: true } }]) },
+
+  { id: "pecas", nome: "PEÇAS", ic: "⚙", itens: () =>
+      PARTS.map(pt => ({ chave: "pc" + pt.id, nome: pt.name, ic: pt.icon,
+                         nota: "no máximo, em todas as naves",
+                         dar: { darPecas: { parte: pt.id, nivel: PART_MAX } } })) },
+
+  { id: "passes", nome: "PASSES", ic: "🎟", itens: () =>
+      (typeof PASSES !== "undefined" ? PASSES : []).map(pa =>
+        ({ chave: "pa" + pa.id, nome: pa.nome, ic: pa.icone, ouro: true,
+           nota: pa.desc, dar: { compra: { passes: [pa.id] } } })) },
+
+  { id: "vip", nome: "VIP", ic: "👑", itens: () =>
+      [7, 15, 30, 90, 180, 365].map(d =>
+        ({ chave: "vip" + d, nome: "VIP por " + d + " dias", ic: "👑", ouro: true,
+           nota: d >= 365 ? "um ano" : d + " dias", dar: { compra: { vipDias: d } } })) },
+
+  { id: "molduras", nome: "MOLDURAS", ic: "🖼", itens: () =>
+      MOLDURAS.filter(m => m.id !== "nenhuma").map(m =>
+        ({ chave: "mo" + m.id, nome: m.nome, ic: "🖼",
+           nota: "moldura do apelido", dar: { darMolduras: [m.id] } })) },
+
+  { id: "ranks", nome: "RANKS", ic: "🏅", itens: () =>
+      RANKS.map((r, i) => ({ chave: "rk" + i, nome: r.nome, ic: r.sim,
+                             nota: r.min + " pontos", dar: { setRank: r.min } })) },
+
+  { id: "emotes", nome: "EMOTES", ic: "💬", itens: () =>
+      (typeof EMOTES !== "undefined" ? EMOTES : []).map(e =>
+        ({ chave: "em" + e.id, nome: e.nome, ic: e.txt,
+           nota: "emote", dar: { darEmotes: [e.id] } })) },
+
+  { id: "cristais", nome: "CRISTAIS", ic: "◆", itens: () =>
+      [1000, 5000, 10000, 50000, 100000, 500000].map(n =>
+        ({ chave: "cr" + n, nome: fmt(n) + " cristais", ic: "◆",
+           nota: "soma ao que a pessoa já tem", dar: { cristais: n } })) }
+];
+
+let catAba = "naves";
+
+function catRender() {
+  const abas = $("cat-abas"), grade = $("cat-grade"), conta = $("cat-conta");
+  if (!abas || !grade) return;
+
+  abas.innerHTML = CATEGORIAS.map(c =>
+    '<button class="cat-aba' + (c.id === catAba ? " on" : "") + '" data-cat="' + c.id + '">' +
+    c.ic + " " + escaparTexto(c.nome) + "</button>").join("");
+  abas.querySelectorAll("[data-cat]").forEach(b =>
+    b.addEventListener("click", () => { catAba = b.getAttribute("data-cat"); catRender(); }));
+
+  const cat = CATEGORIAS.filter(c => c.id === catAba)[0];
+  if (!cat) return;
+  let itens = [];
+  try { itens = cat.itens() || []; } catch (e) { itens = []; }
+
+  const q = semAcento(($("cat-busca") || {}).value || "").trim();
+  if (q) itens = itens.filter(it =>
+    semAcento(it.nome).indexOf(q) >= 0 || semAcento(it.nota || "").indexOf(q) >= 0);
+
+  if (conta) {
+    conta.textContent = itens.length
+      ? itens.length + (itens.length === 1 ? " item" : " itens") +
+        (admModo === "caixa" ? " · vão para a caixa" : " · caem na conta na hora")
+      : "Nada com esse nome nesta categoria.";
+  }
+
+  /* 400 naves numa grade só travam celular fraco. Mostra 120 e deixa a
+     busca fazer o resto -- que é o que a pessoa faz mesmo quando procura
+     uma nave específica. */
+  const CABE = 120;
+  const mostra = itens.slice(0, CABE);
+  grade.innerHTML = mostra.map((it, i) =>
+    '<button class="cat-item' + (it.ouro ? " ouro" : "") + '" data-i="' + i + '">' +
+    '<b>' + it.ic + "</b>" +
+    '<span><strong>' + escaparTexto(it.nome) + "</strong>" +
+    "<em>" + escaparTexto(it.nota || "") + "</em></span></button>").join("") +
+    (itens.length > CABE
+      ? '<p class="adm-note" style="grid-column:1/-1">Mostrando ' + CABE + " de " +
+        itens.length + ". Use a busca para achar o resto.</p>"
+      : "");
+
+  grade.querySelectorAll("[data-i]").forEach(b =>
+    b.addEventListener("click", () => {
+      const it = mostra[parseInt(b.getAttribute("data-i"), 10)];
+      if (!it) return;
+      admDar(it.dar, it.nome);
+    }));
+}
+(function ligarCatalogo() {
+  const c = $("cat-busca");
+  if (c) c.addEventListener("input", catRender);
+})();

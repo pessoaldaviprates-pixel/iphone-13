@@ -64,6 +64,16 @@
 
 <div class="god-badge" id="god-badge">⚡ MODO INVENCÍVEL</div>
 <div id="presente-jogo"></div>
+<!-- O AVISO DE RETIRADA. Seco de propósito: sem brilho, sem som de
+     prêmio, sem embrulho. É a notícia de que alguma coisa saiu da conta,
+     e notícia assim se dá de frente, não dentro de uma caixinha. -->
+<div class="retirada" id="retirada-aviso">
+  <div class="retirada-cx">
+    <b>O administrador mexeu na sua conta</b>
+    <div id="retirada-itens"></div>
+    <button class="adm-btn" id="retirada-ok">ENTENDI</button>
+  </div>
+</div>
 <div id="atualiza-box">
   <span id="atualiza-txt">Nova versão disponível</span>
   <button id="atualiza-btn">ATUALIZAR</button>
@@ -231,7 +241,7 @@
 
     <div class="adm-abas" id="adm-abas"></div>
 
-    <div id="adm-panel" style="display:none">
+    <div id="adm-panel">
 
       <div class="adm-card" id="adm-enviar" style="display:none">
         <div class="adm-h gold">🎁 ENVIAR PASS</div>
@@ -452,30 +462,71 @@
         <div class="mundo-agora" id="mundo-agora"></div>
       </div>
 
-      <div class="adm-card" id="adm-vivo" style="display:none">
-        <div class="adm-h gold">
-          <span class="pulso"></span> AO VIVO
-          <span class="vivo-cont" id="vivo-cont"></span>
+      <!-- OS NÚMEROS DO TOPO. Quatro cartões, o jeito de bater o olho e
+           saber como o jogo está sem ler lista nenhuma. -->
+      <div class="adm-numeros-topo" id="adm-topo-num" data-disp="grid" style="display:none">
+        <div class="num-card forte">
+          <span class="num-rot"><span class="pulso"></span>JOGANDO AGORA</span>
+          <b id="num-agora">0</b>
+          <div class="num-barras" id="num-barras"></div>
         </div>
-        <p class="adm-note" style="max-width:none">Quem está com o jogo aberto agora, em que tela, desde quando e com qual versão.</p>
-        <div class="vivo-lista" id="vivo-lista"></div>
-        <div class="adm-grid" style="margin-top:10px">
-          <button class="adm-btn" id="vivo-atualizar">ATUALIZAR AGORA</button>
-          <button class="adm-btn" id="vivo-auto">⏸ PAUSAR</button>
+        <div class="num-card">
+          <span class="num-rot">PILOTOS</span>
+          <b id="num-pilotos">0</b>
+          <em id="num-pilotos-pe">—</em>
+        </div>
+        <div class="num-card">
+          <span class="num-rot">VIERAM HOJE</span>
+          <b id="num-hoje">0</b>
+          <em id="num-hoje-pe">—</em>
+        </div>
+        <div class="num-card">
+          <span class="num-rot">NA VERSÃO VELHA</span>
+          <b id="num-velha">0</b>
+          <em id="num-velha-pe">—</em>
         </div>
       </div>
 
-      <div class="adm-card" id="adm-nuvem" style="display:none">
-        <div class="adm-h gold">JOGADORES ONLINE</div>
-        <div class="adm-row">
-          <input id="adm-nuvem-busca" placeholder="Buscar jogador pelo nome" autocomplete="off">
-          <button class="adm-btn" id="adm-nuvem-load">ATUALIZAR</button>
+      <!-- UMA LISTA SÓ DE JOGADORES.
+           Eram dois cartões lendo o MESMO lugar da nuvem: "AO VIVO" e
+           "JOGADORES ONLINE". Duas listas da mesma coisa, cada uma com
+           metade da informação, e o dono tinha que escolher em qual
+           olhar. Agora é uma: quem está com o jogo aberto vem em cima,
+           com a luz acesa e a tela em que está. -->
+      <div class="adm-card" id="adm-vivo" style="display:none">
+        <div class="adm-h gold">
+          <span class="pulso"></span> JOGADORES
+          <span class="vivo-cont" id="vivo-cont"></span>
         </div>
-        <div class="profile-list" id="adm-nuvem-lista" style="margin-top:10px"></div>
-        <div id="adm-nuvem-sel" style="display:none;margin-top:12px">
+        <div class="adm-row">
+          <input id="adm-nuvem-busca" placeholder="Procurar pelo nome" autocomplete="off">
+          <button class="adm-btn" id="adm-nuvem-load">ATUALIZAR</button>
+          <button class="adm-btn" id="vivo-auto">⏸ PAUSAR</button>
+        </div>
+        <div class="vivo-cabecalho">
+          <span>PILOTO</span><span>FASE</span><span>CRISTAIS</span><span>VERSÃO</span>
+        </div>
+        <div class="vivo-lista" id="vivo-lista"></div>
+        <button class="adm-btn" id="vivo-atualizar" style="display:none">ATUALIZAR AGORA</button>
+        <div class="profile-list" id="adm-nuvem-lista" style="display:none"></div>
+      </div>
+
+      <div class="adm-card" id="adm-nuvem" style="display:none">
+        <div id="adm-nuvem-sel" style="display:none">
           <div class="adm-h gold" id="adm-nuvem-alvo"></div>
           <div class="adm-stats" id="adm-nuvem-stats"></div>
           <div class="adm-note" id="adm-nuvem-pendente" style="margin-bottom:10px"></div>
+
+          <!-- COMO O QUE VOCÊ TOCAR É ENTREGUE.
+               Antes TUDO ia para a caixa: você tocava em DAR, não
+               acontecia nada visível, e ainda tinha que ir à abinha
+               CAIXA, escrever um recado e enviar. Três telas para dar
+               10 mil cristais. Agora o normal é NA HORA, e o pacote
+               (com recado, para presente de verdade) é uma escolha. -->
+          <div class="adm-modo" id="adm-modo">
+            <button class="adm-modo-b on" data-modo="agora">⚡ NA HORA</button>
+            <button class="adm-modo-b" data-modo="caixa">📦 JUNTAR NUM PACOTE</button>
+          </div>
 
           <div class="sub-abas" id="acao-abas"></div>
 
@@ -517,12 +568,15 @@
               <button class="adm-btn gold wide" id="adm-nuvem-omega">☢ ÔMEGA-9 ARSENAL (SUPREMA)</button>
               <button class="adm-btn gold wide" id="adm-nuvem-privada">🚽 TRONO REAL (PRIVADA)</button>
             </div>
-            <p class="adm-note" style="margin-top:10px">Tudo o que você tocar aqui entra na <b>CAIXA</b>. Vá até a abinha 📦 CAIXA para escrever o recado e enviar.</p>
+            <p class="adm-note" id="dar-nota" style="margin-top:10px"></p>
           </div>
 
           <!-- ═══ TIRAR ═══ -->
           <div class="sub-pane" id="pane-tirar" style="display:none">
             <div class="adm-h red">TIRAR</div>
+            <p class="adm-note" style="margin-bottom:10px">Tirar é <b>sempre na hora</b> e nunca vira presente —
+              seria estranho a pessoa abrir uma caixinha para descobrir que perdeu as naves.
+              Toque duas vezes para confirmar.</p>
             <div class="adm-grid">
               <button class="adm-btn danger" id="adm-nuvem-gem-zero">ZERAR CRISTAIS</button>
               <button class="adm-btn danger" id="adm-nuvem-naves-zero">TIRAR AS NAVES</button>
@@ -547,6 +601,20 @@
             </div>
           </div>
 
+          <!-- ═══ CATÁLOGO ═══
+               Tudo o que existe no jogo, por categoria, com busca.
+               Antes só dava para dar "todas as naves" ou "3 lendários" —
+               ou tudo, ou nada. Aqui dá para dar UMA nave, UM amuleto,
+               UMA moldura, para a pessoa certa. -->
+          <div class="sub-pane" id="pane-catalogo" style="display:none">
+            <div class="cat-topo">
+              <div class="cat-abas" id="cat-abas"></div>
+              <input id="cat-busca" placeholder="Procurar pelo nome…" autocomplete="off">
+            </div>
+            <div class="cat-conta" id="cat-conta"></div>
+            <div class="cat-grade" id="cat-grade"></div>
+          </div>
+
           <!-- ═══ INVENTÁRIO ═══ -->
           <div class="sub-pane" id="pane-inv" style="display:none">
             <div class="adm-h">
@@ -562,7 +630,7 @@
           <div class="sub-pane" id="pane-caixa" style="display:none">
             <div class="adm-h gold">📦 O QUE VAI NA CAIXA</div>
             <div class="caixa-adm" id="caixa-adm">
-              <div class="caixa-vazia" id="caixa-vazia">Vazia. Vá na abinha 🎁 DAR ou ✕ TIRAR e toque no que quiser mandar.</div>
+              <div class="caixa-vazia" id="caixa-vazia">Vazia. Ligue <b>📦 JUNTAR NUM PACOTE</b> lá em cima e toque no que quiser mandar na abinha 🎁 DAR.<br><br>Tirar não entra em pacote: tirar é sempre na hora.</div>
               <div id="caixa-itens"></div>
             </div>
             <div class="cx-recado">
