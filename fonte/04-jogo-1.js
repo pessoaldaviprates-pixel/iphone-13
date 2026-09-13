@@ -109,6 +109,10 @@ const SCREENS = {
 };
 function showScreen(name) {
   if (name !== "senha" && senhaEstado) senhaEstado = null;
+  /* "jogando" é quando não há tela nenhuma por cima: é o que faz o botão
+     flutuante da ESTAÇÃO aparecer durante a partida. Um lugar só sabe
+     disto, porque showScreen é por onde TODA troca de tela passa. */
+  document.body.classList.toggle("jogando", name === null);
   for (const k in SCREENS) SCREENS[k].classList.toggle("show", k === name);
   hud.style.display = (name === null) ? "grid" : "none";
   $("god-badge").style.display = (name === null && save.godMode) ? "block" : "none";

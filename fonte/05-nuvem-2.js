@@ -509,15 +509,58 @@ function nomePermitido(nome) {
   }
   return { ok: true };
 }
-/* no chat não recusa a mensagem: troca a palavra por •••, que incomoda
-   menos e não deixa a conversa travada */
-function limparTexto(t) {
-  let saida = String(t || "");
+/* =====================================================================
+   O FILTRO DE PALAVRÃO
+   ---------------------------------------------------------------------
+   No bate-papo ele não recusa a mensagem: troca a palavra por •••. Tapar
+   incomoda menos que recusar e, principalmente, não ENSINA a driblar --
+   quem é recusado tenta de novo escrevendo diferente até passar; quem é
+   tapado só perde a graça.
+
+   Duas coisas que este filtro aprendeu na marra:
+
+   1. ELE ESTAVA COMENDO PALAVRA INOCENTE. A versão anterior procurava
+      cada palavrão como pedaço de texto, sem olhar onde começava. Como
+      "cu" está na lista, o jogo censurava "cuidado", "escuro" e
+      "curioso" no chat de amigos -- e ninguém entendia por quê. Agora
+      palavra de até três letras só vale INTEIRA.
+
+   2. QUEM QUER XINGAR DISFARÇA: "p0rra", "caraaalho", "M.E.R.D.A".
+      Então o texto é achatado (sem acento, número virando letra, só
+      letras) e a BUSCA é que se estica, deixando cada letra repetir:
+      c+a+r+a+l+h+o+. Esticar a busca em vez de encurtar o texto é o que
+      pega "caraaalho" sem transformar "porra" em "pora" -- que é
+      justamente o que fazia "porão" ser censurado.
+   ===================================================================== */
+const DISFARCES = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s" };
+function acharPalavrao(palavra) {
+  let x = String(palavra || "").toLowerCase();
+  try { x = x.normalize("NFD").replace(/[̀-ͯ]/g, ""); } catch (e) {}
+  x = x.replace(/[0134579@$]/g, c => DISFARCES[c] || c).replace(/[^a-z]/g, "");
+  if (x.length < 2) return false;
+  for (const alvo of ALVOS_PALAVRAO) if (alvo.test(x)) return true;
+  return false;
+}
+const ALVOS_PALAVRAO = (function () {
+  const fora = [];
   for (const x of XINGAMENTOS) {
-    const re = new RegExp(x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
-    saida = saida.replace(re, "•".repeat(Math.min(6, x.length)));
+    let a = String(x).toLowerCase();
+    try { a = a.normalize("NFD").replace(/[̀-ͯ]/g, ""); } catch (e) {}
+    a = a.replace(/[^a-z]/g, "");
+    if (a.length < 2) continue;
+    const corpo = a.split("").map(c => c + "+").join("");
+    /* até três letras só vale a palavra inteira ("cu" não pode apagar
+       "cuidado"); acima disso vale como pedaço, para pegar as coladas */
+    fora.push(new RegExp(a.length <= 3 ? "^" + corpo + "$" : corpo));
   }
-  return saida;
+  return fora;
+})();
+
+function limparTexto(t) {
+  /* palavra por palavra do texto ORIGINAL: o que for tapado some sozinho
+     e o resto da frase continua legível */
+  return String(t || "").replace(/[^\s]+/g, palavra =>
+    acharPalavrao(palavra) ? "•".repeat(Math.min(6, palavra.length)) : palavra);
 }
 
 /* ---------------------- histórico de partidas ---------------------- */

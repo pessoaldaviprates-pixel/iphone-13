@@ -5163,3 +5163,296 @@
     #adm-panel > #adm-nuvem{position:static}
   }
 
+
+  /* =====================================================================
+     A ESTAÇÃO — o bate-papo da comunidade
+     ---------------------------------------------------------------------
+     Escuro e calmo como um aplicativo de conversa, mas dentro de uma
+     nave: o azul da cabine, o vidro fosco e a linha de luz no topo dos
+     painéis são os mesmos do resto do jogo. A conversa é o que tem que
+     saltar; a moldura fica quieta atrás.
+     ===================================================================== */
+  .estacao{
+    position:fixed;inset:0;z-index:60;display:none;
+    grid-template-columns:250px minmax(0,1fr);
+    background:rgba(4,7,16,.92);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    padding:calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bot));
+    gap:10px;
+  }
+  .estacao.on{display:grid}
+
+  /* ---- a barra dos destinos ---- */
+  .est-lado{
+    min-height:0;overflow-y:auto;padding:10px 9px;border-radius:16px;
+    background:linear-gradient(175deg,rgba(14,26,50,.6),rgba(5,10,22,.75));
+    border:1px solid rgba(120,200,255,.16);
+    scrollbar-width:thin;scrollbar-color:rgba(120,200,255,.3) transparent;
+  }
+  .est-serv{display:flex;align-items:center;gap:9px;padding:2px 4px 12px;
+    border-bottom:1px solid rgba(120,200,255,.14);margin-bottom:8px}
+  .est-serv b{
+    width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;
+    background:linear-gradient(145deg,var(--cyan),#C34DFF);color:#04060F;
+    font-family:"Russo One",sans-serif;font-size:.7rem;
+  }
+  .est-serv strong{display:block;font-family:"Russo One",sans-serif;font-size:.66rem;letter-spacing:.08em}
+  .est-serv em{display:block;font-style:normal;font-size:.5rem;color:var(--fraco);margin-top:1px}
+
+  .est-grupo-h{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    font-size:.46rem;letter-spacing:.2em;color:var(--fraco);font-weight:700;
+    margin:12px 4px 5px;
+  }
+  .est-grupo-h i{font-style:normal;letter-spacing:.08em;opacity:.7}
+  .est-mais{
+    width:20px;height:20px;border-radius:6px;cursor:pointer;line-height:1;flex:none;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.2);
+    color:var(--dim);font-size:.72rem;
+  }
+  .est-mais:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+  .est-vazio-lado{font-size:.54rem;line-height:1.5;color:var(--fraco);padding:2px 5px 4px}
+
+  .est-dest{
+    display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+    padding:7px 8px;border-radius:9px;cursor:pointer;margin-bottom:2px;
+    background:none;border:1px solid transparent;color:var(--dim);position:relative;
+  }
+  .est-dest:hover{background:rgba(255,255,255,.05);color:var(--ink2)}
+  .est-dest.on{
+    background:linear-gradient(100deg,rgba(77,232,255,.18),rgba(195,77,255,.13));
+    border-color:rgba(77,232,255,.4);color:var(--ink);
+  }
+  .est-dest.nova{color:var(--ink)}
+  .est-dest.nova strong{font-weight:700}
+  .est-dest.voz{opacity:.45;cursor:default}
+  .est-dest.bloqueado{opacity:.4}
+  .est-dest-ic{
+    position:relative;width:26px;height:26px;flex:none;border-radius:8px;
+    display:grid;place-items:center;font-size:.66rem;
+    background:rgba(255,255,255,.06);color:var(--cyan);
+  }
+  .est-dest-txt{min-width:0;flex:1}
+  .est-dest-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.66rem;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-dest-txt em{
+    display:block;font-style:normal;font-size:.5rem;color:var(--fraco);margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-pip{width:7px;height:7px;border-radius:50%;flex:none;background:var(--magenta);
+    box-shadow:0 0 7px var(--magenta)}
+  /* a luzinha de quem está online, em cima do avatar */
+  .est-luz{
+    position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;border-radius:50%;
+    border:2px solid #0A1122;background:var(--fraco);
+  }
+  .est-luz.on{background:#4CE07A}
+  .est-luz.jogo{background:var(--cyan)}
+  .est-luz.off{background:rgba(237,243,255,.22)}
+  .est-pedidos{
+    width:100%;margin-top:10px;padding:9px;border-radius:10px;cursor:pointer;
+    background:rgba(255,77,143,.14);border:1px solid rgba(255,77,143,.4);
+    color:var(--magenta);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.58rem;
+  }
+
+  /* ---- a conversa ---- */
+  .est-meio{
+    display:flex;flex-direction:column;min-height:0;min-width:0;border-radius:16px;
+    background:linear-gradient(175deg,rgba(12,22,44,.5),rgba(5,10,22,.7));
+    border:1px solid rgba(120,200,255,.16);overflow:hidden;
+  }
+  .est-cab{
+    display:flex;align-items:center;gap:9px;flex:none;padding:11px 13px;
+    border-bottom:1px solid rgba(120,200,255,.14);background:rgba(8,14,30,.5);
+  }
+  .est-abrir-lado{
+    display:none;width:30px;height:30px;flex:none;border-radius:8px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.2);
+    color:var(--cyan);font-size:.8rem;line-height:1;
+  }
+  .est-cab-txt{min-width:0;flex:1}
+  .est-cab-txt strong{display:block;font-family:"Russo One",sans-serif;font-size:.76rem;
+    letter-spacing:.06em;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .est-cab-txt em{display:block;font-style:normal;font-size:.54rem;color:var(--dim);margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .est-cab-acoes{display:flex;gap:5px;flex:none}
+  .est-cab-b{
+    padding:5px 9px;border-radius:7px;cursor:pointer;white-space:nowrap;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.52rem;
+  }
+  .est-cab-b:active{background:rgba(77,232,255,.18);color:var(--cyan)}
+  .est-cab-b.sai{border-color:rgba(255,77,143,.3);color:var(--magenta)}
+
+  .est-msgs{
+    flex:1;min-height:0;overflow-y:auto;padding:12px 13px;
+    display:flex;flex-direction:column;gap:2px;
+    scrollbar-width:thin;scrollbar-color:rgba(120,200,255,.3) transparent;
+    overscroll-behavior:contain;touch-action:pan-y;
+  }
+  .est-msg{display:flex;align-items:flex-start;gap:9px;padding:3px 0;border-radius:8px;position:relative}
+  .est-msg.colado{padding-top:0}
+  .est-msg.chamou{background:rgba(255,193,69,.09);box-shadow:inset 3px 0 0 var(--amber);
+    padding-left:8px;margin-left:-8px}
+  .est-msg.indo{opacity:.5}
+  .est-av{
+    width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center;
+    font-family:"Russo One",sans-serif;font-size:.66rem;color:#04060F;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);position:relative;
+  }
+  .est-av.vazio{background:none}
+  .est-av.pequeno{width:26px;height:26px;font-size:.56rem}
+  .est-corpo{min-width:0;flex:1}
+  .est-linha1{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .est-nome{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;color:var(--cyan)}
+  .est-msg.meu .est-nome{color:var(--verde)}
+  .est-hora{font-size:.48rem;color:var(--fraco)}
+  .est-txt{font-size:.74rem;line-height:1.5;color:var(--ink2);word-break:break-word;white-space:pre-wrap}
+  .est-mencao{color:var(--cyan);background:rgba(77,232,255,.12);border-radius:4px;padding:0 3px}
+  .est-mencao.eu{color:var(--amber);background:rgba(255,193,69,.16)}
+  .est-msg-b{
+    opacity:0;flex:none;width:24px;height:24px;border-radius:7px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.68rem;line-height:1;
+  }
+  .est-msg:hover .est-msg-b{opacity:1}
+  @media (hover:none){.est-msg-b{opacity:.55}}
+
+  .est-dia{display:flex;align-items:center;gap:9px;margin:10px 0 6px;color:var(--fraco)}
+  .est-dia::before,.est-dia::after{content:"";flex:1;height:1px;background:rgba(120,200,255,.14)}
+  .est-dia span{font-size:.48rem;letter-spacing:.18em;font-weight:700}
+  .est-comeco,.est-carregando{text-align:center;font-size:.52rem;letter-spacing:.14em;
+    color:var(--fraco);padding:8px 0}
+  .est-mais-msg{
+    align-self:center;margin-bottom:8px;padding:6px 13px;border-radius:99px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.54rem;
+  }
+  .est-vazio{
+    margin:auto;text-align:center;color:var(--dim);font-size:.72rem;line-height:1.6;padding:20px;
+  }
+  .est-vazio b{display:block;font-size:1.8rem;margin-bottom:8px;opacity:.7}
+
+  /* ---- escrever ---- */
+  .est-barra{
+    flex:none;display:flex;align-items:center;gap:7px;padding:10px 11px;position:relative;
+    border-top:1px solid rgba(120,200,255,.14);background:rgba(8,14,30,.5);
+  }
+  .est-barra input{
+    flex:1;min-width:0;height:40px;padding:0 13px;border-radius:11px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
+    font-size:.74rem;
+  }
+  .est-barra input:focus{border-color:rgba(77,232,255,.55)}
+  .est-emoji-b,.est-enviar{
+    width:40px;height:40px;flex:none;border-radius:11px;cursor:pointer;font-size:.9rem;line-height:1;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);color:var(--dim);
+  }
+  .est-enviar{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan)}
+  .est-enviar:active,.est-emoji-b:active{transform:scale(.94)}
+  .est-emojis{
+    display:none;position:absolute;left:10px;bottom:56px;width:min(260px,80vw);
+    grid-template-columns:repeat(6,1fr);gap:3px;padding:8px;border-radius:12px;
+    background:rgba(8,14,30,.97);border:1px solid rgba(120,200,255,.24);
+    box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:3;
+  }
+  .est-emojis.on{display:grid}
+  .est-emojis button{padding:5px;border-radius:7px;cursor:pointer;font-size:1.05rem;
+    background:none;border:0}
+  .est-emojis button:active{background:rgba(77,232,255,.18)}
+
+  /* ---- fechar, avisos e janelinhas ---- */
+  .est-fechar{
+    position:absolute;top:calc(14px + var(--safe-top));right:14px;z-index:4;
+    width:32px;height:32px;border-radius:50%;cursor:pointer;line-height:1;
+    background:rgba(8,14,30,.9);border:1px solid rgba(120,200,255,.28);
+    color:var(--dim);font-size:.72rem;
+  }
+  .est-fechar:active{background:rgba(255,77,143,.2);color:var(--magenta)}
+  .est-aviso{
+    position:absolute;left:50%;top:calc(14px + var(--safe-top));transform:translateX(-50%);
+    z-index:5;max-width:80vw;padding:7px 15px;border-radius:99px;opacity:0;
+    background:rgba(6,12,26,.95);border:1px solid rgba(120,200,255,.3);
+    color:var(--ink2);font-size:.62rem;transition:opacity .2s;pointer-events:none;
+  }
+  .est-aviso.on{opacity:1}
+  .est-janela{
+    position:absolute;inset:0;z-index:6;display:none;
+    align-items:center;justify-content:center;padding:20px;background:rgba(3,6,14,.8);
+  }
+  .est-janela.on{display:flex}
+  .est-jan-cx{
+    width:min(400px,100%);max-height:80vh;display:flex;flex-direction:column;
+    border-radius:16px;overflow:hidden;
+    background:linear-gradient(170deg,rgba(16,28,54,.98),rgba(6,11,24,.99));
+    border:1px solid rgba(120,200,255,.26);
+  }
+  .est-jan-h{
+    display:flex;align-items:center;justify-content:space-between;gap:9px;padding:13px 15px;
+    border-bottom:1px solid rgba(120,200,255,.14);
+    font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.08em;color:var(--cyan);
+  }
+  .est-jan-x{width:26px;height:26px;border-radius:7px;cursor:pointer;flex:none;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.2);color:var(--dim)}
+  .est-jan-corpo{padding:14px 15px 16px;overflow-y:auto}
+  .est-jan-corpo input{width:100%;height:38px;padding:0 12px;margin-bottom:10px;border-radius:10px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);font-size:.72rem}
+  .est-nota{font-size:.64rem;line-height:1.55;color:var(--dim);margin:6px 0 8px}
+  .est-citado{font-size:.68rem;line-height:1.5;color:var(--ink2);padding:9px 11px;margin-bottom:10px;
+    border-radius:9px;background:rgba(255,255,255,.04);border-left:3px solid rgba(120,200,255,.4)}
+  .est-jan-ok{
+    width:100%;margin-top:7px;padding:11px;border-radius:10px;cursor:pointer;
+    background:rgba(77,232,255,.15);border:1px solid rgba(77,232,255,.42);color:var(--cyan);
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.64rem;letter-spacing:.06em;
+  }
+  .est-jan-ok.perigo{background:rgba(255,77,143,.13);border-color:rgba(255,77,143,.4);color:var(--magenta)}
+  .est-jan-ok:active{transform:scale(.98)}
+  .est-escolha{display:flex;flex-direction:column;gap:5px;max-height:34vh;overflow-y:auto;margin-bottom:8px}
+  .est-pessoa{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14)}
+  .est-pessoa b{font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.68rem}
+  .est-pessoa input{width:auto;height:auto;margin:0;flex:none}
+  .est-pedido{display:flex;align-items:center;gap:9px;padding:8px 0;
+    border-bottom:1px solid rgba(120,200,255,.1)}
+  .est-pedido b{flex:1;min-width:0;font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.68rem}
+  .est-cargo{font-style:normal;font-size:.48rem;letter-spacing:.14em;color:var(--amber);
+    text-transform:uppercase}
+  .est-sim,.est-nao,.est-chamar{
+    flex:none;padding:6px 10px;border-radius:8px;cursor:pointer;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.54rem;
+    background:rgba(91,240,176,.13);border:1px solid rgba(91,240,176,.36);color:var(--verde);
+  }
+  .est-nao{background:rgba(255,77,143,.12);border-color:rgba(255,77,143,.36);color:var(--magenta)}
+  .est-chamar{background:rgba(77,232,255,.12);border-color:rgba(77,232,255,.34);color:var(--cyan)}
+
+  /* ---- o botão flutuante ---- */
+  .est-flutua{
+    position:fixed;z-index:40;display:none;
+    right:calc(12px + var(--safe-right,0px));bottom:calc(80px + var(--safe-bot));
+    width:46px;height:46px;border-radius:50%;cursor:pointer;font-size:1.1rem;line-height:1;
+    background:linear-gradient(160deg,rgba(14,26,50,.95),rgba(6,11,24,.97));
+    border:1px solid rgba(77,232,255,.4);color:var(--cyan);
+    box-shadow:0 6px 20px rgba(0,0,0,.5);
+  }
+  body.jogando .est-flutua{display:block}
+  .est-flutua i{
+    position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;padding:0 4px;
+    border-radius:99px;display:none;place-items:center;font-style:normal;
+    background:var(--magenta);color:#07101F;font-size:.5rem;font-weight:700;
+  }
+  .est-flutua i.on{display:grid}
+
+  /* ---- no celular a barra vira gaveta ---- */
+  @media (max-width: 780px) {
+    .estacao{grid-template-columns:minmax(0,1fr);padding:calc(8px + var(--safe-top)) 8px calc(8px + var(--safe-bot))}
+    .est-lado{
+      position:absolute;left:8px;top:calc(8px + var(--safe-top));bottom:calc(8px + var(--safe-bot));
+      width:min(270px,82vw);z-index:3;display:none;
+      box-shadow:0 10px 40px rgba(0,0,0,.6);
+    }
+    .estacao.lado-aberto .est-lado{display:block}
+    .est-abrir-lado{display:block}
+    .est-fechar{top:calc(12px + var(--safe-top));right:10px}
+  }

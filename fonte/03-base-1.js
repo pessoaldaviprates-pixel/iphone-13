@@ -510,10 +510,15 @@ async function nuvemLimparAntigo(nome) {
 
 let nuvemStatus = "?";   // "?" ainda não testado | "ok" | "erro"
 let nuvemErroDetalhe = "";
-async function nuvemReq(caminho, opcoes) {
+/* O "consulta" é o que vem depois do .json: ?orderBy="$key"&limitToLast=40.
+   Sem ele, pedir um canal de bate-papo traria a conversa INTEIRA a cada
+   olhada -- e um canal de comunidade cresce para sempre. Com ele, pede-se
+   só a janela que vai aparecer na tela. */
+async function nuvemReq(caminho, opcoes, consulta) {
   if (!nuvemAtiva()) return null;
   try {
-    const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json", opcoes || {});
+    const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json" + (consulta || ""),
+                          opcoes || {});
     if (!r.ok) {
       nuvemStatus = "erro";
       nuvemErroDetalhe = (r.status === 401 || r.status === 403)
@@ -573,7 +578,10 @@ function fluxoAplicar(raiz, caminho, dados, mesclar) {
 
 /* abre o fluxo de um caminho. aoMudar(objetoCompleto) roda a cada novidade.
    devolve uma função para fechar.                                          */
-function nuvemFluxo(caminho, aoMudar, aoFalhar) {
+/* "consulta" igual à do nuvemReq: o fluxo passa a empurrar só a janela
+   pedida. Um canal de comunidade com mil mensagens mandaria as mil a
+   cada reconexão sem isso. */
+function nuvemFluxo(caminho, aoMudar, aoFalhar, consulta) {
   if (!nuvemAtiva() || !nuvemTemFluxo()) { if (aoFalhar) aoFalhar(); return () => {}; }
   let parado = false;
   let ctrl = null;
@@ -584,7 +592,7 @@ function nuvemFluxo(caminho, aoMudar, aoFalhar) {
     if (parado) return;
     ctrl = new AbortController();
     try {
-      const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json",
+      const r = await fetch(NUVEM_URL.replace(/\/$/, "") + "/" + caminho + ".json" + (consulta || ""),
         { headers: { Accept: "text/event-stream" }, signal: ctrl.signal });
       if (!r.ok || !r.body) throw new Error("sem fluxo");
       nuvemStatus = "ok";

@@ -815,6 +815,9 @@ const PORTAS = [
       try { return Object.keys((AM && AM.pedidos) || {}).length; } catch (e) { return 0; }
     },
     itens: [
+      /* a ESTAÇÃO vem primeiro: é o lugar onde a comunidade inteira
+         conversa, e o resto desta porta é sobre uma pessoa de cada vez */
+      { botao: "btn-estacao",  icone: "💬", nome: "Estação",    nota: "o bate-papo de todo mundo: canais, grupos e conversas" },
       { botao: "btn-amigos",   icone: "👥", nome: "Amigos",     nota: "conversar e adicionar" },
       { botao: "btn-cla",      icone: "✦", nome: "Esquadrão",  nota: "o seu time, com ranking somado" },
       { botao: "btn-rank",     icone: "🏆", nome: "Ranking",    nota: "quem está na frente" },

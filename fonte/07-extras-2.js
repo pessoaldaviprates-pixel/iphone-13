@@ -598,6 +598,20 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.4", itens: [
+      "CHEGOU A ESTAÇÃO: o bate-papo de toda a comunidade, dentro do jogo. Fica em AMIGOS › Estação",
+      "Três canais abertos: #geral para conversa solta, #trocas para trocar e vender, #ajuda para dúvida e dica",
+      "Conversa reservada com qualquer amigo, e é a MESMA conversa da tela de amigos — o que você escreve num lugar aparece no outro",
+      "GRUPOS PRIVADOS: junte os amigos que quiser, dê um nome, e quem criou pode renomear, chamar mais gente, tirar e promover moderador",
+      "Chame alguém escrevendo @nome: a mensagem acende para a pessoa, e você vê na hora quando é com você",
+      "Emojis, horário, divisória por dia, e a conversa carrega o que veio antes quando você rola para cima",
+      "Abre no meio da partida sem pausar nada: tem um botão flutuante durante o jogo, e no computador a tecla C abre e fecha",
+      "Contador de mensagens novas nos canais, nos grupos e nas conversas",
+      "Dá para BLOQUEAR (some e não te chama mais), SILENCIAR (só some, e a pessoa não sabe) e DENUNCIAR uma mensagem",
+      "Trava contra enxurrada: quem tenta entupir o canal é segurado",
+      "As salas de voz já aparecem na lista, desligadas — a chamada vem numa próxima versão",
+      "CORRIGIDO: o filtro de palavrão censurava “cuidado”, “escuro” e “curioso”. Agora ele entende disfarce (p0rra, caraaalho) e deixa palavra inocente em paz"
+    ] },
   { v: "8.3", itens: [
       "O PAINEL DO DONO no computador virou um painel de verdade: menu fixo à esquerda, os números em cima e a lista de jogadores do lado das ações — escolher e agir sem a tela pular. No celular continua como estava; o dele vem depois",
       "UMA LISTA DE JOGADORES, não duas. Eram dois cartões lendo o mesmo lugar, cada um com metade da informação",
@@ -1119,7 +1133,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.3";
+const VERSAO = "8.4";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

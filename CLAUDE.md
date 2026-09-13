@@ -148,6 +148,28 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   pula o que está escondido, a busca não acha e o 3D nunca é montado.
   Religar é trocar `false` por `true` — e `test_exploracao.js` cobra as
   duas metades: guardado, que some direito; ligado, que funciona inteiro.
+- **Um fluxo de cada vez, e ele FECHA ao sair.** A ESTAÇÃO
+  (`fonte/09-estacao.js`) é um bate-papo com canais, grupos e conversas —
+  a tentação é abrir um fluxo por canal para contar as não lidas. Seriam
+  dez conexões, e passar de ~6 já travou as gravações do jogo uma vez.
+  Regra: o fluxo do destino aberto, e só ele; trocar de destino fecha o
+  anterior ANTES de abrir o novo; fechar a estação solta tudo. As não
+  lidas saem de uma olhadinha de 20 em 20 segundos num nó pequeno
+  (`conversas/__ultimas`), que custa uma conexão curta em vez de dez
+  abertas. `test_estacao.js` conta os fluxos abertos e fechados e falha
+  se sobrar mais de um.
+- **Galho novo na nuvem é galho recusado.** A estação guarda tudo dentro
+  de `conversas/` e `amigos/`, que as regras do banco já liberam desde a
+  primeira versão de amigos. Um `chat/` novo seria recusado nas contas
+  com regras antigas e o bate-papo morreria calado. Aproveitar o galho
+  que já passa é feio no papel e certo na prática.
+- **Encurtar o texto para achar palavrão come palavra inocente.** O
+  filtro achatava as duas pontas — o que a pessoa escreveu E a palavra
+  procurada. Com isso "porra" virava "pora" e o jogo censurava "porão".
+  E como "cu" está na lista e a busca era por pedaço, "cuidado",
+  "escuro" e "curioso" saíam tapados no chat de amigos desde sempre.
+  Hoje quem se estica é a BUSCA (`c+a+r+a+l+h+o+`, que pega "caraaalho"),
+  o texto não encolhe, e palavra de até três letras só vale inteira.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

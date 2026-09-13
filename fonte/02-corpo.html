@@ -954,6 +954,8 @@
            que reúne todos os jeitos de jogar; esta é a linha de dentro
            que entra nas fases. -->
       <button class="tile" id="btn-jornada"><b>▶</b><span>JORNADA</span><i></i></button>
+      <!-- a ESTAÇÃO mora debaixo de AMIGOS: a porta aperta este botão -->
+      <button class="tile verde" id="btn-estacao"><b>💬</b><span>ESTAÇÃO</span><i></i></button>
     </div>
 
     <div class="menu-secao escondida" id="menu-online-h">ONLINE</div>
@@ -1513,6 +1515,36 @@
 </div>
 
 <div id="foto-caixa"></div>
+
+<!-- =====================================================================
+     A ESTAÇÃO — o bate-papo da comunidade
+     Fica FORA de qualquer .screen de propósito: é uma cortina por cima
+     do jogo, não uma tela do jogo. Por isso dá para abrir no meio de uma
+     partida sem pausar nada — o jogo continua desenhando atrás.
+     ===================================================================== -->
+<div class="estacao" id="estacao">
+  <div class="est-lado" id="est-lado"></div>
+
+  <div class="est-meio">
+    <div class="est-cab" id="est-cab"></div>
+    <div class="est-msgs" id="est-msgs"></div>
+    <div class="est-barra">
+      <button class="est-emoji-b" id="est-emoji" aria-label="Emojis">🙂</button>
+      <div class="est-emojis" id="est-emojis"></div>
+      <input id="est-campo" maxlength="300" placeholder="Escreva aqui… use @ para chamar alguém"
+             autocomplete="off" enterkeyhint="send">
+      <button class="est-enviar" id="est-enviar" aria-label="Enviar">➤</button>
+    </div>
+  </div>
+
+  <button class="est-fechar" id="est-fechar" aria-label="Fechar a estação">✕</button>
+  <div class="est-aviso" id="est-aviso"></div>
+  <div class="est-janela" id="est-janela"></div>
+</div>
+
+<!-- o botão flutuante: aparece durante a partida, para chamar a estação
+     sem sair do jogo -->
+<button class="est-flutua" id="est-flutua" aria-label="Abrir a estação">💬<i id="est-selo"></i></button>
 
 <!-- EXPLORAÇÃO ESPACIAL: um modo inteiro, isolado nesta tela -->
 <div class="screen" id="screen-cabine">
