@@ -774,12 +774,25 @@ let admNuvemLista = [];
 let admNuvemAlvo = null;
 
 async function admNuvemCarregar() {
-  admNuvemLista = await nuvemListar();
+  const achados = await nuvemListar();
+  if (achados.length) admNuvemLista = achados;
   /* a lista viva desenha a partir de vivoDados; alimenta os dois para
      que o botão ATUALIZAR funcione mesmo antes de o fluxo abrir */
-  for (const p of admNuvemLista) if (p && p.id) vivoDados[p.id] = p;
+  for (const p of achados) if (p && p.id) vivoDados[p.id] = p;
   vivoRender();
+
+  /* VAZIA NA PRIMEIRA OLHADA NÃO QUER DIZER VAZIA.
+     O painel abre junto com o login, e quem acabou de entrar no jogo
+     ainda está escrevendo o próprio registro na nuvem. Uma busca só
+     pegava esse instante e mostrava "ninguém apareceu ainda" com gente
+     online do outro lado -- e aí o dono fecha o painel achando que
+     está tudo parado. Tenta de novo uma vez, sozinho. */
+  if (!achados.length && !admRetentou) {
+    admRetentou = true;
+    setTimeout(() => { admRetentou = false; admNuvemCarregar(); }, 1500);
+  }
 }
+let admRetentou = false;
 /* Uma lista só: quem pedia admNuvemRender() agora repinta a lista viva.
    Manter duas telas da mesma coisa era o que fazia o painel parecer
    grande e confuso -- e obrigava a olhar em dois lugares para saber uma

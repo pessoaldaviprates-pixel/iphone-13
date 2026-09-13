@@ -25,7 +25,16 @@ async function novo(pg,nome,pad){
   adm.on('pageerror',e=>errs.push('ADM: '+e.message));
   await adm.goto(URL); await adm.waitForTimeout(800);
   await adm.click('#btn-goto-adm'); await adm.waitForTimeout(300);
-  await adm.fill('#adm-nick','Cr1cket'); await adm.fill('#adm-pass','neonadmin'); await adm.click('#btn-adm-enter'); await adm.waitForTimeout(2200); await adm.evaluate(()=>admIrPara('acoes','dar')); await adm.waitForTimeout(500);
+  await adm.fill('#adm-nick','Cr1cket'); await adm.fill('#adm-pass','neonadmin'); await adm.click('#btn-adm-enter');
+  /* ESPERA A LISTA, NAO O RELOGIO.
+     Antes eram 2200ms fixos, e isso e uma aposta: Ana e Bruno acabaram
+     de entrar e ainda estao escrevendo o proprio registro na nuvem. Nos
+     dias em que demoravam um pouco mais, o teste selecionava um piloto
+     de uma lista vazia e morria 30s depois num campo que nunca apareceu
+     -- uma falha que nao dizia nada sobre o jogo. */
+  await adm.waitForFunction(() => typeof admNuvemLista !== 'undefined' && admNuvemLista.length >= 2,
+                            null, { timeout: 20000 });
+  await adm.evaluate(()=>admIrPara('acoes','dar')); await adm.waitForTimeout(500);
 
   /* --- 1. recado num presente para UMA pessoa --- */
   await adm.evaluate(()=>admNuvemSelecionar(admNuvemLista.find(x=>x.nome==='Ana')));
