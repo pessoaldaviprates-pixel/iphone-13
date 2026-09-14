@@ -27,7 +27,19 @@ não for exatamente o que sai desta pasta, ele para e avisa.
 | `05-nuvem-*.js` | Firebase, multijogador, amigos, arena, ranqueada |
 | `06-painel.js` | painel do administrador |
 | `07-extras-*.js` | tudo da v6.0 em diante: missões, conquistas, idiomas… |
+| `08-exploracao.js` | a exploração espacial, guardada atrás de `EXPLORACAO_LIGADA` |
+| `09-perfil.js` | NeoNebula, perfil e presença |
+| `09-servidores.js` | servidores: cargos, permissões, moderação, impulsos, tag |
+| `09-estacao.js` | a Estação: canais, amigos, grupos, conversas |
+| `09-social.js` | enquetes, @everyone/@here e eventos |
+| `09-voz.js` | salas de voz e chamadas (microfone e WebRTC) |
 | `ordem.txt` | a ordem em que os pedaços são colados |
+
+**Peça nova entra ANTES do `07-extras-2.js`.** É lá que mora o
+`const VERSAO`, e o aviso de versão nova funciona pedindo ao servidor só o
+rabo da página e lendo o número de lá. Empurrar o `VERSAO` para longe do fim
+cega essa checagem — já custou quatro versões uma vez. O `check.sh` mede essa
+distância e recusa publicar se passar da conta.
 
 ## Se você editar o index.html direto
 

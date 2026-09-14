@@ -587,6 +587,7 @@ function evLembrar() {
 function estCorpoDaMensagem(m, eu) {
   if (m && m.tipo === "enquete" && m.enq) return enqHTML(m, eu);
   if (m && m.tipo === "evento" && m.ev) return evHTML(m);
+  if (m && m.tipo === "chamada" && m.cham) return vozCartaoHTML(m, eu);
   return '<div class="est-txt">' + estTextoComMencoes(m.txt, eu) + "</div>";
 }
 
@@ -612,6 +613,11 @@ function socialLigarCartoes(raiz) {
     b.addEventListener("click", e => {
       e.stopPropagation();
       evCancelar(b.getAttribute("data-evx"));
+    }));
+  raiz.querySelectorAll("[data-atender]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      vozEntrar(b.getAttribute("data-atender"), "chamada");
     }));
 }
 

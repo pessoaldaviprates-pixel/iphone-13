@@ -55,3 +55,22 @@ se encontrar `127.0.0.1` lá.
 - `test_v68` dica no carregamento, molduras, oferta, presentear amigo
 - `test_v69` save em dois lugares, bateria, aviso de pedido, teste fechado
 - `test_pix` chave Pix escondida, código copia e cola, entrega
+- `test_v70` a `test_v72` o que veio depois: painel, loja, ranqueada
+- `test_menu`, `test_menu2`, `test_menu3`, `test_menu4` o menu, as portas e a busca
+- `test_painel` o painel do dono: uma lista só, dar num toque, tirar na hora
+- `test_filas` as abas que rolam de lado, no mouse e no teclado
+- `test_exploracao` a exploração guardada: some direito, e volta inteira
+- `test_estacao` a Estação: canais, amigos, grupos, moderação e **um fluxo só**
+- `test_social` enquetes, `@everyone`/`@here` e eventos
+- `test_voz` a voz de verdade: dois navegadores com microfone de mentira,
+  ligação fechando, mudo, surdo, chamada — e nenhum fluxo a mais
+
+## Dois hábitos que salvaram a bateria
+
+**Espere a condição, não o relógio.** `waitForTimeout(2200)` é uma aposta:
+passa num dia bom e falha num dia ruim, e aí ninguém sabe se o bug é do jogo
+ou do relógio. Use `waitForFunction`.
+
+**Limpe a nuvem falsa no começo, e feche o navegador no fim.** Sem a limpeza o
+teste herda a rodada anterior e só passa na primeira vez. Sem o `b.close()`
+ele passa e nunca termina, que na bateria é indistinguível de travar.

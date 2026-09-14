@@ -170,6 +170,44 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   "escuro" e "curioso" saíam tapados no chat de amigos desde sempre.
   Hoje quem se estica é a BUSCA (`c+a+r+a+l+h+o+`, que pega "caraaalho"),
   o texto não encolhe, e palavra de até três letras só vale inteira.
+- **Voto não é mensagem nova.** A releitura de um canal decidia se algo
+  mudou comparando quantas mensagens vieram e qual era a última. Funcionou
+  enquanto tudo o que chegava era mensagem — mas um voto de enquete muda uma
+  mensagem que já estava lá, sem mexer em nenhuma das duas coisas, e a
+  enquete ficava congelada na tela de quem não votou até alguém falar. Hoje a
+  comparação inclui os votos e o prazo. Regra: **quando um dado passa a poder
+  mudar depois de criado, a conta do "mudou?" tem que passar a olhar para
+  ele.**
+- **Desenhar na hora e esperar a nuvem, sem remarcar depois.** O voto aparecia
+  na tela antes de gravar (certo). Só que entre o clique e a resposta da nuvem
+  chegava uma releitura do canal, que traz o estado de ANTES do voto — e a
+  marca sumia sozinha um segundo depois de aparecer. Quem desenha antes tem
+  que **reencontrar** o objeto depois do `await` (o de antes já foi jogado
+  fora) e remarcar por cima do que voltou.
+- **Duas passadas de troca marcam em cima da marca.** `@everyone` era
+  destacado numa passada e, na passada seguinte, a regra de `@fulano` ainda
+  enxergava o "@everyone" dentro do HTML recém-criado e marcava de novo. Uma
+  passada só, com o caso especial decidido dentro dela.
+- **A voz não pode gastar o fluxo.** O fluxo (SSE) é UM só e é da conversa. A
+  sala de voz se vira com uma olhadinha curta de 1,2 em 1,2 segundo em
+  `conversas/voz__<sala>` — um pedido que abre e fecha, igual às não lidas.
+  `test_voz.js` guarda o caminho de cada fluxo aberto e falha se algum tiver
+  `voz__` no nome.
+- **Duas ofertas ao mesmo tempo derrubam a ligação.** Quando os dois lados de
+  uma chamada oferecem juntos, as ofertas se cruzam e nada fecha. A saída
+  barata é combinar a ordem antes, e não negociar depois: **quem tem o
+  identificador menor faz a oferta**, sempre.
+- **Gelo que chega cedo demais não se joga fora.** Os candidatos de rede (ICE)
+  costumam chegar antes da oferta. Quem os descarta por "ainda não sei do que
+  isso fala" perde justamente o caminho que faria a ligação fechar. Eles
+  ficam guardados e são aplicados quando a descrição do outro lado chega.
+- **Sair da sala tem que soltar o microfone.** Sem `track.stop()` a bolinha
+  vermelha do navegador continua acesa depois de sair — e a pessoa acha, com
+  razão, que o jogo continua ouvindo. O teste cobra isso pelo `readyState` da
+  faixa, que só vira `"ended"` quando ela foi solta de verdade.
+- **Teste que não fecha o navegador trava a bateria.** `test_social` passava
+  e ficava pendurado para sempre: o processo do Chromium segurava o node
+  acordado. Passar e não terminar é indistinguível de travar.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

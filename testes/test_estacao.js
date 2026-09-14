@@ -109,15 +109,12 @@ async function piloto(ctx, nome) {
       .map(x => x.getAttribute('data-dest')).filter(x => x.indexOf('canal|') === 0),
     voz: EST_VOZ.length,
     vozNaTela: document.querySelectorAll('#est-lado [data-voz]').length,
-    vozDesligada: [...document.querySelectorAll('#est-lado [data-voz]')]
-      .every(x => x.classList.contains('voz')),
-    /* o estado da voz já existe, mesmo sem a chamada */
-    estadoDaVoz: typeof EST.voz === 'object' && 'sala' in EST.voz && 'mudo' in EST.voz
+    /* a voz é de verdade desde a v8.8, e quem manda nela é o VOZ.
+       A chamada em si tem teste próprio (test_voz.js), com microfone
+       de mentira: aqui basta provar que a estação sabe onde ela está. */
+    estadoDaVoz: typeof VOZ === 'object' && 'sala' in VOZ && 'mudo' in VOZ,
+    vozTemBarra: !!document.getElementById('est-voz-barra')
   }));
-  await a.evaluate(() => document.querySelector('#est-lado [data-voz]').click());
-  await a.waitForTimeout(300);
-  out.vozAvisa = await a.evaluate(() =>
-    document.getElementById('est-aviso').textContent);
 
   /* ---- 4a. MANDAR, MENCIONAR, HORA ---- */
   out.mandou = await a.evaluate(async () => {
@@ -663,9 +660,8 @@ async function piloto(ctx, nome) {
   if (out.estrutura.canais.join() !== 'geral,trocas,ajuda') erro('os canais nao sao os tres pedidos');
   if (out.estrutura.canaisNaTela.length !== 3) erro('os tres canais nao aparecem na barra');
   if (!out.estrutura.vozNaTela) erro('as salas de voz nao aparecem');
-  if (!out.estrutura.vozDesligada) erro('as salas de voz nao estao marcadas como desligadas');
   if (!out.estrutura.estadoDaVoz) erro('o estado da voz nao esta preparado');
-  if (!/ainda nao|ainda não/i.test(out.vozAvisa)) erro('a sala de voz nao avisa que ainda nao abriu');
+  if (!out.estrutura.vozTemBarra) erro('falta a barra da voz no pe da lateral');
   if (!out.mandou.entrou || out.mandou.n !== out.mandou.antes + 1) erro('a mensagem nao entrou');
   if (out.mandou.html.indexOf('est-mencao') < 0) erro('a mencao @ nao virou destaque');
   if (!out.mandou.temHora) erro('a mensagem nao tem hora');

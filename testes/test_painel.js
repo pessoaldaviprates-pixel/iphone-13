@@ -235,6 +235,96 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   });
 
   await p.screenshot({ path: 'painel.png' });
+
+  /* =====================================================================
+     E AGORA O CELULAR
+     ---------------------------------------------------------------------
+     O painel foi desenhado para o computador, mas o dono abre ele do
+     telefone -- é de lá que ele vê que alguém entrou. Três coisas
+     precisam valer aqui:
+
+     1. a marca "▲NEON PAINEL" e o resumo do rodapé, que são da coluna
+        fixa da esquerda, NÃO podem aparecer no meio da tira de abas:
+        eles empurravam a primeira aba para fora da tela
+     2. a tira de abas gruda no topo, senão quem rola a lista de
+        jogadores perde de vista como se troca de aba
+     3. nada de alvo de mouse: tudo o que se toca tem altura de dedo
+     ===================================================================== */
+  const cel = await b.newPage({ viewport: { width: 390, height: 844 },
+                                isMobile: true, hasTouch: true });
+  cel.on('pageerror', e => errs.push('CEL PAGEERROR: ' + e.message));
+  await cel.goto(JOGO + '?nuvem=http://127.0.0.1:8099');
+  await cel.waitForTimeout(1400);
+  await cel.evaluate(() => { const el = document.getElementById('abertura'); if (el) { el.className = ''; el.innerHTML = ''; } });
+  await cel.evaluate(() => {
+    ROOT.profiles['Davi'] = defaultSave(); ROOT.current = 'Davi'; save = ROOT.profiles['Davi'];
+    save.__name = 'Davi'; save.best = 40; save.crystals = 5000; save.tutorialFeito = true;
+    calcStats(); persist(); goMenu();
+  });
+  await cel.evaluate(() => idiomaUsar('pt'));
+  await cel.evaluate(() => showScreen('adm'));
+  await cel.waitForTimeout(300);
+  await cel.fill('#adm-nick', 'Cr1cket');
+  await cel.fill('#adm-pass', 'neonadmin');
+  await cel.click('#btn-adm-enter');
+  await cel.waitForTimeout(1000);
+  await cel.evaluate(() => {
+    vivoDesligar(); admRetentou = true; admNuvemCarregar = async () => {};
+    vivoDados = {};
+    ['Davi', 'Lucas', 'Bia'].forEach((n, i) => {
+      vivoDados['id' + i] = { nome: n, fase: 10 + i, cristais: 1200, naves: 3,
+        versao: VERSAO, onde: 'Menu', atualizado: Date.now() - 2000, entrou: Date.now() };
+    });
+    vivoRender();
+  });
+  await cel.waitForTimeout(400);
+  out.celular = await cel.evaluate(() => {
+    const larg = innerWidth;
+    const vis = el => el && getComputedStyle(el).display !== 'none';
+    const abas = document.getElementById('adm-abas');
+    const pequenos = [], fora = [];
+    /* mede só o que está DENTRO da tela: a tira de abas rola de lado de
+       propósito, e cobrar dela caber inteira seria cobrar o contrário
+       do que ela foi feita para fazer */
+    document.querySelectorAll('#screen-adm button, #screen-adm input').forEach(el => {
+      const s = getComputedStyle(el);
+      if (s.display === 'none' || s.visibility === 'hidden') return;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const nome = el.id || String(el.className).split(' ')[0] || el.tagName;
+      if (abas.contains(el)) { if (r.height < 36) pequenos.push(nome + ' h=' + Math.round(r.height)); return; }
+      if (r.right > larg + 1 || r.left < -1) fora.push(nome);
+      if (r.height < 36) pequenos.push(nome + ' h=' + Math.round(r.height));
+    });
+    const primeira = abas.querySelector('.adm-aba');
+    return {
+      marcaEscondida: !vis(document.querySelector('.adm-marca')),
+      rodapeEscondido: !vis(document.querySelector('.adm-lado-pe')),
+      /* a primeira aba tem que começar no começo, e não empurrada */
+      primeiraNoComeco: primeira
+        ? primeira.getBoundingClientRect().left - abas.getBoundingClientRect().left < 20 : false,
+      abasGrudadas: getComputedStyle(abas).position === 'sticky',
+      pequenos: [...new Set(pequenos)],
+      fora: [...new Set(fora)],
+      /* uma coluna só, e nada saindo pela lateral */
+      umaColuna: getComputedStyle(document.getElementById('adm-panel')).gridTemplateColumns === 'none' ||
+                 document.getElementById('adm-panel').getBoundingClientRect().width <= larg,
+      rolaDeLado: document.documentElement.scrollWidth > larg + 1
+    };
+  });
+  /* e escolher um jogador tem que abrir as ações também no celular */
+  await cel.evaluate(() => { abaAdm = 'acoes'; renderAbasAdm(); });
+  await cel.waitForTimeout(300);
+  await cel.evaluate(() => {
+    const l = [...document.querySelectorAll('#vivo-lista .vivo-row')];
+    (l.find(x => x.querySelector('.vivo-nome').textContent.trim() === 'Lucas') || l[0]).click();
+  });
+  await cel.waitForTimeout(500);
+  out.celularEscolhe = await cel.evaluate(() => ({
+    alvo: admNuvemAlvo && admNuvemAlvo.nome,
+    abriu: getComputedStyle(document.getElementById('adm-nuvem-sel')).display !== 'none'
+  }));
+  await cel.screenshot({ path: 'painel-celular.png' });
   await b.close();
   out.errs = errs;
   const erro = m => problemas.push(m);
@@ -288,9 +378,20 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
     if (!e.mudou) erro('dar "' + e.item + '" (' + k + ') NAO mudou nada na conta');
     if (!e.anotou) erro('dar "' + e.item + '" (' + k + ') nao avisa o jogador do que ganhou');
   }
+  const C = out.celular;
+  if (!C.marcaEscondida)
+    erro('no celular a marca "NEON PAINEL" aparece dentro da tira de abas e empurra a primeira para fora');
+  if (!C.rodapeEscondido) erro('no celular o resumo do rodape do menu aparece no meio das abas');
+  if (!C.primeiraNoComeco) erro('no celular a primeira aba nao comeca no comeco da tira');
+  if (!C.abasGrudadas) erro('no celular a tira de abas nao gruda no topo: quem rola perde as abas de vista');
+  if (C.pequenos.length) erro('no celular, alvo de mouse em vez de dedo: ' + C.pequenos.join(', '));
+  if (C.fora.length) erro('no celular, fora da tela: ' + C.fora.join(', '));
+  if (C.rolaDeLado) erro('no celular a tela inteira rola de lado');
+  if (out.celularEscolhe.alvo !== 'Lucas') erro('no celular, tocar na linha nao escolheu o jogador');
+  if (!out.celularEscolhe.abriu) erro('no celular, escolher um jogador nao abriu as acoes');
   if (errs.length) erro('erros de pagina: ' + errs.join(' | '));
 
   console.log(JSON.stringify(out, null, 1));
   if (problemas.length) { console.log('FALHOU: ' + problemas.join('; ')); process.exit(1); }
-  console.log('OK: painel de computador, uma lista, dar num toque, tirar na hora e o catalogo inteiro');
+  console.log('OK: painel no computador e no celular, uma lista, dar num toque e tirar na hora');
 })().catch(e => { console.log('FATAL ' + e.message.split('\n')[0]); process.exit(1); });

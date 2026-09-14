@@ -123,8 +123,10 @@ const EST = {
   ultimas: {},              // destino -> relógio da última que existe
   ritmo: [],                // os relógios das minhas últimas mensagens
   relogio: null,            // a batida que atualiza online e não lidos
-  aba: "canais",            // que parte da barra lateral está aberta
-  voz: { sala: null, dentro: {}, mudo: false, surdo: false }
+  aba: "canais"             // que parte da barra lateral está aberta
+  /* a voz tem estado próprio (VOZ, em 09-voz.js): guardar uma cópia
+     dela aqui só criaria dois lugares para a mesma verdade, e um deles
+     ficaria desatualizado */
 };
 
 const EST_HIST = 40;        // quantas mensagens por vez
@@ -188,7 +190,7 @@ function estArrumar(d) {
        os votos, que ficam pendurados na própria mensagem justamente
        para não precisarem de um segundo fluxo. */
     arr.push({ k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0, mold: m.mold,
-               tipo: m.tipo, enq: m.enq, ev: m.ev, votos: m.votos });
+               tipo: m.tipo, enq: m.enq, ev: m.ev, votos: m.votos, cham: m.cham });
   }
   arr.sort((a, b) => (a.quando - b.quando) || (a.k < b.k ? -1 : 1));
   return arr;
@@ -824,13 +826,22 @@ function estPintarLado() {
   for (const c of EST_CANAIS)
     h += linha({ tipo: "canal", id: c.id }, c.nome, c.sobre, "#");
 
-  /* AS SALAS DE VOZ APARECEM DESLIGADAS, e isso é de propósito: some-las
-     esconderia que elas vêm aí, e fingir que funcionam seria pior. */
-  h += '<div class="est-grupo-h">SALAS DE VOZ <i>em breve</i></div>';
-  for (const v of EST_VOZ)
-    h += '<button class="est-dest voz" data-voz="' + v.id + '"><b class="est-dest-ic">🔊</b>' +
+  /* AS SALAS DE VOZ, com quem está dentro logo abaixo do nome: é o que
+     faz alguém entrar. Uma lista de salas vazias ninguém abre. */
+  h += '<div class="est-grupo-h">SALAS DE VOZ</div>';
+  for (const v of EST_VOZ) {
+    const aqui = VOZ.sala === v.id;
+    const gente = aqui ? Object.keys(VOZ.dentro).filter(u =>
+      Date.now() - (VOZ.dentro[u].quando || 0) < VOZ_SUMIU) : [];
+    h += '<button class="est-dest voz' + (aqui ? " on" : "") + '" data-voz="' + v.id + '">' +
+         '<b class="est-dest-ic">🔊</b>' +
          '<span class="est-dest-txt"><strong>' + escaparTexto(v.nome) + "</strong>" +
-         "<em>até " + v.limite + " pilotos</em></span></button>";
+         "<em>" + (aqui ? gente.length + " na sala" : "até " + v.limite + " pilotos") +
+         "</em></span></button>";
+    for (const uid of gente)
+      h += '<span class="est-voz-quem' + (VOZ.falando[uid] ? " fala" : "") + '">' +
+           escaparTexto((VOZ.dentro[uid] || {}).nome || "piloto") + "</span>";
+  }
 
   /* OS SERVIDORES. Cada um com os canais dele logo abaixo, para não ser
      preciso entrar num lugar para descobrir o que tem dentro. */
@@ -855,10 +866,26 @@ function estPintarLado() {
         const c = SRV.canais[cid];
         const d = { tipo: "srv", id: sid, canal: cid, nome: c.nome };
         const nova = estNaoLidas(d);
+        /* CANAL DE VOZ NÃO ABRE CONVERSA: ele entra na sala. Um canal
+           chamado "Hangar" com um alto-falante do lado que abrisse um
+           campo de texto seria uma promessa quebrada no clique. */
+        const salaVoz = "srv__" + sid + "__" + cid;
+        if (c.tipo === "voz") {
+          const naVoz = VOZ.sala === salaVoz;
+          h += '<button class="est-dest est-canal-srv' + (naVoz ? " on" : "") +
+               '" data-voz="' + salaVoz + '">' +
+               '<b class="est-dest-ic">🔊</b>' +
+               '<span class="est-dest-txt"><strong>' + escaparTexto(c.nome) + "</strong></span>" +
+               "</button>";
+          if (naVoz) for (const uid of Object.keys(VOZ.dentro))
+            h += '<span class="est-voz-quem' + (VOZ.falando[uid] ? " fala" : "") + '">' +
+                 escaparTexto((VOZ.dentro[uid] || {}).nome || "piloto") + "</span>";
+          continue;
+        }
         h += '<button class="est-dest est-canal-srv' +
              (EST.destino.canal === cid ? " on" : "") + (nova ? " nova" : "") +
              '" data-dest="srv|' + sid + "|" + cid + '">' +
-             '<b class="est-dest-ic">' + (c.tipo === "voz" ? "🔊" : "#") + "</b>" +
+             '<b class="est-dest-ic">#</b>' +
              '<span class="est-dest-txt"><strong>' + escaparTexto(c.nome) + "</strong></span>" +
              (nova ? '<i class="est-pip"></i>' : "") + "</button>";
       }
@@ -903,6 +930,10 @@ function estPintarLado() {
   const minha = estOndeEsta(eu.id);
   const vMeu = { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
                  efeito: perfilEfeitoDoNome() };
+  /* A BARRA DA VOZ FICA ACIMA DA MINHA, sempre visível enquanto eu
+     estiver numa sala: o botão de SAIR não pode depender de eu lembrar
+     em que canal eu entrei. */
+  h += '<div class="est-voz-barra" id="est-voz-barra"></div>';
   h += '<div class="est-eu">' +
        '<button class="est-eu-av" id="est-eu-perfil" aria-label="Meu perfil">' +
        estLuz(minha) + escaparTexto(eu.ini) + "</button>" +
@@ -940,8 +971,15 @@ function estPintarLado() {
     b.addEventListener("click", e => { e.stopPropagation(); srvAbrirConfig(b.getAttribute("data-cfg")); }));
   const ns = $("est-novo-srv");
   if (ns) ns.addEventListener("click", e => { e.stopPropagation(); srvAbrirCriar(); });
+  /* tocar na sala em que já estou SAI dela: é o que a mão espera, e
+     evita ter que achar o ✕ na barra de baixo */
   cx.querySelectorAll("[data-voz]").forEach(b =>
-    b.addEventListener("click", () => estVozEntrar(b.getAttribute("data-voz"))));
+    b.addEventListener("click", () => {
+      const sala = b.getAttribute("data-voz");
+      if (VOZ.sala === sala) estVozSair(); else estVozEntrar(sala);
+    }));
+  const lo = $("est-lado");
+  if (lo) { try { vozPintar(); } catch (e) {} }
   const ng = $("est-novo-grupo");
   if (ng) ng.addEventListener("click", e => { e.stopPropagation(); estAbrirCriarGrupo(); });
   const na = $("est-novo-amigo");
@@ -1554,28 +1592,17 @@ function estMenuDaMensagem(k, botao) {
 }
 
 /* =====================================================================
-   8. VOZ — o encaixe, ainda sem a chamada
+   8. VOZ
    ---------------------------------------------------------------------
-   O que já existe: a lista de salas, o lugar delas na barra, o estado
-   (em que sala estou, quem está dentro, meu microfone, meu fone) e o
-   caminho na nuvem onde a presença vai morar.
+   A máquina toda (microfone, WebRTC, salas, chamadas) mora em
+   fonte/09-voz.js, e é de lá que saem estVozEntrar, estLigarPara e
+   estVozSair. Aqui ficou só o caminho na nuvem, que a estação usa para
+   contar quem está em cada sala.
 
-   O que falta: pedir o microfone ao navegador e ligar as pontas com
-   WebRTC, trocando as ofertas por conversas/voz__<sala>/sinais. Quando
-   isso chegar, só esta função muda -- a barra lateral, os não lidos e a
-   conta de fluxos continuam iguais.
+   O encaixe estava pronto desde a v7: quando a voz chegou, nem a barra
+   lateral, nem os não lidos, nem a conta de fluxos precisaram mudar.
    ===================================================================== */
 function estVozCaminho(sala) { return "conversas/voz__" + sala; }
-/* ligar para uma pessoa: a chamada de um para um usa a mesma máquina das
-   salas, então quando a voz chegar as duas nascem juntas */
-function estLigarPara(id, nome) {
-  estAvisar("Ligar para " + (nome || "esse piloto") + " ainda não está pronto — a voz vem já já.");
-}
-function estVozEntrar(sala) {
-  const v = EST_VOZ.filter(x => x.id === sala)[0];
-  estAvisar("A sala " + (v ? v.nome : sala) + " ainda não abriu — a voz vem numa próxima versão.");
-}
-function estVozSair() { EST.voz.sala = null; EST.voz.dentro = {}; }
 
 /* =====================================================================
    ABRIR, FECHAR E LIGAR

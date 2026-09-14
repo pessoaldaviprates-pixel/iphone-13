@@ -598,6 +598,15 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.8", itens: [
+      "CHEGOU A VOZ: as salas da Estação abrem de verdade. O som vai direto de um aparelho para o outro, sem passar por servidor nenhum",
+      "Canal de voz de servidor entra na sala em vez de abrir conversa, e respeita a permissão de quem pode entrar",
+      "LIGAR PARA UMA PESSOA: do cartão de perfil, e o telefone dela toca na conversa de vocês com um botão ATENDER",
+      "A barra da voz fica sempre no pé da lateral: onde você está, quem está com você, 🎤 para se calar, 🎧 para não ouvir e ✕ para sair",
+      "A bolinha verde acende com o SOM, não com o clique — dá para ver quem está falando",
+      "Sair solta o microfone de verdade: a bolinha vermelha do navegador apaga junto",
+      "Em rede de escola ou empresa a ligação direta às vezes não fecha. Quando não fechar, o jogo DIZ, em vez de ficar rodando para sempre"
+    ] },
   { v: "8.7", itens: [
       "ENQUETES: o ＋ da barra de escrever cria uma pergunta com até cinco respostas. Todo mundo vota ali mesmo, e o resultado aparece na hora — mas só depois de você votar, para a barra não influenciar o seu voto",
       "Dá para escolher se cabe marcar mais de uma resposta e se a enquete fecha sozinha em 1 hora, 6 horas, 1 dia ou 7 dias. Quem criou pode fechar antes no botão",
@@ -1168,7 +1177,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.7";
+const VERSAO = "8.8";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;
