@@ -190,7 +190,15 @@ const PERFIL_PADRAO = {
      sem buraco nenhum. */
   fonte: "padrao", brilho: "nenhum", tema: "padrao", toque: "curto",
   clique: "afunda", interesses: "", blocos: "", foto: 0,
-  c1h: 205, c1l: 30, c2h: 275, c2l: 22
+  c1h: 205, c1l: 30, c2h: 275, c2l: 22,
+  /* o que entrou na v9.1 (ver 09-perfil3.js): fundo de imagem, vidro
+     fosco, partículas, bordas de seção, cor dos títulos e ícone de
+     estado. Tudo com padrão, para perfil antigo continuar abrindo. */
+  banner: 0, horaDoDia: 0, particula: "nenhuma", borda: "linha",
+  corTitulo: "", estadoIc: "bolinha", desfoque: 10, opacidade: 82,
+  /* o degradê das duas cores saiu do banner e foi para o miolo do
+     cartão (v9.1). Ângulo, formato, textura e movimento são dele. */
+  angulo: 150, formato: "linear", textura: "nenhuma", fluir: 0
 };
 function perfilMeu() {
   save.perfil = Object.assign({}, PERFIL_PADRAO, save.perfil || {});
@@ -265,6 +273,20 @@ function perfilSalvar(novo) {
   guardaSe("tema", NEO_TEMAS);
   guardaSe("toque", NEO_TOQUES);
   guardaSe("clique", NEO_CLIQUES);
+  guardaSe("particula", NEO_PARTICULAS);
+  guardaSe("borda", NEO_BORDAS);
+  guardaSe("estadoIc", NEO_ESTADOS);
+  guardaSe("formato", NEO_FORMATOS);
+  guardaSe("textura", NEO_TEXTURAS);
+  if (novo.fluir !== undefined) p.fluir = novo.fluir ? 1 : 0;
+  /* a cor do título sai da MESMA lista de cores do nome: duas tabelas de
+     cor um dia discordariam sobre o que é "violeta" */
+  if (novo.corTitulo !== undefined) {
+    const ct = neoAchar(NEO_CORES, novo.corTitulo);
+    p.corTitulo = (ct && neoLiberado(ct)) ? ct.id : "";
+  }
+  if (novo.fundo === "foto") p.fundo = "foto";
+  if (novo.horaDoDia !== undefined) p.horaDoDia = novo.horaDoDia ? 1 : 0;
   if (novo.avatar !== undefined) p.avatar = String(novo.avatar).slice(0, 12);
   /* O FUNDO DE DUAS CORES é o único que não vem de lista, então a guarda
      é outra: números, presos na faixa, nunca texto. Assim não existe
@@ -274,6 +296,9 @@ function perfilSalvar(novo) {
     const n = parseInt(v, 10);
     return isNaN(n) ? reserva : Math.max(min, Math.min(max, n));
   };
+  if (novo.angulo !== undefined) p.angulo = numEntre(novo.angulo, 0, 359, p.angulo);
+  if (novo.desfoque !== undefined) p.desfoque = numEntre(novo.desfoque, 0, 24, p.desfoque);
+  if (novo.opacidade !== undefined) p.opacidade = numEntre(novo.opacidade, 35, 100, p.opacidade);
   if (novo.c1h !== undefined) p.c1h = numEntre(novo.c1h, 0, 359, p.c1h);
   if (novo.c2h !== undefined) p.c2h = numEntre(novo.c2h, 0, 359, p.c2h);
   if (novo.c1l !== undefined) p.c1l = numEntre(novo.c1l, 12, 72, p.c1l);

@@ -6568,9 +6568,17 @@
   }
 
   /* ---- o editor em abas ---- */
-  .pf-abas{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 10px}
+  /* GRADE, E NÃO FILA. Com seis abas, o flex-wrap deixava a última
+     sozinha esticada numa linha só para ela -- e uma aba do tamanho da
+     tela parece o botão principal, não mais uma irmã das outras cinco.
+     Em grade elas ficam todas do mesmo tamanho, sempre. */
+  .pf-abas{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:5px;margin:12px 0 10px;
+  }
   .pf-aba{
-    flex:1 1 auto;padding:9px 8px;border-radius:10px;cursor:pointer;white-space:nowrap;
+    padding:9px 6px;border-radius:10px;cursor:pointer;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
     color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.55rem;
   }
@@ -6762,6 +6770,7 @@
 
   /* ---- e no celular tudo cabe no dedo ---- */
   @media (max-width:780px){
+    .pf-abas{grid-template-columns:repeat(2,minmax(0,1fr))}
     .pf-aba{min-height:40px;font-size:.58rem}
     .pf-bt{min-height:42px}
     .pf-roda{width:118px;height:118px}
@@ -6773,4 +6782,218 @@
     .cast-u{min-height:38px}
     .est-jan-cx:has(.pf-cartao) .est-jan-corpo,
     .est-jan-cx:has(.pf-corpo) .est-jan-corpo{max-height:74vh}
+  }
+
+  /* =================================================================
+     ATMOSFERA DO PERFIL (v9.1)
+     -----------------------------------------------------------------
+     Partículas, vidro fosco, molduras de seção e ícone de estado.
+
+     Tudo por variável no cartão: o JS escreve --pf-blur, --pf-op e
+     --pf-tit uma vez, e cada bloco lá dentro segue junto. Escrever em
+     cada bloco seria a mesma decisão espalhada em seis lugares — e
+     bastaria esquecer um para o perfil ficar meio fosco e meio não.
+     ================================================================= */
+  .pf-cartao{--pf-blur:10px;--pf-op:.82;--pf-tit:var(--fraco)}
+  .pf-cartao .pf-bl{
+    background:rgba(10,17,40,var(--pf-op));
+    backdrop-filter:blur(var(--pf-blur));
+    -webkit-backdrop-filter:blur(var(--pf-blur));
+    border-radius:12px;padding:11px 12px;margin-top:9px;
+  }
+  .pf-cartao .pf-bl h4{color:var(--pf-tit)}
+  .pf-cartao .pf-bl:first-of-type{padding-top:11px}
+
+  /* ---- molduras de seção ---- */
+  .pf-borda-nenhuma .pf-bl{border:0}
+  .pf-borda-linha .pf-bl{border:1px solid rgba(120,200,255,.16)}
+  .pf-borda-neon .pf-bl{
+    border:1px solid var(--pf-tit);
+    box-shadow:0 0 0 1px rgba(77,232,255,.12), 0 0 14px rgba(77,232,255,.18);
+  }
+  /* o pixel é feito com borda dupla e canto reto: é assim que um cartão
+     "de jogo antigo" se lê, e não com imagem de borda */
+  .pf-borda-pixel .pf-bl{
+    border:3px solid rgba(120,200,255,.3);border-radius:0;
+    box-shadow:inset 0 0 0 3px rgba(5,10,22,.9);
+  }
+  .pf-borda-brilho .pf-bl{
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 6px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .pf-borda-fita .pf-bl{
+    border:0;border-left:3px solid var(--pf-tit);border-radius:0 12px 12px 0;
+  }
+
+  /* ---- o banner com as partículas por cima ---- */
+  .pf-banner{position:relative;overflow:hidden}
+  .pf-part{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .pf-part i{
+    position:absolute;top:-12%;display:block;border-radius:50%;
+    animation-name:pfCai;animation-timing-function:linear;
+    animation-iteration-count:infinite;
+  }
+  @keyframes pfCai{
+    0%{transform:translateY(-14px);opacity:0}
+    12%{opacity:1}
+    88%{opacity:1}
+    100%{transform:translateY(120px);opacity:0}
+  }
+  .pf-part-poeira i{width:3px;height:3px;background:rgba(200,220,255,.7)}
+  .pf-part-neve i{width:5px;height:5px;background:rgba(255,255,255,.85);
+    filter:blur(.4px)}
+  /* a chuva é um risco, não um ponto: bolinha caindo depressa não lê
+     como chuva, lê como bolinha caindo depressa */
+  .pf-part-chuva i{width:2px;height:14px;border-radius:2px;
+    background:linear-gradient(180deg,transparent,var(--cyan))}
+  .pf-part-brasa i{width:4px;height:4px;background:#FF7B4D;
+    box-shadow:0 0 7px #FF7B4D;animation-name:pfSobe}
+  @keyframes pfSobe{
+    0%{transform:translateY(110px) scale(.6);opacity:0}
+    15%{opacity:1}
+    85%{opacity:.8}
+    100%{transform:translateY(-14px) scale(1);opacity:0}
+  }
+  .pf-part-estrela i{width:3px;height:3px;background:#fff;
+    box-shadow:0 0 6px #fff;animation-name:pfPisca;animation-timing-function:ease-in-out}
+  @keyframes pfPisca{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.4)}}
+  /* quem pediu menos movimento no aparelho não leva chuva na cara */
+  @media (prefers-reduced-motion:reduce){ .pf-part{display:none} }
+  /* e no modo leve também não: são doze elementos animados por perfil
+     aberto, e o alvo do jogo é celular fraco */
+  body.leve .pf-part{display:none}
+
+  /* ---- o ícone de estado no lugar da bolinha ---- */
+  .est-luz.ic{
+    position:absolute;right:-4px;bottom:-4px;width:auto;height:auto;
+    border-radius:50%;padding:1px 2px;font-style:normal;font-size:.62rem;
+    line-height:1;background:rgba(5,10,22,.92);
+    border:2px solid rgba(5,10,22,.92);
+  }
+
+  /* ---- os controles novos do editor ---- */
+  .pf-barra-l{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .pf-barra-l span{
+    flex:none;width:72px;font-family:"Chakra Petch",sans-serif;
+    font-size:.56rem;letter-spacing:.06em;color:var(--dim);
+  }
+  .pf-barra-l input{flex:1;min-width:0;margin:0}
+  .pf-barra-l b{
+    flex:none;width:44px;text-align:right;
+    font-family:"Chakra Petch",sans-serif;font-size:.56rem;color:var(--cyan);
+  }
+  .pf-mini.escura{background:#0A1428;position:relative;overflow:hidden}
+  .pf-mini.escura .pf-part{inset:0}
+  .pf-mini.borda-nenhuma{background:rgba(255,255,255,.05)}
+  .pf-mini.borda-linha{background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.4)}
+  .pf-mini.borda-neon{background:rgba(255,255,255,.05);border:1px solid var(--cyan);
+    box-shadow:0 0 8px rgba(77,232,255,.5)}
+  .pf-mini.borda-pixel{background:rgba(255,255,255,.05);border:3px solid rgba(120,200,255,.5);
+    border-radius:0}
+  .pf-mini.borda-brilho{background:rgba(255,255,255,.1);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 3px 10px rgba(0,0,0,.5)}
+  .pf-mini.borda-fita{background:rgba(255,255,255,.05);
+    border-left:3px solid var(--cyan);border-radius:0 8px 8px 0}
+  .pf-banner-previa{
+    flex:none;width:112px;height:63px;border-radius:10px;
+    display:grid;place-items:center;
+    background:rgba(255,255,255,.05);background-size:cover;background-position:center;
+    border:1px solid rgba(120,200,255,.22);
+    font-size:.5rem;letter-spacing:.1em;color:var(--fraco);
+  }
+  @media (max-width:780px){
+    .pf-barra-l span{width:62px}
+    .pf-barra-l input{height:32px}
+    .pf-banner-previa{width:100px;height:56px}
+  }
+
+  /* A BIO NÃO PRECISA DE CAIXA PRÓPRIA dentro do bloco.
+     Ela nasceu com fundo e borda porque antes vivia solta no cartão.
+     Agora ela mora dentro do painel de vidro de SOBRE MIM, e duas
+     superfícies encaixadas uma na outra é o que faz uma tela parecer
+     remendada. Fora do bloco (no cartão de espiar, por exemplo) ela
+     continua com a caixa dela. */
+  .pf-cartao .pf-bl .pf-bio{
+    background:none;padding:0;margin:0;border-radius:0;
+  }
+
+  /* =================================================================
+     O MIOLO DO CARTÃO (v9.1)
+     -----------------------------------------------------------------
+     O degradê de duas cores saiu do banner e veio para cá — a área que
+     envolve bio, pronomes, interesses, emblemas e coleção. O banner
+     virou a capa (imagem ou fundo pronto) e o miolo virou a cor da
+     pessoa, com os blocos de vidro fosco flutuando por cima.
+
+     É por isso que o vidro fosco só começou a fazer sentido agora:
+     antes ele desfocava o preto do cartão, o que é o mesmo que nada.
+     ================================================================= */
+  .pf-miolo{
+    margin:12px -3px -3px;padding:12px 11px 14px;
+    border-radius:14px;position:relative;overflow:hidden;
+    border:1px solid var(--pf-borda-cor);
+    box-shadow:0 0 18px -6px var(--pf-borda-cor);
+  }
+  .pf-miolo .pf-bl:first-of-type{margin-top:0}
+  .pf-miolo-previa{height:26px;margin:0 -3px;border-radius:0 0 12px 12px}
+  /* o degradê que anda devagar: 18s é lento o bastante para não puxar o
+     olho no meio da leitura, e rápido o bastante para se notar */
+  .fluindo{background-size:200% 200% !important;animation:pfFlui 18s ease infinite}
+  @keyframes pfFlui{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  @media (prefers-reduced-motion:reduce){.fluindo{animation:none}}
+  body.leve .fluindo{animation:none}
+
+  /* as texturas são desenhadas por cima do degradê, em pseudo-elemento:
+     assim elas não brigam com o background e continuam funcionando com
+     qualquer cor que a pessoa escolher */
+  .pf-tex-nenhuma::before{display:none}
+  .pf-tex-pontos::before,.pf-tex-linhas::before,.pf-tex-ruido::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+  }
+  .pf-tex-pontos::before{
+    background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);
+    background-size:9px 9px;
+  }
+  .pf-tex-linhas::before{
+    background-image:repeating-linear-gradient(115deg,
+      rgba(255,255,255,.07) 0 1px,transparent 1px 9px);
+  }
+  /* ruído sem imagem: dois degradês minúsculos cruzados dão granulado
+     suficiente, e não custam um arquivo a mais no jogo */
+  .pf-tex-ruido::before{
+    background-image:
+      repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),
+      repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);
+  }
+
+  /* =================================================================
+     O ROBÔ — avatar de quem ainda não pôs foto
+     -----------------------------------------------------------------
+     Cinza em fundo branco, de propósito: ele é o "sem foto" e não pode
+     competir com a foto de quem pôs uma. Por isso a bolinha azul que
+     ficava atrás some quando tem robô.
+     ================================================================= */
+  .com-robo{background:#FFF !important;overflow:hidden;padding:0}
+  .com-robo .robo{width:100%;height:100%;display:block;border-radius:inherit}
+  .com-foto{background-size:cover;background-position:center}
+  /* o robô da conversa é pequeno: os traços finos do desenho somem
+     abaixo de uns 26px, então o avatar do chat cresceu um tico */
+  .est-msg .est-av{width:34px;height:34px}
+  .est-msg.colado .est-av.vazio{width:34px}
+  /* e ele reage ao passar o mouse, como foi pedido */
+  .est-msg .est-av{transition:transform .14s ease}
+  .est-msg:hover .est-av{transform:scale(1.08)}
+  @media (prefers-reduced-motion:reduce){.est-msg:hover .est-av{transform:none}}
+
+  /* ---- os controles novos do degradê ---- */
+  .pf-prontos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .pf-pronto{
+    width:52px;height:34px;border-radius:9px;cursor:pointer;
+    border:1px solid rgba(120,200,255,.22);
+  }
+  .pf-pronto.on{border-color:var(--cyan);box-shadow:0 0 10px rgba(77,232,255,.5)}
+  @media (max-width:780px){
+    .pf-miolo{padding:10px 9px 12px}
+    .pf-pronto{width:60px;height:40px}
+    .est-msg .est-av{width:36px;height:36px}
   }

@@ -1069,8 +1069,9 @@ function estPintarLado() {
      em que canal eu entrei. */
   h += '<div class="est-voz-barra" id="est-voz-barra"></div>';
   h += '<div class="est-eu">' +
-       '<button class="est-eu-av" id="est-eu-perfil" aria-label="Meu perfil">' +
-       estLuz(minha) + escaparTexto(eu.ini) + "</button>" +
+       '<button class="est-eu-av' + avatarClasse(eu.id) + '" id="est-eu-perfil" ' +
+       'aria-label="Meu perfil" ' + avatarEstilo(eu.id) + ">" +
+       estLuz(minha) + avatarConteudo(eu.id, eu.tag) + "</button>" +
        '<button class="est-eu-txt" id="est-eu-status">' +
        '<strong class="' + perfilClasseDoNome(vMeu).trim() + '"' +
        (vMeu.cor ? ' style="' + perfilEstiloDoNome(vMeu) + '"' : "") + ">" +
@@ -1487,10 +1488,15 @@ function estPintarConversa(grudarNoFim) {
         v.tag = String(ficha.tagNome || "").slice(0, 5);
         v.tagSid = String(ficha.tagServidor || "");
       }
-      h += '<button class="est-av est-abre-perfil' +
+      /* MINI-AVATAR NO BATE-PAPO. Antes era a inicial do nome numa
+         bolinha, e três "L" ficavam idênticos: você procurava a
+         mensagem do L e achava três. Agora é a foto de quem falou, ou
+         o robô da conta dele -- e cada conta tem um robô diferente. */
+      h += '<button class="est-av est-abre-perfil' + avatarClasse(m.de) +
            (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") +
-           '" data-perfil="' + escaparTexto(m.de || "") + '">' +
-           escaparTexto(estIni(m.nome)) + "</button>";
+           '" data-perfil="' + escaparTexto(m.de || "") + '" ' +
+           avatarEstilo(m.de) + ">" +
+           avatarConteudo(m.de, m.nome) + "</button>";
       h += '<div class="est-corpo"><div class="est-linha1">' +
            '<b class="est-nome est-abre-perfil' + perfilClasseDoNome(v) +
            '" data-perfil="' + escaparTexto(m.de || "") + '"' +
@@ -1533,6 +1539,10 @@ function estPintarConversa(grudarNoFim) {
       estAbrirPerfil(b.getAttribute("data-perfil"));
     }));
   try { socialLigarCartoes(lista); } catch (e) {}
+  /* busca as fotos de quem está na tela e ainda não foi buscada. Depois
+     de pintar, e não antes: a conversa aparece na hora e as caras
+     chegam em seguida, em vez de a tela esperar a rede. */
+  try { fotosDaConversa(); } catch (e) {}
 
   if (grudarNoFim || perto) lista.scrollTop = lista.scrollHeight;
 }
@@ -1963,7 +1973,7 @@ function estAbrirPerfil(id) {
   /* a foto e o castigo vêm da nuvem, então a janela abre primeiro e se
      completa depois: esperar a rede para desenhar deixaria o toque sem
      resposta por um segundo, e um segundo parado parece travado */
-  Promise.all([fotoDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
+  Promise.all([fotoDe(id), bannerDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
   estPintarPerfil(id);
 }
 
@@ -1974,10 +1984,16 @@ function estPintarPerfil(id) {
   const ficha = souEu ? save : (EST.pilotos[id] || {});
   const v = souEu
     ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
-        fonte: perfilFonteDoNome(), brilho: perfilBrilho(), fundoCSS: perfilFundoCSS(),
+        fonte: perfilFonteDoNome(), brilho: perfilBrilho(),
+        fundoCSS: perfilFundoDe(perfilMeu(), neoNivel(), id),
         anima: perfilFundo().anima, bio: perfilMeu().bio, pronomes: perfilMeu().pronomes,
-        interesses: perfilInteresses(), blocos: perfilBlocos() }
-    : perfilDaNuvem(ficha);
+        interesses: perfilInteresses(), blocos: perfilBlocos(),
+        particula: perfilParticula().id, borda: perfilBorda().id,
+        corTitulo: perfilCorTitulo(), estadoIc: perfilEstadoIc(), vidro: vidroDe(),
+        gradiente: gradienteDe(perfilMeu(), neoNivel()),
+        corBorda: gradienteCorSecundaria(perfilMeu()),
+        textura: perfilTextura().id, fluir: perfilMeu().fluir }
+    : perfilComExtras(ficha, id);
   const nome = souEu ? eu.tag : (ficha.nome || "Piloto");
   const onde = estOndeEsta(id);
   const info = neoInfo(v.nivel);
@@ -1985,13 +2001,30 @@ function estPintarPerfil(id) {
   const castigo = CASTIGO_DE[id];
   const blocos = (v.blocos && v.blocos.length) ? v.blocos : PF_BLOCOS_PADRAO;
 
+  /* o vidro fosco e a cor dos títulos viram variáveis no próprio
+     cartão: uma troca, e todo bloco lá dentro segue junto. Escrever em
+     cada bloco seria a mesma decisão espalhada em seis lugares. */
+  const estiloCartao =
+    "--pf-blur:" + v.vidro.desfoque + "px;" +
+    "--pf-op:" + (v.vidro.opacidade / 100) + ";" +
+    /* a borda que brilha sai da cor DE BAIXO do degradê: assim ela
+       combina sozinha, sem a pessoa ter que escolher uma terceira cor
+       que quase sempre ficaria fora do tom */
+    "--pf-borda-cor:" + (v.corBorda || "rgba(120,200,255,.4)") + ";" +
+    (v.corTitulo ? "--pf-tit:" + v.corTitulo + ";" : "");
+
   const cabeca =
     '<div class="pf-banner" style="background:' + (v.fundoCSS || (v.fundo && v.fundo.css)) + '"' +
-      (v.anima || (v.fundo && v.fundo.anima) ? ' data-anima="1"' : "") + "></div>" +
+      (v.anima || (v.fundo && v.fundo.anima) ? ' data-anima="1"' : "") + ">" +
+      particulasHTML(v.particula) + "</div>" +
     '<div class="pf-topo">' +
-      '<span class="pf-av pf-brilho-' + ((v.brilho && v.brilho.id) || "nenhum") + '"' +
-        (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
-        estLuz(onde) + (foto ? "" : escaparTexto(estIni(nome))) + "</span>" +
+      '<span class="pf-av pf-brilho-' + ((v.brilho && v.brilho.id) || "nenhum") +
+        avatarClasse(id) + '" ' + avatarEstilo(id) + ">" +
+        (v.estadoIc && v.estadoIc.ic
+          ? '<i class="est-luz ic" title="' + escaparTexto(v.estadoIc.nome) + '">' +
+            v.estadoIc.ic + "</i>"
+          : estLuz(onde)) +
+        avatarConteudo(id, nome) + "</span>" +
       '<div class="pf-nome-cx">' +
         '<b class="pf-nome' + perfilClasseDoNome(v) + '" style="' +
         perfilEstiloDoNome(v) + '">' + escaparTexto(nome) + "</b>" +
@@ -2013,7 +2046,13 @@ function estPintarPerfil(id) {
         (castigo.motivo ? " · " + escaparLongo(castigo.motivo) : "") + "</div>"
       : "");
 
-  const corpo = blocos.map(b => pfBlocoHTML(b, ficha, v, souEu)).join("");
+  /* O MIOLO, com o degradê das duas cores por trás do vidro fosco.
+     Ele é separado do banner de propósito: o banner é a capa e pode ser
+     uma imagem; aqui é onde o texto mora, e é atrás do texto que a cor
+     da pessoa aparece. */
+  const corpo = '<div class="pf-miolo' + (v.fluir ? " fluindo" : "") +
+    " pf-tex-" + (v.textura || "nenhuma") + '" style="background:' + v.gradiente + '">' +
+    blocos.map(b => pfBlocoHTML(b, ficha, v, souEu)).join("") + "</div>";
 
   const acoes = souEu
     ? '<button class="est-jan-ok" data-p="editar">Editar meu perfil</button>' +
@@ -2027,7 +2066,8 @@ function estPintarPerfil(id) {
         (EST.bloq[id] ? "Desbloquear" : "Bloquear") + "</button>";
 
   estJanela(souEu ? "Meu perfil" : nome,
-    '<div class="pf-cartao">' + cabeca + corpo + acoes + "</div>", cx =>
+    '<div class="pf-cartao pf-borda-' + (v.borda || "linha") + '" style="' + estiloCartao + '">' +
+    cabeca + corpo + acoes + "</div>", cx =>
     cx.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => {
       const q = b.getAttribute("data-p");
       if (q === "castigo") { castigoAbrir(id, nome); return; }
@@ -2058,6 +2098,7 @@ const PF_ABAS = [
   { id: "quem",  nome: "Quem sou",   ic: "👤" },
   { id: "nome",  nome: "Meu nome",   ic: "✎" },
   { id: "fundo", nome: "Fundo",      ic: "🎨" },
+  { id: "ar",    nome: "Atmosfera",  ic: "✨" },
   { id: "jogo",  nome: "O jogo",     ic: "🎮" },
   { id: "ordem", nome: "Arrumar",    ic: "☰" }
 ];
@@ -2069,7 +2110,10 @@ function estEditarPerfil() {
     fundo: p.fundo, animacao: p.animacao, fonte: p.fonte, brilho: p.brilho,
     tema: p.tema, toque: p.toque, clique: p.clique,
     interesses: p.interesses, blocos: perfilBlocos().join(","),
-    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l
+    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l,
+    particula: p.particula, borda: p.borda, corTitulo: p.corTitulo,
+    estadoIc: p.estadoIc, desfoque: p.desfoque, opacidade: p.opacidade,
+    horaDoDia: p.horaDoDia
   };
   pfAba = "quem";
   estPintarEditor();
@@ -2082,19 +2126,20 @@ function pfPreviaHTML() {
   const corItem = neoAchar(NEO_CORES, r.cor);
   const efItem = neoAchar(NEO_EFEITOS, r.efeito);
   const fonte = neoAchar(NEO_FONTES, r.fonte) || NEO_FONTES[0];
-  const fundoCSS = r.fundo === "meu"
-    ? "linear-gradient(150deg," + corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ")"
-    : (neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0]).css;
+  const fundoCSS = perfilFundoDe(r, neoNivel(), eu.id);
   const foto = FOTOS[eu.id] || "";
   let estilo = "";
   if (corItem) estilo += "color:" + corItem.cor + ";";
   estilo += "font-family:" + fonte.css + ";";
   if (fonte.espaco) estilo += "letter-spacing:" + fonte.espaco + ";";
-  return '<div class="pf-banner" style="background:' + fundoCSS + '"></div>' +
+  const grad = gradienteDe(r, neoNivel());
+  return '<div class="pf-banner" style="background:' + fundoCSS + '">' +
+    particulasHTML(r.particula) + "</div>" +
+    '<div class="pf-miolo-previa' + (r.fluir ? " fluindo" : "") +
+    " pf-tex-" + (r.textura || "nenhuma") + '" style="background:' + grad + '"></div>' +
     '<div class="pf-topo">' +
-      '<span class="pf-av pf-brilho-' + (r.brilho || "nenhum") + '"' +
-      (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
-      (foto ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+      '<span class="pf-av pf-brilho-' + (r.brilho || "nenhum") + avatarClasse(eu.id) +
+      '" ' + avatarEstilo(eu.id) + ">" + avatarConteudo(eu.id, eu.tag) + "</span>" +
       '<div class="pf-nome-cx"><b class="pf-nome' +
         (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") +
         '" style="' + estilo + '">' + escaparTexto(eu.tag) + "</b>" +
@@ -2123,9 +2168,8 @@ function estPintarEditor() {
     corpo =
       '<div class="pf-campo"><label>Sua foto</label>' +
       '<div class="pf-foto-linha">' +
-        '<span class="pf-foto-previa"' +
-          (FOTOS[eu.id] ? ' style="background-image:url(' + FOTOS[eu.id] + ')"' : "") + ">" +
-          (FOTOS[eu.id] ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+        '<span class="pf-foto-previa' + avatarClasse(eu.id) + '" ' +
+          avatarEstilo(eu.id) + ">" + avatarConteudo(eu.id, eu.tag) + "</span>" +
         '<div class="pf-foto-bts">' +
           '<button class="pf-bt" id="pf-foto">Escolher imagem</button>' +
           (FOTOS[eu.id] ? '<button class="pf-bt fraco" id="pf-foto-x">Tirar a foto</button>' : "") +
@@ -2190,15 +2234,97 @@ function estPintarEditor() {
           corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ')"></span>' +
         rodaHTML("c2", r.c2h, r.c2l, "Cor de baixo") +
       "</div>" +
-      '<button class="pf-bt' + (r.fundo === "meu" ? " on" : "") + '" id="pf-usar-meu">' +
-      (r.fundo === "meu" ? "Usando as suas cores" : "Usar estas duas cores") + "</button>" +
       '<p class="est-nota">Mexa na roda para a cor e na barrinha para o tom. ' +
-      "Vale para todo mundo, com ou sem NeoNebula.</p></div>" +
+      "Estas duas cores pintam o MIOLO do seu perfil — a área da bio, dos " +
+      "pronomes e dos emblemas. O banner é escolhido separado, logo abaixo.</p>" +
+
+      '<div class="pf-prontos">' + NEO_PRONTOS.map(x =>
+        '<button class="pf-pronto" data-pronto="' + x.id + '" title="' + escaparTexto(x.nome) +
+        '" style="background:linear-gradient(150deg,' + corDeHSL(x.c1h, x.c1l) + "," +
+        corDeHSL(x.c2h, x.c2l) + ')"></button>').join("") + "</div>" +
+
+      '<div class="pf-barra-l"><span>Ângulo</span>' +
+      '<input type="range" id="pf-ang" min="0" max="359" value="' + (r.angulo || 150) + '">' +
+      '<b id="pf-ang-n">' + (r.angulo || 150) + "°</b></div>" +
+
+      '<label class="enq-check"><input type="checkbox" id="pf-fluir"' +
+      (r.fluir ? " checked" : "") + "> As cores se movem devagar</label>" +
+      "</div>" +
+
+      '<div class="pf-campo"><label>Formato do degradê</label>' +
+      grade(NEO_FORMATOS, "formato", f =>
+        '<span class="pf-mini" style="background:' +
+        (f.id === "radial" ? "radial-gradient(circle,#4DE8FF,#2B0B4A)"
+          : f.id === "conico" ? "conic-gradient(#4DE8FF,#C34DFF,#4DE8FF)"
+          : "linear-gradient(150deg,#4DE8FF,#2B0B4A)") + '"></span><em>' +
+        escaparTexto(f.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Textura por cima</label>' +
+      grade(NEO_TEXTURAS, "textura", x =>
+        '<span class="pf-mini pf-tex-' + x.id + '" style="background:#2B3A5A;position:relative">' +
+        "</span><em>" + escaparTexto(x.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Ou uma imagem sua</label>' +
+      '<div class="pf-foto-linha">' +
+        '<span class="pf-banner-previa"' +
+          (BANNERS[eu.id] ? ' style="background-image:url(' + BANNERS[eu.id] + ')"' : "") + ">" +
+          (BANNERS[eu.id] ? "" : "sem imagem") + "</span>" +
+        '<div class="pf-foto-bts">' +
+          '<button class="pf-bt' + (r.fundo === "foto" ? " on" : "") + '" id="pf-banner">' +
+          (BANNERS[eu.id] ? "Trocar a imagem" : "Escolher imagem") + "</button>" +
+          (BANNERS[eu.id] ? '<button class="pf-bt fraco" id="pf-banner-x">Tirar a imagem</button>' : "") +
+          '<input type="file" id="pf-barq" accept="image/*" hidden>' +
+        "</div></div>" +
+      '<p class="est-nota">Recortada e encolhida para 640×360 aqui no seu aparelho. ' +
+      "Vídeo e GIF em alta não dão: um vídeo de três segundos é maior que o jogo inteiro.</p></div>" +
+
+      '<label class="enq-check"><input type="checkbox" id="pf-hora"' +
+      (r.horaDoDia ? " checked" : "") + "> As suas cores mudam com a hora do dia</label>" +
 
       '<div class="pf-campo"><label>Ou um fundo pronto</label>' +
       grade(NEO_FUNDOS, "fundo", f =>
         '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
         escaparTexto(f.nome) + "</em>") + "</div>";
+
+  } else if (pfAba === "ar") {
+    const vd = { desfoque: r.desfoque === undefined ? 10 : r.desfoque,
+                 opacidade: r.opacidade === undefined ? 82 : r.opacidade };
+    corpo =
+      '<div class="pf-campo"><label>Partículas no fundo</label>' +
+      grade(NEO_PARTICULAS, "particula", x =>
+        '<span class="pf-mini escura">' + particulasHTML(x.id) + "</span><em>" +
+        escaparTexto(x.nome) + "</em>") + "</div>" +
+
+      /* VIDRO FOSCO: as duas barrinhas andam juntas de propósito. Painel
+         transparente SEM desfoque põe o texto por cima da imagem e
+         ninguém lê nada -- é o desfoque que torna a transparência
+         possível, e por isso as duas moram no mesmo cartão. */
+      '<div class="pf-campo"><label>Vidro fosco</label>' +
+      '<div class="pf-barra-l"><span>Desfoque</span>' +
+      '<input type="range" id="pf-blur" min="0" max="24" value="' + vd.desfoque + '">' +
+      '<b id="pf-blur-n">' + vd.desfoque + "px</b></div>" +
+      '<div class="pf-barra-l"><span>Opacidade</span>' +
+      '<input type="range" id="pf-op" min="35" max="100" value="' + vd.opacidade + '">' +
+      '<b id="pf-op-n">' + vd.opacidade + "%</b></div>" +
+      '<p class="est-nota">Quanto mais transparente o painel, mais o fundo aparece ' +
+      "por trás. O desfoque é o que mantém o texto legível.</p></div>" +
+
+      '<div class="pf-campo"><label>Moldura das seções</label>' +
+      grade(NEO_BORDAS, "borda", x =>
+        '<span class="pf-mini borda-' + x.id + '"></span><em>' +
+        escaparTexto(x.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Cor dos títulos</label>' +
+      grade(NEO_CORES, "corTitulo", c =>
+        '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
+        escaparTexto(c.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Ícone de estado</label>' +
+      grade(NEO_ESTADOS, "estadoIc", x =>
+        '<span class="pf-bola">' + (x.ic || "●") + "</span><em>" +
+        escaparTexto(x.nome) + "</em>") +
+      '<p class="est-nota">Aparece no canto do seu avatar, no lugar da bolinha colorida.</p>' +
+      "</div>";
 
   } else if (pfAba === "jogo") {
     corpo =
@@ -2297,12 +2423,61 @@ function estPintarEditor() {
         rodaLigar("c2", r.c2h, r.c2l, (h, l) => {
           estRascunho.c2h = h; estRascunho.c2l = l; pintaFaixa(); pfAtualizarPrevia();
         });
-        const usar = $("pf-usar-meu");
-        if (usar) usar.addEventListener("click", () => {
-          estRascunho.fundo = estRascunho.fundo === "meu" ? "vazio" : "meu";
-          estPintarEditor();
+        const ang = $("pf-ang"), angN = $("pf-ang-n");
+        if (ang) ang.addEventListener("input", () => {
+          estRascunho.angulo = parseInt(ang.value, 10);
+          if (angN) angN.textContent = ang.value + "°";
+          pintaFaixa(); pfAtualizarPrevia();
+        });
+        const flui = $("pf-fluir");
+        if (flui) flui.addEventListener("change", () => {
+          estRascunho.fluir = flui.checked ? 1 : 0;
+          pfAtualizarPrevia();
+        });
+        cx.querySelectorAll("[data-pronto]").forEach(b =>
+          b.addEventListener("click", () => {
+            const x = NEO_PRONTOS.filter(y => y.id === b.getAttribute("data-pronto"))[0];
+            if (!x) return;
+            estRascunho.c1h = x.c1h; estRascunho.c1l = x.c1l;
+            estRascunho.c2h = x.c2h; estRascunho.c2l = x.c2l;
+            estPintarEditor();
+          }));
+      }
+      /* as barrinhas do vidro fosco: mexem a prévia na hora, sem
+         repintar a aba inteira -- repintar faria o dedo perder a barra */
+      const liga = (idBarra, idNum, campo, sufixo) => {
+        const b = $(idBarra), n = $(idNum);
+        if (!b) return;
+        b.addEventListener("input", () => {
+          estRascunho[campo] = parseInt(b.value, 10);
+          if (n) n.textContent = b.value + sufixo;
+          pfAtualizarPrevia();
+        });
+      };
+      liga("pf-blur", "pf-blur-n", "desfoque", "px");
+      liga("pf-op", "pf-op-n", "opacidade", "%");
+      const hora = $("pf-hora");
+      if (hora) hora.addEventListener("change", () => {
+        estRascunho.horaDoDia = hora.checked ? 1 : 0;
+        pfAtualizarPrevia();
+      });
+      /* o banner de imagem */
+      const bban = $("pf-banner"), barq = $("pf-barq"), btira = $("pf-banner-x");
+      if (bban && barq) {
+        bban.addEventListener("click", () => barq.click());
+        barq.addEventListener("change", async () => {
+          if (!barq.files || !barq.files[0]) return;
+          if (await bannerGuardar(barq.files[0])) {
+            estRascunho.fundo = "foto";
+            estPintarEditor();
+          }
         });
       }
+      if (btira) btira.addEventListener("click", async () => {
+        await bannerApagar();
+        if (estRascunho.fundo === "foto") estRascunho.fundo = "meu";
+        estPintarEditor();
+      });
       /* a foto */
       const bfoto = $("pf-foto"), arq = $("pf-arq"), tira = $("pf-foto-x");
       if (bfoto && arq) {

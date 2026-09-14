@@ -6586,9 +6586,17 @@
   }
 
   /* ---- o editor em abas ---- */
-  .pf-abas{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 10px}
+  /* GRADE, E NÃO FILA. Com seis abas, o flex-wrap deixava a última
+     sozinha esticada numa linha só para ela -- e uma aba do tamanho da
+     tela parece o botão principal, não mais uma irmã das outras cinco.
+     Em grade elas ficam todas do mesmo tamanho, sempre. */
+  .pf-abas{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:5px;margin:12px 0 10px;
+  }
   .pf-aba{
-    flex:1 1 auto;padding:9px 8px;border-radius:10px;cursor:pointer;white-space:nowrap;
+    padding:9px 6px;border-radius:10px;cursor:pointer;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
     color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.55rem;
   }
@@ -6780,6 +6788,7 @@
 
   /* ---- e no celular tudo cabe no dedo ---- */
   @media (max-width:780px){
+    .pf-abas{grid-template-columns:repeat(2,minmax(0,1fr))}
     .pf-aba{min-height:40px;font-size:.58rem}
     .pf-bt{min-height:42px}
     .pf-roda{width:118px;height:118px}
@@ -6791,6 +6800,220 @@
     .cast-u{min-height:38px}
     .est-jan-cx:has(.pf-cartao) .est-jan-corpo,
     .est-jan-cx:has(.pf-corpo) .est-jan-corpo{max-height:74vh}
+  }
+
+  /* =================================================================
+     ATMOSFERA DO PERFIL (v9.1)
+     -----------------------------------------------------------------
+     Partículas, vidro fosco, molduras de seção e ícone de estado.
+
+     Tudo por variável no cartão: o JS escreve --pf-blur, --pf-op e
+     --pf-tit uma vez, e cada bloco lá dentro segue junto. Escrever em
+     cada bloco seria a mesma decisão espalhada em seis lugares — e
+     bastaria esquecer um para o perfil ficar meio fosco e meio não.
+     ================================================================= */
+  .pf-cartao{--pf-blur:10px;--pf-op:.82;--pf-tit:var(--fraco)}
+  .pf-cartao .pf-bl{
+    background:rgba(10,17,40,var(--pf-op));
+    backdrop-filter:blur(var(--pf-blur));
+    -webkit-backdrop-filter:blur(var(--pf-blur));
+    border-radius:12px;padding:11px 12px;margin-top:9px;
+  }
+  .pf-cartao .pf-bl h4{color:var(--pf-tit)}
+  .pf-cartao .pf-bl:first-of-type{padding-top:11px}
+
+  /* ---- molduras de seção ---- */
+  .pf-borda-nenhuma .pf-bl{border:0}
+  .pf-borda-linha .pf-bl{border:1px solid rgba(120,200,255,.16)}
+  .pf-borda-neon .pf-bl{
+    border:1px solid var(--pf-tit);
+    box-shadow:0 0 0 1px rgba(77,232,255,.12), 0 0 14px rgba(77,232,255,.18);
+  }
+  /* o pixel é feito com borda dupla e canto reto: é assim que um cartão
+     "de jogo antigo" se lê, e não com imagem de borda */
+  .pf-borda-pixel .pf-bl{
+    border:3px solid rgba(120,200,255,.3);border-radius:0;
+    box-shadow:inset 0 0 0 3px rgba(5,10,22,.9);
+  }
+  .pf-borda-brilho .pf-bl{
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 6px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .pf-borda-fita .pf-bl{
+    border:0;border-left:3px solid var(--pf-tit);border-radius:0 12px 12px 0;
+  }
+
+  /* ---- o banner com as partículas por cima ---- */
+  .pf-banner{position:relative;overflow:hidden}
+  .pf-part{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .pf-part i{
+    position:absolute;top:-12%;display:block;border-radius:50%;
+    animation-name:pfCai;animation-timing-function:linear;
+    animation-iteration-count:infinite;
+  }
+  @keyframes pfCai{
+    0%{transform:translateY(-14px);opacity:0}
+    12%{opacity:1}
+    88%{opacity:1}
+    100%{transform:translateY(120px);opacity:0}
+  }
+  .pf-part-poeira i{width:3px;height:3px;background:rgba(200,220,255,.7)}
+  .pf-part-neve i{width:5px;height:5px;background:rgba(255,255,255,.85);
+    filter:blur(.4px)}
+  /* a chuva é um risco, não um ponto: bolinha caindo depressa não lê
+     como chuva, lê como bolinha caindo depressa */
+  .pf-part-chuva i{width:2px;height:14px;border-radius:2px;
+    background:linear-gradient(180deg,transparent,var(--cyan))}
+  .pf-part-brasa i{width:4px;height:4px;background:#FF7B4D;
+    box-shadow:0 0 7px #FF7B4D;animation-name:pfSobe}
+  @keyframes pfSobe{
+    0%{transform:translateY(110px) scale(.6);opacity:0}
+    15%{opacity:1}
+    85%{opacity:.8}
+    100%{transform:translateY(-14px) scale(1);opacity:0}
+  }
+  .pf-part-estrela i{width:3px;height:3px;background:#fff;
+    box-shadow:0 0 6px #fff;animation-name:pfPisca;animation-timing-function:ease-in-out}
+  @keyframes pfPisca{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.4)}}
+  /* quem pediu menos movimento no aparelho não leva chuva na cara */
+  @media (prefers-reduced-motion:reduce){ .pf-part{display:none} }
+  /* e no modo leve também não: são doze elementos animados por perfil
+     aberto, e o alvo do jogo é celular fraco */
+  body.leve .pf-part{display:none}
+
+  /* ---- o ícone de estado no lugar da bolinha ---- */
+  .est-luz.ic{
+    position:absolute;right:-4px;bottom:-4px;width:auto;height:auto;
+    border-radius:50%;padding:1px 2px;font-style:normal;font-size:.62rem;
+    line-height:1;background:rgba(5,10,22,.92);
+    border:2px solid rgba(5,10,22,.92);
+  }
+
+  /* ---- os controles novos do editor ---- */
+  .pf-barra-l{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .pf-barra-l span{
+    flex:none;width:72px;font-family:"Chakra Petch",sans-serif;
+    font-size:.56rem;letter-spacing:.06em;color:var(--dim);
+  }
+  .pf-barra-l input{flex:1;min-width:0;margin:0}
+  .pf-barra-l b{
+    flex:none;width:44px;text-align:right;
+    font-family:"Chakra Petch",sans-serif;font-size:.56rem;color:var(--cyan);
+  }
+  .pf-mini.escura{background:#0A1428;position:relative;overflow:hidden}
+  .pf-mini.escura .pf-part{inset:0}
+  .pf-mini.borda-nenhuma{background:rgba(255,255,255,.05)}
+  .pf-mini.borda-linha{background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.4)}
+  .pf-mini.borda-neon{background:rgba(255,255,255,.05);border:1px solid var(--cyan);
+    box-shadow:0 0 8px rgba(77,232,255,.5)}
+  .pf-mini.borda-pixel{background:rgba(255,255,255,.05);border:3px solid rgba(120,200,255,.5);
+    border-radius:0}
+  .pf-mini.borda-brilho{background:rgba(255,255,255,.1);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 3px 10px rgba(0,0,0,.5)}
+  .pf-mini.borda-fita{background:rgba(255,255,255,.05);
+    border-left:3px solid var(--cyan);border-radius:0 8px 8px 0}
+  .pf-banner-previa{
+    flex:none;width:112px;height:63px;border-radius:10px;
+    display:grid;place-items:center;
+    background:rgba(255,255,255,.05);background-size:cover;background-position:center;
+    border:1px solid rgba(120,200,255,.22);
+    font-size:.5rem;letter-spacing:.1em;color:var(--fraco);
+  }
+  @media (max-width:780px){
+    .pf-barra-l span{width:62px}
+    .pf-barra-l input{height:32px}
+    .pf-banner-previa{width:100px;height:56px}
+  }
+
+  /* A BIO NÃO PRECISA DE CAIXA PRÓPRIA dentro do bloco.
+     Ela nasceu com fundo e borda porque antes vivia solta no cartão.
+     Agora ela mora dentro do painel de vidro de SOBRE MIM, e duas
+     superfícies encaixadas uma na outra é o que faz uma tela parecer
+     remendada. Fora do bloco (no cartão de espiar, por exemplo) ela
+     continua com a caixa dela. */
+  .pf-cartao .pf-bl .pf-bio{
+    background:none;padding:0;margin:0;border-radius:0;
+  }
+
+  /* =================================================================
+     O MIOLO DO CARTÃO (v9.1)
+     -----------------------------------------------------------------
+     O degradê de duas cores saiu do banner e veio para cá — a área que
+     envolve bio, pronomes, interesses, emblemas e coleção. O banner
+     virou a capa (imagem ou fundo pronto) e o miolo virou a cor da
+     pessoa, com os blocos de vidro fosco flutuando por cima.
+
+     É por isso que o vidro fosco só começou a fazer sentido agora:
+     antes ele desfocava o preto do cartão, o que é o mesmo que nada.
+     ================================================================= */
+  .pf-miolo{
+    margin:12px -3px -3px;padding:12px 11px 14px;
+    border-radius:14px;position:relative;overflow:hidden;
+    border:1px solid var(--pf-borda-cor);
+    box-shadow:0 0 18px -6px var(--pf-borda-cor);
+  }
+  .pf-miolo .pf-bl:first-of-type{margin-top:0}
+  .pf-miolo-previa{height:26px;margin:0 -3px;border-radius:0 0 12px 12px}
+  /* o degradê que anda devagar: 18s é lento o bastante para não puxar o
+     olho no meio da leitura, e rápido o bastante para se notar */
+  .fluindo{background-size:200% 200% !important;animation:pfFlui 18s ease infinite}
+  @keyframes pfFlui{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  @media (prefers-reduced-motion:reduce){.fluindo{animation:none}}
+  body.leve .fluindo{animation:none}
+
+  /* as texturas são desenhadas por cima do degradê, em pseudo-elemento:
+     assim elas não brigam com o background e continuam funcionando com
+     qualquer cor que a pessoa escolher */
+  .pf-tex-nenhuma::before{display:none}
+  .pf-tex-pontos::before,.pf-tex-linhas::before,.pf-tex-ruido::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+  }
+  .pf-tex-pontos::before{
+    background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);
+    background-size:9px 9px;
+  }
+  .pf-tex-linhas::before{
+    background-image:repeating-linear-gradient(115deg,
+      rgba(255,255,255,.07) 0 1px,transparent 1px 9px);
+  }
+  /* ruído sem imagem: dois degradês minúsculos cruzados dão granulado
+     suficiente, e não custam um arquivo a mais no jogo */
+  .pf-tex-ruido::before{
+    background-image:
+      repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),
+      repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);
+  }
+
+  /* =================================================================
+     O ROBÔ — avatar de quem ainda não pôs foto
+     -----------------------------------------------------------------
+     Cinza em fundo branco, de propósito: ele é o "sem foto" e não pode
+     competir com a foto de quem pôs uma. Por isso a bolinha azul que
+     ficava atrás some quando tem robô.
+     ================================================================= */
+  .com-robo{background:#FFF !important;overflow:hidden;padding:0}
+  .com-robo .robo{width:100%;height:100%;display:block;border-radius:inherit}
+  .com-foto{background-size:cover;background-position:center}
+  /* o robô da conversa é pequeno: os traços finos do desenho somem
+     abaixo de uns 26px, então o avatar do chat cresceu um tico */
+  .est-msg .est-av{width:34px;height:34px}
+  .est-msg.colado .est-av.vazio{width:34px}
+  /* e ele reage ao passar o mouse, como foi pedido */
+  .est-msg .est-av{transition:transform .14s ease}
+  .est-msg:hover .est-av{transform:scale(1.08)}
+  @media (prefers-reduced-motion:reduce){.est-msg:hover .est-av{transform:none}}
+
+  /* ---- os controles novos do degradê ---- */
+  .pf-prontos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .pf-pronto{
+    width:52px;height:34px;border-radius:9px;cursor:pointer;
+    border:1px solid rgba(120,200,255,.22);
+  }
+  .pf-pronto.on{border-color:var(--cyan);box-shadow:0 0 10px rgba(77,232,255,.5)}
+  @media (max-width:780px){
+    .pf-miolo{padding:10px 9px 12px}
+    .pf-pronto{width:60px;height:40px}
+    .est-msg .est-av{width:36px;height:36px}
   }
 
 </style>
@@ -32893,7 +33116,15 @@ const PERFIL_PADRAO = {
      sem buraco nenhum. */
   fonte: "padrao", brilho: "nenhum", tema: "padrao", toque: "curto",
   clique: "afunda", interesses: "", blocos: "", foto: 0,
-  c1h: 205, c1l: 30, c2h: 275, c2l: 22
+  c1h: 205, c1l: 30, c2h: 275, c2l: 22,
+  /* o que entrou na v9.1 (ver 09-perfil3.js): fundo de imagem, vidro
+     fosco, partículas, bordas de seção, cor dos títulos e ícone de
+     estado. Tudo com padrão, para perfil antigo continuar abrindo. */
+  banner: 0, horaDoDia: 0, particula: "nenhuma", borda: "linha",
+  corTitulo: "", estadoIc: "bolinha", desfoque: 10, opacidade: 82,
+  /* o degradê das duas cores saiu do banner e foi para o miolo do
+     cartão (v9.1). Ângulo, formato, textura e movimento são dele. */
+  angulo: 150, formato: "linear", textura: "nenhuma", fluir: 0
 };
 function perfilMeu() {
   save.perfil = Object.assign({}, PERFIL_PADRAO, save.perfil || {});
@@ -32968,6 +33199,20 @@ function perfilSalvar(novo) {
   guardaSe("tema", NEO_TEMAS);
   guardaSe("toque", NEO_TOQUES);
   guardaSe("clique", NEO_CLIQUES);
+  guardaSe("particula", NEO_PARTICULAS);
+  guardaSe("borda", NEO_BORDAS);
+  guardaSe("estadoIc", NEO_ESTADOS);
+  guardaSe("formato", NEO_FORMATOS);
+  guardaSe("textura", NEO_TEXTURAS);
+  if (novo.fluir !== undefined) p.fluir = novo.fluir ? 1 : 0;
+  /* a cor do título sai da MESMA lista de cores do nome: duas tabelas de
+     cor um dia discordariam sobre o que é "violeta" */
+  if (novo.corTitulo !== undefined) {
+    const ct = neoAchar(NEO_CORES, novo.corTitulo);
+    p.corTitulo = (ct && neoLiberado(ct)) ? ct.id : "";
+  }
+  if (novo.fundo === "foto") p.fundo = "foto";
+  if (novo.horaDoDia !== undefined) p.horaDoDia = novo.horaDoDia ? 1 : 0;
   if (novo.avatar !== undefined) p.avatar = String(novo.avatar).slice(0, 12);
   /* O FUNDO DE DUAS CORES é o único que não vem de lista, então a guarda
      é outra: números, presos na faixa, nunca texto. Assim não existe
@@ -32977,6 +33222,9 @@ function perfilSalvar(novo) {
     const n = parseInt(v, 10);
     return isNaN(n) ? reserva : Math.max(min, Math.min(max, n));
   };
+  if (novo.angulo !== undefined) p.angulo = numEntre(novo.angulo, 0, 359, p.angulo);
+  if (novo.desfoque !== undefined) p.desfoque = numEntre(novo.desfoque, 0, 24, p.desfoque);
+  if (novo.opacidade !== undefined) p.opacidade = numEntre(novo.opacidade, 35, 100, p.opacidade);
   if (novo.c1h !== undefined) p.c1h = numEntre(novo.c1h, 0, 359, p.c1h);
   if (novo.c2h !== undefined) p.c2h = numEntre(novo.c2h, 0, 359, p.c2h);
   if (novo.c1l !== undefined) p.c1l = numEntre(novo.c1l, 12, 72, p.c1l);
@@ -33266,29 +33514,33 @@ function perfilFonteDoNome(p) {
    por onde passa qualquer coisa.
    ===================================================================== */
 function corDeHSL(matiz, tom) {
-  const h = Math.max(0, Math.min(359, Math.round(matiz || 0)));
-  const l = Math.max(8, Math.min(78, Math.round(tom === undefined ? 45 : tom)));
+  /* NÚMERO OU NADA. Math.min(359, NaN) é NaN, e "hsl(NaN 72% 45%)" não é
+     ataque nenhum -- é só CSS inválido, que o navegador joga fora
+     inteiro. O degradê some e o perfil fica preto, sem erro e sem pista.
+     Isto vem da nuvem, escrito por outra pessoa: um campo com lixo
+     dentro tem que virar uma cor, não virar nada. */
+  const num = (v, reserva) => {
+    const n = Math.round(Number(v));
+    return isNaN(n) ? reserva : n;
+  };
+  const h = Math.max(0, Math.min(359, num(matiz, 0)));
+  const l = Math.max(8, Math.min(78, num(tom, 45)));
   return "hsl(" + h + " 72% " + l + "%)";
 }
 /* o fundo que vale AGORA: ou o de duas cores, ou um da lista */
 function perfilFundoCSS(p) {
   p = p || save;
   const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
-  if (perfil.fundo === "meu" && NEO_ORDEM[neoDe(p)] >= NEO_ORDEM["nenhum"]) {
-    return "linear-gradient(150deg," + corDeHSL(perfil.c1h, perfil.c1l) + "," +
-           corDeHSL(perfil.c2h, perfil.c2l) + ")";
-  }
-  return perfilFundo(p).css;
+  const eu = estEu();
+  return perfilFundoDe(perfil, neoDe(p), eu ? eu.id : "");
 }
-/* o mesmo, para um perfil que veio da nuvem (de outra pessoa) */
-function perfilFundoCSSDaNuvem(perfil, nivel) {
-  perfil = perfil || {};
-  if (perfil.fundo === "meu") {
-    return "linear-gradient(150deg," + corDeHSL(perfil.c1h, perfil.c1l) + "," +
-           corDeHSL(perfil.c2h, perfil.c2l) + ")";
-  }
-  const f = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
-  return (NEO_ORDEM[nivel] >= NEO_ORDEM[f.nivel] ? f : NEO_FUNDOS[0]).css;
+/* o mesmo, para um perfil que veio da nuvem (de outra pessoa).
+   Desde a v9.1 quem decide é perfilFundoDe (09-perfil3.js), que sabe dos
+   três caminhos: imagem, duas cores e lista pronta. Esta continua aqui
+   porque é o nome que o resto do código já chamava -- e uma função que
+   só repassa é mais barata que caçar todos os lugares. */
+function perfilFundoCSSDaNuvem(perfil, nivel, uid) {
+  return perfilFundoDe(perfil || {}, nivel, uid);
 }
 
 /* =====================================================================
@@ -33862,6 +34114,641 @@ setTimeout(() => {
     if (eu && nuvemAtiva()) { fotoDe(eu.id); castigoOlhar(eu.id); }
   } catch (e) {}
 }, 3500);
+/* =====================================================================
+   O PERFIL, PARTE 3 — fundo, atmosfera e identidade
+   =====================================================================
+   O pedido foi "personalização total". Isto é o que dá para fazer de
+   verdade num jogo que roda num arquivo só, abre sem internet e tem que
+   andar em celular fraco — e o que NÃO dá está escrito no fim, com o
+   motivo, porque promessa na tela é pior que espaço vazio.
+
+   O QUE ENTRA
+     · banner de imagem própria, encolhido no aparelho antes de subir
+     · vidro fosco: desfoque e opacidade dos painéis, para o fundo
+       aparecer por trás sem comer o texto
+     · partículas flutuando por cima do fundo
+     · gradiente que muda com a HORA do dia
+     · avatar animado (GIF pequeno), molduras de seção, cor dos títulos
+     · ícone de estado no lugar da bolinha
+
+   ONDE MORA NA NUVEM
+     conversas/__banners/<uid>   a imagem de fundo, buscada só quando
+                                 alguém abre aquele perfil
+
+   Mesma regra da foto, e pelo mesmo motivo: a ficha de todo mundo é
+   lida inteira de vinte em vinte segundos. Imagem lá dentro faria cada
+   celular baixar a galeria da comunidade toda, sem parar.
+   ===================================================================== */
+
+/* =====================================================================
+   1. O BANNER DE IMAGEM
+   ---------------------------------------------------------------------
+   640×360 é o tamanho em que ele aparece, e é o tamanho em que ele é
+   guardado. Subir a foto original de 4000px para depois encolher na
+   tela é pagar cem vezes a mesma banda para ver a mesma coisa.
+   ===================================================================== */
+const BANNER_L = 640, BANNER_A = 360;
+const BANNER_TETO = 90000;        // 90 KB depois de encolher
+const BANNERS = {};               // uid -> dataURL, para não buscar duas vezes
+
+function bannerCaminho(uid) { return "conversas/__banners/" + uid; }
+
+/* recorta na proporção do banner e encolhe. Recortar ANTES de encolher
+   evita a imagem esticada: sem isso, uma foto em pé vira um borrão. */
+function bannerEncolher(arquivo) {
+  return new Promise((ok, falhou) => {
+    const leitor = new FileReader();
+    leitor.onerror = () => falhou(new Error("nao deu para ler"));
+    leitor.onload = () => {
+      const img = new Image();
+      img.onerror = () => falhou(new Error("isso nao e uma imagem"));
+      img.onload = () => {
+        const alvo = BANNER_L / BANNER_A;
+        const dela = img.width / img.height;
+        let lc = img.width, ac = img.height;
+        if (dela > alvo) lc = img.height * alvo; else ac = img.width / alvo;
+        const c = document.createElement("canvas");
+        c.width = BANNER_L; c.height = BANNER_A;
+        const x = c.getContext("2d");
+        x.imageSmoothingQuality = "high";
+        x.drawImage(img, (img.width - lc) / 2, (img.height - ac) / 2, lc, ac,
+                    0, 0, BANNER_L, BANNER_A);
+        let saida = "";
+        try { saida = c.toDataURL("image/webp", 0.72); } catch (e) {}
+        if (!saida || saida.indexOf("data:image/webp") !== 0) saida = c.toDataURL("image/jpeg", 0.72);
+        ok(saida);
+      };
+      img.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+async function bannerGuardar(arquivo) {
+  const eu = estEu();
+  if (!eu) return false;
+  if (!arquivo || !/^image\//.test(arquivo.type)) {
+    estAvisar("Escolha uma imagem (JPG, PNG, GIF ou WEBP).");
+    return false;
+  }
+  let dado;
+  try { dado = await bannerEncolher(arquivo); }
+  catch (e) { estAvisar("Não consegui abrir essa imagem."); return false; }
+  if (dado.length > BANNER_TETO) { estAvisar("Essa imagem ficou grande demais."); return false; }
+  const r = await nuvemSoltar(bannerCaminho(eu.id), dado);
+  if (r === null) { estAvisar("Não deu para guardar o banner. Confira a internet."); return false; }
+  BANNERS[eu.id] = dado;
+  const p = perfilMeu();
+  p.banner = 1;
+  p.fundo = "foto";               /* escolher a imagem já é usar a imagem */
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  estAvisar("Banner trocado.");
+  return true;
+}
+
+async function bannerApagar() {
+  const eu = estEu();
+  if (!eu) return false;
+  await nuvemSoltar(bannerCaminho(eu.id), null, "DELETE");
+  delete BANNERS[eu.id];
+  const p = perfilMeu();
+  p.banner = 0;
+  if (p.fundo === "foto") p.fundo = "meu";
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  estAvisar("Banner removido.");
+  return true;
+}
+
+async function bannerDe(uid) {
+  if (!uid) return "";
+  if (BANNERS[uid] !== undefined) return BANNERS[uid];
+  BANNERS[uid] = "";
+  const d = await nuvemReq(bannerCaminho(uid));
+  /* só entra o que É uma imagem encolhida por nós. Isto foi escrito por
+     outra pessoa, e "url(qualquer coisa)" vira um buraco na minha tela */
+  BANNERS[uid] = (typeof d === "string" && /^data:image\/(webp|jpeg|png|gif);base64,/.test(d) &&
+                  d.length < BANNER_TETO * 2) ? d : "";
+  return BANNERS[uid];
+}
+
+/* =====================================================================
+   2. O GRADIENTE QUE SEGUE A HORA
+   ---------------------------------------------------------------------
+   Amanhecer, dia, entardecer e noite. É o mesmo par de cores que a
+   pessoa escolheu, girado e clareado conforme a hora — e não quatro
+   paletas fixas: assim a escolha dela continua sendo dela, e o fundo só
+   respira junto com o relógio.
+   ===================================================================== */
+const HORAS_DO_DIA = [
+  { id: "madrugada", nome: "Madrugada", de: 0,  ate: 5,  giro: -20, luz: -12 },
+  { id: "manha",     nome: "Manhã",     de: 6,  ate: 11, giro: 15,  luz: 10 },
+  { id: "tarde",     nome: "Tarde",     de: 12, ate: 17, giro: 0,   luz: 6 },
+  { id: "noite",     nome: "Noite",     de: 18, ate: 23, giro: -10, luz: -6 }
+];
+function horaDeAgora() {
+  const h = new Date().getHours();
+  return HORAS_DO_DIA.filter(x => h >= x.de && h <= x.ate)[0] || HORAS_DO_DIA[3];
+}
+
+/* =====================================================================
+   3. AS PARTÍCULAS
+   ---------------------------------------------------------------------
+   Feitas em CSS, e não em canvas. Um canvas por perfil aberto seria mais
+   um laço de desenho rodando junto com o jogo, e o alvo aqui é celular
+   fraco. Doze pontinhos com animação de CSS custam quase nada e a placa
+   de vídeo faz sozinha.
+   ===================================================================== */
+const NEO_PARTICULAS = [
+  { id: "nenhuma", nome: "Nenhuma",       nivel: "nenhum" },
+  { id: "poeira",  nome: "Poeira cósmica",nivel: "nenhum" },
+  { id: "neve",    nome: "Neve",          nivel: "bronze" },
+  { id: "chuva",   nome: "Chuva neon",    nivel: "bronze" },
+  { id: "brasa",   nome: "Brasas",        nivel: "prata" },
+  { id: "estrela", nome: "Estrelas",      nivel: "ouro" }
+];
+/* quantas partículas desenhar: mais que isso vira sujeira, e menos não
+   se vê. Doze foi o número que pareceu chuva sem parecer estática. */
+const PARTICULAS_N = 12;
+function particulasHTML(id) {
+  if (!id || id === "nenhuma") return "";
+  let h = '<div class="pf-part pf-part-' + id + '" aria-hidden="true">';
+  for (let i = 0; i < PARTICULAS_N; i++) {
+    /* posição e ritmo fixos por índice, e não sorteados: sorteado muda a
+       cada repintura e a chuva "pula" toda vez que a tela se redesenha */
+    const x = (i * 37) % 100;
+    const atraso = (i * 0.63) % 4;
+    const dur = 3.2 + ((i * 7) % 26) / 10;
+    h += '<i style="left:' + x + "%;animation-delay:" + atraso.toFixed(2) +
+         "s;animation-duration:" + dur.toFixed(2) + 's"></i>';
+  }
+  return h + "</div>";
+}
+
+/* =====================================================================
+   4. VIDRO FOSCO
+   ---------------------------------------------------------------------
+   Desfoque e opacidade dos painéis, para o fundo escolhido aparecer por
+   trás. Os dois vão juntos de propósito: painel transparente SEM
+   desfoque deixa o texto por cima da imagem e ninguém lê nada. O
+   desfoque é o que faz a transparência ser possível.
+   ===================================================================== */
+const VIDRO_PADRAO = { desfoque: 10, opacidade: 82 };
+function vidroDe(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  return {
+    desfoque: Math.max(0, Math.min(24, parseInt(perfil.desfoque, 10) || VIDRO_PADRAO.desfoque)),
+    opacidade: Math.max(35, Math.min(100, parseInt(perfil.opacidade, 10) || VIDRO_PADRAO.opacidade))
+  };
+}
+
+/* =====================================================================
+   5. MOLDURAS DE SEÇÃO, CORES DOS TÍTULOS E ÍCONE DE ESTADO
+   ===================================================================== */
+const NEO_BORDAS = [
+  { id: "nenhuma", nome: "Sem borda",  nivel: "nenhum" },
+  { id: "linha",   nome: "Linha fina", nivel: "nenhum" },
+  { id: "neon",    nome: "Neon",       nivel: "bronze" },
+  { id: "pixel",   nome: "Pixel",      nivel: "bronze" },
+  { id: "brilho",  nome: "Brilho",     nivel: "prata" },
+  { id: "fita",    nome: "Fita lateral", nivel: "ouro" }
+];
+/* os ícones de estado, no lugar da bolinha colorida */
+const NEO_ESTADOS = [
+  { id: "bolinha", nome: "Bolinha",    nivel: "nenhum", ic: "" },
+  { id: "jogo",    nome: "Jogando",    nivel: "nenhum", ic: "🎮" },
+  { id: "musica",  nome: "Ouvindo",    nivel: "bronze", ic: "🎧" },
+  { id: "estudo",  nome: "Estudando",  nivel: "bronze", ic: "📚" },
+  { id: "sono",    nome: "Dormindo",   nivel: "prata",  ic: "😴" },
+  { id: "foguete", nome: "Em missão",  nivel: "prata",  ic: "🚀" },
+  { id: "coroa",   nome: "Coroa",      nivel: "ouro",   ic: "👑" }
+];
+
+function perfilParticula(p) { return perfilEscolha(NEO_PARTICULAS, "particula", p); }
+function perfilBorda(p)     { return perfilEscolha(NEO_BORDAS, "borda", p); }
+function perfilEstadoIc(p)  { return perfilEscolha(NEO_ESTADOS, "estadoIc", p); }
+
+/* a cor dos títulos das seções. Vem da mesma lista de cores do nome --
+   uma lista só, para não existirem duas tabelas de cor que um dia
+   discordam sobre o que é "violeta". */
+function perfilCorTitulo(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const c = neoAchar(NEO_CORES, perfil.corTitulo);
+  if (!c) return "";
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[c.nivel] ? c.cor : "";
+}
+
+/* =====================================================================
+   6. O FUNDO, AGORA COM TRÊS CAMINHOS
+   ---------------------------------------------------------------------
+   "foto" (a imagem que a pessoa subiu), "meu" (as duas cores dela) ou um
+   da lista pronta. Uma função só decide, e ela devolve o pedaço de
+   estilo — nunca HTML, nunca texto que veio de outra pessoa.
+   ===================================================================== */
+function perfilFundoDe(perfil, nivel, uid) {
+  perfil = perfil || {};
+  if (perfil.fundo === "foto" && BANNERS[uid]) {
+    return "url(" + BANNERS[uid] + ") center/cover";
+  }
+  if (perfil.fundo === "meu") {
+    let h1 = perfil.c1h, l1 = perfil.c1l, h2 = perfil.c2h, l2 = perfil.c2l;
+    if (perfil.horaDoDia) {
+      const q = horaDeAgora();
+      h1 = (Number(h1 || 0) + q.giro + 360) % 360;
+      h2 = (Number(h2 || 0) + q.giro + 360) % 360;
+      l1 = Number(l1 || 30) + q.luz;
+      l2 = Number(l2 || 25) + q.luz;
+    }
+    return "linear-gradient(150deg," + corDeHSL(h1, l1) + "," + corDeHSL(h2, l2) + ")";
+  }
+  const f = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
+  return (NEO_ORDEM[nivel] >= NEO_ORDEM[f.nivel] ? f : NEO_FUNDOS[0]).css;
+}
+
+/* =====================================================================
+   O QUE NÃO ESTÁ AQUI, E POR QUÊ
+   ---------------------------------------------------------------------
+   · VÍDEO DE FUNDO e GIF de fundo em HD: um vídeo de 3 segundos em
+     qualidade decente passa de 1 MB. O jogo inteiro tem 4 MB e precisa
+     caber na memória de um celular fraco junto com a partida rodando.
+     Um vídeo por perfil aberto derruba o aparelho que é o alvo do jogo.
+   · MURAL DE MÍDIA e galeria de fotos: precisa de um lugar para guardar
+     arquivo grande. Este jogo tem um banco de TEXTO e mais nada; guardar
+     imagem ali é caro, lento, e estoura o limite bem rápido.
+   · REPRODUTOR DE SPOTIFY: precisa de uma conta de desenvolvedor, de uma
+     chave secreta e de um servidor para segurar essa chave. Nada disso
+     cabe num arquivo só que funciona sem internet -- e pôr a chave
+     dentro do jogo seria entregá-la a quem abrisse o código.
+   · ÁUDIO PRÓPRIO de apresentação: mesmo problema do vídeo. Um áudio de
+     10 segundos é maior que a foto, o banner e o perfil inteiro juntos.
+
+   O que dava para aproveitar dessas ideias FOI aproveitado: som ao abrir
+   o perfil (feito na hora, sem arquivo), efeito ao passar o mouse, e o
+   banner de imagem encolhido.
+   ===================================================================== */
+
+/* o perfil de OUTRA pessoa, já com o que entrou na v9.1 junto. É uma
+   casca fina em volta de perfilDaNuvem: a limpeza continua sendo dela,
+   e aqui só se acrescenta o que ela ainda não sabia devolver. */
+function perfilComExtras(ficha, uid) {
+  const v = perfilDaNuvem(ficha);
+  const perfil = (ficha && ficha.perfil) || {};
+  const daLista = (lista, id) => {
+    const it = neoAchar(lista, id) || lista[0];
+    return NEO_ORDEM[v.nivel] >= NEO_ORDEM[it.nivel] ? it : lista[0];
+  };
+  v.fundoCSS = perfilFundoDe(perfil, v.nivel, uid);
+  v.particula = daLista(NEO_PARTICULAS, perfil.particula).id;
+  v.borda = daLista(NEO_BORDAS, perfil.borda).id;
+  v.estadoIc = daLista(NEO_ESTADOS, perfil.estadoIc);
+  const ct = neoAchar(NEO_CORES, perfil.corTitulo);
+  v.corTitulo = (ct && NEO_ORDEM[v.nivel] >= NEO_ORDEM[ct.nivel]) ? ct.cor : "";
+  /* o vidro é da pessoa, mas preso na faixa: um desfoque de 900px
+     vindo da nuvem travaria a tela de quem abrisse o perfil */
+  v.vidro = {
+    desfoque: Math.max(0, Math.min(24, parseInt(perfil.desfoque, 10) || VIDRO_PADRAO.desfoque)),
+    opacidade: Math.max(35, Math.min(100, parseInt(perfil.opacidade, 10) || VIDRO_PADRAO.opacidade))
+  };
+  return perfilExtrasGradiente(v, perfil);
+}
+
+/* =====================================================================
+   7. O DEGRADÊ DO CONTAINER INTERNO
+   ---------------------------------------------------------------------
+   Foi pedido que o degradê de duas cores saísse do banner e fosse para
+   o miolo do cartão — a área que envolve bio, pronomes, interesses,
+   emblemas e conexões. É a decisão certa: o banner é a "capa" e pode ser
+   uma imagem; o miolo é onde o texto mora, e é ali que a cor da pessoa
+   aparece por trás do vidro fosco.
+
+   Com isso, as duas coisas passam a ser independentes:
+     · banner  -> imagem própria ou um fundo pronto da lista
+     · miolo   -> as DUAS CORES dela, com ângulo, formato e movimento
+
+   O ângulo, o formato e a animação são números e ids de lista, nunca
+   texto: isto é lido do perfil de outra pessoa, e texto que vira estilo
+   é buraco.
+   ===================================================================== */
+const NEO_FORMATOS = [
+  { id: "linear", nome: "Reto",    nivel: "nenhum" },
+  { id: "radial", nome: "Círculo", nivel: "nenhum" },
+  { id: "conico", nome: "Leque",   nivel: "prata" }
+];
+const NEO_TEXTURAS = [
+  { id: "nenhuma", nome: "Lisa",        nivel: "nenhum" },
+  { id: "pontos",  nome: "Grade de pontos", nivel: "nenhum" },
+  { id: "linhas",  nome: "Linhas",      nivel: "bronze" },
+  { id: "ruido",   nome: "Ruído",       nivel: "prata" }
+];
+/* combinações prontas, para quem não quer girar duas rodas */
+const NEO_PRONTOS = [
+  { id: "nebulosa", nome: "Nebulosa", c1h: 275, c1l: 30, c2h: 205, c2l: 24 },
+  { id: "brasa",    nome: "Brasa",    c1h: 18,  c1l: 34, c2h: 340, c2l: 22 },
+  { id: "floresta", nome: "Floresta", c1h: 150, c1l: 26, c2h: 190, c2l: 20 },
+  { id: "aurora",   nome: "Aurora",   c1h: 165, c1l: 32, c2h: 265, c2l: 26 },
+  { id: "areia",    nome: "Areia",    c1h: 38,  c1l: 36, c2h: 12,  c2l: 24 },
+  { id: "gelo",     nome: "Gelo",     c1h: 196, c1l: 38, c2h: 220, c2l: 22 },
+  { id: "vinho",    nome: "Vinho",    c1h: 340, c1l: 28, c2h: 285, c2l: 18 },
+  { id: "carvao",   nome: "Carvão",   c1h: 220, c1l: 16, c2h: 220, c2l: 10 }
+];
+
+function perfilFormato(p) { return perfilEscolha(NEO_FORMATOS, "formato", p); }
+function perfilTextura(p) { return perfilEscolha(NEO_TEXTURAS, "textura", p); }
+
+/* o degradê do miolo, a partir de um perfil qualquer (meu ou da nuvem) */
+function gradienteDe(perfil, nivel) {
+  perfil = perfil || {};
+  let h1 = perfil.c1h, l1 = perfil.c1l, h2 = perfil.c2h, l2 = perfil.c2l;
+  if (perfil.horaDoDia) {
+    const q = horaDeAgora();
+    h1 = (Number(h1 || 0) + q.giro + 360) % 360;
+    h2 = (Number(h2 || 0) + q.giro + 360) % 360;
+    l1 = Number(l1 || 30) + q.luz;
+    l2 = Number(l2 || 25) + q.luz;
+  }
+  const a = corDeHSL(h1, l1), b = corDeHSL(h2, l2);
+  const ang = Math.max(0, Math.min(359, Math.round(Number(perfil.angulo)) || 150));
+  const f = neoAchar(NEO_FORMATOS, perfil.formato) || NEO_FORMATOS[0];
+  const vale = NEO_ORDEM[nivel || "nenhum"] >= NEO_ORDEM[f.nivel] ? f : NEO_FORMATOS[0];
+  if (vale.id === "radial") return "radial-gradient(circle at 50% 35%," + a + "," + b + ")";
+  if (vale.id === "conico") return "conic-gradient(from " + ang + "deg," + a + "," + b + "," + a + ")";
+  return "linear-gradient(" + ang + "deg," + a + "," + b + ")";
+}
+/* a cor de baixo sozinha: é dela que sai a borda que brilha */
+function gradienteCorSecundaria(perfil) {
+  perfil = perfil || {};
+  return corDeHSL(perfil.c2h, perfil.c2l);
+}
+
+/* o que o cartão de outra pessoa precisa saber do degradê do miolo */
+function perfilExtrasGradiente(v, perfil) {
+  const daLista = (lista, id) => {
+    const it = neoAchar(lista, id) || lista[0];
+    return NEO_ORDEM[v.nivel] >= NEO_ORDEM[it.nivel] ? it : lista[0];
+  };
+  v.gradiente = gradienteDe(perfil, v.nivel);
+  v.corBorda = gradienteCorSecundaria(perfil);
+  v.textura = daLista(NEO_TEXTURAS, perfil.textura).id;
+  v.fluir = perfil.fluir ? 1 : 0;
+  return v;
+}
+/* =====================================================================
+   O ROBÔ — o avatar de quem ainda não pôs foto
+   =====================================================================
+   Antes, quem não tinha foto aparecia com a inicial do nome numa
+   bolinha azul. Funciona, mas três pessoas com nome começando em "L"
+   ficavam idênticas — e num bate-papo isso é exatamente o que atrapalha:
+   você procura a mensagem "do L" e tem três.
+
+   Agora cada conta ganha um robô CINZA em fundo BRANCO, desenhado a
+   partir do próprio identificador. Não é sorteado: o mesmo piloto tem o
+   mesmo robô hoje, amanhã e no celular do amigo. Sorteio daria um robô
+   diferente a cada abertura, e aí ele não identificaria ninguém.
+
+   POR QUE SVG DESENHADO NA HORA, E NÃO IMAGEM
+   ---------------------------------------------------------------------
+   Vinte robôs prontos seriam vinte imagens no arquivo do jogo, que já
+   tem 4 MB e precisa abrir sem internet. Desenhado, cada robô custa umas
+   quinhentas letras de texto e sai de uma conta — e dá para ter milhares
+   de combinações em vez de vinte.
+
+   CINZA E BRANCO DE PROPÓSITO
+   ---------------------------------------------------------------------
+   O robô é o "sem foto". Ele não pode competir com a foto de quem pôs
+   uma, nem com o nome colorido de quem assina — por isso ele é neutro.
+   Quem quiser cor, põe foto.
+   ===================================================================== */
+
+/* as peças, e quantas variações cada uma tem. O número de robôs
+   diferentes é o produto de tudo: 5 × 5 × 4 × 5 × 3 = 1500 */
+const ROBO_CABECAS = ["quadrada", "arredondada", "redonda", "pixel", "larga"];
+const ROBO_OLHOS   = ["ponto", "visor", "monoculo", "sorriso", "led"];
+const ROBO_ANTENAS = ["nenhuma", "uma", "duas", "haste"];
+const ROBO_BOCAS   = ["linha", "grade", "sorriso", "nenhuma", "onda"];
+const ROBO_DETALHE = ["nenhum", "parafusos", "placa"];
+
+/* quatro cinzas: o fundo branco, o corpo, o traço e a luz do olho.
+   Um cinza só deixaria o robô chapado; quatro dão volume sem cor. */
+const ROBO_CORES = {
+  fundo: "#FFFFFF", corpo: "#C9CDD4", traco: "#6B7280",
+  escuro: "#3F4652", luz: "#9AA2AE"
+};
+
+/* O SORTEIO QUE NÃO SORTEIA: mesmo id, mesmo robô, sempre.
+
+   CINCO CONTAS SEPARADAS, uma por peça, cada uma com um tempero
+   diferente na frente do identificador. A primeira versão somava
+   dígitos do MESMO hash para tirar as cinco peças, e o teste pegou o
+   estrago: 300 contas davam só 30 robôs diferentes. Somar dígitos
+   amassa a faixa (dois dígitos hex somam de 0 a 30) e, pior, deixa as
+   peças correlacionadas — cabeça e olhos andavam juntos, e metade das
+   combinações nunca aparecia.
+
+   Com tempero por peça, cada uma vê um hash diferente do mesmo nome, e
+   elas passam a ser independentes de verdade. */
+/* ESPALHAR OS BITS ANTES DE DIVIDIR.
+   O nuvemHash é um djb2: ele é rápido e serve para o que foi feito, mas
+   para textos quase iguais ("piloto1", "piloto2") ele devolve números
+   quase iguais. Tirar o resto da divisão disso faz as cinco peças
+   andarem em fila indiana — e foi o que sobrou depois do primeiro
+   conserto: 2000 contas ainda davam só 232 robôs, de 1500 possíveis.
+
+   Este embaralhador (xor com deslocamento + multiplicação) espalha uma
+   diferença de um bit por todos os 32. Depois dele, "piloto1" e
+   "piloto2" não têm mais nada a ver um com o outro. */
+function roboMisturar(n) {
+  n = n >>> 0;
+  n ^= n >>> 16; n = Math.imul(n, 0x7feb352d) >>> 0;
+  n ^= n >>> 15; n = Math.imul(n, 0x846ca68b) >>> 0;
+  n ^= n >>> 16;
+  return n >>> 0;
+}
+function roboSemente(id) {
+  const nome = String(id || "?");
+  const conta = tempero =>
+    roboMisturar(parseInt(nuvemHash(tempero + nome), 16) || 0);
+  return {
+    cabeca: conta("cb:"), olhos: conta("ol:"), antena: conta("an:"),
+    boca: conta("bc:"), detalhe: conta("dt:")
+  };
+}
+
+function roboDe(id) {
+  const s = roboSemente(id);
+  return {
+    cabeca: ROBO_CABECAS[s.cabeca % ROBO_CABECAS.length],
+    olhos:  ROBO_OLHOS[s.olhos % ROBO_OLHOS.length],
+    antena: ROBO_ANTENAS[s.antena % ROBO_ANTENAS.length],
+    boca:   ROBO_BOCAS[s.boca % ROBO_BOCAS.length],
+    detalhe: ROBO_DETALHE[s.detalhe % ROBO_DETALHE.length]
+  };
+}
+
+/* =====================================================================
+   O DESENHO
+   ---------------------------------------------------------------------
+   Um SVG de 64×64, em viewBox, que estica para qualquer tamanho sem
+   borrar. Tudo em caminho e retângulo: nada de fonte, nada de imagem,
+   nada que dependa do que o aparelho tem instalado.
+   ===================================================================== */
+function roboSVG(id, tamanho) {
+  const r = roboDe(id);
+  const C = ROBO_CORES;
+  const t = tamanho || 64;
+  let h = '<svg class="robo" viewBox="0 0 64 64" width="' + t + '" height="' + t +
+          '" aria-hidden="true">' +
+          '<rect width="64" height="64" fill="' + C.fundo + '"/>';
+
+  /* --- antena: vem primeiro porque sai por trás da cabeça --- */
+  if (r.antena === "uma") {
+    h += '<line x1="32" y1="16" x2="32" y2="7" stroke="' + C.traco + '" stroke-width="2.4"/>' +
+         '<circle cx="32" cy="6" r="3" fill="' + C.traco + '"/>';
+  } else if (r.antena === "duas") {
+    h += '<line x1="21" y1="17" x2="17" y2="8" stroke="' + C.traco + '" stroke-width="2.2"/>' +
+         '<circle cx="16.5" cy="7" r="2.6" fill="' + C.traco + '"/>' +
+         '<line x1="43" y1="17" x2="47" y2="8" stroke="' + C.traco + '" stroke-width="2.2"/>' +
+         '<circle cx="47.5" cy="7" r="2.6" fill="' + C.traco + '"/>';
+  } else if (r.antena === "haste") {
+    h += '<line x1="32" y1="16" x2="32" y2="9" stroke="' + C.traco + '" stroke-width="2.4"/>' +
+         '<rect x="25" y="5" width="14" height="4" rx="2" fill="' + C.traco + '"/>';
+  }
+
+  /* --- a cabeça --- */
+  if (r.cabeca === "quadrada") {
+    h += '<rect x="13" y="15" width="38" height="36" rx="4" fill="' + C.corpo +
+         '" stroke="' + C.traco + '" stroke-width="2.4"/>';
+  } else if (r.cabeca === "arredondada") {
+    h += '<rect x="13" y="15" width="38" height="36" rx="13" fill="' + C.corpo +
+         '" stroke="' + C.traco + '" stroke-width="2.4"/>';
+  } else if (r.cabeca === "redonda") {
+    h += '<circle cx="32" cy="33" r="19" fill="' + C.corpo +
+         '" stroke="' + C.traco + '" stroke-width="2.4"/>';
+  } else if (r.cabeca === "pixel") {
+    /* o pixel não tem canto redondo E não tem traço fino: é a soma dos
+       dois que faz um desenho parecer "de jogo antigo" */
+    h += '<rect x="13" y="15" width="38" height="36" fill="' + C.corpo +
+         '" stroke="' + C.escuro + '" stroke-width="4"/>';
+  } else {
+    h += '<rect x="9" y="18" width="46" height="30" rx="6" fill="' + C.corpo +
+         '" stroke="' + C.traco + '" stroke-width="2.4"/>';
+  }
+
+  /* --- orelhas: sempre, para a cabeça não flutuar --- */
+  h += '<rect x="7" y="28" width="4" height="10" rx="2" fill="' + C.traco + '"/>' +
+       '<rect x="53" y="28" width="4" height="10" rx="2" fill="' + C.traco + '"/>';
+
+  /* --- os olhos --- */
+  if (r.olhos === "ponto") {
+    h += '<circle cx="24" cy="30" r="4" fill="' + C.escuro + '"/>' +
+         '<circle cx="40" cy="30" r="4" fill="' + C.escuro + '"/>' +
+         '<circle cx="25.4" cy="28.6" r="1.4" fill="' + C.fundo + '"/>' +
+         '<circle cx="41.4" cy="28.6" r="1.4" fill="' + C.fundo + '"/>';
+  } else if (r.olhos === "visor") {
+    h += '<rect x="19" y="26" width="26" height="9" rx="4.5" fill="' + C.escuro + '"/>' +
+         '<circle cx="39" cy="30.5" r="2" fill="' + C.luz + '"/>';
+  } else if (r.olhos === "monoculo") {
+    h += '<circle cx="24" cy="30" r="6.5" fill="none" stroke="' + C.escuro + '" stroke-width="2.4"/>' +
+         '<circle cx="24" cy="30" r="3" fill="' + C.escuro + '"/>' +
+         '<circle cx="41" cy="30" r="3.4" fill="' + C.escuro + '"/>';
+  } else if (r.olhos === "sorriso") {
+    h += '<path d="M19 32 q5 -6 10 0" fill="none" stroke="' + C.escuro +
+         '" stroke-width="2.6" stroke-linecap="round"/>' +
+         '<path d="M35 32 q5 -6 10 0" fill="none" stroke="' + C.escuro +
+         '" stroke-width="2.6" stroke-linecap="round"/>';
+  } else {
+    h += '<rect x="19" y="27" width="10" height="6" rx="1.5" fill="' + C.escuro + '"/>' +
+         '<rect x="35" y="27" width="10" height="6" rx="1.5" fill="' + C.escuro + '"/>' +
+         '<rect x="21" y="29" width="6" height="2" fill="' + C.luz + '"/>' +
+         '<rect x="37" y="29" width="6" height="2" fill="' + C.luz + '"/>';
+  }
+
+  /* --- a boca --- */
+  if (r.boca === "linha") {
+    h += '<rect x="25" y="41" width="14" height="3" rx="1.5" fill="' + C.traco + '"/>';
+  } else if (r.boca === "grade") {
+    h += '<rect x="23" y="39" width="18" height="7" rx="2" fill="none" stroke="' + C.traco +
+         '" stroke-width="1.8"/>' +
+         '<line x1="29" y1="39" x2="29" y2="46" stroke="' + C.traco + '" stroke-width="1.4"/>' +
+         '<line x1="35" y1="39" x2="35" y2="46" stroke="' + C.traco + '" stroke-width="1.4"/>';
+  } else if (r.boca === "sorriso") {
+    h += '<path d="M24 40 q8 7 16 0" fill="none" stroke="' + C.traco +
+         '" stroke-width="2.4" stroke-linecap="round"/>';
+  } else if (r.boca === "onda") {
+    h += '<path d="M24 42 q4 -4 8 0 q4 4 8 0" fill="none" stroke="' + C.traco +
+         '" stroke-width="2.2" stroke-linecap="round"/>';
+  }
+
+  /* --- o detalhe --- */
+  if (r.detalhe === "parafusos") {
+    h += '<circle cx="18" cy="20" r="1.8" fill="' + C.traco + '"/>' +
+         '<circle cx="46" cy="20" r="1.8" fill="' + C.traco + '"/>' +
+         '<circle cx="18" cy="46" r="1.8" fill="' + C.traco + '"/>' +
+         '<circle cx="46" cy="46" r="1.8" fill="' + C.traco + '"/>';
+  } else if (r.detalhe === "placa") {
+    h += '<rect x="26" y="49" width="12" height="4" rx="1" fill="' + C.traco + '"/>';
+  }
+  return h + "</svg>";
+}
+
+/* =====================================================================
+   O AVATAR DE QUALQUER UM, NUM LUGAR SÓ
+   ---------------------------------------------------------------------
+   Foto se tiver; robô se não tiver. Todo lugar que desenha um avatar
+   pergunta aqui — barra lateral, bate-papo, cartão de perfil, lista de
+   amigos. Se cada tela fizesse a própria conta, um dia uma delas
+   continuaria mostrando a inicial e as pessoas teriam duas caras.
+   ===================================================================== */
+function avatarConteudo(uid, nome) {
+  const foto = FOTOS[uid];
+  if (foto) return "";                       /* a foto vira fundo, não conteúdo */
+  return roboSVG(uid || nome || "?");
+}
+function avatarEstilo(uid) {
+  const foto = FOTOS[uid];
+  return foto ? 'style="background-image:url(' + foto + ');background-size:cover"' : "";
+}
+/* a classe que diz "aqui tem robô", para o CSS tirar o fundo azul da
+   bolinha: robô cinza em cima de degradê azul não é robô cinza */
+function avatarClasse(uid) {
+  return FOTOS[uid] ? " com-foto" : " com-robo";
+}
+
+/* =====================================================================
+   AS FOTOS DE QUEM ESTÁ FALANDO
+   ---------------------------------------------------------------------
+   O bate-papo mostra a foto de quem falou, mas a foto não vem na ficha
+   do piloto (ela pesaria na lista de todo mundo). Então: depois de
+   pintar, olha quem está na tela, vê quem TEM foto pela marca da ficha,
+   e busca só essas — uma vez cada, para sempre.
+
+   É por isso que a marca existe. Sem ela, a única forma de saber quem
+   tem foto seria tentar buscar a de todos e ver quais voltam vazias --
+   ou seja, um pedido por pessoa, toda vez.
+   ===================================================================== */
+let fotosBuscando = false;
+async function fotosDaConversa() {
+  if (fotosBuscando || !EST.aberta) return;
+  const faltam = [];
+  for (const m of (EST.msgs || [])) {
+    const uid = m && m.de;
+    if (!uid || FOTOS[uid] !== undefined || faltam.indexOf(uid) >= 0) continue;
+    const ficha = EST.pilotos[uid];
+    /* só pede a de quem DIZ ter foto. Pedir a de todos seria um pedido
+       por pessoa a cada conversa aberta, e a maioria voltaria vazia. */
+    if (ficha && ficha.perfil && ficha.perfil.foto) faltam.push(uid);
+  }
+  if (!faltam.length) return;
+  fotosBuscando = true;
+  try {
+    /* no máximo oito por vez: numa conversa cheia, quarenta pedidos de
+       uma vez é justamente o tipo de rajada que trava o resto */
+    for (const uid of faltam.slice(0, 8)) await fotoDe(uid);
+  } finally { fotosBuscando = false; }
+  try { estPintar(); } catch (e) {}
+}
 /* =====================================================================
    SERVIDORES — comunidades dentro da Estação
    =====================================================================
@@ -36387,8 +37274,9 @@ function estPintarLado() {
      em que canal eu entrei. */
   h += '<div class="est-voz-barra" id="est-voz-barra"></div>';
   h += '<div class="est-eu">' +
-       '<button class="est-eu-av" id="est-eu-perfil" aria-label="Meu perfil">' +
-       estLuz(minha) + escaparTexto(eu.ini) + "</button>" +
+       '<button class="est-eu-av' + avatarClasse(eu.id) + '" id="est-eu-perfil" ' +
+       'aria-label="Meu perfil" ' + avatarEstilo(eu.id) + ">" +
+       estLuz(minha) + avatarConteudo(eu.id, eu.tag) + "</button>" +
        '<button class="est-eu-txt" id="est-eu-status">' +
        '<strong class="' + perfilClasseDoNome(vMeu).trim() + '"' +
        (vMeu.cor ? ' style="' + perfilEstiloDoNome(vMeu) + '"' : "") + ">" +
@@ -36805,10 +37693,15 @@ function estPintarConversa(grudarNoFim) {
         v.tag = String(ficha.tagNome || "").slice(0, 5);
         v.tagSid = String(ficha.tagServidor || "");
       }
-      h += '<button class="est-av est-abre-perfil' +
+      /* MINI-AVATAR NO BATE-PAPO. Antes era a inicial do nome numa
+         bolinha, e três "L" ficavam idênticos: você procurava a
+         mensagem do L e achava três. Agora é a foto de quem falou, ou
+         o robô da conta dele -- e cada conta tem um robô diferente. */
+      h += '<button class="est-av est-abre-perfil' + avatarClasse(m.de) +
            (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") +
-           '" data-perfil="' + escaparTexto(m.de || "") + '">' +
-           escaparTexto(estIni(m.nome)) + "</button>";
+           '" data-perfil="' + escaparTexto(m.de || "") + '" ' +
+           avatarEstilo(m.de) + ">" +
+           avatarConteudo(m.de, m.nome) + "</button>";
       h += '<div class="est-corpo"><div class="est-linha1">' +
            '<b class="est-nome est-abre-perfil' + perfilClasseDoNome(v) +
            '" data-perfil="' + escaparTexto(m.de || "") + '"' +
@@ -36851,6 +37744,10 @@ function estPintarConversa(grudarNoFim) {
       estAbrirPerfil(b.getAttribute("data-perfil"));
     }));
   try { socialLigarCartoes(lista); } catch (e) {}
+  /* busca as fotos de quem está na tela e ainda não foi buscada. Depois
+     de pintar, e não antes: a conversa aparece na hora e as caras
+     chegam em seguida, em vez de a tela esperar a rede. */
+  try { fotosDaConversa(); } catch (e) {}
 
   if (grudarNoFim || perto) lista.scrollTop = lista.scrollHeight;
 }
@@ -37281,7 +38178,7 @@ function estAbrirPerfil(id) {
   /* a foto e o castigo vêm da nuvem, então a janela abre primeiro e se
      completa depois: esperar a rede para desenhar deixaria o toque sem
      resposta por um segundo, e um segundo parado parece travado */
-  Promise.all([fotoDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
+  Promise.all([fotoDe(id), bannerDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
   estPintarPerfil(id);
 }
 
@@ -37292,10 +38189,16 @@ function estPintarPerfil(id) {
   const ficha = souEu ? save : (EST.pilotos[id] || {});
   const v = souEu
     ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
-        fonte: perfilFonteDoNome(), brilho: perfilBrilho(), fundoCSS: perfilFundoCSS(),
+        fonte: perfilFonteDoNome(), brilho: perfilBrilho(),
+        fundoCSS: perfilFundoDe(perfilMeu(), neoNivel(), id),
         anima: perfilFundo().anima, bio: perfilMeu().bio, pronomes: perfilMeu().pronomes,
-        interesses: perfilInteresses(), blocos: perfilBlocos() }
-    : perfilDaNuvem(ficha);
+        interesses: perfilInteresses(), blocos: perfilBlocos(),
+        particula: perfilParticula().id, borda: perfilBorda().id,
+        corTitulo: perfilCorTitulo(), estadoIc: perfilEstadoIc(), vidro: vidroDe(),
+        gradiente: gradienteDe(perfilMeu(), neoNivel()),
+        corBorda: gradienteCorSecundaria(perfilMeu()),
+        textura: perfilTextura().id, fluir: perfilMeu().fluir }
+    : perfilComExtras(ficha, id);
   const nome = souEu ? eu.tag : (ficha.nome || "Piloto");
   const onde = estOndeEsta(id);
   const info = neoInfo(v.nivel);
@@ -37303,13 +38206,30 @@ function estPintarPerfil(id) {
   const castigo = CASTIGO_DE[id];
   const blocos = (v.blocos && v.blocos.length) ? v.blocos : PF_BLOCOS_PADRAO;
 
+  /* o vidro fosco e a cor dos títulos viram variáveis no próprio
+     cartão: uma troca, e todo bloco lá dentro segue junto. Escrever em
+     cada bloco seria a mesma decisão espalhada em seis lugares. */
+  const estiloCartao =
+    "--pf-blur:" + v.vidro.desfoque + "px;" +
+    "--pf-op:" + (v.vidro.opacidade / 100) + ";" +
+    /* a borda que brilha sai da cor DE BAIXO do degradê: assim ela
+       combina sozinha, sem a pessoa ter que escolher uma terceira cor
+       que quase sempre ficaria fora do tom */
+    "--pf-borda-cor:" + (v.corBorda || "rgba(120,200,255,.4)") + ";" +
+    (v.corTitulo ? "--pf-tit:" + v.corTitulo + ";" : "");
+
   const cabeca =
     '<div class="pf-banner" style="background:' + (v.fundoCSS || (v.fundo && v.fundo.css)) + '"' +
-      (v.anima || (v.fundo && v.fundo.anima) ? ' data-anima="1"' : "") + "></div>" +
+      (v.anima || (v.fundo && v.fundo.anima) ? ' data-anima="1"' : "") + ">" +
+      particulasHTML(v.particula) + "</div>" +
     '<div class="pf-topo">' +
-      '<span class="pf-av pf-brilho-' + ((v.brilho && v.brilho.id) || "nenhum") + '"' +
-        (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
-        estLuz(onde) + (foto ? "" : escaparTexto(estIni(nome))) + "</span>" +
+      '<span class="pf-av pf-brilho-' + ((v.brilho && v.brilho.id) || "nenhum") +
+        avatarClasse(id) + '" ' + avatarEstilo(id) + ">" +
+        (v.estadoIc && v.estadoIc.ic
+          ? '<i class="est-luz ic" title="' + escaparTexto(v.estadoIc.nome) + '">' +
+            v.estadoIc.ic + "</i>"
+          : estLuz(onde)) +
+        avatarConteudo(id, nome) + "</span>" +
       '<div class="pf-nome-cx">' +
         '<b class="pf-nome' + perfilClasseDoNome(v) + '" style="' +
         perfilEstiloDoNome(v) + '">' + escaparTexto(nome) + "</b>" +
@@ -37331,7 +38251,13 @@ function estPintarPerfil(id) {
         (castigo.motivo ? " · " + escaparLongo(castigo.motivo) : "") + "</div>"
       : "");
 
-  const corpo = blocos.map(b => pfBlocoHTML(b, ficha, v, souEu)).join("");
+  /* O MIOLO, com o degradê das duas cores por trás do vidro fosco.
+     Ele é separado do banner de propósito: o banner é a capa e pode ser
+     uma imagem; aqui é onde o texto mora, e é atrás do texto que a cor
+     da pessoa aparece. */
+  const corpo = '<div class="pf-miolo' + (v.fluir ? " fluindo" : "") +
+    " pf-tex-" + (v.textura || "nenhuma") + '" style="background:' + v.gradiente + '">' +
+    blocos.map(b => pfBlocoHTML(b, ficha, v, souEu)).join("") + "</div>";
 
   const acoes = souEu
     ? '<button class="est-jan-ok" data-p="editar">Editar meu perfil</button>' +
@@ -37345,7 +38271,8 @@ function estPintarPerfil(id) {
         (EST.bloq[id] ? "Desbloquear" : "Bloquear") + "</button>";
 
   estJanela(souEu ? "Meu perfil" : nome,
-    '<div class="pf-cartao">' + cabeca + corpo + acoes + "</div>", cx =>
+    '<div class="pf-cartao pf-borda-' + (v.borda || "linha") + '" style="' + estiloCartao + '">' +
+    cabeca + corpo + acoes + "</div>", cx =>
     cx.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => {
       const q = b.getAttribute("data-p");
       if (q === "castigo") { castigoAbrir(id, nome); return; }
@@ -37376,6 +38303,7 @@ const PF_ABAS = [
   { id: "quem",  nome: "Quem sou",   ic: "👤" },
   { id: "nome",  nome: "Meu nome",   ic: "✎" },
   { id: "fundo", nome: "Fundo",      ic: "🎨" },
+  { id: "ar",    nome: "Atmosfera",  ic: "✨" },
   { id: "jogo",  nome: "O jogo",     ic: "🎮" },
   { id: "ordem", nome: "Arrumar",    ic: "☰" }
 ];
@@ -37387,7 +38315,10 @@ function estEditarPerfil() {
     fundo: p.fundo, animacao: p.animacao, fonte: p.fonte, brilho: p.brilho,
     tema: p.tema, toque: p.toque, clique: p.clique,
     interesses: p.interesses, blocos: perfilBlocos().join(","),
-    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l
+    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l,
+    particula: p.particula, borda: p.borda, corTitulo: p.corTitulo,
+    estadoIc: p.estadoIc, desfoque: p.desfoque, opacidade: p.opacidade,
+    horaDoDia: p.horaDoDia
   };
   pfAba = "quem";
   estPintarEditor();
@@ -37400,19 +38331,20 @@ function pfPreviaHTML() {
   const corItem = neoAchar(NEO_CORES, r.cor);
   const efItem = neoAchar(NEO_EFEITOS, r.efeito);
   const fonte = neoAchar(NEO_FONTES, r.fonte) || NEO_FONTES[0];
-  const fundoCSS = r.fundo === "meu"
-    ? "linear-gradient(150deg," + corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ")"
-    : (neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0]).css;
+  const fundoCSS = perfilFundoDe(r, neoNivel(), eu.id);
   const foto = FOTOS[eu.id] || "";
   let estilo = "";
   if (corItem) estilo += "color:" + corItem.cor + ";";
   estilo += "font-family:" + fonte.css + ";";
   if (fonte.espaco) estilo += "letter-spacing:" + fonte.espaco + ";";
-  return '<div class="pf-banner" style="background:' + fundoCSS + '"></div>' +
+  const grad = gradienteDe(r, neoNivel());
+  return '<div class="pf-banner" style="background:' + fundoCSS + '">' +
+    particulasHTML(r.particula) + "</div>" +
+    '<div class="pf-miolo-previa' + (r.fluir ? " fluindo" : "") +
+    " pf-tex-" + (r.textura || "nenhuma") + '" style="background:' + grad + '"></div>' +
     '<div class="pf-topo">' +
-      '<span class="pf-av pf-brilho-' + (r.brilho || "nenhum") + '"' +
-      (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
-      (foto ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+      '<span class="pf-av pf-brilho-' + (r.brilho || "nenhum") + avatarClasse(eu.id) +
+      '" ' + avatarEstilo(eu.id) + ">" + avatarConteudo(eu.id, eu.tag) + "</span>" +
       '<div class="pf-nome-cx"><b class="pf-nome' +
         (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") +
         '" style="' + estilo + '">' + escaparTexto(eu.tag) + "</b>" +
@@ -37441,9 +38373,8 @@ function estPintarEditor() {
     corpo =
       '<div class="pf-campo"><label>Sua foto</label>' +
       '<div class="pf-foto-linha">' +
-        '<span class="pf-foto-previa"' +
-          (FOTOS[eu.id] ? ' style="background-image:url(' + FOTOS[eu.id] + ')"' : "") + ">" +
-          (FOTOS[eu.id] ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+        '<span class="pf-foto-previa' + avatarClasse(eu.id) + '" ' +
+          avatarEstilo(eu.id) + ">" + avatarConteudo(eu.id, eu.tag) + "</span>" +
         '<div class="pf-foto-bts">' +
           '<button class="pf-bt" id="pf-foto">Escolher imagem</button>' +
           (FOTOS[eu.id] ? '<button class="pf-bt fraco" id="pf-foto-x">Tirar a foto</button>' : "") +
@@ -37508,15 +38439,97 @@ function estPintarEditor() {
           corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ')"></span>' +
         rodaHTML("c2", r.c2h, r.c2l, "Cor de baixo") +
       "</div>" +
-      '<button class="pf-bt' + (r.fundo === "meu" ? " on" : "") + '" id="pf-usar-meu">' +
-      (r.fundo === "meu" ? "Usando as suas cores" : "Usar estas duas cores") + "</button>" +
       '<p class="est-nota">Mexa na roda para a cor e na barrinha para o tom. ' +
-      "Vale para todo mundo, com ou sem NeoNebula.</p></div>" +
+      "Estas duas cores pintam o MIOLO do seu perfil — a área da bio, dos " +
+      "pronomes e dos emblemas. O banner é escolhido separado, logo abaixo.</p>" +
+
+      '<div class="pf-prontos">' + NEO_PRONTOS.map(x =>
+        '<button class="pf-pronto" data-pronto="' + x.id + '" title="' + escaparTexto(x.nome) +
+        '" style="background:linear-gradient(150deg,' + corDeHSL(x.c1h, x.c1l) + "," +
+        corDeHSL(x.c2h, x.c2l) + ')"></button>').join("") + "</div>" +
+
+      '<div class="pf-barra-l"><span>Ângulo</span>' +
+      '<input type="range" id="pf-ang" min="0" max="359" value="' + (r.angulo || 150) + '">' +
+      '<b id="pf-ang-n">' + (r.angulo || 150) + "°</b></div>" +
+
+      '<label class="enq-check"><input type="checkbox" id="pf-fluir"' +
+      (r.fluir ? " checked" : "") + "> As cores se movem devagar</label>" +
+      "</div>" +
+
+      '<div class="pf-campo"><label>Formato do degradê</label>' +
+      grade(NEO_FORMATOS, "formato", f =>
+        '<span class="pf-mini" style="background:' +
+        (f.id === "radial" ? "radial-gradient(circle,#4DE8FF,#2B0B4A)"
+          : f.id === "conico" ? "conic-gradient(#4DE8FF,#C34DFF,#4DE8FF)"
+          : "linear-gradient(150deg,#4DE8FF,#2B0B4A)") + '"></span><em>' +
+        escaparTexto(f.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Textura por cima</label>' +
+      grade(NEO_TEXTURAS, "textura", x =>
+        '<span class="pf-mini pf-tex-' + x.id + '" style="background:#2B3A5A;position:relative">' +
+        "</span><em>" + escaparTexto(x.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Ou uma imagem sua</label>' +
+      '<div class="pf-foto-linha">' +
+        '<span class="pf-banner-previa"' +
+          (BANNERS[eu.id] ? ' style="background-image:url(' + BANNERS[eu.id] + ')"' : "") + ">" +
+          (BANNERS[eu.id] ? "" : "sem imagem") + "</span>" +
+        '<div class="pf-foto-bts">' +
+          '<button class="pf-bt' + (r.fundo === "foto" ? " on" : "") + '" id="pf-banner">' +
+          (BANNERS[eu.id] ? "Trocar a imagem" : "Escolher imagem") + "</button>" +
+          (BANNERS[eu.id] ? '<button class="pf-bt fraco" id="pf-banner-x">Tirar a imagem</button>' : "") +
+          '<input type="file" id="pf-barq" accept="image/*" hidden>' +
+        "</div></div>" +
+      '<p class="est-nota">Recortada e encolhida para 640×360 aqui no seu aparelho. ' +
+      "Vídeo e GIF em alta não dão: um vídeo de três segundos é maior que o jogo inteiro.</p></div>" +
+
+      '<label class="enq-check"><input type="checkbox" id="pf-hora"' +
+      (r.horaDoDia ? " checked" : "") + "> As suas cores mudam com a hora do dia</label>" +
 
       '<div class="pf-campo"><label>Ou um fundo pronto</label>' +
       grade(NEO_FUNDOS, "fundo", f =>
         '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
         escaparTexto(f.nome) + "</em>") + "</div>";
+
+  } else if (pfAba === "ar") {
+    const vd = { desfoque: r.desfoque === undefined ? 10 : r.desfoque,
+                 opacidade: r.opacidade === undefined ? 82 : r.opacidade };
+    corpo =
+      '<div class="pf-campo"><label>Partículas no fundo</label>' +
+      grade(NEO_PARTICULAS, "particula", x =>
+        '<span class="pf-mini escura">' + particulasHTML(x.id) + "</span><em>" +
+        escaparTexto(x.nome) + "</em>") + "</div>" +
+
+      /* VIDRO FOSCO: as duas barrinhas andam juntas de propósito. Painel
+         transparente SEM desfoque põe o texto por cima da imagem e
+         ninguém lê nada -- é o desfoque que torna a transparência
+         possível, e por isso as duas moram no mesmo cartão. */
+      '<div class="pf-campo"><label>Vidro fosco</label>' +
+      '<div class="pf-barra-l"><span>Desfoque</span>' +
+      '<input type="range" id="pf-blur" min="0" max="24" value="' + vd.desfoque + '">' +
+      '<b id="pf-blur-n">' + vd.desfoque + "px</b></div>" +
+      '<div class="pf-barra-l"><span>Opacidade</span>' +
+      '<input type="range" id="pf-op" min="35" max="100" value="' + vd.opacidade + '">' +
+      '<b id="pf-op-n">' + vd.opacidade + "%</b></div>" +
+      '<p class="est-nota">Quanto mais transparente o painel, mais o fundo aparece ' +
+      "por trás. O desfoque é o que mantém o texto legível.</p></div>" +
+
+      '<div class="pf-campo"><label>Moldura das seções</label>' +
+      grade(NEO_BORDAS, "borda", x =>
+        '<span class="pf-mini borda-' + x.id + '"></span><em>' +
+        escaparTexto(x.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Cor dos títulos</label>' +
+      grade(NEO_CORES, "corTitulo", c =>
+        '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
+        escaparTexto(c.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Ícone de estado</label>' +
+      grade(NEO_ESTADOS, "estadoIc", x =>
+        '<span class="pf-bola">' + (x.ic || "●") + "</span><em>" +
+        escaparTexto(x.nome) + "</em>") +
+      '<p class="est-nota">Aparece no canto do seu avatar, no lugar da bolinha colorida.</p>' +
+      "</div>";
 
   } else if (pfAba === "jogo") {
     corpo =
@@ -37615,12 +38628,61 @@ function estPintarEditor() {
         rodaLigar("c2", r.c2h, r.c2l, (h, l) => {
           estRascunho.c2h = h; estRascunho.c2l = l; pintaFaixa(); pfAtualizarPrevia();
         });
-        const usar = $("pf-usar-meu");
-        if (usar) usar.addEventListener("click", () => {
-          estRascunho.fundo = estRascunho.fundo === "meu" ? "vazio" : "meu";
-          estPintarEditor();
+        const ang = $("pf-ang"), angN = $("pf-ang-n");
+        if (ang) ang.addEventListener("input", () => {
+          estRascunho.angulo = parseInt(ang.value, 10);
+          if (angN) angN.textContent = ang.value + "°";
+          pintaFaixa(); pfAtualizarPrevia();
+        });
+        const flui = $("pf-fluir");
+        if (flui) flui.addEventListener("change", () => {
+          estRascunho.fluir = flui.checked ? 1 : 0;
+          pfAtualizarPrevia();
+        });
+        cx.querySelectorAll("[data-pronto]").forEach(b =>
+          b.addEventListener("click", () => {
+            const x = NEO_PRONTOS.filter(y => y.id === b.getAttribute("data-pronto"))[0];
+            if (!x) return;
+            estRascunho.c1h = x.c1h; estRascunho.c1l = x.c1l;
+            estRascunho.c2h = x.c2h; estRascunho.c2l = x.c2l;
+            estPintarEditor();
+          }));
+      }
+      /* as barrinhas do vidro fosco: mexem a prévia na hora, sem
+         repintar a aba inteira -- repintar faria o dedo perder a barra */
+      const liga = (idBarra, idNum, campo, sufixo) => {
+        const b = $(idBarra), n = $(idNum);
+        if (!b) return;
+        b.addEventListener("input", () => {
+          estRascunho[campo] = parseInt(b.value, 10);
+          if (n) n.textContent = b.value + sufixo;
+          pfAtualizarPrevia();
+        });
+      };
+      liga("pf-blur", "pf-blur-n", "desfoque", "px");
+      liga("pf-op", "pf-op-n", "opacidade", "%");
+      const hora = $("pf-hora");
+      if (hora) hora.addEventListener("change", () => {
+        estRascunho.horaDoDia = hora.checked ? 1 : 0;
+        pfAtualizarPrevia();
+      });
+      /* o banner de imagem */
+      const bban = $("pf-banner"), barq = $("pf-barq"), btira = $("pf-banner-x");
+      if (bban && barq) {
+        bban.addEventListener("click", () => barq.click());
+        barq.addEventListener("change", async () => {
+          if (!barq.files || !barq.files[0]) return;
+          if (await bannerGuardar(barq.files[0])) {
+            estRascunho.fundo = "foto";
+            estPintarEditor();
+          }
         });
       }
+      if (btira) btira.addEventListener("click", async () => {
+        await bannerApagar();
+        if (estRascunho.fundo === "foto") estRascunho.fundo = "meu";
+        estPintarEditor();
+      });
       /* a foto */
       const bfoto = $("pf-foto"), arq = $("pf-arq"), tira = $("pf-foto-x");
       if (bfoto && arq) {
@@ -40464,6 +41526,17 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "9.1", itens: [
+      "SEM FOTO? VOCÊ GANHA UM ROBÔ. Cada conta tem o seu, cinza em fundo branco, montado a partir do seu nome — cabeça, olhos, antena, boca e detalhes diferentes. São mais de 1.500 robôs possíveis, e o seu é sempre o mesmo, no seu celular e no do seu amigo",
+      "MINI-AVATAR NO BATE-PAPO: a sua foto (ou o seu robô) aparece do lado de todas as mensagens. Antes eram três pessoas com nome começando em L e três bolinhas iguais",
+      "O DEGRADÊ DE 2 CORES SAIU DO BANNER e foi para o miolo do perfil — a área da bio, dos pronomes, dos emblemas e dos interesses. O banner virou a capa, escolhida separado: imagem sua ou um fundo pronto",
+      "BANNER DE IMAGEM: escolha uma foto do aparelho. Ela é recortada e encolhida para 640×360 aqui no seu celular antes de subir",
+      "O degradê agora tem ÂNGULO (0 a 360), formato reto, círculo ou leque, textura por cima (pontos, linhas ou ruído), movimento lento e oito combinações prontas para quem não quer escolher na mão",
+      "VIDRO FOSCO de verdade: desfoque e opacidade dos painéis, com a sua cor aparecendo por trás. Antes ele desfocava o preto, que é o mesmo que nada",
+      "PARTÍCULAS no banner: poeira, neve, chuva neon, brasas e estrelas",
+      "MOLDURAS DAS SEÇÕES (linha, neon, pixel, brilho e fita), cor dos títulos e ÍCONE DE ESTADO no lugar da bolinha — 🎮 jogando, 🎧 ouvindo, 📚 estudando e mais",
+      "As suas cores podem MUDAR COM A HORA DO DIA: continuam sendo as suas, só respiram junto com o relógio"
+    ] },
   { v: "9.0", itens: [
       "FOTO DE PERFIL: escolha uma imagem do aparelho. Ela é recortada no quadrado e encolhida para 96×96 no seu próprio celular antes de subir — uma foto de 4 MB vira 4 KB, e a lista de pilotos não pesa nada por causa disso",
       "FONTES DO NOME: nove jeitos de escrever o seu nome, duas de graça. Nenhuma baixa nada, então funcionam sem internet",
@@ -41066,7 +42139,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "9.0";
+const VERSAO = "9.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

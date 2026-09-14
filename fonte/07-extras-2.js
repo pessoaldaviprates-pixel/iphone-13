@@ -598,6 +598,17 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "9.1", itens: [
+      "SEM FOTO? VOCÊ GANHA UM ROBÔ. Cada conta tem o seu, cinza em fundo branco, montado a partir do seu nome — cabeça, olhos, antena, boca e detalhes diferentes. São mais de 1.500 robôs possíveis, e o seu é sempre o mesmo, no seu celular e no do seu amigo",
+      "MINI-AVATAR NO BATE-PAPO: a sua foto (ou o seu robô) aparece do lado de todas as mensagens. Antes eram três pessoas com nome começando em L e três bolinhas iguais",
+      "O DEGRADÊ DE 2 CORES SAIU DO BANNER e foi para o miolo do perfil — a área da bio, dos pronomes, dos emblemas e dos interesses. O banner virou a capa, escolhida separado: imagem sua ou um fundo pronto",
+      "BANNER DE IMAGEM: escolha uma foto do aparelho. Ela é recortada e encolhida para 640×360 aqui no seu celular antes de subir",
+      "O degradê agora tem ÂNGULO (0 a 360), formato reto, círculo ou leque, textura por cima (pontos, linhas ou ruído), movimento lento e oito combinações prontas para quem não quer escolher na mão",
+      "VIDRO FOSCO de verdade: desfoque e opacidade dos painéis, com a sua cor aparecendo por trás. Antes ele desfocava o preto, que é o mesmo que nada",
+      "PARTÍCULAS no banner: poeira, neve, chuva neon, brasas e estrelas",
+      "MOLDURAS DAS SEÇÕES (linha, neon, pixel, brilho e fita), cor dos títulos e ÍCONE DE ESTADO no lugar da bolinha — 🎮 jogando, 🎧 ouvindo, 📚 estudando e mais",
+      "As suas cores podem MUDAR COM A HORA DO DIA: continuam sendo as suas, só respiram junto com o relógio"
+    ] },
   { v: "9.0", itens: [
       "FOTO DE PERFIL: escolha uma imagem do aparelho. Ela é recortada no quadrado e encolhida para 96×96 no seu próprio celular antes de subir — uma foto de 4 MB vira 4 KB, e a lista de pilotos não pesa nada por causa disso",
       "FONTES DO NOME: nove jeitos de escrever o seu nome, duas de graça. Nenhuma baixa nada, então funcionam sem internet",
@@ -1200,7 +1211,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "9.0";
+const VERSAO = "9.1";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

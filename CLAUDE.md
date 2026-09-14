@@ -275,6 +275,26 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   regressão só vale depois de você **desfazer o conserto e ver ele falhar**.
   Quando o comportamento for uma regra, dê nome à regra e teste a regra: não
   se precisa reproduzir corrida para conferir uma decisão.
+- **Hash rápido não serve para sortear.** O robô de cada conta sai do
+  `nuvemHash` (djb2) do identificador. Para textos quase iguais
+  ("piloto1", "piloto2") ele devolve números quase iguais — e tirar o resto
+  da divisão disso faz as cinco peças do robô andarem em fila indiana:
+  2000 contas davam 232 robôs de 1500 possíveis. Somar dígitos do mesmo
+  hash (a primeira tentativa) foi pior ainda: 30. O conserto é **espalhar
+  os bits** antes de dividir (xor com deslocamento + multiplicação);
+  depois disso, 1130 de 2000, que é o número teórico. Regra: **antes de
+  usar um hash para escolher, pergunte se ele foi feito para espalhar ou
+  só para ser rápido.**
+- **Assertiva de um par só é frágil por construção.** O teste do robô
+  comparava dois ids fixos e exigia que fossem diferentes. Com 1500
+  combinações, dois quaisquer batem uma vez em 1500 — e o par que escolhi
+  era um desses. Colisão ali não é bug, é aritmética. Quem prova
+  espalhamento é um conjunto (273 distintos em 300), não um par.
+- **Foto na ficha pesa; marca na ficha não.** A foto e o banner moram em
+  `conversas/__fotos/` e `conversas/__banners/`, e na ficha do piloto vai
+  só `foto: 1`. É essa marca que deixa o bate-papo saber **quem tem foto**
+  sem pedir a de todo mundo: sem ela, a única forma seria tentar buscar a
+  de cada um e ver quais voltam vazias — um pedido por pessoa, toda vez.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

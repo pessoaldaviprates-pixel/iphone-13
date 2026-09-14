@@ -65,29 +65,33 @@ function perfilFonteDoNome(p) {
    por onde passa qualquer coisa.
    ===================================================================== */
 function corDeHSL(matiz, tom) {
-  const h = Math.max(0, Math.min(359, Math.round(matiz || 0)));
-  const l = Math.max(8, Math.min(78, Math.round(tom === undefined ? 45 : tom)));
+  /* NÚMERO OU NADA. Math.min(359, NaN) é NaN, e "hsl(NaN 72% 45%)" não é
+     ataque nenhum -- é só CSS inválido, que o navegador joga fora
+     inteiro. O degradê some e o perfil fica preto, sem erro e sem pista.
+     Isto vem da nuvem, escrito por outra pessoa: um campo com lixo
+     dentro tem que virar uma cor, não virar nada. */
+  const num = (v, reserva) => {
+    const n = Math.round(Number(v));
+    return isNaN(n) ? reserva : n;
+  };
+  const h = Math.max(0, Math.min(359, num(matiz, 0)));
+  const l = Math.max(8, Math.min(78, num(tom, 45)));
   return "hsl(" + h + " 72% " + l + "%)";
 }
 /* o fundo que vale AGORA: ou o de duas cores, ou um da lista */
 function perfilFundoCSS(p) {
   p = p || save;
   const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
-  if (perfil.fundo === "meu" && NEO_ORDEM[neoDe(p)] >= NEO_ORDEM["nenhum"]) {
-    return "linear-gradient(150deg," + corDeHSL(perfil.c1h, perfil.c1l) + "," +
-           corDeHSL(perfil.c2h, perfil.c2l) + ")";
-  }
-  return perfilFundo(p).css;
+  const eu = estEu();
+  return perfilFundoDe(perfil, neoDe(p), eu ? eu.id : "");
 }
-/* o mesmo, para um perfil que veio da nuvem (de outra pessoa) */
-function perfilFundoCSSDaNuvem(perfil, nivel) {
-  perfil = perfil || {};
-  if (perfil.fundo === "meu") {
-    return "linear-gradient(150deg," + corDeHSL(perfil.c1h, perfil.c1l) + "," +
-           corDeHSL(perfil.c2h, perfil.c2l) + ")";
-  }
-  const f = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
-  return (NEO_ORDEM[nivel] >= NEO_ORDEM[f.nivel] ? f : NEO_FUNDOS[0]).css;
+/* o mesmo, para um perfil que veio da nuvem (de outra pessoa).
+   Desde a v9.1 quem decide é perfilFundoDe (09-perfil3.js), que sabe dos
+   três caminhos: imagem, duas cores e lista pronta. Esta continua aqui
+   porque é o nome que o resto do código já chamava -- e uma função que
+   só repassa é mais barata que caçar todos os lugares. */
+function perfilFundoCSSDaNuvem(perfil, nivel, uid) {
+  return perfilFundoDe(perfil || {}, nivel, uid);
 }
 
 /* =====================================================================

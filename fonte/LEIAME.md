@@ -30,6 +30,8 @@ não for exatamente o que sai desta pasta, ele para e avisa.
 | `08-exploracao.js` | a exploração espacial, guardada atrás de `EXPLORACAO_LIGADA` |
 | `09-perfil.js` | NeoNebula, perfil e presença |
 | `09-perfil2.js` | fonte do nome, foto, fundo de duas cores, ofertas e castigos |
+| `09-perfil3.js` | banner de imagem, vidro fosco, partículas, degradê do miolo |
+| `09-robo.js` | o robô cinza de quem não tem foto, e o avatar de todo lugar |
 | `09-servidores.js` | servidores: cargos, permissões, moderação, impulsos, tag |
 | `09-estacao.js` | a Estação: canais, amigos, grupos, conversas |
 | `09-social.js` | enquetes, @everyone/@here e eventos |
