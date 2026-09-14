@@ -598,6 +598,16 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.7", itens: [
+      "ENQUETES: o ＋ da barra de escrever cria uma pergunta com até cinco respostas. Todo mundo vota ali mesmo, e o resultado aparece na hora — mas só depois de você votar, para a barra não influenciar o seu voto",
+      "Dá para escolher se cabe marcar mais de uma resposta e se a enquete fecha sozinha em 1 hora, 6 horas, 1 dia ou 7 dias. Quem criou pode fechar antes no botão",
+      "@everyone avisa o canal inteiro e @here só quem está com o jogo aberto agora — e valem em português: @todos e @aqui fazem a mesma coisa",
+      "Chamar todo mundo é alarme, então tem dono: no servidor, quem tem a permissão; no grupo, quem é dono ou moderador; nos canais da Estação, a equipe. Quem não pode recebe um aviso na hora, em vez de a mensagem sair sem o chamado",
+      "Quem silenciou o canal continua silenciado mesmo com @everyone: silêncio que o alarme fura não é silêncio",
+      "EVENTOS: marque dia, hora e lugar, diga EU VOU e veja quem mais vai. O 📅 do cabeçalho abre tudo o que está marcado naquele canal",
+      "O jogo lembra você quinze minutos antes do evento que você disse que ia",
+      "Quem estiver numa versão antiga do jogo ainda vê a enquete e o evento como texto, em vez de ver um buraco na conversa"
+    ] },
   { v: "8.6", itens: [
       "SERVIDORES: crie o seu, com canais de texto e de voz, a partir de quatro modelos — ou entre num com um código de convite",
       "CARGOS E PERMISSÕES: 50 permissões em cinco famílias (servidor, moderação, texto, voz e comunidade), com cor e emoji em cada cargo",
@@ -1158,7 +1168,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.6";
+const VERSAO = "8.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

@@ -183,7 +183,12 @@ function estArrumar(d) {
   for (const k in (d || {})) {
     const m = d[k];
     if (!m || !m.txt) continue;
-    arr.push({ k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0, mold: m.mold });
+    /* tipo/enq/ev/votos são o que faz uma enquete ou um evento serem
+       mais que um texto. Vêm pelo MESMO fluxo das mensagens — inclusive
+       os votos, que ficam pendurados na própria mensagem justamente
+       para não precisarem de um segundo fluxo. */
+    arr.push({ k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0, mold: m.mold,
+               tipo: m.tipo, enq: m.enq, ev: m.ev, votos: m.votos });
   }
   arr.sort((a, b) => (a.quando - b.quando) || (a.k < b.k ? -1 : 1));
   return arr;
@@ -242,15 +247,26 @@ async function estAbrir(d) {
   const reler = async () => {
     const novas = await estLer(d);
     if (!estMesmoDestino(EST.destino, d)) return;
-    const mudou = novas.length !== EST.msgs.length ||
-                  (novas.length && EST.msgs.length &&
-                   novas[novas.length - 1].k !== EST.msgs[EST.msgs.length - 1].k);
-    if (!mudou) return;
+    /* VOTO NÃO É MENSAGEM NOVA. Comparar só a quantidade e a última
+       chave bastava enquanto tudo o que chegava era mensagem — mas o
+       voto de uma enquete muda uma mensagem que já estava aqui, sem
+       mudar nem o total nem a última. A enquete ficava parada na tela
+       de quem não votou, e só destravava quando alguém falasse. */
+    const impressao = a => a.map(m => m.k + ":" +
+      (m.votos ? Object.keys(m.votos).sort().join("|") + "=" +
+                 Object.keys(m.votos).sort().map(u => m.votos[u]).join("|") : "") +
+      (m.enq && m.enq.ate ? ":" + m.enq.ate : "")).join(",");
+    const daquiParaTras = EST.msgs.slice(-novas.length || -1);
+    if (impressao(novas) === impressao(daquiParaTras)) return;
     /* guarda o que já foi carregado para trás: reler traz só as últimas,
        e quem rolou para cima perderia o que estava lendo */
     const velhas = EST.msgs.filter(m => !novas.some(n => n.k === m.k) &&
                                         (!novas.length || m.k < novas[0].k));
-    EST.msgs = velhas.concat(novas);
+    /* a minha mensagem que ainda está a caminho não pode sumir no meio:
+       ela está na tela e não na nuvem, então uma releitura que chegasse
+       entre o clique e a gravação a apagaria na cara de quem escreveu */
+    const indo = EST.msgs.filter(m => m.indo && !novas.some(n => n.k === m.k));
+    EST.msgs = velhas.concat(novas, indo);
     estMarcarLido(d);
     estPintar(true);
   };
@@ -290,10 +306,36 @@ async function estEnviar(texto) {
   if (!veredito.ok) { estAvisar(veredito.motivo); return false; }
   texto = veredito.texto;
 
+  /* CHAMAR TODO MUNDO É ALARME, E ALARME TEM DONO.
+     Se a pessoa não pode, o jogo recusa a mensagem inteira em vez de
+     mandar sem o chamado: escrever "@everyone o treino é agora" e sair
+     achando que avisou o servidor, sem ter avisado ninguém, é pior do
+     que ouvir que não pode. */
+  try {
+    const q = socialChamadoNoTexto(texto);
+    if (q && !socialPodeChamar(d)) {
+      estAvisar("Você não pode chamar todo mundo aqui. Tire o @" + q + " para enviar.");
+      return false;
+    }
+  } catch (e) {}
+
+  return estEnviarCartao(texto, null);
+}
+
+/* MANDAR UMA MENSAGEM QUE NÃO É SÓ TEXTO.
+   Enquete e evento passam por aqui com um "extra" — o resto do caminho
+   (aparecer na hora, gravar, podar, marcar lido) é o mesmo, e tem que
+   continuar sendo: dois caminhos de envio virariam dois jeitos de
+   errar. */
+async function estEnviarCartao(texto, extra) {
+  const eu = estEu();
+  const d = EST.destino;
+  if (!eu || !d) return false;
   const cam = estCaminho(d);
   if (!cam) return false;
   const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  const msg = { de: eu.id, nome: eu.tag, txt: texto, quando: Date.now(), mold: eu.mold };
+  const msg = Object.assign({ de: eu.id, nome: eu.tag, txt: texto,
+                              quando: Date.now(), mold: eu.mold }, extra || {});
 
   /* aparece na hora, antes de a nuvem responder: esperando o servidor a
      conversa parece travada, e num bate-papo isso é a diferença entre
@@ -471,6 +513,10 @@ async function estOlharNovidades() {
   if (d) EST.ultimas = d;
   const p = await nuvemReq("pilotos");
   if (p) EST.pilotos = p;
+  /* a agenda pega carona nesta mesma batida: um evento que ninguém
+     lembra de olhar não serve para nada, e abrir uma conexão só para
+     lembrar dele seria gastar o que não temos */
+  try { await evCarregar(); evLembrar(); } catch (e) {}
   estSeloGeral();
   if (EST.aberta) estPintar();
 }
@@ -700,7 +746,14 @@ function estDia(t) {
    o texto de um estranho virar HTML dentro da minha tela. */
 function estTextoComMencoes(txt, eu) {
   let s = escaparTexto(String(txt || ""));
+  /* UMA PASSADA SÓ. Duas seriam o caminho curto para o bug: a primeira
+     transformaria @everyone em HTML e a segunda ainda enxergaria o
+     "@everyone" lá dentro, marcando de novo em cima da marca. */
   s = s.replace(/@([A-Za-z0-9_À-ÿ]{2,20})/g, (todo, nome) => {
+    /* @everyone e @here acendem para todo mundo, não para quem tem esse
+       nick -- eles são alarme, não apelido */
+    if (/^(everyone|here|todos|aqui)$/i.test(nome))
+      return '<b class="est-mencao eu todos">@' + nome + "</b>";
     const meu = eu && (nickSimples(nome) === nickSimples(eu.tag) ||
                        nickSimples(nome) === nickSimples(eu.nick));
     return '<b class="est-mencao' + (meu ? " eu" : "") + '">@' + nome + "</b>";
@@ -709,6 +762,7 @@ function estTextoComMencoes(txt, eu) {
 }
 function estMeChamou(m, eu) {
   if (!eu || !m || !m.txt) return false;
+  try { if (socialChamouMim(m, eu)) return true; } catch (e) {}
   const re = /@([A-Za-z0-9_À-ÿ]{2,20})/g;
   let g;
   while ((g = re.exec(m.txt))) {
@@ -1170,6 +1224,10 @@ function estPintarConversa(grudarNoFim) {
       acoes += '<button class="est-cab-b" data-acao="renomear">renomear</button>';
     acoes += '<button class="est-cab-b sai" data-acao="sair">sair</button>';
   }
+  /* a agenda fica no cabeçalho e não escondida no ＋: evento que só
+     existe enquanto o cartão está na tela é evento que ninguém acha
+     depois. Numa conversa de dois não faz sentido, então não aparece. */
+  if (d.tipo !== "dm") acoes = '<button class="est-cab-b" data-acao="agenda">📅</button>' + acoes;
   cab.innerHTML =
     '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
     '<div class="est-cab-txt"><strong>' + (d.tipo === "canal" ? "#" : "") +
@@ -1252,7 +1310,9 @@ function estPintarConversa(grudarNoFim) {
     } else {
       h += '<span class="est-av vazio"></span><div class="est-corpo">';
     }
-    h += '<div class="est-txt">' + estTextoComMencoes(m.txt, eu) + "</div></div>";
+    /* o corpo pode ser texto, enquete ou evento -- quem sabe disso é o
+       09-social.js, e a conversa só pergunta */
+    h += estCorpoDaMensagem(m, eu) + "</div>";
     if (!meu) h += '<button class="est-msg-b" data-menu="' + m.k + '" aria-label="Opções">⋯</button>';
     h += "</div>";
     anterior = m;
@@ -1276,6 +1336,7 @@ function estPintarConversa(grudarNoFim) {
       e.stopPropagation();
       estAbrirPerfil(b.getAttribute("data-perfil"));
     }));
+  try { socialLigarCartoes(lista); } catch (e) {}
 
   if (grudarNoFim || perto) lista.scrollTop = lista.scrollHeight;
 }
@@ -1441,6 +1502,7 @@ function estAcaoDoCabecalho(acao) {
   const d = EST.destino;
   if (!d) return;
   if (acao === "silenciar-aqui") { estAbrirSilenciar(estChave(d), d.nome || d.id); return; }
+  if (acao === "agenda") { evAbrirAgenda(); return; }
   if (acao === "bloquear") estBloquear(d.id, d.nome);
   else if (acao === "silenciar") estSilenciar(d.id, d.nome);
   else if (acao === "membros") estAbrirMembros(d.id);
@@ -1585,6 +1647,10 @@ function estacaoAlternar() {
   if (campo) campo.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); }
   });
+
+  /* o ＋: enquete, evento e chamar todo mundo */
+  const mais = $("est-mais");
+  if (mais) mais.addEventListener("click", e => { e.stopPropagation(); socialAbrirMais(); });
 
   /* os emojis: uma mãozinha, não um teclado inteiro */
   const bt = $("est-emoji"), cx = $("est-emojis");

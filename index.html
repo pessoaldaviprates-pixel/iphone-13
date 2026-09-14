@@ -5945,6 +5945,120 @@
     color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.68rem;
   }
 
+  /* =================================================================
+     ENQUETES, EVENTOS E O CHAMADO A TODO MUNDO
+     -----------------------------------------------------------------
+     O cartão nasce DENTRO da mensagem, no lugar onde estaria o texto.
+     Por isso ele não tem margem própria nem fundo escuro demais: quem
+     olha a conversa tem que ver uma mensagem diferente, não uma janela
+     que caiu no meio do papo.
+     ================================================================= */
+  .est-mencao.todos{
+    color:#FFC145;background:rgba(255,193,69,.2);
+    border:1px solid rgba(255,193,69,.4);font-weight:700;
+  }
+  .est-jan-sub{
+    display:block;margin-top:3px;font-style:normal;font-weight:400;
+    font-size:.56rem;letter-spacing:.02em;color:var(--dim);text-transform:none;
+  }
+  .est-jan-min{
+    width:100%;margin:2px 0 9px;padding:8px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px dashed rgba(120,200,255,.3);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-size:.6rem;
+  }
+  .enq-check{
+    display:flex;align-items:center;gap:8px;margin:2px 0 10px;
+    font-size:.62rem;color:var(--ink2);cursor:pointer;
+  }
+  .enq-check input{width:auto;height:auto;margin:0;flex:none}
+  .enq-prazo,.ev-lugares{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .enq-pz,.ev-lg{
+    padding:7px 11px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-size:.58rem;
+  }
+  .enq-pz.on,.ev-lg.on{
+    background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan);
+  }
+
+  /* ---- o cartão da enquete na conversa ---- */
+  .enq-cx{
+    margin-top:3px;padding:10px 11px;border-radius:11px;max-width:400px;
+    background:rgba(120,200,255,.06);border:1px solid rgba(120,200,255,.22);
+  }
+  .enq-cx.fim{opacity:.75}
+  .enq-perg{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;
+    line-height:1.35;margin-bottom:9px;color:var(--ink);
+  }
+  .enq-b{
+    position:relative;display:flex;align-items:center;gap:8px;width:100%;
+    margin-bottom:5px;padding:9px 10px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+    color:var(--ink2);font-family:inherit;font-size:.68rem;text-align:left;
+    overflow:hidden;
+  }
+  .enq-b:disabled{cursor:default}
+  .enq-b.eu{border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .enq-b.lider .enq-barra{background:rgba(77,232,255,.2)}
+  /* a barra fica ATRÁS do texto, não ao lado: ao lado ela roubaria a
+     largura da resposta e "Nave vermelha" viraria "Nave verme…" */
+  .enq-barra{
+    position:absolute;left:0;top:0;bottom:0;z-index:0;
+    background:rgba(255,255,255,.09);transition:width .35s ease;
+  }
+  .enq-marca,.enq-txt,.enq-num{position:relative;z-index:1}
+  .enq-txt{flex:1;min-width:0;word-break:break-word}
+  .enq-num{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.62rem;opacity:.85}
+  .enq-pe{margin-top:7px;font-size:.56rem;color:var(--dim);letter-spacing:.02em}
+  .enq-fechar{
+    margin-top:7px;padding:5px 9px;border-radius:7px;cursor:pointer;
+    background:transparent;border:1px solid rgba(255,77,143,.3);
+    color:var(--magenta);font-family:"Chakra Petch",sans-serif;font-size:.55rem;
+  }
+
+  /* ---- o cartão do evento ---- */
+  .ev-cx,.ev-item{
+    margin-top:3px;padding:10px 11px;border-radius:11px;max-width:400px;
+    background:rgba(255,193,69,.07);border:1px solid rgba(255,193,69,.25);
+  }
+  .ev-item{max-width:none;margin-bottom:9px}
+  .ev-cx.ido{opacity:.6;border-style:dashed}
+  .ev-topo{display:flex;align-items:baseline;gap:8px}
+  .ev-topo b{
+    flex:1;min-width:0;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.72rem;line-height:1.3;color:var(--ink);
+  }
+  .ev-quem{flex:none;font-size:.56rem;color:var(--amber);letter-spacing:.03em}
+  .ev-sobre{margin-top:5px;font-size:.64rem;line-height:1.45;color:var(--ink2)}
+  .ev-meta{margin-top:5px;font-size:.56rem;color:var(--dim);letter-spacing:.02em}
+  .ev-cx.ido em{display:block;margin-top:4px;font-size:.58rem;color:var(--dim)}
+  .ev-acoes{display:flex;gap:7px;align-items:center;margin-top:8px}
+  .ev-vou{
+    margin-top:8px;padding:8px 14px;border-radius:9px;cursor:pointer;
+    background:rgba(255,193,69,.14);border:1px solid rgba(255,193,69,.4);
+    color:var(--amber);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.06em;
+  }
+  .ev-acoes .ev-vou{margin-top:0}
+  .ev-vou.on{background:rgba(255,193,69,.3);color:#12202E}
+  .ev-x{
+    padding:8px 12px;border-radius:9px;cursor:pointer;background:transparent;
+    border:1px solid rgba(255,77,143,.3);color:var(--magenta);
+    font-family:"Chakra Petch",sans-serif;font-size:.58rem;
+  }
+  .ev-quando{display:flex;gap:8px}
+  .ev-quando input{flex:1;min-width:0}
+
+  /* No celular o dedo precisa de alvo, e o cartão precisa da tela
+     inteira: 400px de largura fixa deixaria a enquete cortada. */
+  @media (max-width:780px){
+    .enq-cx,.ev-cx{max-width:none}
+    .enq-b{min-height:40px;font-size:.7rem}
+    .ev-vou,.ev-x{min-height:38px}
+    .enq-pz,.ev-lg{min-height:34px}
+  }
+
 </style>
 </head>
 <body>
@@ -7480,6 +7594,7 @@
     <div class="est-cab" id="est-cab"></div>
     <div class="est-msgs" id="est-msgs"></div>
     <div class="est-barra">
+      <button class="est-emoji-b" id="est-mais" aria-label="Enquete, evento e mais">＋</button>
       <button class="est-emoji-b" id="est-emoji" aria-label="Emojis">🙂</button>
       <div class="est-emojis" id="est-emojis"></div>
       <input id="est-campo" maxlength="300" placeholder="Escreva aqui… use @ para chamar alguém"
@@ -33896,7 +34011,12 @@ function estArrumar(d) {
   for (const k in (d || {})) {
     const m = d[k];
     if (!m || !m.txt) continue;
-    arr.push({ k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0, mold: m.mold });
+    /* tipo/enq/ev/votos são o que faz uma enquete ou um evento serem
+       mais que um texto. Vêm pelo MESMO fluxo das mensagens — inclusive
+       os votos, que ficam pendurados na própria mensagem justamente
+       para não precisarem de um segundo fluxo. */
+    arr.push({ k, de: m.de, nome: m.nome, txt: m.txt, quando: m.quando || 0, mold: m.mold,
+               tipo: m.tipo, enq: m.enq, ev: m.ev, votos: m.votos });
   }
   arr.sort((a, b) => (a.quando - b.quando) || (a.k < b.k ? -1 : 1));
   return arr;
@@ -33955,15 +34075,26 @@ async function estAbrir(d) {
   const reler = async () => {
     const novas = await estLer(d);
     if (!estMesmoDestino(EST.destino, d)) return;
-    const mudou = novas.length !== EST.msgs.length ||
-                  (novas.length && EST.msgs.length &&
-                   novas[novas.length - 1].k !== EST.msgs[EST.msgs.length - 1].k);
-    if (!mudou) return;
+    /* VOTO NÃO É MENSAGEM NOVA. Comparar só a quantidade e a última
+       chave bastava enquanto tudo o que chegava era mensagem — mas o
+       voto de uma enquete muda uma mensagem que já estava aqui, sem
+       mudar nem o total nem a última. A enquete ficava parada na tela
+       de quem não votou, e só destravava quando alguém falasse. */
+    const impressao = a => a.map(m => m.k + ":" +
+      (m.votos ? Object.keys(m.votos).sort().join("|") + "=" +
+                 Object.keys(m.votos).sort().map(u => m.votos[u]).join("|") : "") +
+      (m.enq && m.enq.ate ? ":" + m.enq.ate : "")).join(",");
+    const daquiParaTras = EST.msgs.slice(-novas.length || -1);
+    if (impressao(novas) === impressao(daquiParaTras)) return;
     /* guarda o que já foi carregado para trás: reler traz só as últimas,
        e quem rolou para cima perderia o que estava lendo */
     const velhas = EST.msgs.filter(m => !novas.some(n => n.k === m.k) &&
                                         (!novas.length || m.k < novas[0].k));
-    EST.msgs = velhas.concat(novas);
+    /* a minha mensagem que ainda está a caminho não pode sumir no meio:
+       ela está na tela e não na nuvem, então uma releitura que chegasse
+       entre o clique e a gravação a apagaria na cara de quem escreveu */
+    const indo = EST.msgs.filter(m => m.indo && !novas.some(n => n.k === m.k));
+    EST.msgs = velhas.concat(novas, indo);
     estMarcarLido(d);
     estPintar(true);
   };
@@ -34003,10 +34134,36 @@ async function estEnviar(texto) {
   if (!veredito.ok) { estAvisar(veredito.motivo); return false; }
   texto = veredito.texto;
 
+  /* CHAMAR TODO MUNDO É ALARME, E ALARME TEM DONO.
+     Se a pessoa não pode, o jogo recusa a mensagem inteira em vez de
+     mandar sem o chamado: escrever "@everyone o treino é agora" e sair
+     achando que avisou o servidor, sem ter avisado ninguém, é pior do
+     que ouvir que não pode. */
+  try {
+    const q = socialChamadoNoTexto(texto);
+    if (q && !socialPodeChamar(d)) {
+      estAvisar("Você não pode chamar todo mundo aqui. Tire o @" + q + " para enviar.");
+      return false;
+    }
+  } catch (e) {}
+
+  return estEnviarCartao(texto, null);
+}
+
+/* MANDAR UMA MENSAGEM QUE NÃO É SÓ TEXTO.
+   Enquete e evento passam por aqui com um "extra" — o resto do caminho
+   (aparecer na hora, gravar, podar, marcar lido) é o mesmo, e tem que
+   continuar sendo: dois caminhos de envio virariam dois jeitos de
+   errar. */
+async function estEnviarCartao(texto, extra) {
+  const eu = estEu();
+  const d = EST.destino;
+  if (!eu || !d) return false;
   const cam = estCaminho(d);
   if (!cam) return false;
   const chave = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  const msg = { de: eu.id, nome: eu.tag, txt: texto, quando: Date.now(), mold: eu.mold };
+  const msg = Object.assign({ de: eu.id, nome: eu.tag, txt: texto,
+                              quando: Date.now(), mold: eu.mold }, extra || {});
 
   /* aparece na hora, antes de a nuvem responder: esperando o servidor a
      conversa parece travada, e num bate-papo isso é a diferença entre
@@ -34184,6 +34341,10 @@ async function estOlharNovidades() {
   if (d) EST.ultimas = d;
   const p = await nuvemReq("pilotos");
   if (p) EST.pilotos = p;
+  /* a agenda pega carona nesta mesma batida: um evento que ninguém
+     lembra de olhar não serve para nada, e abrir uma conexão só para
+     lembrar dele seria gastar o que não temos */
+  try { await evCarregar(); evLembrar(); } catch (e) {}
   estSeloGeral();
   if (EST.aberta) estPintar();
 }
@@ -34413,7 +34574,14 @@ function estDia(t) {
    o texto de um estranho virar HTML dentro da minha tela. */
 function estTextoComMencoes(txt, eu) {
   let s = escaparTexto(String(txt || ""));
+  /* UMA PASSADA SÓ. Duas seriam o caminho curto para o bug: a primeira
+     transformaria @everyone em HTML e a segunda ainda enxergaria o
+     "@everyone" lá dentro, marcando de novo em cima da marca. */
   s = s.replace(/@([A-Za-z0-9_À-ÿ]{2,20})/g, (todo, nome) => {
+    /* @everyone e @here acendem para todo mundo, não para quem tem esse
+       nick -- eles são alarme, não apelido */
+    if (/^(everyone|here|todos|aqui)$/i.test(nome))
+      return '<b class="est-mencao eu todos">@' + nome + "</b>";
     const meu = eu && (nickSimples(nome) === nickSimples(eu.tag) ||
                        nickSimples(nome) === nickSimples(eu.nick));
     return '<b class="est-mencao' + (meu ? " eu" : "") + '">@' + nome + "</b>";
@@ -34422,6 +34590,7 @@ function estTextoComMencoes(txt, eu) {
 }
 function estMeChamou(m, eu) {
   if (!eu || !m || !m.txt) return false;
+  try { if (socialChamouMim(m, eu)) return true; } catch (e) {}
   const re = /@([A-Za-z0-9_À-ÿ]{2,20})/g;
   let g;
   while ((g = re.exec(m.txt))) {
@@ -34883,6 +35052,10 @@ function estPintarConversa(grudarNoFim) {
       acoes += '<button class="est-cab-b" data-acao="renomear">renomear</button>';
     acoes += '<button class="est-cab-b sai" data-acao="sair">sair</button>';
   }
+  /* a agenda fica no cabeçalho e não escondida no ＋: evento que só
+     existe enquanto o cartão está na tela é evento que ninguém acha
+     depois. Numa conversa de dois não faz sentido, então não aparece. */
+  if (d.tipo !== "dm") acoes = '<button class="est-cab-b" data-acao="agenda">📅</button>' + acoes;
   cab.innerHTML =
     '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
     '<div class="est-cab-txt"><strong>' + (d.tipo === "canal" ? "#" : "") +
@@ -34965,7 +35138,9 @@ function estPintarConversa(grudarNoFim) {
     } else {
       h += '<span class="est-av vazio"></span><div class="est-corpo">';
     }
-    h += '<div class="est-txt">' + estTextoComMencoes(m.txt, eu) + "</div></div>";
+    /* o corpo pode ser texto, enquete ou evento -- quem sabe disso é o
+       09-social.js, e a conversa só pergunta */
+    h += estCorpoDaMensagem(m, eu) + "</div>";
     if (!meu) h += '<button class="est-msg-b" data-menu="' + m.k + '" aria-label="Opções">⋯</button>';
     h += "</div>";
     anterior = m;
@@ -34989,6 +35164,7 @@ function estPintarConversa(grudarNoFim) {
       e.stopPropagation();
       estAbrirPerfil(b.getAttribute("data-perfil"));
     }));
+  try { socialLigarCartoes(lista); } catch (e) {}
 
   if (grudarNoFim || perto) lista.scrollTop = lista.scrollHeight;
 }
@@ -35154,6 +35330,7 @@ function estAcaoDoCabecalho(acao) {
   const d = EST.destino;
   if (!d) return;
   if (acao === "silenciar-aqui") { estAbrirSilenciar(estChave(d), d.nome || d.id); return; }
+  if (acao === "agenda") { evAbrirAgenda(); return; }
   if (acao === "bloquear") estBloquear(d.id, d.nome);
   else if (acao === "silenciar") estSilenciar(d.id, d.nome);
   else if (acao === "membros") estAbrirMembros(d.id);
@@ -35298,6 +35475,10 @@ function estacaoAlternar() {
   if (campo) campo.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); }
   });
+
+  /* o ＋: enquete, evento e chamar todo mundo */
+  const mais = $("est-mais");
+  if (mais) mais.addEventListener("click", e => { e.stopPropagation(); socialAbrirMais(); });
 
   /* os emojis: uma mãozinha, não um teclado inteiro */
   const bt = $("est-emoji"), cx = $("est-emojis");
@@ -35650,6 +35831,652 @@ function estAbrirSilenciar(chave, nome) {
         estAvisar(nome + " volta a avisar.");
       });
     });
+}
+/* =====================================================================
+   ENQUETES, CHAMAR TODO MUNDO E EVENTOS
+   =====================================================================
+   Três coisas que vivem DENTRO da conversa, e não numa tela à parte:
+
+     📊 enquete  — uma pergunta com até cinco respostas, votada ali mesmo
+     📣 @everyone e @here — avisar o canal inteiro, ou só quem está online
+     📅 evento   — dia, hora, lugar e quem vai
+
+   ONDE MORAM NA NUVEM
+   ---------------------------------------------------------------------
+   A enquete é uma MENSAGEM, com os votos pendurados nela:
+
+     conversas/<sala>/<k>            { tipo:"enquete", enq:{…} }
+     conversas/<sala>/<k>/votos/<uid>  "0,2"
+
+   Isso é de propósito: o voto chega pelo MESMO fluxo que já traz as
+   mensagens. Se os votos morassem noutro galho, seria preciso um segundo
+   fluxo para vê-los ao vivo — e dois fluxos para o mesmo assunto é
+   exatamente o que uma vez travou as gravações do jogo.
+
+   O evento mora em conversas/__eventos/<eid>, e não em servidores/.
+   Feio no papel, certo na prática: "conversas/" é galho velho, que toda
+   regra antiga do Firebase já libera. Um "eventos/" novo seria recusado
+   calado nas contas que nunca atualizaram as regras, e ninguém
+   descobriria por quê.
+
+   TODA ENQUETE E TODO EVENTO TAMBÉM TÊM txt.
+   Quem estiver numa versão velha do jogo não sabe desenhar o cartão —
+   mas lê o txt e vê "📊 Qual a melhor nave?" em vez de ver a conversa
+   com um buraco no meio. Degradar é melhor que sumir.
+   ===================================================================== */
+
+/* =====================================================================
+   1. CHAMAR TODO MUNDO
+   ---------------------------------------------------------------------
+   @everyone acorda quem é do canal, esteja com o jogo aberto ou não.
+   @here acorda só quem está online agora.
+
+   Isto NÃO é enfeite de texto: é um alarme, e alarme na mão de todo
+   mundo vira um canal que ninguém aguenta. Por isso passa por permissão
+   — no servidor, "mencionarTodos"; nos canais da estação, quem manda
+   recado no painel; no grupo, quem é dono ou moderador.
+
+   E quando a pessoa não pode, o jogo NÃO manda a mensagem em silêncio
+   sem o chamado: ele diz que não pode, porque mandar "@everyone o
+   treino é agora" achando que avisou todo mundo, e não ter avisado
+   ninguém, é pior do que não poder.
+   ===================================================================== */
+const CHAMADOS = [
+  { id: "everyone", marca: "@everyone", nome: "todo mundo",
+    sobre: "avisa quem é daqui, esteja com o jogo aberto ou não" },
+  { id: "here", marca: "@here", nome: "quem está online agora",
+    sobre: "avisa só quem está com o jogo aberto neste momento" }
+];
+const RE_CHAMADO = /@(everyone|here|todos|aqui)\b/i;
+
+/* qual chamado o texto tem, se tiver. "todos" e "aqui" existem porque o
+   jogo é em português e ninguém vai digitar "everyone" de primeira. */
+function socialChamadoNoTexto(txt) {
+  const g = RE_CHAMADO.exec(String(txt || ""));
+  if (!g) return null;
+  const q = g[1].toLowerCase();
+  return (q === "everyone" || q === "todos") ? "everyone" : "here";
+}
+
+/* quem pode chamar todo mundo NESTE destino */
+function socialPodeChamar(d) {
+  d = d || EST.destino;
+  if (!d) return false;
+  if (d.tipo === "dm") return true;            // é uma pessoa só: não é alarme
+  if (d.tipo === "srv") {
+    try { return srvPode("mencionarTodos"); } catch (e) { return false; }
+  }
+  if (d.tipo === "grupo") {
+    try { return estMeuNivel(d.id) >= EST_MOD; } catch (e) { return false; }
+  }
+  /* canais da estação: a casa é do jogo, então vale a equipe do painel */
+  try { return pode("recados"); } catch (e) { return false; }
+}
+
+/* o chamado me acordou? @everyone sempre; @here só se eu estiver aqui.
+   Quem silenciou o destino não é acordado por nenhum dos dois: silenciar
+   tem que valer contra o alarme também, senão não vale nada. */
+function socialChamouMim(m, eu) {
+  if (!m || !eu || m.de === eu.id) return false;
+  const q = socialChamadoNoTexto(m.txt);
+  if (!q) return false;
+  try { if (silenciado(estChave(EST.destino))) return false; } catch (e) {}
+  if (q === "everyone") return true;
+  try { return presencaAgora() !== "invisivel"; } catch (e) { return true; }
+}
+
+/* =====================================================================
+   2. ENQUETES
+   ===================================================================== */
+const ENQ_MAX_OPCOES = 5;
+const ENQ_PRAZOS = [
+  { id: 0,        nome: "sem prazo" },
+  { id: 3600000,  nome: "1 hora" },
+  { id: 21600000, nome: "6 horas" },
+  { id: 86400000, nome: "1 dia" },
+  { id: 604800000,nome: "7 dias" }
+];
+
+function enqPodeCriar(d) {
+  d = d || EST.destino;
+  if (!d) return false;
+  if (d.tipo === "srv") { try { return srvPode("criarEnquete"); } catch (e) { return false; } }
+  return d.tipo === "canal" || d.tipo === "grupo" || d.tipo === "dm";
+}
+function enqPodeVotar(d) {
+  d = d || EST.destino;
+  if (!d) return false;
+  if (d.tipo === "srv") { try { return srvPode("votar"); } catch (e) { return false; } }
+  return true;
+}
+function enqAcabou(m) {
+  return !!(m && m.enq && m.enq.ate && m.enq.ate < Date.now());
+}
+/* os votos vêm da nuvem como { uid: "0,2" }. Vira { uid: [0,2] } aqui, e
+   em lugar nenhum mais: uma tradução só, no portão. */
+function enqVotos(m) {
+  const fora = {};
+  const v = (m && m.votos) || {};
+  for (const uid in v) {
+    const lista = String(v[uid] || "").split(",")
+      .map(x => parseInt(x, 10)).filter(x => x >= 0 && !isNaN(x));
+    if (lista.length) fora[uid] = lista;
+  }
+  return fora;
+}
+function enqContar(m) {
+  const votos = enqVotos(m);
+  const n = ((m.enq && m.enq.o) || []).map(() => 0);
+  let gente = 0;
+  for (const uid in votos) {
+    gente++;
+    for (const i of votos[uid]) if (n[i] !== undefined) n[i]++;
+  }
+  return { n, gente };
+}
+function enqMeuVoto(m) {
+  const eu = estEu();
+  if (!eu) return [];
+  return enqVotos(m)[eu.id] || [];
+}
+
+/* VOTAR É UMA GRAVAÇÃO SÓ, no meu próprio pedacinho.
+   Se cada voto reescrevesse o objeto inteiro dos votos, duas pessoas
+   votando no mesmo segundo apagariam uma à outra — e ninguém entenderia
+   por que o número às vezes andava para trás. */
+async function enqVotar(k, i) {
+  const eu = estEu();
+  const d = EST.destino;
+  const m = EST.msgs.filter(x => x.k === k)[0];
+  if (!eu || !d || !m || !m.enq) return false;
+  if (enqAcabou(m)) { estAvisar("Esta enquete já fechou."); return false; }
+  if (!enqPodeVotar(d)) { estAvisar("Você não pode votar aqui."); return false; }
+
+  const antes = enqMeuVoto(m).slice();
+  let meu = antes.slice();
+  if (m.enq.multi) {
+    const onde = meu.indexOf(i);
+    if (onde >= 0) meu.splice(onde, 1); else meu.push(i);
+  } else {
+    meu = meu.length === 1 && meu[0] === i ? [] : [i];   // clicar de novo tira o voto
+  }
+
+  /* na tela antes da nuvem: enquete que demora a marcar parece quebrada
+     e a pessoa clica três vezes */
+  enqMarcarLocal(k, eu.id, meu);
+
+  const cam = estCaminho(d);
+  const r = await nuvemSoltar(cam + "/" + k + "/votos/" + eu.id,
+                              meu.length ? meu.join(",") : null,
+                              meu.length ? "PUT" : "DELETE");
+  if (r === null) {
+    /* devolve o voto que eu tinha antes: marca que não virou gravação é
+       mentira na tela, e mentira na tela é pior que erro na tela */
+    enqMarcarLocal(k, eu.id, antes);
+    estAvisar("Não deu para votar. Confira a internet.");
+    return false;
+  }
+  /* E MARCA DE NOVO DEPOIS DE GRAVAR. Entre o clique e a resposta da
+     nuvem pode ter chegado uma releitura do canal, e ela traz a
+     enquete como estava ANTES do meu voto -- a marca sumia sozinha um
+     segundo depois de aparecer. Agora o meu voto é reaplicado por cima
+     do que voltou, que é justamente a verdade mais nova que existe. */
+  enqMarcarLocal(k, eu.id, meu);
+  return true;
+}
+
+/* achar a mensagem AGORA (e não usar a de antes do await) e escrever o
+   meu voto nela. Uma função só, porque quem esquecer de reencontrar a
+   mensagem escreve num objeto que já foi jogado fora. */
+function enqMarcarLocal(k, uid, meu) {
+  const m = EST.msgs.filter(x => x.k === k)[0];
+  if (!m) return;
+  m.votos = m.votos || {};
+  if (meu && meu.length) m.votos[uid] = meu.join(",");
+  else delete m.votos[uid];
+  estPintar();
+}
+
+/* fechar na mão, antes do prazo — só de quem criou ou de quem modera */
+async function enqFechar(k) {
+  const eu = estEu();
+  const d = EST.destino;
+  const m = EST.msgs.filter(x => x.k === k)[0];
+  if (!eu || !d || !m || !m.enq) return false;
+  const meu = m.de === eu.id;
+  let mod = false;
+  try { mod = d.tipo === "srv" ? srvPode("apagarMsg") : pode("recados"); } catch (e) {}
+  if (!meu && !mod) { estAvisar("Só quem criou pode fechar."); return false; }
+  const ate = Date.now();
+  m.enq.ate = ate;
+  estPintar();
+  const r = await nuvemSoltar(estCaminho(d) + "/" + k + "/enq/ate", ate);
+  /* de novo depois de gravar, pelo mesmo motivo do voto: uma releitura
+     do canal pode ter chegado no meio e trazido a enquete aberta */
+  const agora = EST.msgs.filter(x => x.k === k)[0];
+  if (agora && agora.enq) { agora.enq.ate = ate; estPintar(); }
+  if (r === null) estAvisar("Fechou aqui, mas a nuvem não respondeu.");
+  return true;
+}
+
+function enqAbrirCriar() {
+  const d = EST.destino;
+  if (!enqPodeCriar(d)) { estAvisar("Você não pode criar enquete aqui."); return; }
+  let n = 2;
+  const campo = i =>
+    '<input class="enq-op" id="enq-o' + i + '" maxlength="60" placeholder="Resposta ' +
+    (i + 1) + '" autocomplete="off">';
+  estJanela("Criar enquete",
+    '<input id="enq-p" maxlength="120" placeholder="O que você quer perguntar?" autocomplete="off">' +
+    '<div id="enq-ops">' + campo(0) + campo(1) + "</div>" +
+    '<button class="est-jan-min" id="enq-mais">+ mais uma resposta</button>' +
+    '<label class="enq-check"><input type="checkbox" id="enq-multi"> dá para marcar mais de uma</label>' +
+    '<div class="enq-prazo" id="enq-prazo">' +
+      ENQ_PRAZOS.map((p, i) => '<button class="enq-pz' + (i === 0 ? " on" : "") +
+        '" data-pz="' + p.id + '">' + p.nome + "</button>").join("") + "</div>" +
+    '<button class="est-jan-ok" id="enq-ok">CRIAR A ENQUETE</button>',
+    cx => {
+      let prazo = 0;
+      cx.querySelectorAll("[data-pz]").forEach(b => b.addEventListener("click", () => {
+        prazo = parseInt(b.getAttribute("data-pz"), 10) || 0;
+        cx.querySelectorAll("[data-pz]").forEach(o => o.classList.toggle("on", o === b));
+      }));
+      $("enq-mais").addEventListener("click", () => {
+        if (n >= ENQ_MAX_OPCOES) { estAvisar("Cinco respostas é o limite."); return; }
+        $("enq-ops").insertAdjacentHTML("beforeend", campo(n));
+        n++;
+        if (n >= ENQ_MAX_OPCOES) $("enq-mais").style.display = "none";
+      });
+      $("enq-ok").addEventListener("click", async () => {
+        const p = ($("enq-p").value || "").trim();
+        const ops = [];
+        for (let i = 0; i < n; i++) {
+          const v = (($("enq-o" + i) || {}).value || "").trim();
+          if (v) ops.push(v.slice(0, 60));
+        }
+        if (!p) { estAvisar("Falta a pergunta."); return; }
+        if (ops.length < 2) { estAvisar("Precisa de pelo menos duas respostas."); return; }
+        estFecharJanela();
+        await enqCriar(p, ops, $("enq-multi").checked ? 1 : 0, prazo);
+      });
+      const pp = $("enq-p"); if (pp) pp.focus();
+    });
+}
+
+async function enqCriar(pergunta, opcoes, multi, prazo) {
+  return estEnviarCartao("📊 " + pergunta, {
+    tipo: "enquete",
+    enq: { p: String(pergunta).slice(0, 120),
+           o: opcoes.slice(0, ENQ_MAX_OPCOES).map(x => String(x).slice(0, 60)),
+           multi: multi ? 1 : 0,
+           ate: prazo ? Date.now() + prazo : 0 }
+  });
+}
+
+/* o cartão da enquete dentro da conversa */
+function enqHTML(m, eu) {
+  const e = m.enq || {};
+  const ops = e.o || [];
+  const { n, gente } = enqContar(m);
+  const meu = enqMeuVoto(m);
+  const fechada = enqAcabou(m);
+  /* o resultado só aparece depois de eu votar (ou depois de fechar):
+     ver a barra antes muda o voto de quem está em dúvida */
+  const mostra = fechada || meu.length > 0;
+  const maior = Math.max.apply(null, n.concat([0]));
+  let h = '<div class="enq-cx' + (fechada ? " fim" : "") + '" data-enq="' + m.k + '">' +
+    '<div class="enq-perg">' + escaparTexto(e.p || "") + "</div>";
+  ops.forEach((txt, i) => {
+    const marcado = meu.indexOf(i) >= 0;
+    const parte = gente ? Math.round((n[i] / gente) * 100) : 0;
+    h += '<button class="enq-b' + (marcado ? " eu" : "") +
+         (mostra && n[i] === maior && maior > 0 ? " lider" : "") +
+         '" data-voto="' + m.k + ':' + i + '"' + (fechada ? " disabled" : "") + ">" +
+         '<span class="enq-barra" style="width:' + (mostra ? parte : 0) + '%"></span>' +
+         '<span class="enq-marca">' + (marcado ? "✓" : (e.multi ? "▢" : "○")) + "</span>" +
+         '<span class="enq-txt">' + escaparTexto(txt) + "</span>" +
+         (mostra ? '<span class="enq-num">' + parte + "%</span>" : "") +
+         "</button>";
+  });
+  h += '<div class="enq-pe">' +
+       (gente ? gente + (gente === 1 ? " voto" : " votos") : "ninguém votou ainda") +
+       (e.multi ? " · dá para marcar mais de uma" : "") +
+       (fechada ? " · fechada"
+                : (e.ate ? " · fecha " + estQuandoFalta(e.ate) : "")) +
+       "</div>";
+  if (!fechada && eu && m.de === eu.id)
+    h += '<button class="enq-fechar" data-enqfim="' + m.k + '">fechar agora</button>';
+  return h + "</div>";
+}
+
+/* =====================================================================
+   3. EVENTOS
+   ---------------------------------------------------------------------
+   Um evento é dia, hora, lugar e uma lista de quem vai. Nasce como
+   cartão na conversa e vive em conversas/__eventos/<eid>, para que a
+   agenda continue existindo depois que o cartão sumiu do histórico.
+   ===================================================================== */
+const EV_CAMINHO = "conversas/__eventos";
+const EV_LUGARES = [
+  { id: "aqui",  nome: "Aqui no canal" },
+  { id: "voz",   nome: "Numa sala de voz" },
+  { id: "jogo",  nome: "Dentro do jogo" },
+  { id: "fora",  nome: "Em outro lugar" }
+];
+const EV = { lista: {}, carregado: 0 };
+
+function evPodeCriar(d) {
+  d = d || EST.destino;
+  if (!d) return false;
+  if (d.tipo === "srv") {
+    try { return srvPode("criarEvento") || srvPode("gerirEventos"); } catch (e) { return false; }
+  }
+  if (d.tipo === "grupo") { try { return estMeuNivel(d.id) >= EST_MOD; } catch (e) { return false; } }
+  if (d.tipo === "canal") { try { return pode("eventos") || pode("recados"); } catch (e) { return false; } }
+  return true;
+}
+
+async function evCarregar(forcar) {
+  if (!forcar && Date.now() - EV.carregado < 15000) return EV.lista;
+  const d = await nuvemReq(EV_CAMINHO);
+  EV.lista = d || {};
+  EV.carregado = Date.now();
+  /* limpa o que já passou faz tempo: agenda que só cresce vira lixo que
+     todo mundo baixa para nunca ler */
+  const corte = Date.now() - 172800000;      // dois dias depois da hora
+  for (const eid in EV.lista) {
+    const e = EV.lista[eid];
+    if (!e || !e.quando || e.quando < corte) {
+      delete EV.lista[eid];
+      nuvemSoltar(EV_CAMINHO + "/" + eid, null, "DELETE");
+    }
+  }
+  return EV.lista;
+}
+function evDaqui(d) {
+  d = d || EST.destino;
+  const ch = estChave(d);
+  return Object.keys(EV.lista)
+    .map(eid => Object.assign({ eid }, EV.lista[eid]))
+    .filter(e => e && e.onde === ch)
+    .sort((a, b) => (a.quando || 0) - (b.quando || 0));
+}
+function evVou(e) {
+  const eu = estEu();
+  return !!(eu && e && e.vou && e.vou[eu.id]);
+}
+function evQuantos(e) { return Object.keys((e && e.vou) || {}).length; }
+
+async function evMarcar(eid) {
+  const eu = estEu();
+  if (!eu) return false;
+  const e = EV.lista[eid];
+  if (!e) return false;
+  const vai = !evVou(e);
+  e.vou = e.vou || {};
+  if (vai) e.vou[eu.id] = eu.tag; else delete e.vou[eu.id];
+  estPintar();
+  evPintarJanela();
+  const r = await nuvemSoltar(EV_CAMINHO + "/" + eid + "/vou/" + eu.id,
+                              vai ? eu.tag : null, vai ? "PUT" : "DELETE");
+  if (r === null) estAvisar("Não deu para marcar. Confira a internet.");
+  return r !== null;
+}
+
+async function evCancelar(eid) {
+  const eu = estEu();
+  const e = EV.lista[eid];
+  if (!eu || !e) return false;
+  let mod = false;
+  try {
+    mod = EST.destino && EST.destino.tipo === "srv" ? srvPode("gerirEventos") : pode("eventos");
+  } catch (err) {}
+  if (e.dono !== eu.id && !mod) { estAvisar("Só quem marcou pode cancelar."); return false; }
+  delete EV.lista[eid];
+  await nuvemSoltar(EV_CAMINHO + "/" + eid, null, "DELETE");
+  evPintarJanela();
+  estPintar();
+  estAvisar("Evento cancelado.");
+  return true;
+}
+
+/* quanto falta, em português de gente */
+function estQuandoFalta(t) {
+  const s = Math.round((t - Date.now()) / 1000);
+  if (s <= 0) return "já";
+  if (s < 60) return "em " + s + "s";
+  if (s < 3600) return "em " + Math.round(s / 60) + " min";
+  if (s < 86400) return "em " + Math.round(s / 3600) + "h";
+  return "em " + Math.round(s / 86400) + " dias";
+}
+function evQuandoTexto(e) {
+  if (!e || !e.quando) return "";
+  const d = new Date(e.quando);
+  const dia = estDia(e.quando);
+  const hora = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  return dia + " às " + hora + " · " + estQuandoFalta(e.quando);
+}
+
+function evAbrirCriar() {
+  const d = EST.destino;
+  if (!evPodeCriar(d)) { estAvisar("Você não pode marcar evento aqui."); return; }
+  /* a data já vem preenchida com daqui a uma hora, redonda: quase todo
+     evento é "hoje mais tarde", e digitar data inteira no celular cansa */
+  const base = new Date(Date.now() + 3600000);
+  base.setMinutes(0, 0, 0);
+  const dd = x => String(x).padStart(2, "0");
+  const dataPadrao = base.getFullYear() + "-" + dd(base.getMonth() + 1) + "-" + dd(base.getDate());
+  const horaPadrao = dd(base.getHours()) + ":" + dd(base.getMinutes());
+  estJanela("Marcar evento",
+    '<input id="ev-nome" maxlength="60" placeholder="Nome do evento" autocomplete="off">' +
+    '<input id="ev-sobre" maxlength="140" placeholder="Sobre o que é (opcional)" autocomplete="off">' +
+    '<div class="ev-quando">' +
+      '<input type="date" id="ev-data" value="' + dataPadrao + '">' +
+      '<input type="time" id="ev-hora" value="' + horaPadrao + '">' +
+    "</div>" +
+    '<div class="ev-lugares" id="ev-lugares">' +
+      EV_LUGARES.map((l, i) => '<button class="ev-lg' + (i === 0 ? " on" : "") +
+        '" data-lg="' + l.id + '">' + escaparTexto(l.nome) + "</button>").join("") + "</div>" +
+    '<button class="est-jan-ok" id="ev-ok">MARCAR</button>',
+    cx => {
+      let lugar = "aqui";
+      cx.querySelectorAll("[data-lg]").forEach(b => b.addEventListener("click", () => {
+        lugar = b.getAttribute("data-lg");
+        cx.querySelectorAll("[data-lg]").forEach(o => o.classList.toggle("on", o === b));
+      }));
+      $("ev-ok").addEventListener("click", async () => {
+        const nome = ($("ev-nome").value || "").trim();
+        if (!nome) { estAvisar("Falta o nome do evento."); return; }
+        const quando = new Date(($("ev-data").value || "") + "T" + ($("ev-hora").value || "00:00")).getTime();
+        if (!quando || isNaN(quando)) { estAvisar("Dia e hora não deram certo."); return; }
+        if (quando < Date.now() - 60000) { estAvisar("Essa hora já passou."); return; }
+        estFecharJanela();
+        await evCriar(nome, ($("ev-sobre").value || "").trim(), quando, lugar);
+      });
+      const nn = $("ev-nome"); if (nn) nn.focus();
+    });
+}
+
+async function evCriar(nome, sobre, quando, lugar) {
+  const eu = estEu();
+  const d = EST.destino;
+  if (!eu || !d) return false;
+  const eid = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const evento = { nome: String(nome).slice(0, 60), sobre: String(sobre || "").slice(0, 140),
+                   quando, lugar: lugar || "aqui", onde: estChave(d),
+                   ondeNome: d.nome || d.id, dono: eu.id, donoNome: eu.tag,
+                   criado: Date.now(), vou: {} };
+  evento.vou[eu.id] = eu.tag;                 // quem marca, vai
+  const r = await nuvemSoltar(EV_CAMINHO + "/" + eid, evento);
+  if (r === null) { estAvisar("Não deu para marcar o evento."); return false; }
+  EV.lista[eid] = evento;
+  /* o cartão no canal é o AVISO. O evento em si já está guardado: se a
+     mensagem se perder na poda do canal, a agenda continua de pé. */
+  await estEnviarCartao("📅 " + evento.nome + " — " + evQuandoTexto(evento),
+                        { tipo: "evento", ev: { eid, nome: evento.nome, quando } });
+  evPintarJanela();
+  return true;
+}
+
+/* o cartão do evento na conversa. Lê o evento de verdade, não a cópia
+   que ficou na mensagem: assim o número de quem vai está sempre certo. */
+function evHTML(m) {
+  const eid = (m.ev || {}).eid;
+  const e = EV.lista[eid];
+  if (!e) {
+    return '<div class="ev-cx ido"><b>📅 ' + escaparTexto((m.ev || {}).nome || "Evento") +
+           "</b><em>este evento foi cancelado ou já passou</em></div>";
+  }
+  const vou = evVou(e), n = evQuantos(e);
+  const passou = e.quando < Date.now();
+  const lg = EV_LUGARES.filter(x => x.id === e.lugar)[0];
+  return '<div class="ev-cx' + (passou ? " ido" : "") + '" data-ev="' + eid + '">' +
+    '<div class="ev-topo"><b>📅 ' + escaparTexto(e.nome) + "</b>" +
+      '<span class="ev-quem">' + n + (n === 1 ? " vai" : " vão") + "</span></div>" +
+    (e.sobre ? '<div class="ev-sobre">' + escaparTexto(e.sobre) + "</div>" : "") +
+    '<div class="ev-meta">' + escaparTexto(evQuandoTexto(e)) +
+      (lg ? " · " + escaparTexto(lg.nome) : "") + "</div>" +
+    (passou ? '<div class="ev-meta">já aconteceu</div>'
+            : '<button class="ev-vou' + (vou ? " on" : "") + '" data-evvou="' + eid + '">' +
+              (vou ? "✓ EU VOU" : "EU VOU") + "</button>") +
+    "</div>";
+}
+
+/* a agenda do destino: tudo o que está marcado aqui, num lugar só */
+function evAbrirAgenda() {
+  evCarregar(true).then(() => evPintarJanela(true));
+  estJanela("Eventos", '<p class="est-nota">carregando…</p>');
+}
+function evPintarJanela(montarAgora) {
+  const cx = $("est-janela");
+  if (!cx || !cx.classList.contains("on")) return;
+  const corpo = cx.querySelector(".est-jan-corpo");
+  if (!corpo) return;
+  if (!montarAgora && !corpo.querySelector("[data-agenda]") &&
+      !corpo.querySelector(".est-nota")) return;
+  const lista = evDaqui();
+  let h = '<div data-agenda="1">';
+  if (evPodeCriar()) h += '<button class="est-jan-ok" id="ev-novo">+ MARCAR EVENTO</button>';
+  if (!lista.length) {
+    h += '<p class="est-nota">Nada marcado por aqui ainda.' +
+         (evPodeCriar() ? " Marque o primeiro." : "") + "</p>";
+  }
+  for (const e of lista) {
+    const n = evQuantos(e), vou = evVou(e);
+    const eu = estEu();
+    h += '<div class="ev-item">' +
+      '<div class="ev-topo"><b>' + escaparTexto(e.nome) + "</b>" +
+        '<span class="ev-quem">' + n + (n === 1 ? " vai" : " vão") + "</span></div>" +
+      '<div class="ev-meta">' + escaparTexto(evQuandoTexto(e)) + " · por " +
+        escaparTexto(e.donoNome || "alguém") + "</div>" +
+      (e.sobre ? '<div class="ev-sobre">' + escaparTexto(e.sobre) + "</div>" : "") +
+      '<div class="ev-acoes">' +
+        '<button class="ev-vou' + (vou ? " on" : "") + '" data-evvou="' + e.eid + '">' +
+          (vou ? "✓ EU VOU" : "EU VOU") + "</button>" +
+        (eu && e.dono === eu.id
+          ? '<button class="ev-x" data-evx="' + e.eid + '">cancelar</button>' : "") +
+      "</div></div>";
+  }
+  corpo.innerHTML = h + "</div>";
+  const nv = $("ev-novo");
+  if (nv) nv.addEventListener("click", () => { estFecharJanela(); evAbrirCriar(); });
+  socialLigarCartoes(corpo);
+}
+
+/* =====================================================================
+   4. O LEMBRETE
+   ---------------------------------------------------------------------
+   Marcar um evento e esquecer dele é o destino de todo evento marcado.
+   A batida de vinte em vinte segundos da estação passa por aqui e avisa
+   UMA VEZ, quinze minutos antes, só quem disse que vai.
+   ===================================================================== */
+const EV_AVISADOS = {};
+function evLembrar() {
+  const eu = estEu();
+  if (!eu) return;
+  const agora = Date.now();
+  for (const eid in EV.lista) {
+    const e = EV.lista[eid];
+    if (!e || !e.quando || EV_AVISADOS[eid]) continue;
+    if (!e.vou || !e.vou[eu.id]) continue;
+    const falta = e.quando - agora;
+    /* NÃO PERTURBE e destino silenciado valem também aqui: um lembrete
+       que fura o silêncio é o mesmo que não ter silêncio */
+    let posso = true;
+    try { posso = podeIncomodar(e.onde || ""); } catch (err) {}
+    if (falta > 0 && falta < 900000 && posso) {
+      EV_AVISADOS[eid] = 1;
+      estAvisar("📅 " + e.nome + " começa " + estQuandoFalta(e.quando));
+    }
+  }
+}
+
+/* =====================================================================
+   5. O ENCAIXE NA CONVERSA
+   ---------------------------------------------------------------------
+   Uma função desenha o corpo de QUALQUER mensagem, e uma função liga os
+   cliques de QUALQUER cartão. A conversa não precisa saber que enquete
+   existe — ela pergunta aqui.
+   ===================================================================== */
+function estCorpoDaMensagem(m, eu) {
+  if (m && m.tipo === "enquete" && m.enq) return enqHTML(m, eu);
+  if (m && m.tipo === "evento" && m.ev) return evHTML(m);
+  return '<div class="est-txt">' + estTextoComMencoes(m.txt, eu) + "</div>";
+}
+
+function socialLigarCartoes(raiz) {
+  if (!raiz) return;
+  raiz.querySelectorAll("[data-voto]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      const p = b.getAttribute("data-voto").split(":");
+      enqVotar(p[0], parseInt(p[1], 10));
+    }));
+  raiz.querySelectorAll("[data-enqfim]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      enqFechar(b.getAttribute("data-enqfim"));
+    }));
+  raiz.querySelectorAll("[data-evvou]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      evMarcar(b.getAttribute("data-evvou"));
+    }));
+  raiz.querySelectorAll("[data-evx]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      evCancelar(b.getAttribute("data-evx"));
+    }));
+}
+
+/* o ＋ da barra de escrever: o que dá para mandar além de texto */
+function socialAbrirMais() {
+  const d = EST.destino;
+  if (!d) return;
+  let h = "";
+  if (enqPodeCriar(d)) h += '<button class="est-jan-ok" data-mais="enquete">📊 Criar uma enquete</button>';
+  if (evPodeCriar(d))  h += '<button class="est-jan-ok" data-mais="evento">📅 Marcar um evento</button>';
+  h += '<button class="est-jan-ok" data-mais="agenda">🗓 Ver o que está marcado</button>';
+  if (socialPodeChamar(d) && d.tipo !== "dm") {
+    h += CHAMADOS.map(c =>
+      '<button class="est-jan-ok" data-mais="' + c.id + '">' +
+      (c.id === "everyone" ? "📣 " : "👋 ") + "Chamar " + escaparTexto(c.nome) +
+      ' <em class="est-jan-sub">' + escaparTexto(c.marca) + " · " +
+      escaparTexto(c.sobre) + "</em></button>").join("");
+  }
+  estJanela("O que você quer mandar?", h, cx =>
+    cx.querySelectorAll("[data-mais]").forEach(b => b.addEventListener("click", () => {
+      const q = b.getAttribute("data-mais");
+      estFecharJanela();
+      if (q === "enquete") enqAbrirCriar();
+      else if (q === "evento") evAbrirCriar();
+      else if (q === "agenda") evAbrirAgenda();
+      else {
+        const campo = $("est-campo");
+        campo.value = "@" + q + " " + campo.value;
+        campo.focus();
+      }
+    })));
 }
 /* ---------- Loop ---------- */
 let last = performance.now();
@@ -36251,6 +37078,16 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.7", itens: [
+      "ENQUETES: o ＋ da barra de escrever cria uma pergunta com até cinco respostas. Todo mundo vota ali mesmo, e o resultado aparece na hora — mas só depois de você votar, para a barra não influenciar o seu voto",
+      "Dá para escolher se cabe marcar mais de uma resposta e se a enquete fecha sozinha em 1 hora, 6 horas, 1 dia ou 7 dias. Quem criou pode fechar antes no botão",
+      "@everyone avisa o canal inteiro e @here só quem está com o jogo aberto agora — e valem em português: @todos e @aqui fazem a mesma coisa",
+      "Chamar todo mundo é alarme, então tem dono: no servidor, quem tem a permissão; no grupo, quem é dono ou moderador; nos canais da Estação, a equipe. Quem não pode recebe um aviso na hora, em vez de a mensagem sair sem o chamado",
+      "Quem silenciou o canal continua silenciado mesmo com @everyone: silêncio que o alarme fura não é silêncio",
+      "EVENTOS: marque dia, hora e lugar, diga EU VOU e veja quem mais vai. O 📅 do cabeçalho abre tudo o que está marcado naquele canal",
+      "O jogo lembra você quinze minutos antes do evento que você disse que ia",
+      "Quem estiver numa versão antiga do jogo ainda vê a enquete e o evento como texto, em vez de ver um buraco na conversa"
+    ] },
   { v: "8.6", itens: [
       "SERVIDORES: crie o seu, com canais de texto e de voz, a partir de quatro modelos — ou entre num com um código de convite",
       "CARGOS E PERMISSÕES: 50 permissões em cinco famílias (servidor, moderação, texto, voz e comunidade), com cor e emoji em cada cargo",
@@ -36811,7 +37648,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.6";
+const VERSAO = "8.7";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

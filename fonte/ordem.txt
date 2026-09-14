@@ -22,5 +22,6 @@
 09-perfil.js
 09-servidores.js
 09-estacao.js
+09-social.js
 07-extras-2.js
 07-extras-fim.html

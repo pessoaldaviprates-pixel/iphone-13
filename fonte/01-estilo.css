@@ -5926,3 +5926,117 @@
     background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
     color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.68rem;
   }
+
+  /* =================================================================
+     ENQUETES, EVENTOS E O CHAMADO A TODO MUNDO
+     -----------------------------------------------------------------
+     O cartão nasce DENTRO da mensagem, no lugar onde estaria o texto.
+     Por isso ele não tem margem própria nem fundo escuro demais: quem
+     olha a conversa tem que ver uma mensagem diferente, não uma janela
+     que caiu no meio do papo.
+     ================================================================= */
+  .est-mencao.todos{
+    color:#FFC145;background:rgba(255,193,69,.2);
+    border:1px solid rgba(255,193,69,.4);font-weight:700;
+  }
+  .est-jan-sub{
+    display:block;margin-top:3px;font-style:normal;font-weight:400;
+    font-size:.56rem;letter-spacing:.02em;color:var(--dim);text-transform:none;
+  }
+  .est-jan-min{
+    width:100%;margin:2px 0 9px;padding:8px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px dashed rgba(120,200,255,.3);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-size:.6rem;
+  }
+  .enq-check{
+    display:flex;align-items:center;gap:8px;margin:2px 0 10px;
+    font-size:.62rem;color:var(--ink2);cursor:pointer;
+  }
+  .enq-check input{width:auto;height:auto;margin:0;flex:none}
+  .enq-prazo,.ev-lugares{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .enq-pz,.ev-lg{
+    padding:7px 11px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-size:.58rem;
+  }
+  .enq-pz.on,.ev-lg.on{
+    background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan);
+  }
+
+  /* ---- o cartão da enquete na conversa ---- */
+  .enq-cx{
+    margin-top:3px;padding:10px 11px;border-radius:11px;max-width:400px;
+    background:rgba(120,200,255,.06);border:1px solid rgba(120,200,255,.22);
+  }
+  .enq-cx.fim{opacity:.75}
+  .enq-perg{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;
+    line-height:1.35;margin-bottom:9px;color:var(--ink);
+  }
+  .enq-b{
+    position:relative;display:flex;align-items:center;gap:8px;width:100%;
+    margin-bottom:5px;padding:9px 10px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+    color:var(--ink2);font-family:inherit;font-size:.68rem;text-align:left;
+    overflow:hidden;
+  }
+  .enq-b:disabled{cursor:default}
+  .enq-b.eu{border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .enq-b.lider .enq-barra{background:rgba(77,232,255,.2)}
+  /* a barra fica ATRÁS do texto, não ao lado: ao lado ela roubaria a
+     largura da resposta e "Nave vermelha" viraria "Nave verme…" */
+  .enq-barra{
+    position:absolute;left:0;top:0;bottom:0;z-index:0;
+    background:rgba(255,255,255,.09);transition:width .35s ease;
+  }
+  .enq-marca,.enq-txt,.enq-num{position:relative;z-index:1}
+  .enq-txt{flex:1;min-width:0;word-break:break-word}
+  .enq-num{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.62rem;opacity:.85}
+  .enq-pe{margin-top:7px;font-size:.56rem;color:var(--dim);letter-spacing:.02em}
+  .enq-fechar{
+    margin-top:7px;padding:5px 9px;border-radius:7px;cursor:pointer;
+    background:transparent;border:1px solid rgba(255,77,143,.3);
+    color:var(--magenta);font-family:"Chakra Petch",sans-serif;font-size:.55rem;
+  }
+
+  /* ---- o cartão do evento ---- */
+  .ev-cx,.ev-item{
+    margin-top:3px;padding:10px 11px;border-radius:11px;max-width:400px;
+    background:rgba(255,193,69,.07);border:1px solid rgba(255,193,69,.25);
+  }
+  .ev-item{max-width:none;margin-bottom:9px}
+  .ev-cx.ido{opacity:.6;border-style:dashed}
+  .ev-topo{display:flex;align-items:baseline;gap:8px}
+  .ev-topo b{
+    flex:1;min-width:0;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.72rem;line-height:1.3;color:var(--ink);
+  }
+  .ev-quem{flex:none;font-size:.56rem;color:var(--amber);letter-spacing:.03em}
+  .ev-sobre{margin-top:5px;font-size:.64rem;line-height:1.45;color:var(--ink2)}
+  .ev-meta{margin-top:5px;font-size:.56rem;color:var(--dim);letter-spacing:.02em}
+  .ev-cx.ido em{display:block;margin-top:4px;font-size:.58rem;color:var(--dim)}
+  .ev-acoes{display:flex;gap:7px;align-items:center;margin-top:8px}
+  .ev-vou{
+    margin-top:8px;padding:8px 14px;border-radius:9px;cursor:pointer;
+    background:rgba(255,193,69,.14);border:1px solid rgba(255,193,69,.4);
+    color:var(--amber);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.6rem;letter-spacing:.06em;
+  }
+  .ev-acoes .ev-vou{margin-top:0}
+  .ev-vou.on{background:rgba(255,193,69,.3);color:#12202E}
+  .ev-x{
+    padding:8px 12px;border-radius:9px;cursor:pointer;background:transparent;
+    border:1px solid rgba(255,77,143,.3);color:var(--magenta);
+    font-family:"Chakra Petch",sans-serif;font-size:.58rem;
+  }
+  .ev-quando{display:flex;gap:8px}
+  .ev-quando input{flex:1;min-width:0}
+
+  /* No celular o dedo precisa de alvo, e o cartão precisa da tela
+     inteira: 400px de largura fixa deixaria a enquete cortada. */
+  @media (max-width:780px){
+    .enq-cx,.ev-cx{max-width:none}
+    .enq-b{min-height:40px;font-size:.7rem}
+    .ev-vou,.ev-x{min-height:38px}
+    .enq-pz,.ev-lg{min-height:34px}
+  }
