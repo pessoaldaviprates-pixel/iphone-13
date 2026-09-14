@@ -137,13 +137,20 @@ function estCaminho(d) {
   if (d.tipo === "canal") return "conversas/canal__" + d.id;
   if (d.tipo === "dm")    return "conversas/" + salaDaConversa(eu.id, d.id);
   if (d.tipo === "grupo") return "conversas/grupo__" + d.id + "/msgs";
+  /* canal de servidor: as mensagens ficam em conversas/, que é galho
+     velho e liberado. Só o servidor em si mora no galho novo. */
+  if (d.tipo === "srv" && d.canal) return srvSalaDoCanal(d.id, d.canal);
   return null;              // amigos e voz não são conversa: não têm caminho
 }
 /* a etiqueta curta que serve de chave dos não lidos e do localStorage */
-function estChave(d) { return d ? d.tipo + ":" + d.id : ""; }
+function estChave(d) {
+  if (!d) return "";
+  return d.tipo === "srv" ? "srv:" + d.id + ":" + (d.canal || "") : d.tipo + ":" + d.id;
+}
 
 function estMesmoDestino(a, b) {
-  return !!a && !!b && a.tipo === b.tipo && String(a.id) === String(b.id);
+  return !!a && !!b && a.tipo === b.tipo && String(a.id) === String(b.id) &&
+         String(a.canal || "") === String(b.canal || "");
 }
 
 /* =====================================================================
@@ -771,6 +778,40 @@ function estPintarLado() {
          '<span class="est-dest-txt"><strong>' + escaparTexto(v.nome) + "</strong>" +
          "<em>até " + v.limite + " pilotos</em></span></button>";
 
+  /* OS SERVIDORES. Cada um com os canais dele logo abaixo, para não ser
+     preciso entrar num lugar para descobrir o que tem dentro. */
+  h += '<div class="est-grupo-h">MEUS SERVIDORES' +
+       '<button class="est-mais" id="est-novo-srv" aria-label="Criar servidor">+</button></div>';
+  const sids = Object.keys(SRV.meus || {});
+  if (!sids.length)
+    h += '<p class="est-vazio-lado">Nenhum servidor. Toque no + para criar o seu ' +
+         "ou entrar com um convite.</p>";
+  for (const sid of sids) {
+    const sv = SRV.meus[sid];
+    const aqui = EST.destino && EST.destino.tipo === "srv" && EST.destino.id === sid;
+    h += '<button class="est-srv' + (aqui ? " on" : "") + '" data-srv="' + sid + '">' +
+         '<b class="est-srv-ic">' + escaparTexto((sv.icone || sv.nome[0] || "S")) + "</b>" +
+         '<span class="est-dest-txt"><strong>' + escaparTexto(sv.nome) + "</strong>" +
+         (sv.tag ? '<em class="srv-tag pequena">' + escaparTexto(sv.tag) + "</em>" : "") +
+         "</span></button>";
+    if (aqui && SRV.aberto && SRV.aberto.sid === sid) {
+      const cs = Object.keys(SRV.canais).sort((a, b) =>
+        (SRV.canais[a].ordem || 0) - (SRV.canais[b].ordem || 0));
+      for (const cid of cs) {
+        const c = SRV.canais[cid];
+        const d = { tipo: "srv", id: sid, canal: cid, nome: c.nome };
+        const nova = estNaoLidas(d);
+        h += '<button class="est-dest est-canal-srv' +
+             (EST.destino.canal === cid ? " on" : "") + (nova ? " nova" : "") +
+             '" data-dest="srv|' + sid + "|" + cid + '">' +
+             '<b class="est-dest-ic">' + (c.tipo === "voz" ? "🔊" : "#") + "</b>" +
+             '<span class="est-dest-txt"><strong>' + escaparTexto(c.nome) + "</strong></span>" +
+             (nova ? '<i class="est-pip"></i>' : "") + "</button>";
+      }
+      h += '<button class="est-srv-cfg" data-cfg="' + sid + '">⚙ configurações</button>';
+    }
+  }
+
   const gids = Object.keys(EST.grupos);
   h += '<div class="est-grupo-h">MEUS GRUPOS' +
        '<button class="est-mais" id="est-novo-grupo" aria-label="Criar grupo">+</button></div>';
@@ -826,11 +867,25 @@ function estPintarLado() {
   if (be) be.addEventListener("click", estEditarPerfil);
   cx.querySelectorAll("[data-dest]").forEach(b =>
     b.addEventListener("click", () => {
-      const [tipo, id] = b.getAttribute("data-dest").split("|");
+      const [tipo, id, canal] = b.getAttribute("data-dest").split("|");
       const nome = b.querySelector("strong").textContent;
-      estAbrir({ tipo, id, nome });
+      estAbrir(canal ? { tipo, id, canal, nome } : { tipo, id, nome });
       $("estacao").classList.remove("lado-aberto");
     }));
+  cx.querySelectorAll("[data-srv]").forEach(b =>
+    b.addEventListener("click", async () => {
+      const sid = b.getAttribute("data-srv");
+      if (!(await srvAbrir(sid))) return;
+      const primeiro = Object.keys(SRV.canais)
+        .filter(c => SRV.canais[c].tipo === "texto")
+        .sort((x, y) => (SRV.canais[x].ordem || 0) - (SRV.canais[y].ordem || 0))[0];
+      estAbrir({ tipo: "srv", id: sid, canal: primeiro,
+                 nome: primeiro ? SRV.canais[primeiro].nome : "servidor" });
+    }));
+  cx.querySelectorAll("[data-cfg]").forEach(b =>
+    b.addEventListener("click", e => { e.stopPropagation(); srvAbrirConfig(b.getAttribute("data-cfg")); }));
+  const ns = $("est-novo-srv");
+  if (ns) ns.addEventListener("click", e => { e.stopPropagation(); srvAbrirCriar(); });
   cx.querySelectorAll("[data-voz]").forEach(b =>
     b.addEventListener("click", () => estVozEntrar(b.getAttribute("data-voz"))));
   const ng = $("est-novo-grupo");
@@ -1166,10 +1221,18 @@ function estPintarConversa(grudarNoFim) {
          mensagem saía sem cor até a próxima leitura — eu trocava a cor e
          não via nada acontecer. Para os outros a nuvem é a única fonte
          possível; para mim, ela é a fonte errada. */
-      const v = (eu && m.de === eu.id)
-        ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
-            efeito: perfilEfeitoDoNome() }
-        : perfilDaNuvem(EST.pilotos[m.de] || {});
+      let v;
+      if (eu && m.de === eu.id) {
+        const minhaTag = srvMinhaTagInfo();
+        v = { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
+              efeito: perfilEfeitoDoNome(),
+              tag: minhaTag ? minhaTag.tag : "", tagSid: minhaTag ? minhaTag.sid : "" };
+      } else {
+        const ficha = EST.pilotos[m.de] || {};
+        v = perfilDaNuvem(ficha);
+        v.tag = String(ficha.tagNome || "").slice(0, 5);
+        v.tagSid = String(ficha.tagServidor || "");
+      }
       h += '<button class="est-av est-abre-perfil' +
            (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") +
            '" data-perfil="' + escaparTexto(m.de || "") + '">' +
@@ -1181,6 +1244,10 @@ function estPintarConversa(grudarNoFim) {
            escaparTexto(m.nome || "Piloto") + "</b>" +
            (v.selo ? '<span class="est-selo-neo" title="NeoNebula ' + v.nivel + '">' +
                      v.selo + "</span>" : "") +
+           /* a tag do servidor que a pessoa adotou. Clicar nela mostra o
+              servidor numa janelinha, sem sair daqui. */
+           (v.tag ? '<button class="srv-tag clicavel" data-espiar="' + escaparTexto(v.tagSid) +
+                    '">' + escaparTexto(v.tag) + "</button>" : "") +
            '<span class="est-hora">' + estHora(m.quando) + "</span></div>";
     } else {
       h += '<span class="est-av vazio"></span><div class="est-corpo">';
@@ -1198,6 +1265,11 @@ function estPintarConversa(grudarNoFim) {
     b.addEventListener("click", e => {
       e.stopPropagation();
       estMenuDaMensagem(b.getAttribute("data-menu"), b);
+    }));
+  lista.querySelectorAll("[data-espiar]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      srvEspiar(b.getAttribute("data-espiar"));
     }));
   lista.querySelectorAll("[data-perfil]").forEach(b =>
     b.addEventListener("click", e => {
@@ -1469,6 +1541,7 @@ function estacaoAbrir(destino) {
   estOlharNovidades();
   amigosCarregar().then(() => estPintar());
   estGruposCarregar();
+  srvCarregarMeus().then(() => estPintar());
 
   estPintar();
   estAbrir(destino || EST.destino || { tipo: "canal", id: "geral", nome: "geral" });

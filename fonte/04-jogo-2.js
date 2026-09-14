@@ -243,6 +243,10 @@ function admRegrasJSON() {
     '    "amigos": ' + no(false) + ',\n' +
     '    "loja_pedidos": ' + no(false) + ',\n' +
     '    "suporte": ' + no(false) + ',\n' +
+    /* os servidores da Estação. Galho novo é galho recusado enquanto as
+       regras antigas estiverem coladas lá — por isso ele entra aqui, e
+       por isso o jogo avisa em vez de falhar calado quando é negado. */
+    '    "servidores": ' + no(false) + ',\n' +
     '    "vivo": ' + no(false) + '\n' +
     '  }\n}';
 }

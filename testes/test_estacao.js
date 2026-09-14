@@ -424,6 +424,87 @@ async function piloto(ctx, nome) {
              semFluxo: EST.fluxo === null };
   });
 
+  /* =====================================================================
+     SERVIDORES: cargos, permissões, moderação, impulsos e registro
+     ===================================================================== */
+  out.servidores = await a.evaluate(async id => {
+    const r = { perms: PERMS.length,
+                familias: PERM_FAMILIAS.map(f => PERMS.filter(p => p.g === f.id).length) };
+    const sid = await srvCriar('Esquadrao de Teste', 'jogo', false);
+    if (!sid) return Object.assign(r, { criou: false });
+    r.criou = true; r.sid = sid;
+    await srvCarregarMeus();
+    await srvAbrir(sid);
+    r.nasceu = { canais: Object.keys(SRV.canais).length,
+                 cargos: Object.keys(SRV.cargos).length,
+                 membros: Object.keys(SRV.membros).length,
+                 souDono: SRV.aberto.dono === estEu().id };
+    /* o cargo BASE vale para todo mundo sem estar na ficha de ninguém:
+       sem isto o servidor nasce mudo, porque membro novo não tem cargo */
+    r.membroNovoFala = srvPode('falar', estEu().id);
+    r.convite = await srvCriarConvite(sid, Object.keys(SRV.canais)[0], '1d', '0');
+    return r;
+  }, idTito);
+
+  out.servidores2 = await t.evaluate(async cod => {
+    const r = await srvEntrarPorConvite(cod);
+    if (!r.ok) return { entrou: false, msg: r.msg };
+    await srvCarregarMeus();
+    await srvAbrir(r.sid);
+    return { entrou: true, membros: Object.keys(SRV.membros).length,
+             /* quem acabou de entrar já pode conversar */
+             podeFalar: srvPode('falar'), podeBanir: srvPode('banir') };
+  }, out.servidores.convite);
+
+  out.servidores3 = await a.evaluate(async sid => {
+    await srvAbrir(sid);
+    const tito = Object.keys(SRV.membros).filter(u => SRV.membros[u].nome === 'Tito')[0];
+    const rid = await srvCargoCriar(sid, 'moderador', '#FF4D8F', '🛡');
+    SRV.cargos[rid].perms = { expulsar: true, castigar: true };
+    SRV.cargos[rid].ordem = 5;
+    await srvCargoSalvar(sid, rid);
+    await srvDarCargo(sid, tito, rid, true);
+    const r = {
+      /* o cargo dá SÓ o que foi marcado */
+      titoExpulsa: srvPode('expulsar', tito), titoBane: srvPode('banir', tito),
+      /* castigo cala mas não cega */
+      falavaAntes: srvPode('falar', tito)
+    };
+    await srvCastigar(sid, tito, 'Tito', '1h');
+    r.calado = !srvPode('falar', tito);
+    r.continuaVendo = srvPode('verCanal', tito);
+    await srvCastigar(sid, tito, 'Tito', null);
+    r.voltouAFalar = srvPode('falar', tito);
+    /* impulsos: Ouro dá 3, e 2 já sobem o servidor para o nível 1 */
+    save.neo = { nivel: 'ouro', ate: Date.now() + 30 * 86400000 };
+    save.impulsos = {};
+    r.meusImpulsos = impulsosQueTenho().total;
+    await srvImpulsionar(sid, true);
+    await srvImpulsionar(sid, true);
+    await srvAbrir(sid);
+    r.nivelCom2 = nivelDoServidor(SRV.aberto).nivel;
+    r.emojisCom2 = espacosDeEmoji(SRV.aberto);
+    /* a tag custa 3 impulsos: com 2 tem que recusar */
+    r.tagCom2 = await srvDefinirTag(sid, 'NEON');
+    await srvImpulsionar(sid, true);
+    await srvAbrir(sid);
+    r.tagCom3 = await srvDefinirTag(sid, 'ne on!x');   // só letras, 5 no máximo
+    r.tag = SRV.aberto.tag;
+    /* banir tira e impede de voltar, e tudo fica no registro */
+    await srvBanir(sid, tito, 'Tito', 'teste');
+    const ban = await nuvemReq('servidores/' + sid + '/banidos');
+    const aud = await nuvemReq('servidores/' + sid + '/auditoria');
+    r.banidos = Object.keys(ban || {}).length;
+    r.registros = Object.keys(aud || {}).length;
+    r.registroTemBanir = Object.keys(aud || {}).some(k => aud[k].acao === 'baniu');
+    return r;
+  }, out.servidores.sid);
+
+  out.servidores4 = await t.evaluate(async arg => {
+    const r = await srvEntrarPorConvite(arg.cod);
+    return { recusou: !r.ok, msg: r.msg };
+  }, { cod: out.servidores.convite });
+
   /* ---- 3b. GRUPOS ---- */
   out.grupo = await a.evaluate(async id => {
     const gid = await estGrupoCriar('Esquadrão Alfa', [id]);
@@ -682,6 +763,35 @@ async function piloto(ctx, nome) {
   if (!D.linhas) erro('a area de mensagens diretas nao lista as conversas');
   if (!D.semBarra) erro('a barra de escrever aparece na lista de conversas');
   if (!D.semFluxo) erro('a lista de conversas gastou o fluxo');
+  const S1 = out.servidores, S2 = out.servidores2, S3 = out.servidores3, S4 = out.servidores4;
+  if (S1.perms !== 50) erro('sao ' + S1.perms + ' permissoes; o pedido era 50');
+  if (S1.familias.join() !== '10,10,10,10,10')
+    erro('as familias de permissao tem ' + S1.familias.join() + ' em vez de 10 cada');
+  if (!S1.criou) erro('nao deu para criar o servidor');
+  if (S1.nasceu.canais < 3) erro('o servidor nasceu com ' + S1.nasceu.canais + ' canais');
+  if (!S1.nasceu.souDono) erro('quem criou nao ficou dono');
+  if (!S1.membroNovoFala) erro('o servidor nasce MUDO: o cargo base nao vale para todo mundo');
+  if (!S1.convite) erro('nao deu para criar convite');
+  if (!S2.entrou) erro('nao deu para entrar pelo convite: ' + S2.msg);
+  if (S2.membros !== 2) erro('o servidor ficou com ' + S2.membros + ' membros');
+  if (!S2.podeFalar) erro('quem entrou nao pode nem conversar');
+  if (S2.podeBanir) erro('quem acabou de entrar ja pode BANIR');
+  if (!S3.titoExpulsa) erro('o cargo nao deu a permissao marcada');
+  if (S3.titoBane) erro('o cargo deu uma permissao que NAO foi marcada');
+  if (!S3.falavaAntes) erro('o membro com cargo perdeu o direito de falar');
+  if (!S3.calado) erro('castigo nao calou');
+  if (!S3.continuaVendo) erro('castigo cegou a pessoa: castigo e ficar de fora da conversa');
+  if (!S3.voltouAFalar) erro('tirar o castigo nao devolveu a fala');
+  if (S3.meusImpulsos !== 3) erro('Ouro deu ' + S3.meusImpulsos + ' impulsos em vez de 3');
+  if (S3.nivelCom2 !== 1) erro('2 impulsos deviam dar nivel 1, deram ' + S3.nivelCom2);
+  if (S3.emojisCom2 !== 70) erro('nivel 1 devia abrir 70 espacos de emoji');
+  if (S3.tagCom2) erro('a tag saiu com 2 impulsos; ela custa 3');
+  if (!S3.tagCom3) erro('a tag nao saiu nem com 3 impulsos');
+  if (S3.tag !== 'NEONX') erro('a tag virou "' + S3.tag + '"; devia limpar e cortar em 5');
+  if (S3.banidos !== 1) erro('o banimento nao entrou na lista');
+  if (!S3.registroTemBanir) erro('banir nao foi para o registro de auditoria');
+  if (S3.registros < 5) erro('o registro tem so ' + S3.registros + ' linhas');
+  if (!S4.recusou) erro('quem foi BANIDO conseguiu voltar pelo convite');
   const TA = out.telaAmigos;
   if (TA.abas.join() !== 'online,tudo,pendentes,bloqueados,adicionar')
     erro('as abas da tela de amigos sao ' + TA.abas.join());

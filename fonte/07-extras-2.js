@@ -598,6 +598,18 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.6", itens: [
+      "SERVIDORES: crie o seu, com canais de texto e de voz, a partir de quatro modelos — ou entre num com um código de convite",
+      "CARGOS E PERMISSÕES: 50 permissões em cinco famílias (servidor, moderação, texto, voz e comunidade), com cor e emoji em cada cargo",
+      "Um cargo mais alto manda no mais baixo: ninguém mexe em quem está acima, nem entrega um cargo maior que o próprio",
+      "MODERAÇÃO: expulsar, banir para sempre, e castigo de 1 a 6 horas — de castigo a pessoa continua vendo tudo, mas não fala nem entra na voz",
+      "REGISTRO DE AUDITORIA: quem fez o quê e quando, e ninguém apaga",
+      "CONVITES com prazo (30 min a nunca vence) e limite de usos, e o histórico de banimentos",
+      "IMPULSOS: o NeoNebula dá 1 impulso no Bronze, 2 no Prata e 3 no Ouro. Dois impulsos sobem o servidor para o nível 1, sete para o 2 e catorze para o 3 — cada nível abre mais espaço de emoji e figurinha",
+      "TAG DO SERVIDOR: até 5 letras, custa 3 impulsos. Quem adotar leva a tag do lado do nome em toda a Estação, e quem clicar nela vê o servidor numa janelinha",
+      "EMOJIS E FIGURINHAS do servidor: o jogo redesenha tudo para 128×128 antes de guardar — um emoji de 256KB vira uns 8KB, senão a lista pesaria megabytes no celular de todo mundo",
+      "Configurações do servidor com 15 abas: visão geral, moderação, registro, canais, cargos, membros, convites, banimentos, emojis, figurinhas, tag, impulsos, comunidade, segurança e avisos externos"
+    ] },
   { v: "8.5", itens: [
       "CHEGOU O NEONEBULA: três níveis de assinatura (Bronze R$0,50 · Prata R$1 · Ouro R$3), cada um valendo 30 dias, com entrega automática assim que o Pix cai",
       "COR E EFEITO NO NOME: escolha entre 18 cores e os efeitos Neon, Pulso, Glitch e Arco-íris — e todo mundo vê no bate-papo",
@@ -1146,7 +1158,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.5";
+const VERSAO = "8.6";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

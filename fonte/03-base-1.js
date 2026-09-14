@@ -881,6 +881,13 @@ async function nuvemEnviar(forcar) {
       catch (e) { return "computador"; }
     })(),
     recado: (function () { try { return recadoMeu(); } catch (e) { return null; } })(),
+    /* a tag do servidor adotado viaja junto: é ela que aparece do lado do
+       nome para todo mundo, e o "sid" é o que faz clicar nela abrir o
+       servidor certo */
+    tagServidor: save.tagServidor || "",
+    tagNome: (function () {
+      try { const t = srvMinhaTagInfo(); return t ? t.tag : ""; } catch (e) { return ""; }
+    })(),
     /* O INVISÍVEL MENTE O RELÓGIO, e é de propósito.
        Mandar "estou invisível" e torcer para o outro lado respeitar não
        é esconder: qualquer um lendo o banco direto veria a pessoa ali.

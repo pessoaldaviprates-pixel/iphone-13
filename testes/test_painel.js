@@ -57,9 +57,19 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
              abasVisiveis: document.querySelectorAll('#adm-abas .adm-aba').length };
   });
 
-  /* ---- jogadores falsos, como se tivessem aberto o jogo ---- */
+  /* ---- jogadores falsos, como se tivessem aberto o jogo ----
+
+     ANTES DE INVENTAR A LISTA, DESLIGA QUEM A REESCREVE. A janela AO
+     VIVO é alimentada por um fluxo da nuvem e por uma segunda olhada
+     que chega 1,5s depois. Se qualquer um dos dois chegar no meio do
+     teste, os seis nomes de mentira somem e a linha 2 deixa de ser o
+     Lucas -- o teste passava sozinho e falhava na bateria, que é o
+     pior tipo de teste que existe. */
   await p.evaluate(() => {
     const nomes = ['Davi', 'Lucas', 'Bia', 'Pedro', 'Ana', 'Kauan'];
+    vivoDesligar();
+    admRetentou = true;
+    admNuvemCarregar = async () => {};
     vivoDados = {};
     nomes.forEach((n, i) => {
       vivoDados['id' + i] = { nome: n, fase: 10 + i * 17, cristais: 1200 * (i + 1),
@@ -96,7 +106,13 @@ const JOGO = 'file://' + path.join(__dirname, '..', 'index.html');
   /* ---- escolher um jogador e ver as ações na mesma tela ---- */
   await p.evaluate(() => { abaAdm = 'acoes'; renderAbasAdm(); });
   await p.waitForTimeout(300);
-  await p.evaluate(() => document.querySelectorAll('#vivo-lista .vivo-row')[1].click());
+  /* escolhe pelo NOME, não pela posição: a lista se ordena por quem
+     está online, e uma ordem diferente não é motivo para falhar */
+  await p.evaluate(() => {
+    const linhas = [...document.querySelectorAll('#vivo-lista .vivo-row')];
+    const alvo = linhas.find(l => l.querySelector('.vivo-nome').textContent.trim() === 'Lucas');
+    (alvo || linhas[1]).click();
+  });
   await p.waitForTimeout(500);
   out.escolheu = await p.evaluate(() => {
     const sel = document.getElementById('adm-nuvem-sel');
