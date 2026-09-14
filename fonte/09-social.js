@@ -291,7 +291,7 @@ function enqHTML(m, eu) {
   const mostra = fechada || meu.length > 0;
   const maior = Math.max.apply(null, n.concat([0]));
   let h = '<div class="enq-cx' + (fechada ? " fim" : "") + '" data-enq="' + m.k + '">' +
-    '<div class="enq-perg">' + escaparTexto(e.p || "") + "</div>";
+    '<div class="enq-perg">' + escaparLongo(e.p || "") + "</div>";
   ops.forEach((txt, i) => {
     const marcado = meu.indexOf(i) >= 0;
     const parte = gente ? Math.round((n[i] / gente) * 100) : 0;
@@ -300,7 +300,7 @@ function enqHTML(m, eu) {
          '" data-voto="' + m.k + ':' + i + '"' + (fechada ? " disabled" : "") + ">" +
          '<span class="enq-barra" style="width:' + (mostra ? parte : 0) + '%"></span>' +
          '<span class="enq-marca">' + (marcado ? "✓" : (e.multi ? "▢" : "○")) + "</span>" +
-         '<span class="enq-txt">' + escaparTexto(txt) + "</span>" +
+         '<span class="enq-txt">' + escaparLongo(txt) + "</span>" +
          (mostra ? '<span class="enq-num">' + parte + "%</span>" : "") +
          "</button>";
   });
@@ -499,8 +499,8 @@ function evHTML(m) {
   return '<div class="ev-cx' + (passou ? " ido" : "") + '" data-ev="' + eid + '">' +
     '<div class="ev-topo"><b>📅 ' + escaparTexto(e.nome) + "</b>" +
       '<span class="ev-quem">' + n + (n === 1 ? " vai" : " vão") + "</span></div>" +
-    (e.sobre ? '<div class="ev-sobre">' + escaparTexto(e.sobre) + "</div>" : "") +
-    '<div class="ev-meta">' + escaparTexto(evQuandoTexto(e)) +
+    (e.sobre ? '<div class="ev-sobre">' + escaparLongo(e.sobre) + "</div>" : "") +
+    '<div class="ev-meta">' + escaparLongo(evQuandoTexto(e)) +
       (lg ? " · " + escaparTexto(lg.nome) : "") + "</div>" +
     (passou ? '<div class="ev-meta">já aconteceu</div>'
             : '<button class="ev-vou' + (vou ? " on" : "") + '" data-evvou="' + eid + '">' +
@@ -533,9 +533,9 @@ function evPintarJanela(montarAgora) {
     h += '<div class="ev-item">' +
       '<div class="ev-topo"><b>' + escaparTexto(e.nome) + "</b>" +
         '<span class="ev-quem">' + n + (n === 1 ? " vai" : " vão") + "</span></div>" +
-      '<div class="ev-meta">' + escaparTexto(evQuandoTexto(e)) + " · por " +
+      '<div class="ev-meta">' + escaparLongo(evQuandoTexto(e)) + " · por " +
         escaparTexto(e.donoNome || "alguém") + "</div>" +
-      (e.sobre ? '<div class="ev-sobre">' + escaparTexto(e.sobre) + "</div>" : "") +
+      (e.sobre ? '<div class="ev-sobre">' + escaparLongo(e.sobre) + "</div>" : "") +
       '<div class="ev-acoes">' +
         '<button class="ev-vou' + (vou ? " on" : "") + '" data-evvou="' + e.eid + '">' +
           (vou ? "✓ EU VOU" : "EU VOU") + "</button>" +
@@ -634,7 +634,7 @@ function socialAbrirMais() {
       '<button class="est-jan-ok" data-mais="' + c.id + '">' +
       (c.id === "everyone" ? "📣 " : "👋 ") + "Chamar " + escaparTexto(c.nome) +
       ' <em class="est-jan-sub">' + escaparTexto(c.marca) + " · " +
-      escaparTexto(c.sobre) + "</em></button>").join("");
+      escaparLongo(c.sobre) + "</em></button>").join("");
   }
   estJanela("O que você quer mandar?", h, cx =>
     cx.querySelectorAll("[data-mais]").forEach(b => b.addEventListener("click", () => {
@@ -649,4 +649,142 @@ function socialAbrirMais() {
         campo.focus();
       }
     })));
+}
+
+/* =====================================================================
+   6. O @ QUE ABRE A LISTA
+   ---------------------------------------------------------------------
+   Digitar "@" e ter que acertar o nick de cabeça é o jeito mais fácil de
+   marcar a pessoa errada -- ou de achar que marcou e não ter marcado.
+   Aqui o @ abre uma listinha com quem dá para chamar NAQUELE lugar:
+   quem falou no canal, os seus amigos, e @everyone/@here se você puder.
+
+   A lista sai de quem JÁ ESTÁ ALI. Uma lista de todos os pilotos do
+   jogo seria inútil: ninguém quer marcar um estranho, e num jogo com
+   milhares de contas ela nem caberia na tela.
+   ===================================================================== */
+const ARROBA = { aberta: false, itens: [], sel: 0, de: -1 };
+
+/* de onde sai cada nome, em ordem de quem é mais provável de ser
+   chamado: quem acabou de falar aqui, depois os amigos */
+function arrobaCandidatos(pedaco) {
+  const eu = estEu();
+  const q = semAcento(String(pedaco || "").toLowerCase());
+  const vistos = {}, fora = [];
+  const por = (nome, id, sub, ic) => {
+    const chave = nickSimples(nome);
+    if (!nome || vistos[chave]) return;
+    if (eu && id === eu.id) return;          // marcar a si mesmo não serve para nada
+    if (q && semAcento(String(nome).toLowerCase()).indexOf(q) !== 0 &&
+        semAcento(String(nome).toLowerCase()).indexOf(q) < 0) return;
+    vistos[chave] = 1;
+    fora.push({ nome, id, sub, ic: ic || estIni(nome) });
+  };
+  /* @everyone e @here primeiro, e só para quem pode: oferecer o que a
+     pessoa não pode usar é prometer o que não vai acontecer */
+  if (socialPodeChamar(EST.destino) && EST.destino && EST.destino.tipo !== "dm") {
+    for (const c of CHAMADOS) {
+      const nome = c.marca.slice(1);
+      if (q && nome.indexOf(q) !== 0) continue;
+      fora.push({ nome, id: "", sub: c.sobre, ic: c.id === "everyone" ? "📣" : "👋", alarme: 1 });
+    }
+  }
+  /* quem falou aqui, do mais recente para o mais antigo */
+  for (let i = EST.msgs.length - 1; i >= 0; i--) {
+    const m = EST.msgs[i];
+    if (m && m.nome) por(m.nome, m.de, "falou aqui");
+  }
+  /* e os amigos, que são com quem se fala mesmo */
+  const lista = (typeof AM !== "undefined" && AM.lista) || {};
+  for (const id in lista) {
+    const a = lista[id];
+    por(a.tag || a.nome, id, estOndeEsta(id).txt);
+  }
+  return fora.slice(0, 8);
+}
+
+/* o pedaço que está sendo digitado depois do último @, se houver */
+function arrobaPedaco(campo) {
+  const ate = campo.value.slice(0, campo.selectionStart || 0);
+  const g = /@([A-Za-z0-9_À-ÿ]*)$/.exec(ate);
+  if (!g) return null;
+  return { de: ate.length - g[0].length, txt: g[1] };
+}
+
+function arrobaFechar() {
+  ARROBA.aberta = false;
+  const cx = $("est-arroba");
+  if (cx) { cx.classList.remove("on"); cx.innerHTML = ""; }
+}
+
+function arrobaOlhar() {
+  const campo = $("est-campo");
+  if (!campo) return;
+  const p = arrobaPedaco(campo);
+  if (!p) { arrobaFechar(); return; }
+  const itens = arrobaCandidatos(p.txt);
+  if (!itens.length) { arrobaFechar(); return; }
+  ARROBA.aberta = true;
+  ARROBA.itens = itens;
+  ARROBA.de = p.de;
+  if (ARROBA.sel >= itens.length) ARROBA.sel = 0;
+  arrobaPintar();
+}
+
+function arrobaPintar() {
+  const cx = $("est-arroba");
+  if (!cx) return;
+  cx.innerHTML = ARROBA.itens.map((it, i) =>
+    '<button class="est-arroba-l' + (i === ARROBA.sel ? " on" : "") +
+    (it.alarme ? " alarme" : "") + '" data-arroba="' + i + '">' +
+    '<b>' + escaparTexto(it.ic) + "</b>" +
+    '<span><strong>@' + escaparTexto(it.nome) + "</strong>" +
+    (it.sub ? "<em>" + escaparLongo(it.sub) + "</em>" : "") + "</span></button>").join("");
+  cx.classList.add("on");
+  cx.querySelectorAll("[data-arroba]").forEach(b =>
+    /* mousedown e não click: o click chega DEPOIS do blur do campo, e a
+       lista já teria fechado debaixo do dedo */
+    b.addEventListener("mousedown", e => {
+      e.preventDefault();
+      arrobaEscolher(parseInt(b.getAttribute("data-arroba"), 10));
+    }));
+  cx.querySelectorAll("[data-arroba]").forEach(b =>
+    b.addEventListener("touchstart", e => {
+      e.preventDefault();
+      arrobaEscolher(parseInt(b.getAttribute("data-arroba"), 10));
+    }, { passive: false }));
+}
+
+function arrobaEscolher(i) {
+  const campo = $("est-campo");
+  const it = ARROBA.itens[i];
+  if (!campo || !it) return;
+  const antes = campo.value.slice(0, ARROBA.de);
+  const depois = campo.value.slice(campo.selectionStart || 0);
+  const posto = "@" + it.nome + " ";
+  campo.value = antes + posto + depois;
+  const cursor = antes.length + posto.length;
+  campo.focus();
+  try { campo.setSelectionRange(cursor, cursor); } catch (e) {}
+  arrobaFechar();
+}
+
+/* as setas andam na lista, Enter e Tab escolhem, Esc fecha -- e nada
+   disso pode chegar no campo, senão Enter manda a mensagem no meio */
+function arrobaTecla(e) {
+  if (!ARROBA.aberta) return false;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    ARROBA.sel = (ARROBA.sel + (e.key === "ArrowDown" ? 1 : -1) + ARROBA.itens.length) %
+                 ARROBA.itens.length;
+    arrobaPintar();
+    e.preventDefault();
+    return true;
+  }
+  if (e.key === "Enter" || e.key === "Tab") {
+    arrobaEscolher(ARROBA.sel);
+    e.preventDefault();
+    return true;
+  }
+  if (e.key === "Escape") { arrobaFechar(); e.preventDefault(); return true; }
+  return false;
 }

@@ -208,6 +208,58 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
 - **Teste que não fecha o navegador trava a bateria.** `test_social` passava
   e ficava pendurado para sempre: o processo do Chromium segurava o node
   acordado. Passar e não terminar é indistinguível de travar.
+- **Escapador que também encurta.** `escaparTexto()` faz duas coisas: escapa
+  HTML **e corta em 40 letras**. O corte é a regra do apelido, não do
+  escapador — e a Estação inteira usou essa função no corpo das mensagens.
+  Resultado: desde que o bate-papo existe, toda frase com mais de 40 letras
+  chegava do outro lado pela metade, sem reticências e sem aviso. Ninguém
+  percebeu porque "e ai" e "fechou" cabem. Texto de gente usa
+  `escaparLongo()`; `escaparTexto()` é só para nick. Regra geral: **função
+  que faz duas coisas vai ser chamada por quem só quer uma delas.**
+  `test_botoes.js` manda uma mensagem de 116 letras e compara com o que
+  aparece na tela.
+- **Botão que abre janela para gravar em galho recusado.** O CRIAR SERVIDOR
+  abria a janelinha bonitinha, aceitava o nome, e não gravava nada: o galho
+  `servidores/` é novo e as regras antigas do Firebase recusavam calado. Para
+  quem usa, "não está dando para criar servidores" — sem erro, sem pista.
+  Guardado atrás de `SERVIDORES_LIGADOS`. **Antes de pôr um botão que grava
+  num galho novo, confira se o galho passa.**
+- **Botão que não faz nada é bug, e dá para testar isso.** `test_botoes.js`
+  aperta CADA botão visível da Estação e cobra que algo mude: a tela, uma
+  janela ou um aviso. A única exceção legítima é tocar no destino onde você
+  já está — e ela está escrita no teste, com o motivo.
+- **Campo que se redesenha rouba o próprio foco.** A busca da barra repinta a
+  lista a cada tecla, e a lista contém o campo. Sem devolver o cursor (e a
+  posição dele) depois de repintar, a pessoa digitava uma letra e a segunda
+  ia para lugar nenhum.
+- **Montar o `index.html` no meio da bateria estraga a bateria.** `montar.py`
+  trunca e reescreve o arquivo; o teste que estiver carregando a página nesse
+  instante lê um arquivo pela metade e falha com um erro que não existe
+  (`novidadesNovas is not defined`). Já aconteceu duas vezes, e nas duas a
+  falha parecia um bug de verdade. **Enquanto `testar.sh` roda, edite `fonte/`
+  à vontade, mas não monte.**
+- **Efeito que está sempre ligado não é efeito, é ruído.** O Glitch do nome
+  ficava com duas sombras coloridas a 1,5px da letra — ou seja, coladas nela.
+  Em tamanho pequeno elas invadiam o traço e o nome virava um borrão o tempo
+  todo. O conserto não foi afastar as sombras: foi **tirá-las do descanso**.
+  Agora o nome fica limpo 90% do tempo e desencontra forte por dois décimos de
+  segundo. Vale para qualquer efeito: se acontece sempre, deixou de ser efeito.
+- **Foto na ficha do piloto pesa para todo mundo.** A ficha de todos é lida
+  inteira de vinte em vinte segundos, para saber quem está online. Uma foto de
+  5 KB dentro dela vira meio mega a cada leitura numa comunidade de cem
+  pessoas. A foto mora em `conversas/__fotos/<id>` e só é buscada quando
+  alguém abre aquele perfil; na ficha vai só `foto: 1`. `test_perfil.js`
+  falha se achar `data:image` na lista de pilotos.
+- **Cor escolhida por outra pessoa não pode virar CSS.** O fundo de duas cores
+  é guardado como quatro NÚMEROS (dois matizes, duas tonalidades), presos na
+  faixa, e montado em `hsl()` na hora de desenhar. Guardar `"#RRGGBB"` (ou
+  pior, o gradiente pronto) seria deixar um estranho escrever estilo dentro da
+  minha tela.
+- **O dono do jogo tem tudo de graça, e isso quebra teste de trava.** `neoDe()`
+  devolve `ilimitado` para quem está em `DONOS`, de propósito — um save perdido
+  não pode tirar o dono do próprio jogo. Logo, **o Cr1cket não serve para
+  provar que a trava do NeoNebula trava**: esse teste precisa de um piloto
+  comum.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 

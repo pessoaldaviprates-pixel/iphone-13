@@ -58,7 +58,14 @@ const VOZ = {
   batida: null,
   medidor: null,
   falando: {},       // uid -> true enquanto sai som
-  entrando: false
+  entrando: false,
+  /* o que o dono da sala mandou valer aqui (ver 09-vozdono.js) */
+  regras: {},
+  ultimaFala: {},    // uid -> quando saiu som dele pela última vez
+  convidadoPara: {}, // sala -> fui chamado, então o porteiro me deixa entrar
+  mao: false,        // levantei a mão na fila
+  comPalavra: false, // o dono me deu a palavra
+  jaEntrei: false
 };
 
 function vozCaminho(sala) { return "conversas/voz__" + sala; }
@@ -108,7 +115,21 @@ async function vozEntrar(sala, comoChamada) {
     } catch (e) {}
   }
 
+  /* de castigo não entra na voz, e o aviso diz isso e não outra coisa */
+  try {
+    const barra = castigoBarraVoz();
+    if (barra) { estAvisar(barra); return false; }
+  } catch (e) {}
+
   VOZ.entrando = true;
+  /* O PORTEIRO VEM ANTES DO MICROFONE. Pedir o microfone e só depois
+     descobrir que a sala está trancada acende a bolinha vermelha do
+     navegador por nada -- e é justamente o tipo de coisa que faz a
+     pessoa desconfiar do jogo. */
+  let barrado = null;
+  try { barrado = await vozPorteiro(sala); } catch (e) {}
+  if (barrado) { VOZ.entrando = false; estAvisar(barrado); return false; }
+
   estAvisar("Pedindo o microfone…");
   let fluxo = null;
   try {
@@ -144,6 +165,21 @@ async function vozEntrar(sala, comoChamada) {
   VOZ.dentro = dentro;
   VOZ.mudo = false;
   VOZ.surdo = false;
+  VOZ.mao = false;
+  VOZ.comPalavra = false;
+  VOZ.regras = (await nuvemReq(vozCaminho(sala) + "/regras")) || {};
+
+  /* SALA SEM DONO GANHA UM. Quem chega primeiro numa sala vazia fica
+     responsável por ela -- senão ninguém poderia calar o engraçadinho
+     que entra gritando, e a sala inteira teria que sair. O dono do jogo
+     assume por cima, sempre, que é o que ele pediu. */
+  const vazia = !Object.keys(dentro).filter(u =>
+    Date.now() - (dentro[u].quando || 0) < VOZ_SUMIU).length;
+  if (!VOZ.regras.dono || vazia || (vozSouDonoDoJogo() && VOZ.regras.sempreDono !== 0)) {
+    VOZ.regras.dono = eu.id;
+    nuvemSoltar(vozCaminho(sala) + "/regras/dono", eu.id);
+  }
+  vozAplicarRegrasEmMim();
   vozAplicarMudo();
 
   await vozAvisarQueEstou();
@@ -151,7 +187,9 @@ async function vozEntrar(sala, comoChamada) {
   VOZ.batida = setInterval(vozAvisarQueEstou, VOZ_BATIDA);
   vozMedirVoz();
   VOZ.entrando = false;
-  estAvisar("Você entrou em " + VOZ.nome + ".");
+  VOZ.jaEntrei = true;
+  const recado = VOZ.regras.recado;
+  estAvisar(recado ? "📌 " + recado : "Você entrou em " + VOZ.nome + ".");
   vozPintar();
   try { estPintar(); } catch (e) {}
   vozOlhar();
@@ -170,6 +208,7 @@ async function vozSair() {
      razão -- que o jogo continua ouvindo. */
   if (VOZ.meu) { VOZ.meu.getTracks().forEach(t => t.stop()); VOZ.meu = null; }
   VOZ.sala = null; VOZ.pares = {}; VOZ.dentro = {}; VOZ.falando = {};
+  VOZ.regras = {}; VOZ.mao = false; VOZ.comPalavra = false; VOZ.jaEntrei = false;
   await nuvemSoltar(vozCaminho(sala) + "/dentro/" + VOZ.eu, null, "DELETE");
   await nuvemSoltar(vozCaminho(sala) + "/sinais/" + VOZ.eu, null, "DELETE");
   vozPintar();
@@ -180,7 +219,11 @@ function vozAvisarQueEstou() {
   const eu = estEu();
   if (!VOZ.sala || !eu) return Promise.resolve();
   return nuvemSoltar(vozCaminho(VOZ.sala) + "/dentro/" + eu.id, {
-    nome: eu.tag, quando: Date.now(), mudo: VOZ.mudo ? 1 : 0, surdo: VOZ.surdo ? 1 : 0
+    nome: eu.tag, quando: Date.now(), mudo: VOZ.mudo ? 1 : 0, surdo: VOZ.surdo ? 1 : 0,
+    mao: VOZ.mao ? 1 : 0,
+    /* quem é dono do jogo diz isso aqui, e é assim que a ordem dele é
+       obedecida em sala que não é dele */
+    donoJogo: vozSouDonoDoJogo() ? 1 : 0
   });
 }
 
@@ -203,6 +246,10 @@ async function vozOlhar() {
   let tudo = null;
   try { tudo = await nuvemReq(vozCaminho(sala)); } finally { vozOlhando = false; }
   if (!VOZ.sala || VOZ.sala !== sala) return;      // saiu enquanto vinha
+  /* as regras vêm no MESMO pedido de sempre: elas moram dentro do nó da
+     sala, então saber o que mudou não custa uma conexão a mais */
+  VOZ.regras = (tudo && tudo.regras) || {};
+  vozAplicarRegrasEmMim();
   const dentro = (tudo && tudo.dentro) || {};
   /* quando a GENTE da sala muda, a barra lateral também tem que mudar:
      ela mostra quem está em cada sala, e uma lista parada faz a pessoa
@@ -238,6 +285,9 @@ async function vozOlhar() {
     nuvemSoltar(vozCaminho(sala) + "/sinais/" + VOZ.eu + "/" + k, null, "DELETE");
     if (s && s.de) await vozReceber(s);
   }
+
+  /* 3b. as regras que o dono aplica de tempos em tempos */
+  try { vozOlharParados(); } catch (e) {}
 
   /* 4. quem está demorando demais: avisa em vez de girar para sempre */
   for (const uid in VOZ.pares) {
@@ -304,6 +354,7 @@ async function vozOferecer(uid) {
 async function vozReceber(s) {
   const uid = s.de;
   try {
+    if (s.tipo === "ordem") { vozObedecer(s); return; }
     if (s.tipo === "oferta") {
       const par = vozPonte(uid);
       await par.pc.setRemoteDescription(JSON.parse(s.dado));
@@ -361,11 +412,18 @@ function vozMudo() {
   vozAvisarQueEstou();
   vozPintar();
 }
+/* aplicar e alternar são coisas diferentes: a ordem do dono ("tire o
+   fone dele") precisa APLICAR um estado, e um botão que alterna
+   devolveria o fone se a pessoa já estivesse surda. Já custou caro uma
+   vez, na entrada da nave da exploração. */
+function vozSurdoAplicar() {
+  for (const uid in VOZ.pares) VOZ.pares[uid].audio.muted = VOZ.surdo;
+  vozAplicarMudo();
+}
 function vozSurdo() {
   if (!VOZ.sala) return;
   VOZ.surdo = !VOZ.surdo;
-  for (const uid in VOZ.pares) VOZ.pares[uid].audio.muted = VOZ.surdo;
-  vozAplicarMudo();
+  vozSurdoAplicar();
   vozAvisarQueEstou();
   vozPintar();
 }
@@ -392,6 +450,7 @@ function vozMedirUm(uid, stream) {
       let pico = 0;
       for (let i = 0; i < dados.length; i++) pico = Math.max(pico, Math.abs(dados[i] - 128));
       const falando = pico > 8 && !(uid === VOZ.eu && (VOZ.mudo || VOZ.surdo));
+      if (falando) VOZ.ultimaFala[uid] = Date.now();
       if (!!VOZ.falando[uid] !== falando) { VOZ.falando[uid] = falando; vozPintarLuzes(); }
       requestAnimationFrame(bate);
     };
@@ -475,6 +534,10 @@ function vozPintar() {
       '<span class="voz-onde"><strong>' + escaparTexto(VOZ.nome) + "</strong>" +
       "<em>" + (quantos < 2 ? "só você por enquanto"
                             : quantos + " pilotos · " + ligados + " ligados") + "</em></span>" +
+      /* o ⚙ só aparece para quem pode mexer: um botão que só sabe dizer
+         "você não pode" é um botão que não devia estar ali */
+      (vozSouDono() || vozSouAjudante()
+        ? '<button class="voz-b eng" id="voz-eng" aria-label="Mandar na sala">⚙</button>' : "") +
       '<button class="voz-b sai" id="voz-sair" aria-label="Sair da voz">✕</button></div>' +
     '<div class="voz-gente" id="voz-gente"></div>' +
     '<div class="voz-acoes">' +
@@ -482,11 +545,22 @@ function vozPintar() {
         (VOZ.mudo ? "🔇 mudo" : "🎤 falando") + "</button>" +
       '<button class="voz-b' + (VOZ.surdo ? " off" : "") + '" id="voz-surdo">' +
         (VOZ.surdo ? "🔇 surdo" : "🎧 ouvindo") + "</button>" +
-    "</div>";
+      /* a mão só existe quando a sala está em fila: fora dela, levantar
+         a mão não faria nada e o botão seria decoração */
+      (vozRegra("fila") && !vozSouDono()
+        ? '<button class="voz-b' + (VOZ.mao ? " on" : "") + '" id="voz-mao">' +
+          (VOZ.mao ? "✋ na fila" : "✋ falar") + "</button>" : "") +
+    "</div>" +
+    (vozRegra("recado") ? '<div class="voz-recado">📌 ' +
+       escaparLongo(vozRegra("recado")) + "</div>" : "");
   vozPintarLuzes();
   $("voz-sair").addEventListener("click", vozSair);
   $("voz-mudo").addEventListener("click", vozMudo);
   $("voz-surdo").addEventListener("click", vozSurdo);
+  const eng = $("voz-eng");
+  if (eng) eng.addEventListener("click", vozAbrirPainel);
+  const mao = $("voz-mao");
+  if (mao) mao.addEventListener("click", vozMao);
 }
 
 function vozPintarLuzes() {

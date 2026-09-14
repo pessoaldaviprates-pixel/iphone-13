@@ -5602,11 +5602,32 @@
   .neo-pulso{animation:neoPulso 1.8s ease-in-out infinite}
   @keyframes neoPulso{0%,100%{opacity:1;text-shadow:0 0 6px currentColor}
     50%{opacity:.72;text-shadow:0 0 16px currentColor}}
-  .neo-glitch{text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan);
-    animation:neoGlitch 2.6s steps(1) infinite}
-  @keyframes neoGlitch{0%,92%,100%{transform:none;text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan)}
-    94%{transform:translateX(-1.5px);text-shadow:-2px 0 var(--magenta),2px 0 var(--cyan)}
-    96%{transform:translateX(1.5px);text-shadow:2px 0 var(--verde),-2px 0 var(--amber)}}
+  /* O GLITCH ESTAVA ILEGÍVEL. As duas sombras coloridas ficavam a 1,5px
+     do texto -- ou seja, coladas nele: em letra pequena elas invadiam o
+     próprio traço e o nome virava um borrão rosa e azul. Agora as
+     sombras ficam mais longe (3px), mais fracas, e as letras ganham um
+     respiro (.04em) para o desencontro ser visível SEM comer o texto.
+     Efeito é para fazer olhar duas vezes, não para esconder o nome. */
+  /* O GLITCH ESTAVA ILEGÍVEL. As duas sombras coloridas ficavam a 1,5px
+     do texto -- ou seja, coladas nele: em letra pequena elas invadiam o
+     traço e o nome virava um borrão rosa e azul, o tempo todo.
+
+     O conserto não foi afastar as sombras: foi TIRÁ-LAS DO DESCANSO. Um
+     glitch é uma falha que acontece de vez em quando; se ela está lá
+     sempre, não é glitch, é desenho ruim. Agora o nome fica limpo 93%
+     do tempo, com um fiapo de brilho só, e desencontra forte por dois
+     décimos de segundo a cada três segundos. Dá para ler sempre e ainda
+     assusta na hora certa. */
+  .neo-glitch{
+    letter-spacing:.03em;
+    text-shadow:0 0 5px currentColor;
+    animation:neoGlitch 3.2s steps(1) infinite;
+  }
+  @keyframes neoGlitch{
+    0%,90%,100%{transform:none;text-shadow:0 0 5px currentColor}
+    92%{transform:translateX(-2px);text-shadow:-4px 0 rgba(255,77,143,.9),4px 0 rgba(77,232,255,.9)}
+    94%{transform:translateX(2px);text-shadow:4px 0 rgba(91,240,176,.9),-4px 0 rgba(255,193,69,.9)}
+    96%{transform:translateX(-1px);text-shadow:-2px 0 rgba(255,77,143,.7),2px 0 rgba(77,232,255,.7)}}
   .neo-arco{
     background:linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF,#C34DFF,#FF4D8F);
     background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
@@ -5758,11 +5779,19 @@
   .est-cab-b.mudo{border-color:rgba(255,193,69,.35);color:var(--amber)}
 
   /* ---- a barra do próprio piloto, embaixo da lista ---- */
+  /* OPACA, E NÃO "QUASE". Ela é sticky: a lista de canais passa POR
+     BAIXO dela ao rolar. Com fundo semitransparente dava para ler o
+     nome de um canal atravessando o meu próprio nome, e o cartão
+     parecia sujo em vez de parecer fixo. Fundo cheio, e uma linha em
+     cima para mostrar onde a lista termina. */
   .est-eu{
-    display:flex;align-items:center;gap:8px;margin-top:12px;padding:8px;
-    border-radius:12px;background:rgba(0,0,0,.35);
-    border:1px solid rgba(120,200,255,.14);
-    position:sticky;bottom:0;
+    display:flex;align-items:center;gap:8px;margin-top:12px;
+    padding:9px 8px;
+    border-radius:12px;
+    background:linear-gradient(180deg,#141F3A,#0B1120);
+    border:1px solid rgba(120,200,255,.22);
+    box-shadow:0 -10px 18px rgba(8,13,26,.9), 0 2px 10px rgba(0,0,0,.4);
+    position:sticky;bottom:0;z-index:3;
   }
   .est-eu-av{
     position:relative;width:34px;height:34px;flex:none;border-radius:11px;cursor:pointer;
@@ -6189,6 +6218,579 @@
     /* o campo de procurar ocupa a linha toda: metade de 390px não cabe
        "Procurar pelo nome" e a pessoa não sabe o que digitar ali */
     #adm-nuvem-busca{width:100%;flex:1 0 100%}
+  }
+
+  /* =================================================================
+     A BUSCA DA BARRA LATERAL
+     -----------------------------------------------------------------
+     Gruda no topo pelo mesmo motivo que o perfil gruda embaixo: são os
+     dois cantos onde a mão procura, e nenhum dos dois pode sumir com a
+     rolagem.
+     ================================================================= */
+  .est-busca-cx{
+    position:sticky;top:0;z-index:3;
+    display:flex;align-items:center;gap:6px;
+    margin:0 0 8px;padding:8px 0 9px;
+    background:linear-gradient(180deg,#0E1A2E 76%,rgba(14,26,46,0));
+  }
+  .est-busca-cx input{
+    flex:1;min-width:0;height:34px;padding:0 11px;border-radius:10px;
+    background:rgba(4,8,18,.75);border:1px solid rgba(120,200,255,.2);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.64rem;
+  }
+  .est-busca-cx input:focus{border-color:rgba(77,232,255,.55);outline:none}
+  .est-busca-cx input::placeholder{color:var(--fraco)}
+  .est-busca-x{
+    flex:none;width:30px;height:30px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.6rem;line-height:1;
+  }
+  .est-busca-x:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+  @media (max-width:780px){
+    .est-busca-cx input{height:40px;font-size:.72rem}
+    .est-busca-x{width:36px;height:36px}
+  }
+
+  /* =================================================================
+     A LISTA DO @
+     -----------------------------------------------------------------
+     Sobe de dentro da barra de escrever, encostada nela. Fica ACIMA do
+     campo e não abaixo: no celular o teclado ocupa a metade de baixo da
+     tela, e uma lista que descesse nasceria escondida atrás dele.
+     ================================================================= */
+  .est-arroba{display:none}
+  .est-arroba.on{
+    display:block;position:absolute;left:10px;right:10px;bottom:100%;
+    margin-bottom:6px;z-index:20;
+    max-height:44vh;overflow-y:auto;
+    border-radius:12px;padding:5px;
+    background:linear-gradient(180deg,#16233E,#0B1120);
+    border:1px solid rgba(120,200,255,.28);
+    box-shadow:0 -10px 30px rgba(0,0,0,.55);
+  }
+  .est-arroba-l{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    padding:7px 8px;border-radius:9px;cursor:pointer;
+    background:none;border:1px solid transparent;color:var(--ink2);
+  }
+  .est-arroba-l.on{background:rgba(77,232,255,.14);border-color:rgba(77,232,255,.4)}
+  .est-arroba-l.alarme.on{background:rgba(255,193,69,.16);border-color:rgba(255,193,69,.45)}
+  .est-arroba-l b{
+    flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    background:rgba(120,200,255,.2);color:var(--ink);
+    font-family:"Russo One",sans-serif;font-size:.6rem;font-weight:400;
+  }
+  .est-arroba-l.alarme b{background:rgba(255,193,69,.2)}
+  .est-arroba-l span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .est-arroba-l strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-arroba-l em{
+    font-style:normal;font-size:.52rem;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  @media (max-width:780px){
+    .est-arroba-l{padding:10px 8px}
+    .est-arroba-l b{width:30px;height:30px}
+  }
+
+  /* =================================================================
+     O PAINEL DO DONO DA SALA DE VOZ
+     -----------------------------------------------------------------
+     Quarenta poderes não cabem numa lista só sem virar caça-palavras.
+     Quatro famílias, uma de cada vez, e a pessoa escolhida no topo --
+     assim as dez de PESSOAS não precisam repetir a lista de gente dez
+     vezes na mesma tela.
+     ================================================================= */
+  .voz-b.eng{flex:none;width:26px;height:26px;padding:0;
+    border-color:rgba(77,232,255,.4);color:var(--cyan)}
+  .voz-b.on{background:rgba(255,193,69,.2);border-color:rgba(255,193,69,.5);color:var(--amber)}
+  .voz-recado{
+    margin-top:7px;padding:6px 8px;border-radius:8px;
+    background:rgba(255,193,69,.1);border:1px solid rgba(255,193,69,.25);
+    font-size:.53rem;line-height:1.4;color:var(--amber);
+  }
+  .voz-abas{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+  .voz-aba{
+    flex:1 1 auto;padding:8px 9px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.53rem;letter-spacing:.04em;white-space:nowrap;
+  }
+  .voz-aba.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan)}
+  .voz-quem-h{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.5rem;
+    letter-spacing:.2em;color:var(--fraco);margin:2px 0 6px;
+  }
+  .voz-alvos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .voz-alvo{
+    display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px;
+    border-radius:20px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.16);
+    color:var(--ink2);font-size:.58rem;
+  }
+  .voz-alvo.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .voz-alvo b{
+    width:20px;height:20px;border-radius:50%;display:grid;place-items:center;
+    background:rgba(120,200,255,.25);font-size:.5rem;font-weight:700;color:var(--ink);
+  }
+  .voz-poderes{display:flex;flex-direction:column;gap:2px}
+  .voz-poder{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 2px;border-bottom:1px solid rgba(120,200,255,.09);
+  }
+  .voz-poder:last-child{border-bottom:0}
+  .voz-poder-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+  .voz-poder-txt strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.63rem;color:var(--ink);
+  }
+  .voz-poder-txt em{font-style:normal;font-size:.52rem;color:var(--dim);margin-top:2px}
+  /* a chavinha: o estado tem que ser óbvio de longe, porque quarenta
+     linhas iguais viram um borrão */
+  .voz-chave{
+    flex:none;width:40px;height:23px;border-radius:99px;cursor:pointer;position:relative;
+    background:rgba(255,255,255,.08);border:1px solid rgba(120,200,255,.2);
+  }
+  .voz-chave i{
+    position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;
+    background:var(--dim);transition:left .16s ease,background .16s ease;
+  }
+  .voz-chave.on{background:rgba(35,220,140,.22);border-color:rgba(35,220,140,.55)}
+  .voz-chave.on i{left:19px;background:#23DC8C}
+  .voz-nums{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:58%}
+  .voz-num{
+    min-width:30px;padding:5px 7px;border-radius:8px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.16);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-size:.55rem;font-weight:700;
+  }
+  .voz-num.on{background:rgba(77,232,255,.18);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .voz-bola{display:block;width:13px;height:13px;border-radius:50%}
+  .voz-txt{
+    flex:none;width:46%;height:32px;padding:0 9px;border-radius:9px;
+    background:rgba(4,8,18,.7);border:1px solid rgba(120,200,255,.2);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.6rem;
+  }
+  .voz-fazer{
+    flex:none;padding:8px 14px;border-radius:9px;cursor:pointer;
+    background:rgba(77,232,255,.14);border:1px solid rgba(77,232,255,.42);
+    color:var(--cyan);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.55rem;letter-spacing:.06em;
+  }
+  .voz-fazer:active{transform:scale(.96)}
+  .voz-codigo{
+    font-family:"Russo One",sans-serif;font-size:1.3rem;letter-spacing:.2em;
+    text-align:center;color:var(--cyan);padding:14px 0;
+  }
+  .voz-reg{
+    padding:7px 0;border-bottom:1px solid rgba(120,200,255,.1);
+    font-size:.58rem;color:var(--ink2);line-height:1.4;
+  }
+  .voz-reg b{color:var(--cyan);font-weight:700}
+  .voz-reg em{display:block;font-style:normal;font-size:.5rem;color:var(--fraco);margin-top:2px}
+  @media (max-width:780px){
+    .voz-aba{min-height:38px;font-size:.55rem}
+    .voz-alvo{min-height:36px}
+    .voz-chave{width:46px;height:27px}
+    .voz-chave i{width:21px;height:21px}
+    .voz-chave.on i{left:21px}
+    .voz-num{min-height:34px}
+    .voz-fazer{min-height:38px}
+    .voz-txt{height:38px}
+  }
+
+  /* =================================================================
+     A CONVERSA NO ARRANJO DE APLICATIVO DE CHAT
+     -----------------------------------------------------------------
+     Foi mandada uma referência: lista à esquerda, conversa à direita, e
+     as falas em balões — a minha de um lado, a dos outros do outro.
+     Três coisas mudaram aqui, e cada uma conserta algo que estava
+     errado antes:
+
+     1. A HIERARQUIA ESTAVA INVERTIDA. O nome de quem falou era maior
+        que o que a pessoa falou. Numa conversa o conteúdo é a
+        mensagem; o nome é etiqueta. Agora o nome é pequeno e a fala é
+        o que se lê de longe.
+     2. A LARGURA NÃO ERA USADA. As falas ficavam espremidas à
+        esquerda com meia tela vazia do lado. Agora o balão cresce até
+        onde dá para ler sem cansar (68ch) e a minha vai para a
+        direita, que é como a mão espera.
+     3. NÃO DAVA PARA SABER O QUE É MEU. Tudo tinha a mesma cara.
+
+     Isto vem no FIM do arquivo de propósito: as regras de cima têm a
+     mesma especificidade, e quem vem depois vence. Escrito lá em cima,
+     o balão perderia para a linha lisa e nasceria morto — foi o que já
+     aconteceu com a grade do painel.
+     ================================================================= */
+  .est-msgs{padding:14px 16px;gap:3px}
+  .est-msg{align-items:flex-end;gap:8px;padding:2px 0}
+  /* a minha fala espelha: avatar à direita, balão colado nele */
+  .est-msg.meu{flex-direction:row-reverse}
+  .est-av{width:30px;height:30px;border-radius:50%;font-size:.6rem;align-self:flex-end}
+  .est-msg.colado .est-av.vazio{width:30px;height:0}
+  .est-corpo{
+    flex:0 1 auto;max-width:min(68ch,74%);
+    padding:8px 11px 7px;border-radius:14px;
+    background:linear-gradient(170deg,rgba(24,38,68,.95),rgba(15,24,46,.95));
+    border:1px solid rgba(120,200,255,.16);
+  }
+  /* o cantinho que aponta para o avatar: é o que faz virar balão em vez
+     de caixa. Só na primeira de uma sequência -- nas coladas, o rabinho
+     repetido viraria serrilha. */
+  .est-msg:not(.colado) .est-corpo{border-bottom-left-radius:5px}
+  .est-msg.meu:not(.colado) .est-corpo{
+    border-bottom-left-radius:14px;border-bottom-right-radius:5px;
+  }
+  .est-msg.meu .est-corpo{
+    background:linear-gradient(170deg,rgba(28,86,124,.95),rgba(16,52,80,.95));
+    border-color:rgba(77,232,255,.32);
+  }
+  .est-linha1{gap:6px;margin-bottom:2px;align-items:center}
+  /* nome pequeno, fala grande: a etiqueta não pode gritar mais que o
+     conteúdo */
+  .est-nome{font-size:.58rem;letter-spacing:.02em}
+  .est-hora{font-size:.46rem;margin-left:auto;padding-left:8px}
+  .est-txt{font-size:.76rem;line-height:1.5;color:var(--ink)}
+  .est-msg.meu .est-txt{color:#EAF8FF}
+  /* quem me chamou fica marcado no balão, e não numa faixa atrás dele:
+     a faixa atravessava a tela inteira e parecia erro de desenho */
+  .est-msg.chamou{background:none;box-shadow:none;padding-left:0;margin-left:0}
+  .est-msg.chamou .est-corpo{
+    border-color:rgba(255,193,69,.6);
+    box-shadow:0 0 0 1px rgba(255,193,69,.25), 0 0 18px rgba(255,193,69,.13);
+  }
+  /* o ⋯ fica fora do balão, do lado de fora da conversa */
+  .est-msg-b{align-self:center}
+  /* os cartões (enquete, evento, chamada) já têm moldura própria: dentro
+     do balão eles ficariam com duas bordas, uma dentro da outra */
+  .est-corpo:has(.enq-cx),
+  .est-corpo:has(.ev-cx),
+  .est-corpo:has(.voz-cartao){
+    background:none;border-color:transparent;padding:2px 0;max-width:min(78ch,86%);
+  }
+  @media (max-width:780px){
+    .est-msgs{padding:12px 11px}
+    .est-corpo{max-width:84%}
+    .est-txt{font-size:.8rem}
+  }
+
+  /* =================================================================
+     O PERFIL DA v9.0
+     -----------------------------------------------------------------
+     Foto, duas rodas de cor, abas no editor, blocos no cartão e a
+     setinha do castigo. Vale para computador e para celular: a janela
+     estica para baixo, e as grades quebram em menos colunas quando a
+     tela é estreita — em vez de encolher os botões até não caber o
+     dedo.
+     ================================================================= */
+
+  /* ---- o cartão de quem se olha ---- */
+  .pf-cartao{display:block}
+  .est-jan-cx:has(.pf-cartao){max-width:520px}
+  /* mais alto, que foi o pedido: dá para ver mais coisa sem fechar */
+  .est-jan-cx:has(.pf-cartao) .est-jan-corpo,
+  .est-jan-cx:has(.pf-corpo) .est-jan-corpo{max-height:78vh}
+  .pf-bl{
+    margin-top:14px;padding-top:12px;
+    border-top:1px solid rgba(120,200,255,.12);
+  }
+  .pf-bl:first-of-type{border-top:0;padding-top:0}
+  .pf-bl h4{
+    display:flex;align-items:center;gap:7px;margin-bottom:8px;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.54rem;letter-spacing:.2em;color:var(--fraco);text-transform:uppercase;
+  }
+  .pf-bl h4 i{
+    font-style:normal;background:rgba(120,200,255,.16);color:var(--ink2);
+    border-radius:99px;padding:1px 7px;font-size:.5rem;letter-spacing:0;
+  }
+  .pf-embs{display:flex;flex-wrap:wrap;gap:6px}
+  .pf-emb{
+    display:flex;align-items:center;gap:6px;padding:5px 10px 5px 6px;border-radius:20px;
+    background:linear-gradient(150deg,rgba(255,193,69,.18),rgba(255,193,69,.06));
+    border:1px solid rgba(255,193,69,.32);
+    font-size:.56rem;color:var(--ink2);
+  }
+  .pf-emb b{color:var(--amber);font-size:.6rem;line-height:1}
+  .pf-emb em{font-style:normal}
+  .pf-ints{display:flex;flex-wrap:wrap;gap:6px}
+  .pf-int{
+    padding:6px 11px;border-radius:20px;cursor:default;
+    background:rgba(120,200,255,.1);border:1px solid rgba(120,200,255,.22);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-size:.58rem;
+  }
+  .pf-ints.escolher .pf-int{cursor:pointer}
+  .pf-ints.escolher .pf-int.on{
+    background:rgba(77,232,255,.2);border-color:rgba(77,232,255,.55);color:var(--cyan);
+  }
+  .pf-ativ{display:flex;flex-direction:column;gap:5px}
+  .pf-ativ-l{
+    display:flex;align-items:center;gap:8px;font-size:.62rem;color:var(--ink2);
+  }
+  .pf-ativ-l b{
+    flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+    background:rgba(120,200,255,.14);font-size:.62rem;font-weight:400;
+  }
+  .pf-nums{display:flex;gap:8px}
+  .pf-nums span{
+    flex:1;text-align:center;padding:9px 4px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14);
+    font-size:.5rem;letter-spacing:.12em;color:var(--dim);
+  }
+  .pf-nums b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.05rem;
+    color:var(--cyan);margin-bottom:2px;letter-spacing:0;
+  }
+  /* a setinha do castigo: discreta, no canto, e só para o dono */
+  .pf-castigo{
+    position:absolute;top:-16px;right:0;
+    width:28px;height:28px;border-radius:9px;cursor:pointer;
+    background:rgba(255,77,143,.14);border:1px solid rgba(255,77,143,.45);
+    color:var(--magenta);font-size:.7rem;line-height:1;
+  }
+  .pf-castigo:active{transform:scale(.92)}
+  .pf-castigado{
+    margin-top:10px;padding:8px 11px;border-radius:10px;
+    background:rgba(255,77,143,.12);border:1px solid rgba(255,77,143,.32);
+    font-size:.58rem;line-height:1.45;color:#FFA8C4;
+  }
+
+  /* ---- o brilho do avatar ---- */
+  .pf-av.pequeno{width:26px;height:26px;font-size:.55rem}
+  .pf-brilho-suave{box-shadow:0 0 14px rgba(77,232,255,.55)}
+  .pf-brilho-anel::after{
+    content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;
+    border:2px solid transparent;border-top-color:var(--cyan);border-right-color:var(--violet);
+    animation:pfGira 2.6s linear infinite;
+  }
+  @keyframes pfGira{to{transform:rotate(360deg)}}
+  .pf-brilho-faisca{box-shadow:0 0 0 2px rgba(255,193,69,.4),0 0 18px rgba(255,193,69,.5);
+    animation:pfFaisca 2.2s ease-in-out infinite}
+  @keyframes pfFaisca{50%{box-shadow:0 0 0 3px rgba(255,193,69,.6),0 0 26px rgba(255,193,69,.8)}}
+  .pf-brilho-pulso{animation:pfBate 1.5s ease-in-out infinite}
+  @keyframes pfBate{0%,100%{transform:scale(1)}45%{transform:scale(1.07)}}
+  .pf-brilho-orbita::after{
+    content:"";position:absolute;inset:-7px;border-radius:50%;pointer-events:none;
+    border:1px dashed rgba(195,77,255,.6);
+    animation:pfGira 5s linear infinite reverse;
+  }
+  .pf-brilho-orbita::before{
+    content:"";position:absolute;top:-9px;left:50%;width:5px;height:5px;border-radius:50%;
+    background:var(--violet);box-shadow:0 0 8px var(--violet);pointer-events:none;
+    transform-origin:2.5px calc(50% + 24px);
+    animation:pfGira 5s linear infinite;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pf-brilho-anel::after,.pf-brilho-faisca,.pf-brilho-pulso,
+    .pf-brilho-orbita::after,.pf-brilho-orbita::before{animation:none}
+  }
+
+  /* ---- o editor em abas ---- */
+  .pf-abas{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 10px}
+  .pf-aba{
+    flex:1 1 auto;padding:9px 8px;border-radius:10px;cursor:pointer;white-space:nowrap;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.55rem;
+  }
+  .pf-aba.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan)}
+  .pf-corpo{min-height:180px}
+  .pf-pe{display:flex;gap:8px;margin-top:14px}
+  .pf-pe .est-jan-ok{margin-top:0}
+  .pf-bt{
+    width:100%;padding:10px;border-radius:10px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.22);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.6rem;
+  }
+  .pf-bt.on{background:rgba(77,232,255,.18);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .pf-bt.fraco{background:transparent;border-color:rgba(255,77,143,.3);color:var(--magenta)}
+
+  /* ---- a foto ---- */
+  .pf-foto-linha{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .pf-foto-previa{
+    flex:none;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);background-size:cover;
+    background-position:center;color:#04060F;
+    font-family:"Russo One",sans-serif;font-size:1.2rem;
+    border:2px solid rgba(120,200,255,.3);
+  }
+  .pf-foto-bts{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+
+  /* ---- as duas rodas de cor ----
+     Uma em cima e uma embaixo dentro da mesma caixa, e a caixa fica
+     ENTRE o banner e a bio: foi o pedido, e evita que o dedo, ao girar
+     a roda, esbarre no que está sendo editado. */
+  /* UMA EM CIMA E OUTRA EMBAIXO, com a prévia do degradê no meio: foi
+     o pedido, e é o arranjo que EXPLICA o controle -- a roda de cima
+     manda na cor de cima, a de baixo na de baixo, e a faixa entre elas
+     mostra o resultado. Lado a lado, as duas pareciam alternativas uma
+     da outra em vez das duas pontas da mesma coisa. */
+  .pf-rodas{
+    display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;
+    gap:10px 14px;align-items:center;margin:4px 0 12px;
+  }
+  .pf-rodas .pf-faixa{
+    grid-column:2;grid-row:1 / span 2;align-self:stretch;
+    border-radius:12px;min-height:150px;
+    border:1px solid rgba(120,200,255,.2);
+  }
+  .pf-roda-cx{display:flex;flex-direction:column;align-items:center;gap:7px;width:120px}
+  .pf-roda-h{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.5rem;
+    letter-spacing:.14em;color:var(--dim);text-transform:uppercase;
+  }
+  .pf-roda{
+    position:relative;width:104px;height:104px;border-radius:50%;cursor:pointer;
+    touch-action:none;
+    background:conic-gradient(from 0deg,
+      hsl(0 72% 50%),hsl(60 72% 50%),hsl(120 72% 50%),
+      hsl(180 72% 50%),hsl(240 72% 50%),hsl(300 72% 50%),hsl(360 72% 50%));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 4px 14px rgba(0,0,0,.4);
+  }
+  .pf-roda-meio{
+    position:absolute;inset:26px;border-radius:50%;pointer-events:none;
+    border:2px solid rgba(8,13,26,.9);box-shadow:0 0 10px rgba(0,0,0,.5);
+  }
+  .pf-roda-dot{
+    position:absolute;width:17px;height:17px;border-radius:50%;pointer-events:none;
+    transform:translate(-50%,-50%);
+    border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.6);
+  }
+  .pf-tom{
+    width:104px;height:20px;padding:0;background:transparent;border:0;
+    -webkit-appearance:none;appearance:none;cursor:pointer;
+  }
+  .pf-tom::-webkit-slider-runnable-track{
+    height:8px;border-radius:99px;
+    background:linear-gradient(90deg,#000,#888,#fff);
+  }
+  .pf-tom::-moz-range-track{
+    height:8px;border-radius:99px;
+    background:linear-gradient(90deg,#000,#888,#fff);
+  }
+  .pf-tom::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;margin-top:-4px;
+    width:16px;height:16px;border-radius:50%;background:#fff;
+    border:2px solid rgba(8,13,26,.8);box-shadow:0 1px 4px rgba(0,0,0,.6);
+  }
+  .pf-tom::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid rgba(8,13,26,.8);
+  }
+  .pf-fonte{
+    display:grid;place-items:center;width:100%;height:26px;
+    font-size:.92rem;color:var(--ink);
+  }
+
+  /* ---- arrumar a ordem dos blocos ---- */
+  .pf-ordem{display:flex;flex-direction:column;gap:5px}
+  .pf-ord-l{
+    display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14);
+  }
+  .pf-ord-l b{
+    flex:1;min-width:0;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.62rem;color:var(--ink2);
+  }
+  .pf-ord-b{
+    flex:none;width:28px;height:28px;border-radius:8px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.66rem;
+  }
+  .pf-ord-b:disabled{opacity:.3;cursor:default}
+  .pf-ord-b.tira{border-color:rgba(255,77,143,.3);color:var(--magenta)}
+  .pf-ord-fixo{flex:none;font-size:.48rem;letter-spacing:.12em;color:var(--fraco)}
+
+  /* ---- o cartão do NeoNebula na barra ---- */
+  .est-neo-cx{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    margin-bottom:6px;padding:10px;border-radius:13px;cursor:pointer;
+    background:linear-gradient(120deg,rgba(195,77,255,.2),rgba(77,232,255,.12));
+    border:1px solid rgba(195,77,255,.4);
+  }
+  .est-neo-cx.tem{
+    background:linear-gradient(120deg,rgba(255,193,69,.2),rgba(255,123,77,.1));
+    border-color:rgba(255,193,69,.45);
+  }
+  .est-neo-selo{flex:none;font-size:1.1rem;line-height:1}
+  .est-neo-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .est-neo-txt strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-neo-txt em{
+    font-style:normal;font-size:.5rem;color:var(--ink2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-neo-seta{font-style:normal;flex:none;color:var(--ink2);font-size:.9rem}
+  .est-ofertas{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+  .est-oferta{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    padding:8px 9px;border-radius:11px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+  }
+  .est-oferta b{flex:none;font-size:.82rem;line-height:1}
+  .est-oferta span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .est-oferta strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.6rem;color:var(--ink2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-oferta em{
+    font-style:normal;font-size:.48rem;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-of-selo{
+    flex:none;font-style:normal;font-size:.46rem;letter-spacing:.08em;
+    padding:2px 7px;border-radius:99px;
+    background:rgba(91,240,176,.18);color:#7CF7C0;
+  }
+
+  /* ---- o castigo ---- */
+  .cast-linha{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+  .cast-linha input{width:78px;flex:none;margin:0}
+  .cast-uni{display:flex;gap:4px;flex-wrap:wrap}
+  .cast-u{
+    padding:8px 11px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-size:.55rem;font-weight:700;
+  }
+  .cast-u.on{background:rgba(77,232,255,.18);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .cast-tipos{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+  .cast-t{
+    display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+    padding:9px 11px;border-radius:10px;cursor:pointer;text-align:left;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+  }
+  .cast-t.on{background:rgba(255,77,143,.14);border-color:rgba(255,77,143,.45)}
+  .cast-t strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.62rem;color:var(--ink);
+  }
+  .cast-t em{font-style:normal;font-size:.52rem;color:var(--dim)}
+
+  /* ---- o efeito de clique, no jogo inteiro ---- */
+  body[data-clique="afunda"] button:active{transform:scale(.96)}
+  body[data-clique="onda"] button:active{
+    box-shadow:0 0 0 6px rgba(77,232,255,.16);transition:box-shadow .12s ease;
+  }
+  body[data-clique="brilha"] button:active{
+    filter:brightness(1.35) saturate(1.2);
+  }
+  body[data-clique="faisca"] button:active{
+    box-shadow:0 0 0 3px rgba(255,193,69,.35),0 0 22px rgba(255,193,69,.5);
+    filter:brightness(1.2);
+  }
+
+  /* ---- e no celular tudo cabe no dedo ---- */
+  @media (max-width:780px){
+    .pf-aba{min-height:40px;font-size:.58rem}
+    .pf-bt{min-height:42px}
+    .pf-roda{width:118px;height:118px}
+    .pf-tom{width:118px;height:28px}
+    .pf-roda-cx{width:132px}
+    .pf-foto-previa{width:74px;height:74px}
+    .pf-int{min-height:36px;display:flex;align-items:center}
+    .pf-ord-b{width:34px;height:34px}
+    .cast-u{min-height:38px}
+    .est-jan-cx:has(.pf-cartao) .est-jan-corpo,
+    .est-jan-cx:has(.pf-corpo) .est-jan-corpo{max-height:74vh}
   }
 
 </style>
@@ -7726,6 +8328,10 @@
     <div class="est-cab" id="est-cab"></div>
     <div class="est-msgs" id="est-msgs"></div>
     <div class="est-barra">
+      <!-- a lista de quem dá para marcar sobe de dentro da barra: ela é
+           posicionada por cima do campo, e por isso mora AQUI, onde há
+           um position:relative para ela se pendurar -->
+      <div class="est-arroba" id="est-arroba"></div>
       <button class="est-emoji-b" id="est-mais" aria-label="Enquete, evento e mais">＋</button>
       <button class="est-emoji-b" id="est-emoji" aria-label="Emojis">🙂</button>
       <div class="est-emojis" id="est-emojis"></div>
@@ -20420,7 +21026,15 @@ function escaparHtml(t) {
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+/* APELIDO. O corte em 40 é a regra do nick, e não um detalhe do
+   escapador -- quem usar isto num texto de gente vai CORTAR o texto, sem
+   reticências e sem aviso. Foi o que aconteceu com a Estação inteira: as
+   mensagens do bate-papo passavam por aqui, e toda frase com mais de 40
+   letras chegava ao outro lado pela metade. Ninguém percebeu porque
+   mensagem curta cabia. */
 function escaparTexto(t) { return escaparHtml(t).slice(0, 40); }
+/* FALA. Recado, sugestão, bio, mensagem, pergunta de enquete: tudo o que
+   uma pessoa escreve para outra ler passa por aqui. */
 function escaparLongo(t) { return escaparHtml(String(t == null ? "" : t).slice(0, 500)); }
 /* =====================================================================
    v6.0 — AJUSTES, PRESENTE DO DIA, MISSÕES, COMBO E ESTRELAS
@@ -32273,7 +32887,13 @@ const NEO_ANIMACOES = [
 
 const PERFIL_PADRAO = {
   bio: "", pronomes: "", cor: "", efeito: "nenhum",
-  fundo: "vazio", animacao: "nenhuma", avatar: ""
+  fundo: "vazio", animacao: "nenhuma", avatar: "",
+  /* o que entrou na v9.0 (ver 09-perfil2.js). Tudo com um padrão, para
+     que um perfil antigo, salvo antes disto existir, continue abrindo
+     sem buraco nenhum. */
+  fonte: "padrao", brilho: "nenhum", tema: "padrao", toque: "curto",
+  clique: "afunda", interesses: "", blocos: "", foto: 0,
+  c1h: 205, c1l: 30, c2h: 275, c2l: 22
 };
 function perfilMeu() {
   save.perfil = Object.assign({}, PERFIL_PADRAO, save.perfil || {});
@@ -32343,7 +32963,36 @@ function perfilSalvar(novo) {
   guardaSe("efeito", NEO_EFEITOS);
   guardaSe("fundo", NEO_FUNDOS);
   guardaSe("animacao", NEO_ANIMACOES);
+  guardaSe("fonte", NEO_FONTES);
+  guardaSe("brilho", NEO_BRILHOS);
+  guardaSe("tema", NEO_TEMAS);
+  guardaSe("toque", NEO_TOQUES);
+  guardaSe("clique", NEO_CLIQUES);
   if (novo.avatar !== undefined) p.avatar = String(novo.avatar).slice(0, 12);
+  /* O FUNDO DE DUAS CORES é o único que não vem de lista, então a guarda
+     é outra: números, presos na faixa, nunca texto. Assim não existe
+     jeito de escrever CSS aqui dentro. */
+  if (novo.fundo === "meu") p.fundo = "meu";
+  const numEntre = (v, min, max, reserva) => {
+    const n = parseInt(v, 10);
+    return isNaN(n) ? reserva : Math.max(min, Math.min(max, n));
+  };
+  if (novo.c1h !== undefined) p.c1h = numEntre(novo.c1h, 0, 359, p.c1h);
+  if (novo.c2h !== undefined) p.c2h = numEntre(novo.c2h, 0, 359, p.c2h);
+  if (novo.c1l !== undefined) p.c1l = numEntre(novo.c1l, 12, 72, p.c1l);
+  if (novo.c2l !== undefined) p.c2l = numEntre(novo.c2l, 12, 72, p.c2l);
+  /* interesses e blocos são listas de ids conhecidos, coladas por
+     vírgula: o que não estiver na lista simplesmente não entra */
+  if (novo.interesses !== undefined) {
+    const teto = INTERESSES_MAX[neoNivel()] || 2;
+    p.interesses = String(novo.interesses).split(",")
+      .filter(x => NEO_INTERESSES.some(i => i.id === x)).slice(0, teto).join(",");
+  }
+  if (novo.blocos !== undefined) {
+    p.blocos = String(novo.blocos).split(",")
+      .filter(x => PF_BLOCOS.some(b => b.id === x)).join(",");
+  }
+  try { temaAplicar(); } catch (e) {}
   persist();
   try { nuvemEnviar(true); } catch (e) {}
   try { refreshMenu(); } catch (e) {}
@@ -32366,12 +33015,27 @@ function perfilDaNuvem(p) {
   const efItem = neoAchar(NEO_EFEITOS, perfil.efeito);
   const fundoItem = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
   const vale = item => item && NEO_ORDEM[nivel] >= NEO_ORDEM[item.nivel];
+  /* o mesmo filtro para o que entrou na v9.0: fonte, brilho e
+     interesses são de outra pessoa, então também só valem se estiverem
+     numa lista que existe aqui */
+  const daLista = (lista, id) => {
+    const it = neoAchar(lista, id) || lista[0];
+    return vale(it) ? it : lista[0];
+  };
   return {
     nivel,
     selo: neoSelo(nivel),
     cor: vale(corItem) ? corItem.cor : "",
     efeito: vale(efItem) && efItem.id !== "nenhum" ? efItem.id : "",
     fundo: vale(fundoItem) ? fundoItem : NEO_FUNDOS[0],
+    fundoCSS: perfilFundoCSSDaNuvem(perfil, nivel),
+    fonte: daLista(NEO_FONTES, perfil.fonte),
+    brilho: daLista(NEO_BRILHOS, perfil.brilho),
+    temFoto: !!perfil.foto,
+    interesses: String(perfil.interesses || "").split(",")
+      .filter(x => NEO_INTERESSES.some(i => i.id === x)).slice(0, 10),
+    blocos: String(perfil.blocos || "").split(",")
+      .filter(x => PF_BLOCOS.some(b => b.id === x)),
     bio: String(perfil.bio || "").slice(0, 300),
     pronomes: String(perfil.pronomes || "").slice(0, 20)
   };
@@ -32380,6 +33044,12 @@ function perfilDaNuvem(p) {
 function perfilEstiloDoNome(v) {
   let e = "";
   if (v.cor) e += "color:" + v.cor + ";";
+  /* a fonte vem de uma lista nossa, nunca do que a pessoa digitou:
+     "font-family" aceita quase tudo, e "tudo" inclui coisa ruim */
+  if (v.fonte && v.fonte.css) {
+    e += "font-family:" + v.fonte.css + ";";
+    if (v.fonte.espaco) e += "letter-spacing:" + v.fonte.espaco + ";";
+  }
   return e;
 }
 function perfilClasseDoNome(v) {
@@ -32530,6 +33200,669 @@ function podeIncomodar(chave) {
   return true;
 }
 /* =====================================================================
+   O PERFIL, PARTE 2 — fonte, foto, fundo de duas cores e castigo
+   =====================================================================
+   O que entra aqui e por quê:
+
+   FONTES DO NOME. Todas são fontes que o aparelho JÁ TEM. Nenhuma baixa
+   nada: o jogo precisa abrir sem internet, e uma fonte de enfeite que
+   não carrega deixaria o nome da pessoa numa fonte aleatória, ou pior,
+   invisível enquanto baixa.
+
+   A FOTO NÃO MORA NA FICHA DO PILOTO. A ficha de todo mundo é lida de
+   vinte em vinte segundos, inteira, para saber quem está online. Com a
+   foto lá dentro, cem pilotos × 5 KB viraria meio mega a cada vinte
+   segundos no celular de cada um. A foto mora em conversas/__fotos/<id>
+   e só é buscada quando alguém abre o perfil — e fica guardada depois
+   disso. Na ficha vai só um "tem foto: sim".
+
+   "conversas/" de novo porque é galho velho, que toda regra antiga do
+   Firebase já libera. Um "fotos/" novo seria recusado calado.
+
+   O FUNDO DE DUAS CORES é escolhido em duas rodas de cor. Ele NÃO
+   substitui os fundos prontos: quem não quer escolher continua tendo a
+   lista. É mais uma opção, não uma troca.
+   ===================================================================== */
+
+/* =====================================================================
+   1. AS FONTES DO NOME
+   ---------------------------------------------------------------------
+   Duas de graça. As outras são do NeoNebula, como o resto.
+   ===================================================================== */
+const NEO_FONTES = [
+  { id: "padrao", nome: "Padrão", nivel: "nenhum",
+    css: '"Chakra Petch","Segoe UI",system-ui,sans-serif' },
+  { id: "bloco", nome: "Bloco", nivel: "nenhum",
+    css: '"Russo One","Chakra Petch",sans-serif' },
+  { id: "maquina", nome: "Máquina", nivel: "bronze",
+    css: 'ui-monospace,"SF Mono",Menlo,Consolas,monospace', espaco: ".06em" },
+  { id: "livro", nome: "Livro", nivel: "bronze",
+    css: 'Georgia,"Times New Roman",serif' },
+  { id: "redonda", nome: "Redonda", nivel: "bronze",
+    css: '-apple-system,system-ui,"Segoe UI",Roboto,sans-serif' },
+  { id: "larga", nome: "Larga", nivel: "prata",
+    css: 'Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif', espaco: ".04em" },
+  { id: "estreita", nome: "Estreita", nivel: "prata",
+    css: '"Arial Narrow","Helvetica Neue",Arial,sans-serif', espaco: ".08em" },
+  { id: "manuscrita", nome: "Manuscrita", nivel: "ouro",
+    css: '"Segoe Script","Bradley Hand",cursive' },
+  { id: "antiga", nome: "Antiga", nivel: "ouro",
+    css: '"Palatino Linotype","Book Antiqua",Palatino,serif', espaco: ".05em" }
+];
+
+function perfilFonteDoNome(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const f = neoAchar(NEO_FONTES, perfil.fonte) || NEO_FONTES[0];
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[f.nivel] ? f : NEO_FONTES[0];
+}
+
+/* =====================================================================
+   2. O FUNDO DE DUAS CORES
+   ---------------------------------------------------------------------
+   Guardado como dois números de matiz e dois de tonalidade, e não como
+   "#RRGGBB": assim não há como escrever CSS dentro do campo. Cor de
+   outro jogador entra na minha tela, e cor que vira estilo é um buraco
+   por onde passa qualquer coisa.
+   ===================================================================== */
+function corDeHSL(matiz, tom) {
+  const h = Math.max(0, Math.min(359, Math.round(matiz || 0)));
+  const l = Math.max(8, Math.min(78, Math.round(tom === undefined ? 45 : tom)));
+  return "hsl(" + h + " 72% " + l + "%)";
+}
+/* o fundo que vale AGORA: ou o de duas cores, ou um da lista */
+function perfilFundoCSS(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  if (perfil.fundo === "meu" && NEO_ORDEM[neoDe(p)] >= NEO_ORDEM["nenhum"]) {
+    return "linear-gradient(150deg," + corDeHSL(perfil.c1h, perfil.c1l) + "," +
+           corDeHSL(perfil.c2h, perfil.c2l) + ")";
+  }
+  return perfilFundo(p).css;
+}
+/* o mesmo, para um perfil que veio da nuvem (de outra pessoa) */
+function perfilFundoCSSDaNuvem(perfil, nivel) {
+  perfil = perfil || {};
+  if (perfil.fundo === "meu") {
+    return "linear-gradient(150deg," + corDeHSL(perfil.c1h, perfil.c1l) + "," +
+           corDeHSL(perfil.c2h, perfil.c2l) + ")";
+  }
+  const f = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
+  return (NEO_ORDEM[nivel] >= NEO_ORDEM[f.nivel] ? f : NEO_FUNDOS[0]).css;
+}
+
+/* =====================================================================
+   3. A RODA DE COR
+   ---------------------------------------------------------------------
+   Uma roda de matiz (conic-gradient, sem imagem e sem canvas) e uma
+   barrinha de tonalidade embaixo. Duas delas cabem no cartão: uma na
+   parte de cima, outra na de baixo — e nenhuma encosta no banner nem na
+   bio, que foi o pedido.
+
+   Funciona com o dedo E com o mouse: pointerdown/move/up é o mesmo
+   caminho para os dois, e sem isso a roda seria só de computador.
+   ===================================================================== */
+function rodaHTML(id, matiz, tom, titulo) {
+  return '<div class="pf-roda-cx" data-roda="' + id + '">' +
+    '<div class="pf-roda-h">' + escaparTexto(titulo) + "</div>" +
+    '<div class="pf-roda" id="roda-' + id + '">' +
+      '<i class="pf-roda-dot" id="dot-' + id + '"></i>' +
+      '<b class="pf-roda-meio" id="meio-' + id + '"></b>' +
+    "</div>" +
+    '<input class="pf-tom" type="range" min="12" max="72" value="' + (tom || 45) +
+    '" id="tom-' + id + '" aria-label="Tonalidade">' +
+  "</div>";
+}
+
+/* liga uma roda desenhada. aoMudar(matiz, tom) é chamado a cada mexida */
+function rodaLigar(id, matiz, tom, aoMudar) {
+  const roda = $("roda-" + id), dot = $("dot-" + id), meio = $("meio-" + id),
+        barra = $("tom-" + id);
+  if (!roda || !dot) return;
+  let h = matiz || 0, l = parseInt((barra && barra.value) || tom || 45, 10);
+  const pintar = () => {
+    const r = roda.clientWidth / 2;
+    const rad = (h - 90) * Math.PI / 180;
+    dot.style.left = (r + Math.cos(rad) * (r - 11)) + "px";
+    dot.style.top = (r + Math.sin(rad) * (r - 11)) + "px";
+    dot.style.background = corDeHSL(h, l);
+    if (meio) meio.style.background = corDeHSL(h, l);
+    if (aoMudar) aoMudar(h, l);
+  };
+  const daPosicao = e => {
+    const r = roda.getBoundingClientRect();
+    const x = (e.clientX - r.left) - r.width / 2;
+    const y = (e.clientY - r.top) - r.height / 2;
+    h = Math.round((Math.atan2(y, x) * 180 / Math.PI + 90 + 360) % 360);
+    pintar();
+  };
+  let pegou = false;
+  roda.addEventListener("pointerdown", e => {
+    pegou = true;
+    /* segurar o ponteiro faz o arrasto continuar mesmo saindo da roda --
+       sem isto, escorregar o dedo para fora congelava a cor no meio da
+       escolha e parecia que a roda tinha travado */
+    try { roda.setPointerCapture(e.pointerId); } catch (err) {}
+    daPosicao(e);
+    e.preventDefault();
+  });
+  roda.addEventListener("pointermove", e => { if (pegou) { daPosicao(e); e.preventDefault(); } });
+  roda.addEventListener("pointerup", e => {
+    pegou = false;
+    try { roda.releasePointerCapture(e.pointerId); } catch (err) {}
+  });
+  roda.addEventListener("pointercancel", () => { pegou = false; });
+  if (barra) barra.addEventListener("input", () => { l = parseInt(barra.value, 10); pintar(); });
+  pintar();
+}
+
+/* =====================================================================
+   4. A FOTO DE PERFIL
+   ---------------------------------------------------------------------
+   Encolhida no próprio aparelho antes de subir. Uma foto de celular tem
+   4 MB; guardada assim, abrir a Estação baixaria a galeria de todo
+   mundo. 96×96 em webp dá uns 4 KB, e é o tamanho em que a foto aparece.
+   ===================================================================== */
+const FOTO_LADO = 96;
+const FOTO_TETO = 40000;          // 40 KB depois de encolher: já é folgado
+const FOTOS = {};                 // uid -> dataURL, para não buscar duas vezes
+
+function fotoCaminho(uid) { return "conversas/__fotos/" + uid; }
+
+/* recorta no quadrado do meio e encolhe. Recortar ANTES de encolher
+   evita a foto achatada: sem isso, um retrato vira um ovo. */
+function fotoEncolher(arquivo) {
+  return new Promise((ok, falhou) => {
+    const leitor = new FileReader();
+    leitor.onerror = () => falhou(new Error("nao deu para ler"));
+    leitor.onload = () => {
+      const img = new Image();
+      img.onerror = () => falhou(new Error("isso nao e uma imagem"));
+      img.onload = () => {
+        const menor = Math.min(img.width, img.height);
+        const c = document.createElement("canvas");
+        c.width = c.height = FOTO_LADO;
+        const x = c.getContext("2d");
+        x.imageSmoothingQuality = "high";
+        x.drawImage(img, (img.width - menor) / 2, (img.height - menor) / 2, menor, menor,
+                    0, 0, FOTO_LADO, FOTO_LADO);
+        let saida = "";
+        /* webp é bem menor, mas nem todo navegador antigo sabe fazer.
+           Quando não sabe, toDataURL devolve um png caladinho -- por isso
+           a conferência do prefixo, e não um try/catch só. */
+        try { saida = c.toDataURL("image/webp", 0.82); } catch (e) {}
+        if (!saida || saida.indexOf("data:image/webp") !== 0) saida = c.toDataURL("image/jpeg", 0.8);
+        ok(saida);
+      };
+      img.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+async function fotoGuardar(arquivo) {
+  const eu = estEu();
+  if (!eu) return false;
+  if (!arquivo || !/^image\//.test(arquivo.type)) {
+    estAvisar("Escolha uma imagem (JPG, PNG, GIF ou WEBP).");
+    return false;
+  }
+  let dado;
+  try { dado = await fotoEncolher(arquivo); }
+  catch (e) { estAvisar("Não consegui abrir essa imagem."); return false; }
+  if (dado.length > FOTO_TETO) { estAvisar("Essa imagem ficou grande demais."); return false; }
+  const r = await nuvemSoltar(fotoCaminho(eu.id), dado);
+  if (r === null) { estAvisar("Não deu para guardar a foto. Confira a internet."); return false; }
+  FOTOS[eu.id] = dado;
+  const p = perfilMeu();
+  p.foto = 1;                   /* na ficha vai só a marca, nunca a foto */
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  estAvisar("Foto trocada.");
+  return true;
+}
+
+async function fotoApagar() {
+  const eu = estEu();
+  if (!eu) return false;
+  await nuvemSoltar(fotoCaminho(eu.id), null, "DELETE");
+  delete FOTOS[eu.id];
+  const p = perfilMeu();
+  p.foto = 0;
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  estAvisar("Foto removida. Voltou a inicial.");
+  return true;
+}
+
+/* busca a foto de alguém, uma vez só. Devolve "" se a pessoa não tem. */
+async function fotoDe(uid) {
+  if (!uid) return "";
+  if (FOTOS[uid] !== undefined) return FOTOS[uid];
+  FOTOS[uid] = "";                       // marca que já foi buscada
+  const d = await nuvemReq(fotoCaminho(uid));
+  /* só entra o que É uma foto encolhida por nós. Um "dado" com
+     javascript: dentro viraria um buraco na tela de quem olhasse o
+     perfil, e isso é escrito por outra pessoa. */
+  FOTOS[uid] = (typeof d === "string" && /^data:image\/(webp|jpeg|png);base64,/.test(d) &&
+                d.length < FOTO_TETO * 2) ? d : "";
+  return FOTOS[uid];
+}
+
+/* o avatar de qualquer um: foto se tiver, senão a inicial de sempre */
+function avatarHTML(uid, nome, classe) {
+  const foto = FOTOS[uid];
+  const ini = escaparTexto(estIni(nome || "?"));
+  if (foto) {
+    return '<span class="' + classe + ' com-foto" style="background-image:url(' +
+           foto + ')"></span>';
+  }
+  return '<span class="' + classe + '">' + ini + "</span>";
+}
+
+/* =====================================================================
+   5. OS CASTIGOS
+   ---------------------------------------------------------------------
+   Só o dono do jogo dá. A setinha nem aparece para mais ninguém.
+
+   O tempo é escolhido em número + unidade (segundos, minutos ou horas),
+   porque "1 hora ou 6 horas" não serve para tudo: às vezes o certo são
+   trinta segundos para a pessoa respirar, e às vezes é uma semana.
+
+   Mora em conversas/__castigos/<uid>, galho velho e liberado. Quem está
+   de castigo lê o próprio castigo e obedece — é o mesmo desenho das
+   ordens da sala de voz, com a mesma honestidade: organiza gente de
+   boa-fé, não é cadeado.
+   ===================================================================== */
+const CASTIGO_UNIDADES = [
+  { id: "s", nome: "Segundos", ms: 1000 },
+  { id: "m", nome: "Minutos",  ms: 60000 },
+  { id: "h", nome: "Horas",    ms: 3600000 },
+  { id: "d", nome: "Dias",     ms: 86400000 }
+];
+const CASTIGO_TIPOS = [
+  { id: "falar", nome: "Não pode falar",
+    sobre: "continua vendo tudo, mas não escreve em canal nenhum" },
+  { id: "voz",   nome: "Não entra na voz",
+    sobre: "fica fora das salas de voz" },
+  { id: "tudo",  nome: "Não fala e não entra na voz",
+    sobre: "as duas coisas de uma vez" }
+];
+const CASTIGO_DE = {};              // uid -> castigo, do que já foi lido
+
+function castigoCaminho(uid) { return "conversas/__castigos/" + uid; }
+function souOChefe() {
+  try { return ehDono(save.__name); } catch (e) { return false; }
+}
+
+async function castigoDar(uid, nome, quanto, unidade, tipo, motivo) {
+  if (!souOChefe()) { estAvisar("Só o dono do jogo dá castigo."); return false; }
+  const u = CASTIGO_UNIDADES.filter(x => x.id === unidade)[0] || CASTIGO_UNIDADES[1];
+  const n = Math.max(1, Math.min(9999, parseInt(quanto, 10) || 1));
+  const castigo = {
+    ate: Date.now() + n * u.ms,
+    tipo: CASTIGO_TIPOS.some(x => x.id === tipo) ? tipo : "falar",
+    motivo: String(motivo || "").slice(0, 80),
+    por: (estEu() || {}).tag || "o dono",
+    quando: Date.now()
+  };
+  const r = await nuvemSoltar(castigoCaminho(uid), castigo);
+  if (r === null) { estAvisar("Não deu para aplicar. Confira a internet."); return false; }
+  CASTIGO_DE[uid] = castigo;
+  estAvisar(nome + " ficou de castigo por " + n + " " + u.nome.toLowerCase() + ".");
+  return true;
+}
+
+async function castigoTirar(uid, nome) {
+  if (!souOChefe()) return false;
+  await nuvemSoltar(castigoCaminho(uid), null, "DELETE");
+  delete CASTIGO_DE[uid];
+  estAvisar((nome || "O piloto") + " foi perdoado.");
+  return true;
+}
+
+async function castigoOlhar(uid) {
+  if (!uid) return null;
+  const c = await nuvemReq(castigoCaminho(uid));
+  if (c && c.ate > Date.now()) { CASTIGO_DE[uid] = c; return c; }
+  delete CASTIGO_DE[uid];
+  return null;
+}
+
+/* o meu castigo, de memória: quem pergunta é o caminho de falar, e ele
+   não pode esperar a nuvem a cada tecla */
+function castigoMeu() {
+  const eu = estEu();
+  if (!eu) return null;
+  const c = CASTIGO_DE[eu.id];
+  return c && c.ate > Date.now() ? c : null;
+}
+function castigadoDe(oque) {
+  const c = castigoMeu();
+  if (!c) return null;
+  if (c.tipo === "tudo" || c.tipo === oque) return c;
+  return null;
+}
+function castigoQuantoFalta(c) {
+  const s = Math.max(0, Math.round((c.ate - Date.now()) / 1000));
+  if (s < 60) return s + " segundos";
+  if (s < 3600) return Math.ceil(s / 60) + " minutos";
+  if (s < 86400) return Math.ceil(s / 3600) + " horas";
+  return Math.ceil(s / 86400) + " dias";
+}
+
+/* a janelinha da setinha, só para o dono */
+function castigoAbrir(uid, nome) {
+  if (!souOChefe()) return;
+  const jaTem = CASTIGO_DE[uid];
+  estJanela("Castigo de " + nome,
+    (jaTem ? '<p class="est-nota">Já está de castigo: <b>' +
+       escaparLongo(castigoQuantoFalta(jaTem)) + "</b> restantes.</p>" +
+       '<button class="est-jan-ok" id="cast-perdoa">PERDOAR AGORA</button>' +
+       '<p class="est-nota" style="margin-top:14px">Ou troque o castigo:</p>' : "") +
+    '<div class="cast-linha">' +
+      '<input id="cast-n" type="number" min="1" max="9999" value="10" aria-label="Quanto tempo">' +
+      '<div class="cast-uni" id="cast-uni">' + CASTIGO_UNIDADES.map((u, i) =>
+        '<button class="cast-u' + (i === 1 ? " on" : "") + '" data-uni="' + u.id + '">' +
+        u.nome + "</button>").join("") + "</div>" +
+    "</div>" +
+    '<div class="cast-tipos" id="cast-tipos">' + CASTIGO_TIPOS.map((t, i) =>
+      '<button class="cast-t' + (i === 0 ? " on" : "") + '" data-tipo="' + t.id + '">' +
+      "<strong>" + t.nome + "</strong><em>" + escaparLongo(t.sobre) + "</em></button>").join("") +
+    "</div>" +
+    '<input id="cast-motivo" maxlength="80" placeholder="Por quê? (a pessoa vê)" autocomplete="off">' +
+    '<button class="est-jan-ok perigo" id="cast-ok">APLICAR O CASTIGO</button>',
+    cx => {
+      let uni = "m", tipo = "falar";
+      cx.querySelectorAll("[data-uni]").forEach(b => b.addEventListener("click", () => {
+        uni = b.getAttribute("data-uni");
+        cx.querySelectorAll("[data-uni]").forEach(o => o.classList.toggle("on", o === b));
+      }));
+      cx.querySelectorAll("[data-tipo]").forEach(b => b.addEventListener("click", () => {
+        tipo = b.getAttribute("data-tipo");
+        cx.querySelectorAll("[data-tipo]").forEach(o => o.classList.toggle("on", o === b));
+      }));
+      const perdoa = $("cast-perdoa");
+      if (perdoa) perdoa.addEventListener("click", async () => {
+        await castigoTirar(uid, nome);
+        estFecharJanela();
+      });
+      $("cast-ok").addEventListener("click", async () => {
+        await castigoDar(uid, nome, $("cast-n").value, uni, tipo, $("cast-motivo").value);
+        estFecharJanela();
+      });
+    });
+}
+
+/* de tempos em tempos eu confiro o MEU castigo: se alguém me castigou
+   enquanto eu jogava, a próxima mensagem já não sai */
+setInterval(() => {
+  try {
+    const eu = estEu();
+    if (eu && nuvemAtiva()) castigoOlhar(eu.id);
+  } catch (e) {}
+}, 45000);
+
+/* =====================================================================
+   6. MAIS PERSONALIZAÇÃO
+   ---------------------------------------------------------------------
+   A referência pedia vinte e quatro coisas. Aqui estão as que dá para
+   fazer DE VERDADE neste jogo, e cada uma reaproveita o que ele já tem
+   em vez de inventar um sistema paralelo:
+
+     · moldura do avatar   -> as MOLDURAS que o jogo já dá por mérito
+     · emblemas            -> as CONQUISTAS que a pessoa já ganhou
+     · brilho do avatar    -> o "avatar animado" da referência
+     · interesses          -> cartõezinhos do que a pessoa gosta de jogar
+     · atividade recente   -> o que o jogo já sabe: fase, abates, vitórias
+     · amigos em comum     -> quem eu e ela temos em comum
+     · tema do jogo        -> a cor de acento da tela inteira
+     · som de aviso        -> qual toque a Estação usa
+     · efeito de clique    -> o que acontece quando você aperta um botão
+     · arrumar o perfil    -> escolher QUAIS blocos aparecem e em que ordem
+
+   O QUE NÃO ESTÁ AQUI, E POR QUÊ (dizer é melhor que fingir):
+     · mural de mídia e galeria: precisa de um lugar para guardar
+       arquivo grande, e este jogo não tem nenhum
+     · avatar 3D interativo: o motor 3D existe, mas carregar um boneco
+       por perfil derrubaria o celular fraco que é o alvo do jogo
+     · integração com outros aplicativos: cada uma é uma conta, uma
+       chave e um servidor -- nada disso cabe num arquivo só
+     · modo claro: o jogo inteiro é desenhado no escuro; um tema claro
+       é refazer a folha de estilo, não trocar duas cores
+   ===================================================================== */
+
+/* o brilho em volta do avatar -- o "avatar animado" da referência */
+const NEO_BRILHOS = [
+  { id: "nenhum", nome: "Sem brilho",  nivel: "nenhum" },
+  { id: "suave",  nome: "Suave",       nivel: "nenhum" },
+  { id: "anel",   nome: "Anel girando",nivel: "bronze" },
+  { id: "faisca", nome: "Faíscas",     nivel: "prata" },
+  { id: "pulso",  nome: "Batimento",   nivel: "prata" },
+  { id: "orbita", nome: "Órbita",      nivel: "ouro" }
+];
+/* a cor de acento do jogo inteiro -- o "tema global" da referência */
+const NEO_TEMAS = [
+  { id: "padrao",  nome: "Nebulosa",  nivel: "nenhum", cor: "#4DE8FF" },
+  { id: "verde",   nome: "Plasma",    nivel: "bronze", cor: "#5BF0B0" },
+  { id: "rosa",    nome: "Carmim",    nivel: "bronze", cor: "#FF4D8F" },
+  { id: "ambar",   nome: "Solar",     nivel: "prata",  cor: "#FFC145" },
+  { id: "violeta", nome: "Vazio",     nivel: "prata",  cor: "#C34DFF" },
+  { id: "branco",  nome: "Estação",   nivel: "ouro",   cor: "#D8E8FF" }
+];
+/* o toque de aviso da Estação */
+const NEO_TOQUES = [
+  { id: "nenhum", nome: "Mudo",      nivel: "nenhum", nota: 0 },
+  { id: "curto",  nome: "Bipe",      nivel: "nenhum", nota: 880 },
+  { id: "duplo",  nome: "Dois bipes",nivel: "bronze", nota: 660 },
+  { id: "grave",  nome: "Grave",     nivel: "prata",  nota: 330 },
+  { id: "sino",   nome: "Sino",      nivel: "ouro",   nota: 1320 }
+];
+/* o que acontece ao apertar um botão */
+const NEO_CLIQUES = [
+  { id: "nenhum", nome: "Nada",        nivel: "nenhum" },
+  { id: "afunda", nome: "Afunda",      nivel: "nenhum" },
+  { id: "onda",   nome: "Onda",        nivel: "bronze" },
+  { id: "brilha", nome: "Brilha",      nivel: "prata" },
+  { id: "faisca", nome: "Solta faísca",nivel: "ouro" }
+];
+/* os cartõezinhos de interesse: o que a pessoa gosta de fazer no jogo */
+const NEO_INTERESSES = [
+  { id: "campanha", nome: "Campanha",  ic: "🚀" },
+  { id: "ranque",   nome: "Ranqueada", ic: "🏆" },
+  { id: "arena",    nome: "Arena",     ic: "⚔" },
+  { id: "dupla",    nome: "Jogar em dupla", ic: "🤝" },
+  { id: "chefes",   nome: "Caçar chefes",   ic: "👾" },
+  { id: "colecao",  nome: "Colecionar naves", ic: "🛸" },
+  { id: "trocas",   nome: "Trocar coisas",    ic: "💱" },
+  { id: "conversa", nome: "Conversar",        ic: "💬" },
+  { id: "ajudar",   nome: "Ajudar quem começou", ic: "🧭" },
+  { id: "recorde",  nome: "Bater recorde",    ic: "📈" }
+];
+const INTERESSES_MAX = { nenhum: 2, bronze: 4, prata: 6, ouro: 8, ilimitado: 10 };
+
+/* os blocos do perfil, e a ordem em que aparecem. O "layout modular" da
+   referência é isto: a pessoa liga, desliga e arrasta. */
+const PF_BLOCOS = [
+  { id: "sobre",     nome: "Sobre mim",        sempre: true },
+  { id: "emblemas",  nome: "Emblemas" },
+  { id: "interesses",nome: "Interesses" },
+  { id: "atividade", nome: "Atividade recente" },
+  { id: "amigos",    nome: "Amigos em comum" },
+  { id: "naves",     nome: "Naves e coleção" }
+];
+const PF_BLOCOS_PADRAO = ["sobre", "emblemas", "interesses", "atividade", "amigos", "naves"];
+
+function perfilEscolha(lista, campo, p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const item = neoAchar(lista, perfil[campo]) || lista[0];
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[item.nivel] ? item : lista[0];
+}
+function perfilBrilho(p) { return perfilEscolha(NEO_BRILHOS, "brilho", p); }
+function perfilTema(p)   { return perfilEscolha(NEO_TEMAS, "tema", p); }
+function perfilToque(p)  { return perfilEscolha(NEO_TOQUES, "toque", p); }
+function perfilClique(p) { return perfilEscolha(NEO_CLIQUES, "clique", p); }
+function perfilInteresses(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const teto = INTERESSES_MAX[neoDe(p)] || 2;
+  return String(perfil.interesses || "").split(",")
+    .filter(x => NEO_INTERESSES.some(i => i.id === x)).slice(0, teto);
+}
+function perfilBlocos(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const guardado = String(perfil.blocos || "").split(",").filter(x =>
+    PF_BLOCOS.some(b => b.id === x));
+  return guardado.length ? guardado : PF_BLOCOS_PADRAO.slice();
+}
+
+/* O TEMA VALE NA TELA INTEIRA, e por isso mexe numa variável do CSS em
+   vez de repintar botão por botão. Uma troca, tudo muda junto. */
+function temaAplicar() {
+  try {
+    const t = perfilTema();
+    const c = perfilClique();
+    document.documentElement.style.setProperty("--cyan", t.cor);
+    document.body.setAttribute("data-clique", c.id);
+  } catch (e) {}
+}
+
+/* o toque de aviso: uma nota curta, feita na hora. Não é arquivo de som
+   -- o jogo tem que caber num arquivo só e funcionar sem internet. */
+function toqueTocar() {
+  try {
+    const t = perfilToque();
+    if (!t.nota || AudioSys.muted || !AudioSys.ctx) return;
+    const ctx = AudioSys.ctx;
+    const quando = [0].concat(t.id === "duplo" ? [0.14] : []);
+    for (const atraso of quando) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = t.id === "sino" ? "triangle" : "sine";
+      o.frequency.setValueAtTime(t.nota, ctx.currentTime + atraso);
+      g.gain.setValueAtTime(0, ctx.currentTime + atraso);
+      g.gain.linearRampToValueAtTime(0.12, ctx.currentTime + atraso + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + atraso + 0.28);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + atraso); o.stop(ctx.currentTime + atraso + 0.3);
+    }
+  } catch (e) {}
+}
+
+/* os emblemas: as conquistas que a pessoa já pegou, as mais raras
+   primeiro. Nada de inventar medalha nova -- ela já suou por estas. */
+function perfilEmblemas(p) {
+  p = p || save;
+  const pegas = (p && p.conquistas) || {};
+  return CONQUISTAS.filter(c => pegas[c.id])
+    .sort((a, b) => (b.premio || 0) - (a.premio || 0));
+}
+/* o que a pessoa andou fazendo, do que o jogo já guarda */
+function perfilAtividade(p) {
+  p = p || save;
+  const linhas = [];
+  if (p.best) linhas.push({ ic: "🚀", txt: "Chegou à fase " + p.best });
+  if (p.chefes) linhas.push({ ic: "👾", txt: p.chefes + " chefes derrotados" });
+  if (p.vitorias) linhas.push({ ic: "🏆", txt: p.vitorias + " vitórias em duelo" });
+  if (p.abates) linhas.push({ ic: "⚔", txt: fmt(p.abates) + " inimigos abatidos" });
+  if (p.prestigio) linhas.push({ ic: "♾", txt: "Renasceu " + p.prestigio + "×" });
+  return linhas.slice(0, 5);
+}
+
+/* =====================================================================
+   7. AS OFERTAS
+   ---------------------------------------------------------------------
+   O cartãozinho que aparece embaixo do NeoNebula, na barra da Estação.
+
+   Elas saem do que o jogo JÁ SABE sobre a pessoa, e não de uma lista
+   fixa: oferecer "assine o Bronze" para quem tem Ouro, ou "pegue o
+   presente do dia" para quem já pegou, é o tipo de aviso que a pessoa
+   aprende a ignorar — e aí ela ignora também o que importa.
+
+   Nenhuma oferta aparece sem ter o que fazer quando alguém toca nela.
+   ===================================================================== */
+function estOfertas() {
+  const fora = [];
+  const nv = neoNivel();
+  try {
+    /* o presente do dia, se ainda não foi pego hoje */
+    if (typeof diariaPronta === "function" && diariaPronta()) {
+      fora.push({ id: "diaria", ic: "🎁", nome: "Presente do dia",
+                  sobre: "Está esperando você no menu", selo: "grátis" });
+    }
+  } catch (e) {}
+  try {
+    /* subir de nível: só para quem já assina, e só mostrando o de cima */
+    if (nv === "bronze" || nv === "prata") {
+      const proximo = nv === "bronze" ? neoInfo("prata") : neoInfo("ouro");
+      if (proximo) {
+        fora.push({ id: "subir", ic: proximo.selo, nome: "Subir para " + proximo.nome.replace("NEONEBULA ", ""),
+                    sobre: "Mais cores, mais fontes e mais impulsos",
+                    selo: "R$" + String(proximo.preco).replace(".", ",") });
+      }
+    }
+  } catch (e) {}
+  try {
+    /* quem está quase renovando precisa saber ANTES de perder */
+    const dias = neoDiasQueFaltam();
+    if (nv !== "nenhum" && nv !== "ilimitado" && dias <= 5) {
+      fora.push({ id: "renovar", ic: "⏳", nome: "Sua assinatura está acabando",
+                  sobre: dias <= 0 ? "Acaba hoje" : "Faltam " + dias + (dias === 1 ? " dia" : " dias"),
+                  selo: "renovar" });
+    }
+  } catch (e) {}
+  try {
+    /* o perfil vazio é a "oferta" mais útil de todas: é de graça e é o
+       que faz a pessoa aparecer para os outros */
+    const p = perfilMeu();
+    if (!p.bio && !p.foto) {
+      fora.push({ id: "perfil", ic: "🖼", nome: "Monte o seu perfil",
+                  sobre: "Foto, cores e o que você gosta de jogar", selo: "grátis" });
+    }
+  } catch (e) {}
+  return fora.slice(0, 3);
+}
+
+function estAbrirOferta(id) {
+  if (id === "diaria") { estacaoFechar(); goMenu(); estAvisar(""); return; }
+  if (id === "perfil") { estEditarPerfil(); return; }
+  estAbrirNeo();
+}
+
+/* =====================================================================
+   8. O CASTIGO FAZENDO EFEITO
+   ---------------------------------------------------------------------
+   Regra que só existe na tela de quem aplicou não é regra. Estas duas
+   funções são perguntadas no caminho de falar e no de entrar na voz.
+   ===================================================================== */
+function castigoBarraFalar() {
+  const c = castigadoDe("falar");
+  if (!c) return null;
+  return "Você está de castigo e não pode falar por mais " +
+         castigoQuantoFalta(c) + (c.motivo ? " · " + c.motivo : "") + ".";
+}
+function castigoBarraVoz() {
+  const c = castigadoDe("voz");
+  if (!c) return null;
+  return "Você está de castigo e não entra na voz por mais " +
+         castigoQuantoFalta(c) + ".";
+}
+
+/* =====================================================================
+   9. O QUE ACONTECE AO ABRIR O JOGO
+   ---------------------------------------------------------------------
+   A minha foto e o meu castigo são meus: não dá para esperar alguém
+   abrir um perfil para descobrir os dois.
+   ===================================================================== */
+setTimeout(() => {
+  try {
+    temaAplicar();
+    const eu = estEu();
+    if (eu && nuvemAtiva()) { fotoDe(eu.id); castigoOlhar(eu.id); }
+  } catch (e) {}
+}, 3500);
+/* =====================================================================
    SERVIDORES — comunidades dentro da Estação
    =====================================================================
    Cada um pode criar o seu, com canais, cargos, convites, moderação e
@@ -32558,6 +33891,31 @@ function podeIncomodar(chave) {
    assim, mesmo com as regras antigas, o que já funciona continua
    funcionando e só o servidor em si fica de fora.
    ===================================================================== */
+
+/* =====================================================================
+   GUARDADO, NÃO APAGADO
+   ---------------------------------------------------------------------
+   Os servidores estão desligados. Foi decisão do dono do jogo: criar
+   servidor virou uma segunda casa vazia ao lado da Estação, e quem
+   entrava não achava ninguém lá dentro. A comunidade é uma só, e é o
+   chat global — #geral, #trocas, #ajuda — que a enche.
+
+   E havia um motivo técnico junto: "servidores/" é galho NOVO no banco,
+   e as contas com as regras antigas do Firebase recusavam a gravação. O
+   botão CRIAR existia, a janela abria, e nada acontecia. Um botão que
+   não faz nada é pior que um botão que não existe.
+
+   Desligado assim: o + some da barra, a seção inteira não é desenhada,
+   e nada do que está aqui é montado. Religar é trocar false por true --
+   o sistema inteiro (cargos, 50 permissões, moderação, impulsos, tag)
+   continua aqui, inteiro, esperando.
+   ===================================================================== */
+const SERVIDORES_LIGADOS = false;
+
+/* Os grupos privados saíram junto, e pelo mesmo motivo: a conversa é
+   para ser global. Quem quer falar com uma pessoa tem a conversa
+   reservada; quem quer falar com todo mundo tem os canais. */
+const GRUPOS_LIGADOS = false;
 
 /* =====================================================================
    AS PERMISSÕES
@@ -34083,7 +35441,8 @@ const EST = {
   ultimas: {},              // destino -> relógio da última que existe
   ritmo: [],                // os relógios das minhas últimas mensagens
   relogio: null,            // a batida que atualiza online e não lidos
-  aba: "canais"             // que parte da barra lateral está aberta
+  aba: "canais",            // que parte da barra lateral está aberta
+  busca: ""                 // o que está escrito na busca da barra
   /* a voz tem estado próprio (VOZ, em 09-voz.js): guardar uma cópia
      dela aqui só criaria dois lugares para a mesma verdade, e um deles
      ficaria desatualizado */
@@ -34363,6 +35722,14 @@ const EST_RITMO = { janela: 10000, maxNaJanela: 6, minEntre: 700, repetidas: 3 }
 let estUltimas = [];
 
 function estPodeFalar(texto) {
+  /* O CASTIGO VEM ANTES DE TUDO. Antes do ritmo, antes do palavrão: de
+     castigo a pessoa não fala, e dizer o motivo certo importa -- levar
+     "calma, respira" quando o problema é outro faz a pessoa tentar de
+     novo em vez de entender. */
+  try {
+    const barra = castigoBarraFalar();
+    if (barra) return { ok: false, motivo: barra };
+  } catch (e) {}
   const agora = Date.now();
   EST.ritmo = EST.ritmo.filter(t => agora - t < EST_RITMO.janela);
 
@@ -34707,7 +36074,7 @@ function estDia(t) {
    Escapa PRIMEIRO e só então põe as marcas: fazer ao contrário deixaria
    o texto de um estranho virar HTML dentro da minha tela. */
 function estTextoComMencoes(txt, eu) {
-  let s = escaparTexto(String(txt || ""));
+  let s = escaparLongo(String(txt || ""));
   /* UMA PASSADA SÓ. Duas seriam o caminho curto para o bug: a primeira
      transformaria @everyone em HTML e a segunda ainda enxergaria o
      "@everyone" lá dentro, marcando de novo em cima da marca. */
@@ -34739,7 +36106,21 @@ function estPintarLado() {
   const cx = $("est-lado");
   if (!cx) return;
   const eu = estEu();
+  /* A BUSCA É UM FILTRO, NÃO UMA SEGUNDA LISTA.
+     Se ela montasse a própria lista, um dia acharia algo que a barra
+     esconde e o toque cairia numa tela morta -- foi o que já aconteceu
+     no menu do jogo. Aqui ela só decide quais linhas da MESMA barra
+     continuam desenhadas. */
+  const alvoBusca = semAcento(String(EST.busca || "").trim().toLowerCase());
+  const casa = (nome, sub) => !alvoBusca ||
+    semAcento(String(nome || "").toLowerCase()).indexOf(alvoBusca) >= 0 ||
+    semAcento(String(sub || "").toLowerCase()).indexOf(alvoBusca) >= 0;
+  /* procurando, os títulos de seção somem: "CANAIS DE TEXTO" sozinho,
+     sem nenhum canal embaixo, faz a pessoa achar que a busca quebrou */
+  const cabeca = (txt, extra) => alvoBusca ? "" :
+    '<div class="est-grupo-h">' + txt + (extra || "") + "</div>";
   const linha = (d, nome, sub, ic, extra) => {
+    if (!casa(nome, sub)) return "";
     const mudo = silenciado(estChave(d));
     const nova = mudo ? 0 : estNaoLidas(d);
     extra = (extra || "") + (mudo ? " mudo" : "");
@@ -34748,22 +36129,75 @@ function estPintarLado() {
       (extra || "") + '" data-dest="' + d.tipo + "|" + d.id + '">' +
       '<b class="est-dest-ic">' + ic + "</b>" +
       '<span class="est-dest-txt"><strong>' + escaparTexto(nome) + "</strong>" +
-      (sub ? "<em>" + escaparTexto(sub) + "</em>" : "") + "</span>" +
+      (sub ? "<em>" + escaparLongo(sub) + "</em>" : "") + "</span>" +
       (nova ? '<i class="est-pip"></i>' : "") + "</button>";
   };
 
   let h = '<div class="est-serv"><b>' + escaparTexto(EST_SERVIDOR.nome.slice(0, 2)) + "</b>" +
           "<span><strong>" + escaparTexto(EST_SERVIDOR.nome) + "</strong>" +
-          "<em>" + escaparTexto(EST_SERVIDOR.sobre) + "</em></span>" +
+          "<em>" + escaparLongo(EST_SERVIDOR.sobre) + "</em></span>" +
           /* o ✕ da gaveta: só aparece no celular, onde ela é gaveta mesmo.
              Tocar fora também fecha, mas botão que se vê ensina; véu
              invisível, não. */
           '<button class="est-lado-x" id="est-lado-x" aria-label="Fechar os canais">✕</button></div>';
 
+  /* A BUSCA NO TOPO DA LISTA.
+     Com canais, salas de voz, conversas e amigos na mesma barra, achar
+     "aquela conversa com o Lucas" virava rolagem. A busca filtra a lista
+     inteira de uma vez -- e é a MESMA lista, só com menos linhas: uma
+     regra só decide o que aparece, como no menu do jogo. */
+  h += '<div class="est-busca-cx">' +
+       '<input id="est-busca" placeholder="Procurar canal ou pessoa" autocomplete="off" ' +
+       'value="' + escaparTexto(EST.busca || "") + '">' +
+       (EST.busca ? '<button class="est-busca-x" id="est-busca-x" aria-label="Limpar">✕</button>' : "") +
+       "</div>";
+
   /* AMIGOS é um destino como qualquer outro -- é o que a divisão em
      "destinos" comprou: uma tela nova entra como mais uma linha, e nem a
      barra nem os não lidos precisaram saber o que ela é. */
   const pedidos = Object.keys((typeof AM !== "undefined" && AM.pedidos) || {}).length;
+  /* =====================================================================
+     O CARTÃO DO NEONEBULA, NO TOPO DE TUDO
+     ---------------------------------------------------------------------
+     Foi pedido que a assinatura ficasse exposta, e não escondida atrás
+     de dois toques dentro do perfil. Ela fica aqui, acima de AMIGOS,
+     porque este é o primeiro lugar onde o olho cai ao abrir a Estação.
+
+     Para quem JÁ assina ele muda de cara: em vez de vender de novo, ele
+     mostra o que a pessoa tem e quantos dias faltam. Continuar vendendo
+     para quem já comprou é o jeito mais rápido de irritar quem pagou.
+     ===================================================================== */
+  if (!alvoBusca) {
+    const nv = neoNivel();
+    const meu = neoInfo(nv);
+    const dias = neoDiasQueFaltam();
+    h += '<button class="est-neo-cx' + (nv === "nenhum" ? "" : " tem") +
+         '" id="est-neo-cartao">' +
+      '<b class="est-neo-selo">' + (meu && meu.selo ? meu.selo : "✦") + "</b>" +
+      '<span class="est-neo-txt"><strong>' +
+        (nv === "nenhum" ? "NeoNebula"
+                         : escaparTexto((meu && meu.nome) || "NeoNebula")) + "</strong>" +
+        "<em>" + (nv === "nenhum"
+          ? "Bronze R$0,50 · Prata R$1 · Ouro R$3"
+          : (nv === "ilimitado" ? "Sem prazo" : dias + (dias === 1 ? " dia" : " dias") + " restantes")) +
+        "</em></span>" +
+      '<i class="est-neo-seta">›</i></button>';
+
+    /* AS OFERTAS. Ficam logo abaixo, e só aparecem quando existe alguma:
+       um cartão "nenhuma oferta agora" toda vez que se abre a Estação é
+       ruído permanente em troca de nada. */
+    const ofertas = estOfertas();
+    if (ofertas.length) {
+      h += '<div class="est-ofertas">' + ofertas.map(o =>
+        '<button class="est-oferta" data-oferta="' + o.id + '">' +
+        '<b>' + o.ic + "</b><span><strong>" + escaparTexto(o.nome) + "</strong>" +
+        "<em>" + escaparLongo(o.sobre) + "</em></span>" +
+        (o.selo ? '<i class="est-of-selo">' + escaparTexto(o.selo) + "</i>" : "") +
+        "</button>").join("") + "</div>";
+    }
+  }
+
+  if (casa("Amigos", "ver adicionar responder"))
   h += '<button class="est-dest est-amigos-b' +
        (EST.destino && EST.destino.tipo === "amigos" ? " on" : "") + '" data-dest="amigos|tudo">' +
        '<b class="est-dest-ic">👥</b><span class="est-dest-txt"><strong>Amigos</strong>' +
@@ -34776,20 +36210,22 @@ function estPintarLado() {
      juntas, com quem falou por último em cima. */
   const naoLidasDM = Object.keys((typeof AM !== "undefined" && AM.lista) || {})
     .filter(x => estNaoLidas({ tipo: "dm", id: x })).length;
+  if (casa("Mensagens diretas", "conversas privadas dm"))
   h += '<button class="est-dest est-dm-b' +
        (EST.destino && EST.destino.tipo === "dms" ? " on" : "") + '" data-dest="dms|tudo">' +
        '<b class="est-dest-ic">✉</b><span class="est-dest-txt"><strong>Mensagens diretas</strong>' +
        "<em>suas conversas de um para um</em></span>" +
        (naoLidasDM ? '<i class="est-pip conta">' + naoLidasDM + "</i>" : "") + "</button>";
 
-  h += '<div class="est-grupo-h">CANAIS DE TEXTO</div>';
+  h += cabeca("CANAIS DE TEXTO");
   for (const c of EST_CANAIS)
     h += linha({ tipo: "canal", id: c.id }, c.nome, c.sobre, "#");
 
   /* AS SALAS DE VOZ, com quem está dentro logo abaixo do nome: é o que
      faz alguém entrar. Uma lista de salas vazias ninguém abre. */
-  h += '<div class="est-grupo-h">SALAS DE VOZ</div>';
+  h += cabeca("SALAS DE VOZ");
   for (const v of EST_VOZ) {
+    if (!casa(v.nome, "voz sala falar")) continue;
     const aqui = VOZ.sala === v.id;
     const gente = aqui ? Object.keys(VOZ.dentro).filter(u =>
       Date.now() - (VOZ.dentro[u].quando || 0) < VOZ_SUMIU) : [];
@@ -34804,13 +36240,21 @@ function estPintarLado() {
   }
 
   /* OS SERVIDORES. Cada um com os canais dele logo abaixo, para não ser
-     preciso entrar num lugar para descobrir o que tem dentro. */
-  h += '<div class="est-grupo-h">MEUS SERVIDORES' +
-       '<button class="est-mais" id="est-novo-srv" aria-label="Criar servidor">+</button></div>';
-  const sids = Object.keys(SRV.meus || {});
-  if (!sids.length)
-    h += '<p class="est-vazio-lado">Nenhum servidor. Toque no + para criar o seu ' +
-         "ou entrar com um convite.</p>";
+     preciso entrar num lugar para descobrir o que tem dentro.
+
+     GUARDADOS desde a v8.9 (ver SERVIDORES_LIGADOS em 09-servidores.js):
+     desligados, a seção inteira não é desenhada -- nem o título, nem o
+     +, nem o "nenhum servidor ainda". Esconder o botão e deixar o
+     título seria pior que deixar tudo: a pessoa procuraria o + que não
+     existe mais. */
+  const sids = SERVIDORES_LIGADOS ? Object.keys(SRV.meus || {}) : [];
+  if (SERVIDORES_LIGADOS) {
+    h += cabeca("MEUS SERVIDORES",
+         '<button class="est-mais" id="est-novo-srv" aria-label="Criar servidor">+</button>');
+    if (!sids.length)
+      h += '<p class="est-vazio-lado">Nenhum servidor. Toque no + para criar o seu ' +
+           "ou entrar com um convite.</p>";
+  }
   for (const sid of sids) {
     const sv = SRV.meus[sid];
     const aqui = EST.destino && EST.destino.tipo === "srv" && EST.destino.id === sid;
@@ -34853,20 +36297,29 @@ function estPintarLado() {
     }
   }
 
-  const gids = Object.keys(EST.grupos);
-  h += '<div class="est-grupo-h">MEUS GRUPOS' +
-       '<button class="est-mais" id="est-novo-grupo" aria-label="Criar grupo">+</button></div>';
-  if (!gids.length) h += '<p class="est-vazio-lado">Nenhum grupo ainda. Toque no + e chame a galera.</p>';
-  for (const gid of gids) {
+  /* OS GRUPOS saíram junto com os servidores, e pelo mesmo motivo: a
+     conversa aqui é para ser global. Quem já está num grupo continua
+     vendo o grupo -- tirar da tela uma conversa que existe seria perder
+     mensagem de gente de verdade. O que sumiu foi o + de criar. */
+  const gids = GRUPOS_LIGADOS ? Object.keys(EST.grupos) : [];
+  if (GRUPOS_LIGADOS || Object.keys(EST.grupos).length) {
+    h += cabeca("MEUS GRUPOS", GRUPOS_LIGADOS
+           ? '<button class="est-mais" id="est-novo-grupo" aria-label="Criar grupo">+</button>'
+           : "");
+    if (GRUPOS_LIGADOS && !gids.length)
+      h += '<p class="est-vazio-lado">Nenhum grupo ainda. Toque no + e chame a galera.</p>';
+  }
+  for (const gid of (GRUPOS_LIGADOS ? gids : Object.keys(EST.grupos))) {
     const g = EST.grupos[gid];
     const n = Object.keys(g.membros || {}).length;
     h += linha({ tipo: "grupo", id: gid }, g.nome, n + (n === 1 ? " pessoa" : " pessoas"), "◈");
   }
 
-  h += '<div class="est-grupo-h">CONVERSAS' +
-       '<button class="est-mais" id="est-novo-amigo" aria-label="Adicionar amigo">+</button></div>';
+  h += cabeca("CONVERSAS",
+       '<button class="est-mais" id="est-novo-amigo" aria-label="Adicionar amigo">+</button>');
   const amigos = Object.keys((typeof AM !== "undefined" && AM.lista) || {});
-  if (!amigos.length) h += '<p class="est-vazio-lado">Você ainda não tem amigos aqui. Toque no + para chamar alguém pelo nick.</p>';
+  if (!amigos.length && !alvoBusca)
+    h += '<p class="est-vazio-lado">Você ainda não tem amigos aqui. Toque no + para chamar alguém pelo nick.</p>';
   /* online primeiro: é com quem dá para falar agora */
   amigos.sort((a, b) => {
     const pa = estOndeEsta(a).cor === "off" ? 1 : 0, pb = estOndeEsta(b).cor === "off" ? 1 : 0;
@@ -34880,8 +36333,13 @@ function estPintarLado() {
                EST.bloq[id] ? " bloqueado" : "");
   }
 
+  /* busca que não acha nada tem que DIZER que não achou. Uma barra vazia
+     e muda parece uma tela quebrada. */
+  if (alvoBusca && h.indexOf('class="est-dest') < 0)
+    h += '<p class="est-vazio-lado">Nada com “' + escaparTexto(EST.busca) + '”.</p>';
+
   const ped = Object.keys((typeof AM !== "undefined" && AM.pedidos) || {}).length;
-  if (ped) h += '<button class="est-pedidos" id="est-ver-pedidos">' + ped +
+  if (ped && !alvoBusca) h += '<button class="est-pedidos" id="est-ver-pedidos">' + ped +
                 (ped === 1 ? " pedido de amizade" : " pedidos de amizade") + " ›</button>";
 
   /* A BARRA DO PRÓPRIO PILOTO, colada embaixo: quem sou eu agora e como
@@ -34948,6 +36406,30 @@ function estPintarLado() {
   if (vp) vp.addEventListener("click", () => estAbrirPedidos());
   const lx = $("est-lado-x");
   if (lx) lx.addEventListener("click", () => $("estacao").classList.remove("lado-aberto"));
+
+  /* A BUSCA REDESENHA A BARRA a cada tecla, e a barra inclui o próprio
+     campo. Sem devolver o cursor para dentro dele, a pessoa digitava uma
+     letra e perdia o foco -- e aí a segunda letra ia para lugar nenhum. */
+  const neoCx = $("est-neo-cartao");
+  if (neoCx) neoCx.addEventListener("click", estAbrirNeo);
+  cx.querySelectorAll("[data-oferta]").forEach(b =>
+    b.addEventListener("click", () => estAbrirOferta(b.getAttribute("data-oferta"))));
+
+  const campoBusca = $("est-busca");
+  if (campoBusca) {
+    campoBusca.addEventListener("input", () => {
+      EST.busca = campoBusca.value;
+      const onde = campoBusca.selectionStart;
+      estPintarLado();
+      const novo = $("est-busca");
+      if (novo) { novo.focus(); try { novo.setSelectionRange(onde, onde); } catch (e) {} }
+    });
+    campoBusca.addEventListener("keydown", e => {
+      if (e.key === "Escape") { e.stopPropagation(); EST.busca = ""; estPintarLado(); }
+    });
+  }
+  const bx = $("est-busca-x");
+  if (bx) bx.addEventListener("click", () => { EST.busca = ""; estPintarLado(); });
 }
 
 /* =====================================================================
@@ -35170,7 +36652,7 @@ function estPintarDMs() {
       '<span class="est-av">' + estLuz(onde) +
       escaparTexto(estIni(nome)) + "</span>" +
       '<span class="est-dm-txt"><strong>' + escaparTexto(nome) + "</strong>" +
-      "<em>" + (ult ? escaparTexto(quem + String(ult.txt).slice(0, 60))
+      "<em>" + (ult ? escaparLongo(quem + String(ult.txt).slice(0, 60))
                     : "vocês ainda não conversaram") + "</em></span>" +
       '<span class="est-dm-lado">' +
       (ult ? '<u>' + quandoTexto(ult.quando) + "</u>" : "") +
@@ -35229,7 +36711,7 @@ function estPintarConversa(grudarNoFim) {
   cab.innerHTML =
     '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
     '<div class="est-cab-txt"><strong>' + (d.tipo === "canal" ? "#" : "") +
-    escaparTexto(d.nome || d.id) + "</strong><em>" + escaparTexto(sub) + "</em></div>" +
+    escaparTexto(d.nome || d.id) + "</strong><em>" + escaparLongo(sub) + "</em></div>" +
     '<div class="est-cab-acoes">' + acoes + "</div>";
   const al = $("est-abrir-lado");
   if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
@@ -35530,7 +37012,7 @@ function estMenuDaMensagem(k, botao) {
   const m = EST.msgs.filter(x => x.k === k)[0];
   if (!m) return;
   estJanela(m.nome || "Piloto",
-    '<p class="est-citado">' + escaparTexto(String(m.txt).slice(0, 160)) + "</p>" +
+    '<p class="est-citado">' + escaparLongo(String(m.txt).slice(0, 160)) + "</p>" +
     '<button class="est-jan-ok" data-m="responder">responder chamando @' +
       escaparTexto(m.nome || "") + "</button>" +
     '<button class="est-jan-ok" data-m="silenciar">' +
@@ -35632,8 +37114,23 @@ function estacaoAlternar() {
   };
   if (manda) manda.addEventListener("click", enviar);
   if (campo) campo.addEventListener("keydown", e => {
+    /* a lista do @ tem que ver a tecla ANTES do campo: com ela aberta,
+       Enter escolhe o nome, e não manda a mensagem pela metade */
+    try { if (arrobaTecla(e)) return; } catch (err) {}
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); }
   });
+  if (campo) {
+    const olhar = () => { try { arrobaOlhar(); } catch (err) {} };
+    campo.addEventListener("input", olhar);
+    /* clicar noutro ponto do texto muda de qual @ estamos falando */
+    campo.addEventListener("click", olhar);
+    campo.addEventListener("keyup", e => {
+      if (/^Arrow(Left|Right)$/.test(e.key)) olhar();
+    });
+    campo.addEventListener("blur", () => setTimeout(() => {
+      try { arrobaFechar(); } catch (err) {}
+    }, 180));
+  }
 
   /* o ＋: enquete, evento e chamar todo mundo */
   const mais = $("est-mais");
@@ -35678,99 +37175,221 @@ setTimeout(() => { try { estCarregarVistos(); estOlharNovidades(); estGruposCarr
 /* =====================================================================
    O CARTÃO DE PERFIL
    ---------------------------------------------------------------------
-   Abre de QUALQUER lugar onde um nome ou um avatar apareça: no
-   bate-papo, na lista de amigos, na barra lateral. Se for você, tem o
-   botão de editar; se for outro, tem o que dá para fazer com ele.
+   Abre de QUALQUER lugar onde um nome ou um avatar apareça. Foi pedido
+   que ele fosse mais completo: mais alto, com mais coisa para ver, e a
+   foto de verdade em vez da inicial.
 
-   Foi pedido assim, e faz sentido: o nome da pessoa É o botão para saber
-   quem ela é. Ter que ir a uma tela de ajustes para trocar a própria
-   cor é o tipo de caminho que ninguém encontra.
+   Ele é MONTADO POR BLOCOS, na ordem que o dono do perfil escolheu.
+   Isso é o "layout modular" da referência, e não é enfeite: cada pessoa
+   mostra o que tem orgulho de mostrar. Quem não escolheu nada fica com
+   a ordem de fábrica, que é a mais comum.
    ===================================================================== */
+function pfBlocoHTML(id, dono, v, souEu) {
+  if (id === "sobre") {
+    return v.bio
+      ? '<div class="pf-bl"><h4>Sobre mim</h4><p class="pf-bio">' +
+        escaparLongo(v.bio) + "</p></div>"
+      : '<div class="pf-bl"><h4>Sobre mim</h4><p class="pf-bio vazia">' +
+        (souEu ? "Você ainda não escreveu nada sobre você."
+               : "Esta pessoa ainda não escreveu nada.") + "</p></div>";
+  }
+  if (id === "emblemas") {
+    const lista = perfilEmblemas(dono);
+    if (!lista.length) return "";
+    return '<div class="pf-bl"><h4>Emblemas <i>' + lista.length + "</i></h4>" +
+      '<div class="pf-embs">' + lista.slice(0, 12).map(c =>
+        '<span class="pf-emb" title="' + escaparTexto(c.nome) + '">' +
+        '<b>★</b><em>' + escaparTexto(c.nome) + "</em></span>").join("") + "</div></div>";
+  }
+  if (id === "interesses") {
+    const lista = souEu ? perfilInteresses() : (v.interesses || []);
+    if (!lista.length) return "";
+    return '<div class="pf-bl"><h4>Interesses</h4><div class="pf-ints">' +
+      lista.map(x => {
+        const it = NEO_INTERESSES.filter(i => i.id === x)[0];
+        return it ? '<span class="pf-int">' + it.ic + " " + escaparTexto(it.nome) + "</span>" : "";
+      }).join("") + "</div></div>";
+  }
+  if (id === "atividade") {
+    const lista = perfilAtividade(dono);
+    if (!lista.length) return "";
+    return '<div class="pf-bl"><h4>Atividade recente</h4><div class="pf-ativ">' +
+      lista.map(l => '<span class="pf-ativ-l"><b>' + l.ic + "</b>" +
+        escaparLongo(l.txt) + "</span>").join("") + "</div></div>";
+  }
+  if (id === "amigos") {
+    /* AMIGOS EM COMUM. No meu próprio perfil não faz sentido -- eu tenho
+       todos em comum comigo mesmo. */
+    if (souEu) return "";
+    const meus = (typeof AM !== "undefined" && AM.lista) || {};
+    const nomes = Object.keys(meus).map(u => (meus[u].tag || meus[u].nome)).slice(0, 6);
+    if (!nomes.length) return "";
+    return '<div class="pf-bl"><h4>Amigos em comum</h4><div class="pf-ints">' +
+      nomes.map(n => '<span class="pf-int">' + escaparTexto(n) + "</span>").join("") +
+      "</div></div>";
+  }
+  if (id === "naves") {
+    const n = (dono && dono.naves) || (dono && dono.ships ? dono.ships.length : 0);
+    const fase = (dono && dono.best) || 0;
+    if (!n && !fase) return "";
+    return '<div class="pf-bl"><h4>Coleção</h4><div class="pf-nums">' +
+      '<span><b>' + fase + "</b>fase</span>" +
+      '<span><b>' + (n || 1) + "</b>naves</span>" +
+      '<span><b>' + ((dono && dono.prestigio) || 0) + "</b>renascimentos</span>" +
+      "</div></div>";
+  }
+  return "";
+}
+
 function estAbrirPerfil(id) {
   const eu = estEu();
   if (!id || !eu) return;
+  /* a foto e o castigo vêm da nuvem, então a janela abre primeiro e se
+     completa depois: esperar a rede para desenhar deixaria o toque sem
+     resposta por um segundo, e um segundo parado parece travado */
+  Promise.all([fotoDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
+  estPintarPerfil(id);
+}
+
+function estPintarPerfil(id) {
+  const eu = estEu();
+  if (!eu) return;
   const souEu = id === eu.id;
-  const ficha = EST.pilotos[id] || {};
+  const ficha = souEu ? save : (EST.pilotos[id] || {});
   const v = souEu
     ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
-        fundo: perfilFundo(), bio: perfilMeu().bio, pronomes: perfilMeu().pronomes }
+        fonte: perfilFonteDoNome(), brilho: perfilBrilho(), fundoCSS: perfilFundoCSS(),
+        anima: perfilFundo().anima, bio: perfilMeu().bio, pronomes: perfilMeu().pronomes,
+        interesses: perfilInteresses(), blocos: perfilBlocos() }
     : perfilDaNuvem(ficha);
   const nome = souEu ? eu.tag : (ficha.nome || "Piloto");
   const onde = estOndeEsta(id);
   const info = neoInfo(v.nivel);
+  const foto = FOTOS[id] || "";
+  const castigo = CASTIGO_DE[id];
+  const blocos = (v.blocos && v.blocos.length) ? v.blocos : PF_BLOCOS_PADRAO;
 
   const cabeca =
-    '<div class="pf-banner" style="background:' + v.fundo.css + '"' +
-      (v.fundo.anima ? ' data-anima="1"' : "") + "></div>" +
+    '<div class="pf-banner" style="background:' + (v.fundoCSS || (v.fundo && v.fundo.css)) + '"' +
+      (v.anima || (v.fundo && v.fundo.anima) ? ' data-anima="1"' : "") + "></div>" +
     '<div class="pf-topo">' +
-      '<span class="pf-av">' + estLuz(onde) +
-      escaparTexto(estIni(nome)) + "</span>" +
+      '<span class="pf-av pf-brilho-' + ((v.brilho && v.brilho.id) || "nenhum") + '"' +
+        (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
+        estLuz(onde) + (foto ? "" : escaparTexto(estIni(nome))) + "</span>" +
       '<div class="pf-nome-cx">' +
-        '<b class="pf-nome' + perfilClasseDoNome(v) + '"' +
-        (v.cor ? ' style="' + perfilEstiloDoNome(v) + '"' : "") + ">" +
-        escaparTexto(nome) + "</b>" +
+        '<b class="pf-nome' + perfilClasseDoNome(v) + '" style="' +
+        perfilEstiloDoNome(v) + '">' + escaparTexto(nome) + "</b>" +
         (v.pronomes ? '<span class="pf-pron">' + escaparTexto(v.pronomes) + "</span>" : "") +
-        '<span class="pf-onde">' + escaparTexto(onde.txt) + "</span>" +
+        '<span class="pf-onde">' + escaparLongo(onde.txt) + "</span>" +
       "</div>" +
+      /* A SETINHA DO CASTIGO. Só aparece para o dono do jogo, e só no
+         perfil dos outros -- dar castigo em si mesmo não existe. */
+      (souOChefe() && !souEu
+        ? '<button class="pf-castigo" data-p="castigo" aria-label="Dar castigo">▾</button>' : "") +
       (info && info.id !== "nenhum"
         ? '<span class="pf-neo" style="border-color:' + info.cor + ';color:' + info.cor + '">' +
           info.selo + " " + escaparTexto(info.nome.replace("NEONEBULA ", "")) + "</span>"
         : "") +
     "</div>" +
-    (v.bio ? '<p class="pf-bio">' + escaparTexto(v.bio) + "</p>"
-           : '<p class="pf-bio vazia">' + (souEu ? "Você ainda não escreveu nada sobre você."
-                                                 : "Sem bio.") + "</p>");
+    (castigo
+      ? '<div class="pf-castigado">🔇 De castigo: ' +
+        escaparLongo(castigoQuantoFalta(castigo)) + " restantes" +
+        (castigo.motivo ? " · " + escaparLongo(castigo.motivo) : "") + "</div>"
+      : "");
+
+  const corpo = blocos.map(b => pfBlocoHTML(b, ficha, v, souEu)).join("");
 
   const acoes = souEu
-    ? '<button class="est-jan-ok" data-p="editar">EDITAR MEU PERFIL</button>' +
+    ? '<button class="est-jan-ok" data-p="editar">Editar meu perfil</button>' +
       '<button class="est-jan-ok" data-p="neo">' +
-        (neoNivel() === "nenhum" ? "CONHECER O NEONEBULA" : "MINHA ASSINATURA") + "</button>"
-    : '<button class="est-jan-ok" data-p="falar">conversar</button>' +
+        (neoNivel() === "nenhum" ? "Conhecer o NeoNebula" : "Minha assinatura") + "</button>"
+    : '<button class="est-jan-ok" data-p="falar">Conversar</button>' +
+      '<button class="est-jan-ok" data-p="ligar">Ligar</button>' +
       '<button class="est-jan-ok" data-p="mudo">' +
-        (EST.mudo[id] ? "voltar a ver" : "silenciar") + "</button>" +
+        (EST.mudo[id] ? "Voltar a ver" : "Silenciar") + "</button>" +
       '<button class="est-jan-ok" data-p="bloq">' +
-        (EST.bloq[id] ? "desbloquear" : "bloquear") + "</button>";
+        (EST.bloq[id] ? "Desbloquear" : "Bloquear") + "</button>";
 
-  estJanela(souEu ? "Meu perfil" : nome, cabeca + acoes, cx =>
+  estJanela(souEu ? "Meu perfil" : nome,
+    '<div class="pf-cartao">' + cabeca + corpo + acoes + "</div>", cx =>
     cx.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => {
       const q = b.getAttribute("data-p");
+      if (q === "castigo") { castigoAbrir(id, nome); return; }
       estFecharJanela();
       if (q === "editar") estEditarPerfil();
       else if (q === "neo") estAbrirNeo();
       else if (q === "falar") estAbrir({ tipo: "dm", id, nome });
+      else if (q === "ligar") vozLigar(id, nome);
       else if (q === "mudo") { estSilenciar(id, nome); estPintar(); }
       else if (q === "bloq") { estBloquear(id, nome); estPintar(); }
     })));
 }
 
-/* ---------- editar, e SALVAR ----------
+/* =====================================================================
+   EDITAR, E SALVAR
+   ---------------------------------------------------------------------
    Nada se aplica enquanto a pessoa mexe: ela escolhe, vê a prévia em
-   cima, e só o SALVAR grava. Desistir tem que ser possível sem estrago. */
+   cima, e só o SALVAR grava. Desistir tem que ser possível sem estrago.
+
+   O editor é dividido em abas porque virou grande demais para uma
+   rolagem só: com fonte, foto, fundo, duas rodas de cor, efeito,
+   brilho, interesses, tema, toque, clique e a ordem dos blocos, uma
+   lista corrida faria a pessoa rolar sem achar. Cada aba cabe na tela.
+   ===================================================================== */
 let estRascunho = null;
+let pfAba = "quem";
+const PF_ABAS = [
+  { id: "quem",  nome: "Quem sou",   ic: "👤" },
+  { id: "nome",  nome: "Meu nome",   ic: "✎" },
+  { id: "fundo", nome: "Fundo",      ic: "🎨" },
+  { id: "jogo",  nome: "O jogo",     ic: "🎮" },
+  { id: "ordem", nome: "Arrumar",    ic: "☰" }
+];
+
 function estEditarPerfil() {
   const p = perfilMeu();
-  estRascunho = { bio: p.bio, pronomes: p.pronomes, cor: p.cor,
-                  efeito: p.efeito, fundo: p.fundo, animacao: p.animacao };
+  estRascunho = {
+    bio: p.bio, pronomes: p.pronomes, cor: p.cor, efeito: p.efeito,
+    fundo: p.fundo, animacao: p.animacao, fonte: p.fonte, brilho: p.brilho,
+    tema: p.tema, toque: p.toque, clique: p.clique,
+    interesses: p.interesses, blocos: perfilBlocos().join(","),
+    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l
+  };
+  pfAba = "quem";
   estPintarEditor();
 }
+
+/* a prévia do cartão, igual em todas as abas: mexer e ver mudar na hora
+   é o que faz a pessoa entender o que está escolhendo */
+function pfPreviaHTML() {
+  const r = estRascunho, eu = estEu();
+  const corItem = neoAchar(NEO_CORES, r.cor);
+  const efItem = neoAchar(NEO_EFEITOS, r.efeito);
+  const fonte = neoAchar(NEO_FONTES, r.fonte) || NEO_FONTES[0];
+  const fundoCSS = r.fundo === "meu"
+    ? "linear-gradient(150deg," + corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ")"
+    : (neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0]).css;
+  const foto = FOTOS[eu.id] || "";
+  let estilo = "";
+  if (corItem) estilo += "color:" + corItem.cor + ";";
+  estilo += "font-family:" + fonte.css + ";";
+  if (fonte.espaco) estilo += "letter-spacing:" + fonte.espaco + ";";
+  return '<div class="pf-banner" style="background:' + fundoCSS + '"></div>' +
+    '<div class="pf-topo">' +
+      '<span class="pf-av pf-brilho-' + (r.brilho || "nenhum") + '"' +
+      (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
+      (foto ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+      '<div class="pf-nome-cx"><b class="pf-nome' +
+        (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") +
+        '" style="' + estilo + '">' + escaparTexto(eu.tag) + "</b>" +
+        (r.pronomes ? '<span class="pf-pron">' + escaparTexto(r.pronomes) + "</span>" : "") +
+      "</div></div>";
+}
+
 function estPintarEditor() {
   const r = estRascunho;
   const eu = estEu();
-  const fundo = neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0];
-  const corItem = neoAchar(NEO_CORES, r.cor);
-  const efItem = neoAchar(NEO_EFEITOS, r.efeito);
-
-  /* a prévia é o próprio cartão, com o que está sendo escolhido agora */
-  const previa =
-    '<div class="pf-banner" style="background:' + fundo.css + '"></div>' +
-    '<div class="pf-topo">' +
-      '<span class="pf-av">' + escaparTexto(estIni(eu.tag)) + "</span>" +
-      '<div class="pf-nome-cx"><b class="pf-nome' +
-        (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") + '"' +
-        (corItem ? ' style="color:' + corItem.cor + '"' : "") + ">" +
-        escaparTexto(eu.tag) + "</b>" +
-        (r.pronomes ? '<span class="pf-pron">' + escaparTexto(r.pronomes) + "</span>" : "") +
-      "</div></div>";
+  if (!r || !eu) return;
 
   /* cada grade mostra TUDO, e o que está travado aparece com cadeado em
      vez de sumir: ver o que existe é metade do motivo de assinar */
@@ -35779,78 +37398,285 @@ function estPintarEditor() {
       const livre = neoLiberado(it);
       return '<button class="pf-op' + (r[campo] === it.id ? " on" : "") +
         (livre ? "" : " travado") + '" data-campo="' + campo + '" data-id="' + it.id + '"' +
-        (livre ? "" : ' title="Precisa do NeoNebula ' + it.nivel + '"') + ">" +
+        (livre ? "" : ' title="Precisa do NeoNebula ' + it.nivel + '">') + ">" +
         desenha(it) + (livre ? "" : '<i class="pf-cad">🔒</i>') + "</button>";
     }).join("") + "</div>";
 
+  let corpo = "";
+  if (pfAba === "quem") {
+    corpo =
+      '<div class="pf-campo"><label>Sua foto</label>' +
+      '<div class="pf-foto-linha">' +
+        '<span class="pf-foto-previa"' +
+          (FOTOS[eu.id] ? ' style="background-image:url(' + FOTOS[eu.id] + ')"' : "") + ">" +
+          (FOTOS[eu.id] ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+        '<div class="pf-foto-bts">' +
+          '<button class="pf-bt" id="pf-foto">Escolher imagem</button>' +
+          (FOTOS[eu.id] ? '<button class="pf-bt fraco" id="pf-foto-x">Tirar a foto</button>' : "") +
+          '<input type="file" id="pf-arq" accept="image/*" hidden>' +
+        "</div>" +
+      "</div>" +
+      '<p class="est-nota">A imagem é recortada no quadrado e encolhida para 96×96 aqui ' +
+      "mesmo, no seu aparelho, antes de subir. Assim ela pesa uns 4 KB em vez de 4 MB.</p></div>" +
+
+      '<div class="pf-campo"><label>Pronomes</label>' +
+      '<input id="pf-pron" maxlength="20" value="' + escaparTexto(r.pronomes) +
+      '" placeholder="ele/dele, ela/dela, elu/delu…" autocomplete="off"></div>' +
+
+      '<div class="pf-campo"><label>Sobre mim ' +
+      '<i id="pf-conta">' + (r.bio || "").length + "/" + perfilLimiteBio() + "</i></label>" +
+      '<textarea id="pf-bio" maxlength="' + perfilLimiteBio() +
+      '" rows="4" placeholder="Conte alguma coisa sua">' + escaparLongo(r.bio) + "</textarea>" +
+      (neoTem("bronze") ? "" : '<p class="est-nota">Com o NeoNebula a bio vai a 300 letras.</p>') +
+      "</div>" +
+
+      '<div class="pf-campo"><label>Interesses <i>' +
+        perfilInteresses({ perfil: { interesses: r.interesses }, neo: save.neo }).length +
+        "/" + (INTERESSES_MAX[neoNivel()] || 2) + "</i></label>" +
+      '<div class="pf-ints escolher">' + NEO_INTERESSES.map(it => {
+        const tem = String(r.interesses || "").split(",").indexOf(it.id) >= 0;
+        return '<button class="pf-int' + (tem ? " on" : "") + '" data-int="' + it.id + '">' +
+               it.ic + " " + escaparTexto(it.nome) + "</button>";
+      }).join("") + "</div></div>";
+
+  } else if (pfAba === "nome") {
+    corpo =
+      '<div class="pf-campo"><label>Fonte do nome</label>' +
+      grade(NEO_FONTES, "fonte", f =>
+        '<span class="pf-fonte" style="font-family:' + f.css + '">Aa</span><em>' +
+        escaparTexto(f.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Cor do nome</label>' +
+      grade(NEO_CORES, "cor", c =>
+        '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
+        escaparTexto(c.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Efeito do nome</label>' +
+      grade(NEO_EFEITOS, "efeito", e =>
+        '<span class="pf-ef neo-ef neo-' + e.id + '">' + escaparTexto(eu.tag).slice(0, 6) +
+        "</span><em>" + escaparTexto(e.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Brilho do avatar</label>' +
+      grade(NEO_BRILHOS, "brilho", b =>
+        '<span class="pf-av pequeno pf-brilho-' + b.id + '">' +
+        escaparTexto(estIni(eu.tag)) + "</span><em>" + escaparTexto(b.nome) + "</em>") + "</div>";
+
+  } else if (pfAba === "fundo") {
+    /* AS DUAS RODAS, uma em cima e uma embaixo, como foi pedido: a de
+       cima escolhe a cor onde o banner começa, a de baixo a cor onde ele
+       termina. Nenhuma das duas encosta no banner nem na bio -- elas
+       ficam entre os dois. */
+    corpo =
+      '<div class="pf-campo"><label>Duas cores suas</label>' +
+      '<div class="pf-rodas">' +
+        rodaHTML("c1", r.c1h, r.c1l, "Cor de cima") +
+        '<span class="pf-faixa" id="pf-faixa" style="background:linear-gradient(180deg,' +
+          corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ')"></span>' +
+        rodaHTML("c2", r.c2h, r.c2l, "Cor de baixo") +
+      "</div>" +
+      '<button class="pf-bt' + (r.fundo === "meu" ? " on" : "") + '" id="pf-usar-meu">' +
+      (r.fundo === "meu" ? "Usando as suas cores" : "Usar estas duas cores") + "</button>" +
+      '<p class="est-nota">Mexa na roda para a cor e na barrinha para o tom. ' +
+      "Vale para todo mundo, com ou sem NeoNebula.</p></div>" +
+
+      '<div class="pf-campo"><label>Ou um fundo pronto</label>' +
+      grade(NEO_FUNDOS, "fundo", f =>
+        '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
+        escaparTexto(f.nome) + "</em>") + "</div>";
+
+  } else if (pfAba === "jogo") {
+    corpo =
+      '<div class="pf-campo"><label>Cor do jogo inteiro</label>' +
+      grade(NEO_TEMAS, "tema", t =>
+        '<span class="pf-bola" style="background:' + t.cor + '"></span><em>' +
+        escaparTexto(t.nome) + "</em>") +
+      '<p class="est-nota">Troca a cor de destaque em todas as telas, não só aqui.</p></div>' +
+
+      '<div class="pf-campo"><label>Rastro da nave</label>' +
+      grade(NEO_ANIMACOES, "animacao", a =>
+        '<span class="pf-rastro" style="background:' +
+        (a.cor === "arco" ? "linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF)"
+                          : (a.cor || "rgba(255,255,255,.12)")) + '"></span><em>' +
+        escaparTexto(a.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Toque de aviso</label>' +
+      grade(NEO_TOQUES, "toque", t =>
+        '<span class="pf-bola" style="background:rgba(120,200,255,.25)">♪</span><em>' +
+        escaparTexto(t.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Efeito de clique</label>' +
+      grade(NEO_CLIQUES, "clique", c =>
+        '<span class="pf-bola" style="background:rgba(195,77,255,.25)">✦</span><em>' +
+        escaparTexto(c.nome) + "</em>") + "</div>";
+
+  } else {
+    /* ARRUMAR: quais blocos aparecem e em que ordem. Subir e descer em
+       botão, e não arrastando: arrastar numa lista dentro de uma janela
+       que já rola briga com a rolagem, e no celular vira loteria. */
+    const atuais = String(r.blocos || "").split(",").filter(Boolean);
+    corpo = '<div class="pf-campo"><label>O que aparece no meu perfil</label>' +
+      '<div class="pf-ordem">' + atuais.map((bid, i) => {
+        const b = PF_BLOCOS.filter(x => x.id === bid)[0];
+        if (!b) return "";
+        return '<div class="pf-ord-l"><b>' + escaparTexto(b.nome) + "</b>" +
+          '<button class="pf-ord-b" data-sobe="' + i + '" aria-label="Subir"' +
+            (i === 0 ? " disabled" : "") + ">↑</button>" +
+          '<button class="pf-ord-b" data-desce="' + i + '" aria-label="Descer"' +
+            (i === atuais.length - 1 ? " disabled" : "") + ">↓</button>" +
+          (b.sempre ? '<span class="pf-ord-fixo">sempre</span>'
+                    : '<button class="pf-ord-b tira" data-tira="' + bid + '">✕</button>') +
+          "</div>";
+      }).join("") + "</div>" +
+      (PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).length
+        ? '<label style="margin-top:12px">Guardados</label><div class="pf-ints">' +
+          PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).map(b =>
+            '<button class="pf-int" data-poe="' + b.id + '">+ ' +
+            escaparTexto(b.nome) + "</button>").join("") + "</div>"
+        : "") + "</div>";
+  }
+
   estJanela("Editar meu perfil",
-    '<div class="pf-previa">' + previa + "</div>" +
-
-    '<div class="pf-campo"><label>PRONOMES</label>' +
-    '<input id="pf-pron" maxlength="20" value="' + escaparTexto(r.pronomes) +
-    '" placeholder="ele/dele, ela/dela, elu/delu…" autocomplete="off"></div>' +
-
-    '<div class="pf-campo"><label>SOBRE MIM ' +
-    '<i id="pf-conta">' + (r.bio || "").length + "/" + perfilLimiteBio() + "</i></label>" +
-    '<textarea id="pf-bio" maxlength="' + perfilLimiteBio() +
-    '" rows="3" placeholder="conte alguma coisa sua">' + escaparTexto(r.bio) + "</textarea>" +
-    (neoTem("bronze") ? "" : '<p class="est-nota">Com o NeoNebula a bio vai a 300 letras.</p>') +
-    "</div>" +
-
-    '<div class="pf-campo"><label>FUNDO DO PERFIL</label>' +
-    grade(NEO_FUNDOS, "fundo", f =>
-      '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
-      escaparTexto(f.nome) + "</em>") + "</div>" +
-
-    '<div class="pf-campo"><label>COR DO NOME</label>' +
-    grade(NEO_CORES, "cor", c =>
-      '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
-      escaparTexto(c.nome) + "</em>") + "</div>" +
-
-    '<div class="pf-campo"><label>EFEITO DO NOME</label>' +
-    grade(NEO_EFEITOS, "efeito", e =>
-      '<span class="pf-ef neo-ef neo-' + e.id + '">' + escaparTexto(eu.tag).slice(0, 6) +
-      "</span><em>" + escaparTexto(e.nome) + "</em>") + "</div>" +
-
-    '<div class="pf-campo"><label>RASTRO DA NAVE</label>' +
-    grade(NEO_ANIMACOES, "animacao", a =>
-      '<span class="pf-rastro" style="background:' +
-      (a.cor === "arco" ? "linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF)"
-                        : (a.cor || "rgba(255,255,255,.12)")) + '"></span><em>' +
-      escaparTexto(a.nome) + "</em>") + "</div>" +
-
-    '<button class="est-jan-ok salvar" id="pf-salvar">SALVAR</button>' +
-    '<button class="est-jan-ok" id="pf-cancelar">cancelar</button>',
+    '<div class="pf-previa">' + pfPreviaHTML() + "</div>" +
+    '<div class="pf-abas">' + PF_ABAS.map(a =>
+      '<button class="pf-aba' + (a.id === pfAba ? " on" : "") + '" data-pfaba="' + a.id + '">' +
+      a.ic + " " + a.nome + "</button>").join("") + "</div>" +
+    '<div class="pf-corpo">' + corpo + "</div>" +
+    '<div class="pf-pe">' +
+      '<button class="est-jan-ok salvar" id="pf-salvar">Salvar</button>' +
+      '<button class="est-jan-ok" id="pf-cancelar">Cancelar</button>' +
+    "</div>",
     cx => {
+      cx.querySelectorAll("[data-pfaba]").forEach(b => b.addEventListener("click", () => {
+        pfAba = b.getAttribute("data-pfaba");
+        estPintarEditor();
+      }));
       cx.querySelectorAll("[data-campo]").forEach(b =>
         b.addEventListener("click", () => {
           if (b.classList.contains("travado")) {
-            estAvisar("Isso é do NeoNebula. Toque em MEU PERFIL › assinatura para ver.");
+            estAvisar("Isso é do NeoNebula. Toque em Meu perfil › assinatura para ver.");
             return;
           }
           const campo = b.getAttribute("data-campo");
-          /* a cor é a única que dá para tirar: tocar na que já está
-             escolhida volta ao normal */
+          /* a cor do nome é a única que dá para TIRAR: tocar na que já
+             está escolhida volta ao normal */
           estRascunho[campo] = (campo === "cor" && estRascunho.cor === b.getAttribute("data-id"))
             ? "" : b.getAttribute("data-id");
+          if (campo === "toque") { estRascunho.toque = b.getAttribute("data-id"); }
           estPintarEditor();
+          /* o toque de aviso tem que TOCAR na hora de escolher: escolher
+             um som sem ouvir é escolher no escuro */
+          if (campo === "toque") { const g = perfilToque; try { toqueDemo(estRascunho.toque); } catch (e) {} }
         }));
+      /* as duas rodas */
+      if (pfAba === "fundo") {
+        const pintaFaixa = () => {
+          const f = $("pf-faixa");
+          if (f) f.style.background = "linear-gradient(180deg," +
+            corDeHSL(estRascunho.c1h, estRascunho.c1l) + "," +
+            corDeHSL(estRascunho.c2h, estRascunho.c2l) + ")";
+        };
+        rodaLigar("c1", r.c1h, r.c1l, (h, l) => {
+          estRascunho.c1h = h; estRascunho.c1l = l; pintaFaixa(); pfAtualizarPrevia();
+        });
+        rodaLigar("c2", r.c2h, r.c2l, (h, l) => {
+          estRascunho.c2h = h; estRascunho.c2l = l; pintaFaixa(); pfAtualizarPrevia();
+        });
+        const usar = $("pf-usar-meu");
+        if (usar) usar.addEventListener("click", () => {
+          estRascunho.fundo = estRascunho.fundo === "meu" ? "vazio" : "meu";
+          estPintarEditor();
+        });
+      }
+      /* a foto */
+      const bfoto = $("pf-foto"), arq = $("pf-arq"), tira = $("pf-foto-x");
+      if (bfoto && arq) {
+        bfoto.addEventListener("click", () => arq.click());
+        arq.addEventListener("change", async () => {
+          if (!arq.files || !arq.files[0]) return;
+          if (await fotoGuardar(arq.files[0])) estPintarEditor();
+        });
+      }
+      if (tira) tira.addEventListener("click", async () => {
+        await fotoApagar();
+        estPintarEditor();
+      });
+      /* os interesses */
+      cx.querySelectorAll("[data-int]").forEach(b => b.addEventListener("click", () => {
+        const id = b.getAttribute("data-int");
+        const atual = String(estRascunho.interesses || "").split(",").filter(Boolean);
+        const onde = atual.indexOf(id);
+        const teto = INTERESSES_MAX[neoNivel()] || 2;
+        if (onde >= 0) atual.splice(onde, 1);
+        else if (atual.length >= teto) {
+          estAvisar("Dá para escolher " + teto + ". Com o NeoNebula cabem mais.");
+          return;
+        } else atual.push(id);
+        estRascunho.interesses = atual.join(",");
+        estPintarEditor();
+      }));
+      /* arrumar a ordem */
+      const mexer = (de, para) => {
+        const l = String(estRascunho.blocos || "").split(",").filter(Boolean);
+        if (para < 0 || para >= l.length) return;
+        const x = l[de]; l[de] = l[para]; l[para] = x;
+        estRascunho.blocos = l.join(",");
+        estPintarEditor();
+      };
+      cx.querySelectorAll("[data-sobe]").forEach(b => b.addEventListener("click", () => {
+        const i = parseInt(b.getAttribute("data-sobe"), 10); mexer(i, i - 1);
+      }));
+      cx.querySelectorAll("[data-desce]").forEach(b => b.addEventListener("click", () => {
+        const i = parseInt(b.getAttribute("data-desce"), 10); mexer(i, i + 1);
+      }));
+      cx.querySelectorAll("[data-tira]").forEach(b => b.addEventListener("click", () => {
+        estRascunho.blocos = String(estRascunho.blocos || "").split(",")
+          .filter(x => x && x !== b.getAttribute("data-tira")).join(",");
+        estPintarEditor();
+      }));
+      cx.querySelectorAll("[data-poe]").forEach(b => b.addEventListener("click", () => {
+        const l = String(estRascunho.blocos || "").split(",").filter(Boolean);
+        l.push(b.getAttribute("data-poe"));
+        estRascunho.blocos = l.join(",");
+        estPintarEditor();
+      }));
+      /* os textos */
       const bio = $("pf-bio"), conta = $("pf-conta");
       if (bio) bio.addEventListener("input", () => {
         estRascunho.bio = bio.value;
         if (conta) conta.textContent = bio.value.length + "/" + perfilLimiteBio();
       });
       const pron = $("pf-pron");
-      if (pron) pron.addEventListener("input", () => { estRascunho.pronomes = pron.value; });
+      if (pron) pron.addEventListener("input", () => {
+        estRascunho.pronomes = pron.value;
+        pfAtualizarPrevia();
+      });
       $("pf-cancelar").addEventListener("click", () => { estRascunho = null; estFecharJanela(); });
       $("pf-salvar").addEventListener("click", () => {
         perfilSalvar(estRascunho);
         estRascunho = null;
         estFecharJanela();
         estAvisar("Perfil salvo.");
+        temaAplicar();
         estPintar();
       });
     });
+}
+
+/* a prévia se repinta sozinha sem refazer a aba inteira: repintar tudo a
+   cada grau da roda faria o dedo perder o arrasto no meio */
+function pfAtualizarPrevia() {
+  const cx = document.querySelector(".pf-previa");
+  if (cx && estRascunho) cx.innerHTML = pfPreviaHTML();
+}
+
+/* toca o som escolhido na hora de escolher */
+function toqueDemo(id) {
+  const t = NEO_TOQUES.filter(x => x.id === id)[0];
+  if (!t || !t.nota) return;
+  const guardado = perfilMeu().toque;
+  perfilMeu().toque = id;
+  toqueTocar();
+  perfilMeu().toque = guardado;
 }
 
 /* ---------- a loja do NeoNebula ---------- */
@@ -35910,7 +37736,7 @@ function estAbrirStatus() {
       '<button class="est-status' + (agora === p.id ? " on" : "") + '" data-pres="' + p.id + '">' +
       '<i style="color:' + p.cor + '">' + p.ic + "</i>" +
       "<span><strong>" + escaparTexto(p.nome) + "</strong>" +
-      "<em>" + escaparTexto(p.sobre) + "</em></span>" +
+      "<em>" + escaparLongo(p.sobre) + "</em></span>" +
       (agora === p.id ? '<b class="est-status-ok">✓</b>' : "") + "</button>").join("") +
     (valendo === "ausente" && agora === "online"
       ? '<p class="est-nota">Agora você está aparecendo como <b>ausente</b>, porque ficou ' +
@@ -35920,7 +37746,7 @@ function estAbrirStatus() {
     '<div class="est-add-linha">' +
     '<input id="est-rec-emoji" maxlength="2" value="' + escaparTexto((r && r.emoji) || "") +
     '" placeholder="🙂" style="flex:0 0 54px;text-align:center">' +
-    '<input id="est-rec-txt" maxlength="60" value="' + escaparTexto((r && r.txt) || "") +
+    '<input id="est-rec-txt" maxlength="60" value="' + escaparLongo((r && r.txt) || "") +
     '" placeholder="o que você está fazendo?"></div>' +
     '<label style="margin-top:9px">SUMIR DEPOIS DE</label>' +
     '<div class="est-prazos">' + PRESENCA_PRAZOS.map(pz =>
@@ -36284,7 +38110,7 @@ function enqHTML(m, eu) {
   const mostra = fechada || meu.length > 0;
   const maior = Math.max.apply(null, n.concat([0]));
   let h = '<div class="enq-cx' + (fechada ? " fim" : "") + '" data-enq="' + m.k + '">' +
-    '<div class="enq-perg">' + escaparTexto(e.p || "") + "</div>";
+    '<div class="enq-perg">' + escaparLongo(e.p || "") + "</div>";
   ops.forEach((txt, i) => {
     const marcado = meu.indexOf(i) >= 0;
     const parte = gente ? Math.round((n[i] / gente) * 100) : 0;
@@ -36293,7 +38119,7 @@ function enqHTML(m, eu) {
          '" data-voto="' + m.k + ':' + i + '"' + (fechada ? " disabled" : "") + ">" +
          '<span class="enq-barra" style="width:' + (mostra ? parte : 0) + '%"></span>' +
          '<span class="enq-marca">' + (marcado ? "✓" : (e.multi ? "▢" : "○")) + "</span>" +
-         '<span class="enq-txt">' + escaparTexto(txt) + "</span>" +
+         '<span class="enq-txt">' + escaparLongo(txt) + "</span>" +
          (mostra ? '<span class="enq-num">' + parte + "%</span>" : "") +
          "</button>";
   });
@@ -36492,8 +38318,8 @@ function evHTML(m) {
   return '<div class="ev-cx' + (passou ? " ido" : "") + '" data-ev="' + eid + '">' +
     '<div class="ev-topo"><b>📅 ' + escaparTexto(e.nome) + "</b>" +
       '<span class="ev-quem">' + n + (n === 1 ? " vai" : " vão") + "</span></div>" +
-    (e.sobre ? '<div class="ev-sobre">' + escaparTexto(e.sobre) + "</div>" : "") +
-    '<div class="ev-meta">' + escaparTexto(evQuandoTexto(e)) +
+    (e.sobre ? '<div class="ev-sobre">' + escaparLongo(e.sobre) + "</div>" : "") +
+    '<div class="ev-meta">' + escaparLongo(evQuandoTexto(e)) +
       (lg ? " · " + escaparTexto(lg.nome) : "") + "</div>" +
     (passou ? '<div class="ev-meta">já aconteceu</div>'
             : '<button class="ev-vou' + (vou ? " on" : "") + '" data-evvou="' + eid + '">' +
@@ -36526,9 +38352,9 @@ function evPintarJanela(montarAgora) {
     h += '<div class="ev-item">' +
       '<div class="ev-topo"><b>' + escaparTexto(e.nome) + "</b>" +
         '<span class="ev-quem">' + n + (n === 1 ? " vai" : " vão") + "</span></div>" +
-      '<div class="ev-meta">' + escaparTexto(evQuandoTexto(e)) + " · por " +
+      '<div class="ev-meta">' + escaparLongo(evQuandoTexto(e)) + " · por " +
         escaparTexto(e.donoNome || "alguém") + "</div>" +
-      (e.sobre ? '<div class="ev-sobre">' + escaparTexto(e.sobre) + "</div>" : "") +
+      (e.sobre ? '<div class="ev-sobre">' + escaparLongo(e.sobre) + "</div>" : "") +
       '<div class="ev-acoes">' +
         '<button class="ev-vou' + (vou ? " on" : "") + '" data-evvou="' + e.eid + '">' +
           (vou ? "✓ EU VOU" : "EU VOU") + "</button>" +
@@ -36627,7 +38453,7 @@ function socialAbrirMais() {
       '<button class="est-jan-ok" data-mais="' + c.id + '">' +
       (c.id === "everyone" ? "📣 " : "👋 ") + "Chamar " + escaparTexto(c.nome) +
       ' <em class="est-jan-sub">' + escaparTexto(c.marca) + " · " +
-      escaparTexto(c.sobre) + "</em></button>").join("");
+      escaparLongo(c.sobre) + "</em></button>").join("");
   }
   estJanela("O que você quer mandar?", h, cx =>
     cx.querySelectorAll("[data-mais]").forEach(b => b.addEventListener("click", () => {
@@ -36642,6 +38468,144 @@ function socialAbrirMais() {
         campo.focus();
       }
     })));
+}
+
+/* =====================================================================
+   6. O @ QUE ABRE A LISTA
+   ---------------------------------------------------------------------
+   Digitar "@" e ter que acertar o nick de cabeça é o jeito mais fácil de
+   marcar a pessoa errada -- ou de achar que marcou e não ter marcado.
+   Aqui o @ abre uma listinha com quem dá para chamar NAQUELE lugar:
+   quem falou no canal, os seus amigos, e @everyone/@here se você puder.
+
+   A lista sai de quem JÁ ESTÁ ALI. Uma lista de todos os pilotos do
+   jogo seria inútil: ninguém quer marcar um estranho, e num jogo com
+   milhares de contas ela nem caberia na tela.
+   ===================================================================== */
+const ARROBA = { aberta: false, itens: [], sel: 0, de: -1 };
+
+/* de onde sai cada nome, em ordem de quem é mais provável de ser
+   chamado: quem acabou de falar aqui, depois os amigos */
+function arrobaCandidatos(pedaco) {
+  const eu = estEu();
+  const q = semAcento(String(pedaco || "").toLowerCase());
+  const vistos = {}, fora = [];
+  const por = (nome, id, sub, ic) => {
+    const chave = nickSimples(nome);
+    if (!nome || vistos[chave]) return;
+    if (eu && id === eu.id) return;          // marcar a si mesmo não serve para nada
+    if (q && semAcento(String(nome).toLowerCase()).indexOf(q) !== 0 &&
+        semAcento(String(nome).toLowerCase()).indexOf(q) < 0) return;
+    vistos[chave] = 1;
+    fora.push({ nome, id, sub, ic: ic || estIni(nome) });
+  };
+  /* @everyone e @here primeiro, e só para quem pode: oferecer o que a
+     pessoa não pode usar é prometer o que não vai acontecer */
+  if (socialPodeChamar(EST.destino) && EST.destino && EST.destino.tipo !== "dm") {
+    for (const c of CHAMADOS) {
+      const nome = c.marca.slice(1);
+      if (q && nome.indexOf(q) !== 0) continue;
+      fora.push({ nome, id: "", sub: c.sobre, ic: c.id === "everyone" ? "📣" : "👋", alarme: 1 });
+    }
+  }
+  /* quem falou aqui, do mais recente para o mais antigo */
+  for (let i = EST.msgs.length - 1; i >= 0; i--) {
+    const m = EST.msgs[i];
+    if (m && m.nome) por(m.nome, m.de, "falou aqui");
+  }
+  /* e os amigos, que são com quem se fala mesmo */
+  const lista = (typeof AM !== "undefined" && AM.lista) || {};
+  for (const id in lista) {
+    const a = lista[id];
+    por(a.tag || a.nome, id, estOndeEsta(id).txt);
+  }
+  return fora.slice(0, 8);
+}
+
+/* o pedaço que está sendo digitado depois do último @, se houver */
+function arrobaPedaco(campo) {
+  const ate = campo.value.slice(0, campo.selectionStart || 0);
+  const g = /@([A-Za-z0-9_À-ÿ]*)$/.exec(ate);
+  if (!g) return null;
+  return { de: ate.length - g[0].length, txt: g[1] };
+}
+
+function arrobaFechar() {
+  ARROBA.aberta = false;
+  const cx = $("est-arroba");
+  if (cx) { cx.classList.remove("on"); cx.innerHTML = ""; }
+}
+
+function arrobaOlhar() {
+  const campo = $("est-campo");
+  if (!campo) return;
+  const p = arrobaPedaco(campo);
+  if (!p) { arrobaFechar(); return; }
+  const itens = arrobaCandidatos(p.txt);
+  if (!itens.length) { arrobaFechar(); return; }
+  ARROBA.aberta = true;
+  ARROBA.itens = itens;
+  ARROBA.de = p.de;
+  if (ARROBA.sel >= itens.length) ARROBA.sel = 0;
+  arrobaPintar();
+}
+
+function arrobaPintar() {
+  const cx = $("est-arroba");
+  if (!cx) return;
+  cx.innerHTML = ARROBA.itens.map((it, i) =>
+    '<button class="est-arroba-l' + (i === ARROBA.sel ? " on" : "") +
+    (it.alarme ? " alarme" : "") + '" data-arroba="' + i + '">' +
+    '<b>' + escaparTexto(it.ic) + "</b>" +
+    '<span><strong>@' + escaparTexto(it.nome) + "</strong>" +
+    (it.sub ? "<em>" + escaparLongo(it.sub) + "</em>" : "") + "</span></button>").join("");
+  cx.classList.add("on");
+  cx.querySelectorAll("[data-arroba]").forEach(b =>
+    /* mousedown e não click: o click chega DEPOIS do blur do campo, e a
+       lista já teria fechado debaixo do dedo */
+    b.addEventListener("mousedown", e => {
+      e.preventDefault();
+      arrobaEscolher(parseInt(b.getAttribute("data-arroba"), 10));
+    }));
+  cx.querySelectorAll("[data-arroba]").forEach(b =>
+    b.addEventListener("touchstart", e => {
+      e.preventDefault();
+      arrobaEscolher(parseInt(b.getAttribute("data-arroba"), 10));
+    }, { passive: false }));
+}
+
+function arrobaEscolher(i) {
+  const campo = $("est-campo");
+  const it = ARROBA.itens[i];
+  if (!campo || !it) return;
+  const antes = campo.value.slice(0, ARROBA.de);
+  const depois = campo.value.slice(campo.selectionStart || 0);
+  const posto = "@" + it.nome + " ";
+  campo.value = antes + posto + depois;
+  const cursor = antes.length + posto.length;
+  campo.focus();
+  try { campo.setSelectionRange(cursor, cursor); } catch (e) {}
+  arrobaFechar();
+}
+
+/* as setas andam na lista, Enter e Tab escolhem, Esc fecha -- e nada
+   disso pode chegar no campo, senão Enter manda a mensagem no meio */
+function arrobaTecla(e) {
+  if (!ARROBA.aberta) return false;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    ARROBA.sel = (ARROBA.sel + (e.key === "ArrowDown" ? 1 : -1) + ARROBA.itens.length) %
+                 ARROBA.itens.length;
+    arrobaPintar();
+    e.preventDefault();
+    return true;
+  }
+  if (e.key === "Enter" || e.key === "Tab") {
+    arrobaEscolher(ARROBA.sel);
+    e.preventDefault();
+    return true;
+  }
+  if (e.key === "Escape") { arrobaFechar(); e.preventDefault(); return true; }
+  return false;
 }
 /* =====================================================================
    A VOZ — salas e chamadas de verdade
@@ -36703,7 +38667,14 @@ const VOZ = {
   batida: null,
   medidor: null,
   falando: {},       // uid -> true enquanto sai som
-  entrando: false
+  entrando: false,
+  /* o que o dono da sala mandou valer aqui (ver 09-vozdono.js) */
+  regras: {},
+  ultimaFala: {},    // uid -> quando saiu som dele pela última vez
+  convidadoPara: {}, // sala -> fui chamado, então o porteiro me deixa entrar
+  mao: false,        // levantei a mão na fila
+  comPalavra: false, // o dono me deu a palavra
+  jaEntrei: false
 };
 
 function vozCaminho(sala) { return "conversas/voz__" + sala; }
@@ -36753,7 +38724,21 @@ async function vozEntrar(sala, comoChamada) {
     } catch (e) {}
   }
 
+  /* de castigo não entra na voz, e o aviso diz isso e não outra coisa */
+  try {
+    const barra = castigoBarraVoz();
+    if (barra) { estAvisar(barra); return false; }
+  } catch (e) {}
+
   VOZ.entrando = true;
+  /* O PORTEIRO VEM ANTES DO MICROFONE. Pedir o microfone e só depois
+     descobrir que a sala está trancada acende a bolinha vermelha do
+     navegador por nada -- e é justamente o tipo de coisa que faz a
+     pessoa desconfiar do jogo. */
+  let barrado = null;
+  try { barrado = await vozPorteiro(sala); } catch (e) {}
+  if (barrado) { VOZ.entrando = false; estAvisar(barrado); return false; }
+
   estAvisar("Pedindo o microfone…");
   let fluxo = null;
   try {
@@ -36789,6 +38774,21 @@ async function vozEntrar(sala, comoChamada) {
   VOZ.dentro = dentro;
   VOZ.mudo = false;
   VOZ.surdo = false;
+  VOZ.mao = false;
+  VOZ.comPalavra = false;
+  VOZ.regras = (await nuvemReq(vozCaminho(sala) + "/regras")) || {};
+
+  /* SALA SEM DONO GANHA UM. Quem chega primeiro numa sala vazia fica
+     responsável por ela -- senão ninguém poderia calar o engraçadinho
+     que entra gritando, e a sala inteira teria que sair. O dono do jogo
+     assume por cima, sempre, que é o que ele pediu. */
+  const vazia = !Object.keys(dentro).filter(u =>
+    Date.now() - (dentro[u].quando || 0) < VOZ_SUMIU).length;
+  if (!VOZ.regras.dono || vazia || (vozSouDonoDoJogo() && VOZ.regras.sempreDono !== 0)) {
+    VOZ.regras.dono = eu.id;
+    nuvemSoltar(vozCaminho(sala) + "/regras/dono", eu.id);
+  }
+  vozAplicarRegrasEmMim();
   vozAplicarMudo();
 
   await vozAvisarQueEstou();
@@ -36796,7 +38796,9 @@ async function vozEntrar(sala, comoChamada) {
   VOZ.batida = setInterval(vozAvisarQueEstou, VOZ_BATIDA);
   vozMedirVoz();
   VOZ.entrando = false;
-  estAvisar("Você entrou em " + VOZ.nome + ".");
+  VOZ.jaEntrei = true;
+  const recado = VOZ.regras.recado;
+  estAvisar(recado ? "📌 " + recado : "Você entrou em " + VOZ.nome + ".");
   vozPintar();
   try { estPintar(); } catch (e) {}
   vozOlhar();
@@ -36815,6 +38817,7 @@ async function vozSair() {
      razão -- que o jogo continua ouvindo. */
   if (VOZ.meu) { VOZ.meu.getTracks().forEach(t => t.stop()); VOZ.meu = null; }
   VOZ.sala = null; VOZ.pares = {}; VOZ.dentro = {}; VOZ.falando = {};
+  VOZ.regras = {}; VOZ.mao = false; VOZ.comPalavra = false; VOZ.jaEntrei = false;
   await nuvemSoltar(vozCaminho(sala) + "/dentro/" + VOZ.eu, null, "DELETE");
   await nuvemSoltar(vozCaminho(sala) + "/sinais/" + VOZ.eu, null, "DELETE");
   vozPintar();
@@ -36825,7 +38828,11 @@ function vozAvisarQueEstou() {
   const eu = estEu();
   if (!VOZ.sala || !eu) return Promise.resolve();
   return nuvemSoltar(vozCaminho(VOZ.sala) + "/dentro/" + eu.id, {
-    nome: eu.tag, quando: Date.now(), mudo: VOZ.mudo ? 1 : 0, surdo: VOZ.surdo ? 1 : 0
+    nome: eu.tag, quando: Date.now(), mudo: VOZ.mudo ? 1 : 0, surdo: VOZ.surdo ? 1 : 0,
+    mao: VOZ.mao ? 1 : 0,
+    /* quem é dono do jogo diz isso aqui, e é assim que a ordem dele é
+       obedecida em sala que não é dele */
+    donoJogo: vozSouDonoDoJogo() ? 1 : 0
   });
 }
 
@@ -36848,6 +38855,10 @@ async function vozOlhar() {
   let tudo = null;
   try { tudo = await nuvemReq(vozCaminho(sala)); } finally { vozOlhando = false; }
   if (!VOZ.sala || VOZ.sala !== sala) return;      // saiu enquanto vinha
+  /* as regras vêm no MESMO pedido de sempre: elas moram dentro do nó da
+     sala, então saber o que mudou não custa uma conexão a mais */
+  VOZ.regras = (tudo && tudo.regras) || {};
+  vozAplicarRegrasEmMim();
   const dentro = (tudo && tudo.dentro) || {};
   /* quando a GENTE da sala muda, a barra lateral também tem que mudar:
      ela mostra quem está em cada sala, e uma lista parada faz a pessoa
@@ -36883,6 +38894,9 @@ async function vozOlhar() {
     nuvemSoltar(vozCaminho(sala) + "/sinais/" + VOZ.eu + "/" + k, null, "DELETE");
     if (s && s.de) await vozReceber(s);
   }
+
+  /* 3b. as regras que o dono aplica de tempos em tempos */
+  try { vozOlharParados(); } catch (e) {}
 
   /* 4. quem está demorando demais: avisa em vez de girar para sempre */
   for (const uid in VOZ.pares) {
@@ -36949,6 +38963,7 @@ async function vozOferecer(uid) {
 async function vozReceber(s) {
   const uid = s.de;
   try {
+    if (s.tipo === "ordem") { vozObedecer(s); return; }
     if (s.tipo === "oferta") {
       const par = vozPonte(uid);
       await par.pc.setRemoteDescription(JSON.parse(s.dado));
@@ -37006,11 +39021,18 @@ function vozMudo() {
   vozAvisarQueEstou();
   vozPintar();
 }
+/* aplicar e alternar são coisas diferentes: a ordem do dono ("tire o
+   fone dele") precisa APLICAR um estado, e um botão que alterna
+   devolveria o fone se a pessoa já estivesse surda. Já custou caro uma
+   vez, na entrada da nave da exploração. */
+function vozSurdoAplicar() {
+  for (const uid in VOZ.pares) VOZ.pares[uid].audio.muted = VOZ.surdo;
+  vozAplicarMudo();
+}
 function vozSurdo() {
   if (!VOZ.sala) return;
   VOZ.surdo = !VOZ.surdo;
-  for (const uid in VOZ.pares) VOZ.pares[uid].audio.muted = VOZ.surdo;
-  vozAplicarMudo();
+  vozSurdoAplicar();
   vozAvisarQueEstou();
   vozPintar();
 }
@@ -37037,6 +39059,7 @@ function vozMedirUm(uid, stream) {
       let pico = 0;
       for (let i = 0; i < dados.length; i++) pico = Math.max(pico, Math.abs(dados[i] - 128));
       const falando = pico > 8 && !(uid === VOZ.eu && (VOZ.mudo || VOZ.surdo));
+      if (falando) VOZ.ultimaFala[uid] = Date.now();
       if (!!VOZ.falando[uid] !== falando) { VOZ.falando[uid] = falando; vozPintarLuzes(); }
       requestAnimationFrame(bate);
     };
@@ -37120,6 +39143,10 @@ function vozPintar() {
       '<span class="voz-onde"><strong>' + escaparTexto(VOZ.nome) + "</strong>" +
       "<em>" + (quantos < 2 ? "só você por enquanto"
                             : quantos + " pilotos · " + ligados + " ligados") + "</em></span>" +
+      /* o ⚙ só aparece para quem pode mexer: um botão que só sabe dizer
+         "você não pode" é um botão que não devia estar ali */
+      (vozSouDono() || vozSouAjudante()
+        ? '<button class="voz-b eng" id="voz-eng" aria-label="Mandar na sala">⚙</button>' : "") +
       '<button class="voz-b sai" id="voz-sair" aria-label="Sair da voz">✕</button></div>' +
     '<div class="voz-gente" id="voz-gente"></div>' +
     '<div class="voz-acoes">' +
@@ -37127,11 +39154,22 @@ function vozPintar() {
         (VOZ.mudo ? "🔇 mudo" : "🎤 falando") + "</button>" +
       '<button class="voz-b' + (VOZ.surdo ? " off" : "") + '" id="voz-surdo">' +
         (VOZ.surdo ? "🔇 surdo" : "🎧 ouvindo") + "</button>" +
-    "</div>";
+      /* a mão só existe quando a sala está em fila: fora dela, levantar
+         a mão não faria nada e o botão seria decoração */
+      (vozRegra("fila") && !vozSouDono()
+        ? '<button class="voz-b' + (VOZ.mao ? " on" : "") + '" id="voz-mao">' +
+          (VOZ.mao ? "✋ na fila" : "✋ falar") + "</button>" : "") +
+    "</div>" +
+    (vozRegra("recado") ? '<div class="voz-recado">📌 ' +
+       escaparLongo(vozRegra("recado")) + "</div>" : "");
   vozPintarLuzes();
   $("voz-sair").addEventListener("click", vozSair);
   $("voz-mudo").addEventListener("click", vozMudo);
   $("voz-surdo").addEventListener("click", vozSurdo);
+  const eng = $("voz-eng");
+  if (eng) eng.addEventListener("click", vozAbrirPainel);
+  const mao = $("voz-mao");
+  if (mao) mao.addEventListener("click", vozMao);
 }
 
 function vozPintarLuzes() {
@@ -37180,6 +39218,618 @@ addEventListener("pagehide", () => {
   } catch (e) {}
   if (VOZ.meu) { try { VOZ.meu.getTracks().forEach(t => t.stop()); } catch (e) {} }
 });
+/* =====================================================================
+   O DONO DA SALA DE VOZ — quarenta coisas que dá para fazer
+   =====================================================================
+   O dono do jogo é dono de TODAS as salas, sempre, sem precisar ter
+   criado nenhuma. Foi pedido assim e faz sentido: a Estação é a casa do
+   jogo, e quem cuida da casa precisa poder entrar em qualquer cômodo.
+   Nas salas de servidor, quem manda continua sendo quem tem a permissão
+   lá dentro.
+
+   ONDE MORA NA NUVEM
+   ---------------------------------------------------------------------
+     conversas/voz__<sala>/regras        o que vale nesta sala
+     conversas/voz__<sala>/banidos/<uid> quem não entra mais
+     conversas/voz__<sala>/sinais/<uid>  as ordens, no mesmo caminho das
+                                         ofertas de ligação
+
+   As ordens pegam carona nos bilhetes que a voz já troca. Um galho novo
+   só para isso seria mais uma coisa para as regras antigas do Firebase
+   recusarem calado — e outra coisa para olhar de tempos em tempos.
+
+   O QUE ISTO NÃO É
+   ---------------------------------------------------------------------
+   Quem obedece à ordem é o jogo de quem recebeu. Alguém decidido, com o
+   navegador aberto no modo desenvolvedor, consegue ignorar um "calar".
+   Isto aqui é para organizar uma sala cheia de gente de boa-fé, que é o
+   caso de 99 em 100 — e não um cadeado. O cadeado de verdade só existe
+   com um servidor de áudio no meio, que este jogo não tem e não vai ter
+   sem custar dinheiro todo mês.
+   ===================================================================== */
+
+const VOZ_FAMILIAS = [
+  { id: "sala",    nome: "A SALA",     ic: "🏠" },
+  { id: "pessoas", nome: "AS PESSOAS", ic: "👥" },
+  { id: "som",     nome: "O SOM",      ic: "🔊" },
+  { id: "regras",  nome: "AS REGRAS",  ic: "📋" }
+];
+
+/* Quarenta. Cada uma é perguntada em algum lugar antes de deixar fazer,
+   ou faz alguma coisa acontecer no aparelho de alguém. Nenhuma é
+   enfeite de tela.
+
+   tipo:
+     liga   — uma chavinha (ligada/desligada)
+     num    — um número, escolhido numa listinha
+     txt    — um texto curto
+     acao   — um botão que faz e acaba
+     alvo   — um botão que precisa de uma pessoa escolhida antes */
+const VOZ_PODERES = [
+  /* ---- A SALA (10) ---- */
+  { id: "nome",        g: "sala", tipo: "txt",  nome: "Renomear a sala",
+    sobre: "o nome que todo mundo vê na barra", max: 24 },
+  { id: "recado",      g: "sala", tipo: "txt",  nome: "Recado da sala",
+    sobre: "aparece para quem entra", max: 80 },
+  { id: "limite",      g: "sala", tipo: "num",  nome: "Quantos cabem",
+    sobre: "acima disso a sala recusa", ops: [2, 4, 6, 8, 12, 20, 50] },
+  { id: "trancada",    g: "sala", tipo: "liga", nome: "Trancar a sala",
+    sobre: "quem está fica, mais ninguém entra" },
+  { id: "senha",       g: "sala", tipo: "txt",  nome: "Senha para entrar",
+    sobre: "vazio = sem senha", max: 16 },
+  { id: "soAmigos",    g: "sala", tipo: "liga", nome: "Só amigos meus",
+    sobre: "quem não é da sua lista não entra" },
+  { id: "soConvidado", g: "sala", tipo: "liga", nome: "Só quem eu chamar",
+    sobre: "ninguém entra sozinho" },
+  { id: "esvaziar",    g: "sala", tipo: "acao", nome: "Tirar todo mundo",
+    sobre: "a sala fica só com você" },
+  { id: "fechar",      g: "sala", tipo: "acao", nome: "Fechar a sala",
+    sobre: "tira todo mundo E tranca" },
+  { id: "cor",         g: "sala", tipo: "num",  nome: "Cor da sala",
+    sobre: "como ela aparece na barra", ops: [0, 1, 2, 3, 4, 5] },
+
+  /* ---- AS PESSOAS (10) ---- */
+  { id: "calar",       g: "pessoas", tipo: "alvo", nome: "Calar",
+    sobre: "fecha o microfone de quem você escolheu" },
+  { id: "descalar",    g: "pessoas", tipo: "alvo", nome: "Devolver o microfone",
+    sobre: "desfaz o calar" },
+  { id: "ensurdecer",  g: "pessoas", tipo: "alvo", nome: "Tirar o fone",
+    sobre: "a pessoa para de ouvir a sala" },
+  { id: "desensurdecer", g: "pessoas", tipo: "alvo", nome: "Devolver o fone",
+    sobre: "desfaz o de cima" },
+  { id: "tirar",       g: "pessoas", tipo: "alvo", nome: "Tirar da sala",
+    sobre: "sai agora, mas pode voltar" },
+  { id: "banir",       g: "pessoas", tipo: "alvo", nome: "Banir da sala",
+    sobre: "sai e não volta mais" },
+  { id: "desbanir",    g: "pessoas", tipo: "acao", nome: "Perdoar um banido",
+    sobre: "escolhe da lista de banidos" },
+  { id: "puxar",       g: "pessoas", tipo: "acao", nome: "Chamar alguém para cá",
+    sobre: "convida um amigo para esta sala" },
+  { id: "mover",       g: "pessoas", tipo: "alvo", nome: "Mover para outra sala",
+    sobre: "manda a pessoa para a sala que você escolher" },
+  { id: "ajudante",    g: "pessoas", tipo: "alvo", nome: "Fazer ajudante",
+    sobre: "pode calar e tirar, mas não mexe nas regras" },
+
+  /* ---- O SOM (10) ---- */
+  { id: "volume",      g: "som", tipo: "alvo", nome: "Volume de uma pessoa",
+    sobre: "só no SEU fone; ninguém mais é afetado" },
+  { id: "calarTodos",  g: "som", tipo: "acao", nome: "Calar a sala inteira",
+    sobre: "todo mundo menos você e os ajudantes" },
+  { id: "soEuFalo",    g: "som", tipo: "liga", nome: "Modo palestra",
+    sobre: "só você e os ajudantes falam" },
+  { id: "fila",        g: "som", tipo: "liga", nome: "Fila para falar",
+    sobre: "quem quer falar levanta a mão ✋" },
+  { id: "darPalavra",  g: "som", tipo: "alvo", nome: "Dar a palavra",
+    sobre: "libera o microfone de quem levantou a mão" },
+  { id: "prioridade",  g: "som", tipo: "liga", nome: "Voz prioritária",
+    sobre: "quando você fala, os outros abaixam" },
+  { id: "entrarMudo",  g: "som", tipo: "liga", nome: "Entrar calado",
+    sobre: "quem chega chega com o microfone fechado" },
+  { id: "avisoSom",    g: "som", tipo: "liga", nome: "Aviso de entrada e saída",
+    sobre: "um toque quando alguém chega ou sai" },
+  { id: "semRuido",    g: "som", tipo: "liga", nome: "Cortar ruído de fundo",
+    sobre: "ventilador, teclado, rua" },
+  { id: "leve",        g: "som", tipo: "liga", nome: "Som leve",
+    sobre: "gasta menos internet, em rede ruim" },
+
+  /* ---- AS REGRAS (10) ---- */
+  { id: "faseMin",     g: "regras", tipo: "num",  nome: "Fase mínima",
+    sobre: "quem não chegou lá não entra", ops: [0, 5, 10, 25, 50, 100] },
+  { id: "tempoFala",   g: "regras", tipo: "num",  nome: "Tempo de fala",
+    sobre: "segundos seguidos por vez; 0 = sem limite", ops: [0, 15, 30, 60, 120] },
+  { id: "tirarParado", g: "regras", tipo: "num",  nome: "Tirar quem some",
+    sobre: "minutos calado até sair sozinho; 0 = nunca", ops: [0, 5, 10, 30, 60] },
+  { id: "semPalavrao", g: "regras", tipo: "liga", nome: "Sem palavrão no nome",
+    sobre: "quem tem nome feio não entra" },
+  { id: "registro",    g: "regras", tipo: "liga", nome: "Anotar tudo",
+    sobre: "quem entrou, saiu e o que você fez" },
+  { id: "verRegistro", g: "regras", tipo: "acao", nome: "Ver o que ficou anotado",
+    sobre: "a lista do que aconteceu aqui" },
+  { id: "apelido",     g: "regras", tipo: "alvo", nome: "Apelido só desta sala",
+    sobre: "o nome da pessoa aqui dentro" },
+  { id: "convite",     g: "regras", tipo: "acao", nome: "Código de convite",
+    sobre: "para chamar quem não é amigo" },
+  { id: "transferir",  g: "regras", tipo: "alvo", nome: "Passar a sala",
+    sobre: "outra pessoa vira dona" },
+  { id: "sempreDono",  g: "regras", tipo: "liga", nome: "Sou sempre o dono",
+    sobre: "você volta a ser dono toda vez que entrar" }
+];
+
+/* as cores que a sala pode ter, na ordem do número guardado */
+const VOZ_CORES = ["#4DE8FF", "#23DC8C", "#FFC145", "#FF4D8F", "#C34DFF", "#7FB6FF"];
+
+/* o que vale numa sala que ninguém mexeu ainda */
+const VOZ_REGRAS_PADRAO = {
+  limite: 8, trancada: 0, senha: "", soAmigos: 0, soConvidado: 0, cor: 0,
+  soEuFalo: 0, fila: 0, prioridade: 0, entrarMudo: 0, avisoSom: 1,
+  semRuido: 1, leve: 0, faseMin: 0, tempoFala: 0, tirarParado: 0,
+  semPalavrao: 1, registro: 0, sempreDono: 1, nome: "", recado: ""
+};
+
+/* =====================================================================
+   QUEM É DONO
+   ---------------------------------------------------------------------
+   Uma função só decide, e todo lugar pergunta a ela. Se cada tela
+   fizesse a própria conta, um dia uma delas esqueceria de olhar o
+   ajudante e o ajudante ficaria sem poder nenhum na metade dos botões.
+   ===================================================================== */
+function vozSouDonoDoJogo() {
+  try { if (ehDono(save.__name)) return true; } catch (e) {}
+  try { if (PERM.entrou && PERM.dono) return true; } catch (e) {}
+  return false;
+}
+function vozSouDono(sala) {
+  sala = sala || VOZ.sala;
+  if (!sala) return false;
+  /* O DONO DO JOGO É DONO DE TODAS. É o pedido, e é o que faz a Estação
+     ter alguém para chamar quando a sala vira bagunça. */
+  if (vozSouDonoDoJogo()) return true;
+  /* numa sala de servidor quem manda é a permissão de lá */
+  if (sala.indexOf("srv__") === 0) {
+    try { return srvPode("vozCalarOutros") || srvPode("moverVoz"); } catch (e) { return false; }
+  }
+  const eu = estEu();
+  return !!(eu && VOZ.regras && VOZ.regras.dono === eu.id);
+}
+/* o ajudante pode mexer nas pessoas, não nas regras */
+function vozSouAjudante() {
+  const eu = estEu();
+  if (!eu) return false;
+  return !!((VOZ.regras.ajudantes || {})[eu.id]);
+}
+function vozPodePoder(p) {
+  if (vozSouDono()) return true;
+  return p.g === "pessoas" && vozSouAjudante() &&
+         ["calar", "descalar", "tirar", "mover"].indexOf(p.id) >= 0;
+}
+
+/* o valor de uma regra agora, com o padrão de reserva */
+function vozRegra(id) {
+  const v = (VOZ.regras || {})[id];
+  return v === undefined ? VOZ_REGRAS_PADRAO[id] : v;
+}
+
+async function vozRegraDefinir(id, valor) {
+  if (!VOZ.sala) return false;
+  if (!vozSouDono()) { estAvisar("Só o dono da sala mexe nisso."); return false; }
+  VOZ.regras[id] = valor;
+  vozPintar();
+  try { estPintarLado(); } catch (e) {}
+  const r = await nuvemSoltar(vozCaminho(VOZ.sala) + "/regras/" + id, valor);
+  if (r === null) { estAvisar("A nuvem não aceitou. Tente de novo."); return false; }
+  vozAnotar("regra", id + " = " + valor);
+  return true;
+}
+
+/* =====================================================================
+   AS ORDENS
+   ---------------------------------------------------------------------
+   Uma ordem é um bilhete endereçado a UMA pessoa, no mesmo lugar onde as
+   ofertas de ligação já passam. Quem recebe obedece e apaga.
+   ===================================================================== */
+async function vozOrdem(uid, ordem, valor) {
+  if (!VOZ.sala || !uid) return false;
+  const k = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const r = await nuvemSoltar(vozCaminho(VOZ.sala) + "/sinais/" + uid + "/" + k,
+    { de: VOZ.eu, tipo: "ordem", ordem, dado: String(valor === undefined ? "" : valor),
+      quando: Date.now() });
+  return r !== null;
+}
+
+/* eu recebi uma ordem. Só obedeço a quem manda aqui -- senão qualquer um
+   escreveria um bilhete de "sai da sala" para os outros. */
+function vozObedecer(s) {
+  const quem = s.de;
+  const donoDaSala = (VOZ.regras || {}).dono;
+  const ajudante = ((VOZ.regras || {}).ajudantes || {})[quem];
+  const donoJogo = ((VOZ.dentro || {})[quem] || {}).donoJogo;
+  if (quem !== donoDaSala && !ajudante && !donoJogo) return;
+
+  const nome = ((VOZ.dentro || {})[quem] || {}).nome || "o dono";
+  if (s.ordem === "calar")       { VOZ.mudo = true;  vozAplicarMudo(); vozAvisarQueEstou();
+                                   estAvisar(nome + " fechou o seu microfone."); }
+  else if (s.ordem === "descalar") { VOZ.mudo = false; vozAplicarMudo(); vozAvisarQueEstou();
+                                   estAvisar(nome + " devolveu o seu microfone."); }
+  else if (s.ordem === "ensurdecer") { VOZ.surdo = true; vozSurdoAplicar(); vozAvisarQueEstou();
+                                   estAvisar(nome + " tirou o seu fone."); }
+  else if (s.ordem === "desensurdecer") { VOZ.surdo = false; vozSurdoAplicar(); vozAvisarQueEstou();
+                                   estAvisar(nome + " devolveu o seu fone."); }
+  else if (s.ordem === "tirar")  { estAvisar(nome + " tirou você da sala."); vozSair(); }
+  else if (s.ordem === "banir")  { estAvisar(nome + " baniu você desta sala."); vozSair(); }
+  else if (s.ordem === "mover")  { estAvisar(nome + " moveu você de sala."); vozEntrar(s.dado); }
+  else if (s.ordem === "puxar")  { vozConvitePerguntar(nome, s.dado); }
+  else if (s.ordem === "palavra") { VOZ.mao = false; VOZ.mudo = false; vozAplicarMudo();
+                                   vozAvisarQueEstou(); estAvisar("É a sua vez de falar."); }
+  vozPintar();
+}
+
+/* ser puxado para uma sala não pode ser automático: entrar numa chamada
+   sem querer, com o microfone aberto, é o pesadelo de todo mundo */
+function vozConvitePerguntar(quem, sala) {
+  estJanela("Chamaram você",
+    '<p class="est-nota"><b>' + escaparTexto(quem) + "</b> está chamando você para " +
+    "<b>" + escaparLongo(vozNomeDaSala(sala)) + "</b>.</p>" +
+    '<button class="est-jan-ok" id="voz-aceito">ENTRAR NA SALA</button>' +
+    '<button class="est-jan-ok" id="voz-nao">agora não</button>',
+    () => {
+      $("voz-aceito").addEventListener("click", () => { estFecharJanela(); vozEntrar(sala); });
+      $("voz-nao").addEventListener("click", estFecharJanela);
+    });
+}
+
+/* =====================================================================
+   O REGISTRO
+   ---------------------------------------------------------------------
+   Só grava se o dono ligou. Anotar por padrão o que as pessoas fazem
+   numa sala de voz seria o tipo de coisa que ninguém pediu e todo mundo
+   detesta descobrir depois.
+   ===================================================================== */
+const VOZ_REGISTRO_TETO = 60;
+function vozAnotar(tipo, txt) {
+  if (!VOZ.sala || !vozRegra("registro")) return;
+  const eu = estEu();
+  const k = Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
+  nuvemSoltar(vozCaminho(VOZ.sala) + "/registro/" + k,
+    { quem: eu ? eu.tag : "?", tipo, txt: String(txt).slice(0, 80), quando: Date.now() });
+}
+
+/* =====================================================================
+   O QUE AS REGRAS FAZEM DE VERDADE
+   ---------------------------------------------------------------------
+   Regra que só existe na tela de ajustes não é regra. Cada uma destas é
+   aplicada em algum momento real: na hora de entrar, na hora de falar,
+   ou na batida de 1,2s.
+   ===================================================================== */
+
+/* na porta: pode entrar? Devolve null se pode, ou o motivo se não. */
+async function vozPorteiro(sala) {
+  if (vozSouDonoDoJogo()) return null;        // o dono do jogo entra em tudo
+  const r = (await nuvemReq(vozCaminho(sala) + "/regras")) || {};
+  const eu = estEu();
+  const ban = (await nuvemReq(vozCaminho(sala) + "/banidos")) || {};
+  if (eu && ban[eu.id]) return "Você foi banido desta sala.";
+  if (r.trancada) return "Esta sala está trancada.";
+  if (r.soAmigos && r.dono && eu) {
+    const meus = (typeof AM !== "undefined" && AM.lista) || {};
+    if (r.dono !== eu.id && !meus[r.dono]) return "Esta sala é só para os amigos de quem a abriu.";
+  }
+  if (r.faseMin) {
+    let minha = 0;
+    try { minha = save.best || 0; } catch (e) {}
+    if (minha < r.faseMin) return "Esta sala é da fase " + r.faseMin + " para cima.";
+  }
+  if (r.semPalavrao && eu) {
+    try { if (limparTexto(eu.tag) !== eu.tag) return "Seu nome não passa no filtro desta sala."; }
+    catch (e) {}
+  }
+  if (r.senha) {
+    const dita = prompt("Senha da sala:");
+    if (String(dita || "").trim() !== r.senha) return "Senha errada.";
+  }
+  if (r.soConvidado && !VOZ.convidadoPara[sala]) return "Só entra quem for chamado.";
+  return null;
+}
+
+/* depois de entrar: o que a sala impõe a mim */
+function vozAplicarRegrasEmMim() {
+  if (vozSouDono()) return;
+  if (vozRegra("entrarMudo") && !VOZ.jaEntrei) { VOZ.mudo = true; vozAplicarMudo(); }
+  /* modo palestra e fila calam quem não tem a palavra. O dono e os
+     ajudantes ficam de fora -- alguém tem que poder falar. */
+  if ((vozRegra("soEuFalo") || vozRegra("fila")) && !vozSouAjudante() && !VOZ.comPalavra) {
+    if (!VOZ.mudo) { VOZ.mudo = true; vozAplicarMudo(); vozAvisarQueEstou(); }
+  }
+}
+
+/* levantar a mão, quando a sala está em fila */
+async function vozMao() {
+  if (!VOZ.sala) return;
+  VOZ.mao = !VOZ.mao;
+  await nuvemSoltar(vozCaminho(VOZ.sala) + "/dentro/" + VOZ.eu + "/mao", VOZ.mao ? 1 : null,
+                    VOZ.mao ? "PUT" : "DELETE");
+  estAvisar(VOZ.mao ? "Você levantou a mão. Espere te darem a palavra."
+                    : "Você abaixou a mão.");
+  vozPintar();
+}
+
+/* o relógio de quem ficou calado tempo demais */
+function vozOlharParados() {
+  const min = vozRegra("tirarParado");
+  if (!min || !vozSouDono()) return;      // quem tira é o dono, para não tirar duas vezes
+  const limite = min * 60000;
+  for (const uid in VOZ.dentro) {
+    if (uid === VOZ.eu) continue;
+    const f = VOZ.dentro[uid];
+    const falou = VOZ.ultimaFala[uid] || f.quando || 0;
+    if (Date.now() - falou > limite) {
+      vozOrdem(uid, "tirar");
+      vozAnotar("saiu", (f.nome || "piloto") + " saiu por ficar calado");
+    }
+  }
+}
+
+/* =====================================================================
+   O PAINEL DO DONO
+   ---------------------------------------------------------------------
+   Quarenta coisas não cabem numa lista só sem virar um caça-palavras.
+   Quatro famílias, uma de cada vez, e a pessoa escolhida no topo -- que
+   é o que faz as dez de PESSOAS terem sentido sem repetir a lista de
+   gente quatro vezes.
+   ===================================================================== */
+let vozAba = "sala";
+let vozAlvo = "";
+
+function vozAbrirPainel() {
+  if (!VOZ.sala) { estAvisar("Entre numa sala primeiro."); return; }
+  if (!vozSouDono() && !vozSouAjudante()) {
+    estAvisar("Só o dono da sala abre isto.");
+    return;
+  }
+  vozAba = vozSouDono() ? "sala" : "pessoas";
+  estJanela("Sala: " + VOZ.nome, '<div id="voz-painel"></div>', () => vozPintarPainel());
+}
+
+function vozPintarPainel() {
+  const cx = $("voz-painel");
+  if (!cx) return;
+  const podeFam = f => VOZ_PODERES.some(p => p.g === f.id && vozPodePoder(p));
+  const fams = VOZ_FAMILIAS.filter(podeFam);
+  if (!fams.some(f => f.id === vozAba)) vozAba = fams.length ? fams[0].id : "";
+
+  let h = '<div class="voz-abas">' + fams.map(f =>
+    '<button class="voz-aba' + (f.id === vozAba ? " on" : "") + '" data-vaba="' + f.id + '">' +
+    f.ic + " " + f.nome + "</button>").join("") + "</div>";
+
+  /* a pessoa escolhida vale para as dez de PESSOAS e para as de SOM que
+     mexem em alguém: escolher uma vez e usar em todas é o que evita
+     dez listas iguais na mesma tela */
+  const precisaAlvo = VOZ_PODERES.some(p => p.g === vozAba && p.tipo === "alvo");
+  if (precisaAlvo) {
+    const gente = Object.keys(VOZ.dentro).filter(u => u !== VOZ.eu);
+    h += '<div class="voz-quem-h">EM QUEM</div>';
+    if (!gente.length) h += '<p class="est-nota">Você está sozinho na sala.</p>';
+    h += '<div class="voz-alvos">' + gente.map(uid => {
+      const f = VOZ.dentro[uid] || {};
+      return '<button class="voz-alvo' + (uid === vozAlvo ? " on" : "") +
+        '" data-valvo="' + uid + '"><b>' + escaparTexto(estIni(f.nome || "?")) + "</b>" +
+        escaparTexto(f.nome || "piloto") + (f.mao ? " ✋" : "") + "</button>";
+    }).join("") + "</div>";
+  }
+
+  h += '<div class="voz-poderes">';
+  for (const p of VOZ_PODERES) {
+    if (p.g !== vozAba || !vozPodePoder(p)) continue;
+    h += '<div class="voz-poder"><div class="voz-poder-txt"><strong>' +
+         escaparTexto(p.nome) + "</strong><em>" + escaparLongo(p.sobre) + "</em></div>";
+    if (p.tipo === "liga") {
+      h += '<button class="voz-chave' + (vozRegra(p.id) ? " on" : "") +
+           '" data-vliga="' + p.id + '"><i></i></button>';
+    } else if (p.tipo === "num") {
+      h += '<div class="voz-nums">' + p.ops.map(o =>
+        '<button class="voz-num' + (vozRegra(p.id) === o ? " on" : "") +
+        '" data-vnum="' + p.id + '" data-v="' + o + '">' +
+        (p.id === "cor" ? '<span class="voz-bola" style="background:' + VOZ_CORES[o] + '"></span>'
+                        : (o === 0 ? "—" : o)) + "</button>").join("") + "</div>";
+    } else if (p.tipo === "txt") {
+      h += '<input class="voz-txt" data-vtxt="' + p.id + '" maxlength="' + (p.max || 40) +
+           '" value="' + escaparTexto(String(vozRegra(p.id) || "")) + '" autocomplete="off">';
+    } else {
+      h += '<button class="voz-fazer" data-vacao="' + p.id + '">FAZER</button>';
+    }
+    h += "</div>";
+  }
+  h += "</div>";
+  cx.innerHTML = h;
+
+  cx.querySelectorAll("[data-vaba]").forEach(b => b.addEventListener("click", () => {
+    vozAba = b.getAttribute("data-vaba"); vozPintarPainel();
+  }));
+  cx.querySelectorAll("[data-valvo]").forEach(b => b.addEventListener("click", () => {
+    vozAlvo = b.getAttribute("data-valvo"); vozPintarPainel();
+  }));
+  cx.querySelectorAll("[data-vliga]").forEach(b => b.addEventListener("click", async () => {
+    const id = b.getAttribute("data-vliga");
+    await vozRegraDefinir(id, vozRegra(id) ? 0 : 1);
+    vozPintarPainel();
+  }));
+  cx.querySelectorAll("[data-vnum]").forEach(b => b.addEventListener("click", async () => {
+    await vozRegraDefinir(b.getAttribute("data-vnum"), parseInt(b.getAttribute("data-v"), 10));
+    vozPintarPainel();
+  }));
+  cx.querySelectorAll("[data-vtxt]").forEach(el => el.addEventListener("change", async () => {
+    await vozRegraDefinir(el.getAttribute("data-vtxt"), el.value.slice(0, 80));
+  }));
+  cx.querySelectorAll("[data-vacao]").forEach(b => b.addEventListener("click", () =>
+    vozFazer(b.getAttribute("data-vacao"))));
+}
+
+/* as ações e as que precisam de alvo, num lugar só */
+async function vozFazer(id) {
+  const p = VOZ_PODERES.filter(x => x.id === id)[0];
+  if (!p || !vozPodePoder(p)) { estAvisar("Você não pode isso aqui."); return; }
+  const alvo = vozAlvo && VOZ.dentro[vozAlvo] ? vozAlvo : "";
+  const nomeAlvo = alvo ? (VOZ.dentro[alvo].nome || "piloto") : "";
+  if (p.tipo === "alvo" && !alvo) { estAvisar("Escolha uma pessoa primeiro."); return; }
+
+  if (id === "calar" || id === "descalar" || id === "ensurdecer" ||
+      id === "desensurdecer" || id === "tirar") {
+    await vozOrdem(alvo, id);
+    vozAnotar(id, nomeAlvo);
+    estAvisar("Pronto: " + p.nome.toLowerCase() + " — " + nomeAlvo + ".");
+    return;
+  }
+  if (id === "banir") {
+    await nuvemSoltar(vozCaminho(VOZ.sala) + "/banidos/" + alvo, nomeAlvo);
+    await vozOrdem(alvo, "banir");
+    vozAnotar("banir", nomeAlvo);
+    estAvisar(nomeAlvo + " foi banido desta sala.");
+    return;
+  }
+  if (id === "desbanir") {
+    const ban = (await nuvemReq(vozCaminho(VOZ.sala) + "/banidos")) || {};
+    const ids = Object.keys(ban);
+    if (!ids.length) { estAvisar("Ninguém banido aqui."); return; }
+    estJanela("Perdoar", ids.map(u =>
+      '<button class="est-jan-ok" data-perdoa="' + u + '">' + escaparTexto(ban[u]) + "</button>").join(""),
+      cx => cx.querySelectorAll("[data-perdoa]").forEach(b => b.addEventListener("click", async () => {
+        await nuvemSoltar(vozCaminho(VOZ.sala) + "/banidos/" + b.getAttribute("data-perdoa"),
+                          null, "DELETE");
+        estFecharJanela();
+        estAvisar("Perdoado. Pode voltar.");
+      })));
+    return;
+  }
+  if (id === "mover") {
+    estJanela("Mover " + nomeAlvo, EST_VOZ.filter(v => v.id !== VOZ.sala).map(v =>
+      '<button class="est-jan-ok" data-mv="' + v.id + '">' + escaparTexto(v.nome) + "</button>").join(""),
+      cx => cx.querySelectorAll("[data-mv]").forEach(b => b.addEventListener("click", async () => {
+        await vozOrdem(alvo, "mover", b.getAttribute("data-mv"));
+        vozAnotar("mover", nomeAlvo);
+        estFecharJanela();
+        estAvisar(nomeAlvo + " foi movido.");
+      })));
+    return;
+  }
+  if (id === "puxar") {
+    const lista = (typeof AM !== "undefined" && AM.lista) || {};
+    const ids = Object.keys(lista).filter(u => !VOZ.dentro[u]);
+    if (!ids.length) { estAvisar("Todos os seus amigos já estão aqui (ou você não tem nenhum)."); return; }
+    estJanela("Chamar para a sala", ids.map(u =>
+      '<button class="est-jan-ok" data-px="' + u + '">' +
+      escaparTexto(lista[u].tag || lista[u].nome) + "</button>").join(""),
+      cx => cx.querySelectorAll("[data-px]").forEach(b => b.addEventListener("click", async () => {
+        const u = b.getAttribute("data-px");
+        /* o convite vale para o porteiro: sem isto, uma sala "só quem eu
+           chamar" recusaria justamente quem foi chamado */
+        await nuvemSoltar(vozCaminho(VOZ.sala) + "/convidados/" + u, Date.now());
+        await vozOrdem(u, "puxar", VOZ.sala);
+        estFecharJanela();
+        estAvisar("Chamado. Agora é com a pessoa.");
+      })));
+    return;
+  }
+  if (id === "ajudante") {
+    const tinha = (VOZ.regras.ajudantes || {})[alvo];
+    VOZ.regras.ajudantes = VOZ.regras.ajudantes || {};
+    if (tinha) delete VOZ.regras.ajudantes[alvo];
+    else VOZ.regras.ajudantes[alvo] = nomeAlvo;
+    await nuvemSoltar(vozCaminho(VOZ.sala) + "/regras/ajudantes/" + alvo,
+                      tinha ? null : nomeAlvo, tinha ? "DELETE" : "PUT");
+    vozAnotar("ajudante", nomeAlvo);
+    estAvisar(tinha ? nomeAlvo + " não é mais ajudante." : nomeAlvo + " agora é ajudante.");
+    vozPintarPainel();
+    return;
+  }
+  if (id === "volume") {
+    const par = VOZ.pares[alvo];
+    if (!par) { estAvisar("Ainda não estou ligado com essa pessoa."); return; }
+    estJanela("Volume de " + nomeAlvo,
+      '<p class="est-nota">Isto vale só no SEU fone. Ninguém mais é afetado.</p>' +
+      '<div class="voz-nums">' + [0, 25, 50, 75, 100, 150].map(v =>
+        '<button class="voz-num' + (Math.round((par.audio.volume || 1) * 100) === v ? " on" : "") +
+        '" data-vol="' + v + '">' + v + "%</button>").join("") + "</div>",
+      cx => cx.querySelectorAll("[data-vol]").forEach(b => b.addEventListener("click", () => {
+        const v = parseInt(b.getAttribute("data-vol"), 10) / 100;
+        /* o navegador não passa de 1: acima disso é promessa falsa, e
+           dizer isso é melhor que fingir que subiu */
+        par.audio.volume = Math.min(1, v);
+        estFecharJanela();
+        estAvisar(v > 1 ? "No máximo que o navegador deixa." : "Volume de " + nomeAlvo + ": " + b.textContent);
+      })));
+    return;
+  }
+  if (id === "darPalavra") {
+    await vozOrdem(alvo, "palavra");
+    await nuvemSoltar(vozCaminho(VOZ.sala) + "/dentro/" + alvo + "/mao", null, "DELETE");
+    estAvisar(nomeAlvo + " está com a palavra.");
+    return;
+  }
+  if (id === "apelido") {
+    const novo = prompt("Apelido de " + nomeAlvo + " nesta sala:", nomeAlvo);
+    if (novo === null) return;
+    await nuvemSoltar(vozCaminho(VOZ.sala) + "/dentro/" + alvo + "/nome",
+                      String(novo).slice(0, 20) || nomeAlvo);
+    estAvisar("Apelido trocado.");
+    return;
+  }
+  if (id === "transferir") {
+    await vozRegraDefinir("dono", alvo);
+    vozAnotar("transferir", nomeAlvo);
+    estAvisar("A sala agora é de " + nomeAlvo + ".");
+    estFecharJanela();
+    return;
+  }
+  if (id === "calarTodos") {
+    let n = 0;
+    for (const uid in VOZ.dentro) {
+      if (uid === VOZ.eu || (VOZ.regras.ajudantes || {})[uid]) continue;
+      await vozOrdem(uid, "calar");
+      n++;
+    }
+    vozAnotar("calarTodos", n + " pessoas");
+    estAvisar(n ? "Calei " + n + (n === 1 ? " pessoa." : " pessoas.") : "Não tinha ninguém para calar.");
+    return;
+  }
+  if (id === "esvaziar" || id === "fechar") {
+    let n = 0;
+    for (const uid in VOZ.dentro) { if (uid === VOZ.eu) { continue; } await vozOrdem(uid, "tirar"); n++; }
+    if (id === "fechar") await vozRegraDefinir("trancada", 1);
+    vozAnotar(id, n + " pessoas");
+    estAvisar(id === "fechar" ? "Sala esvaziada e trancada." : "Sala esvaziada.");
+    estFecharJanela();
+    return;
+  }
+  if (id === "convite") {
+    /* o código é a própria sala: quem tem o código sabe o nome dela, e é
+       isso que o porteiro precisa saber. Inventar um segundo código só
+       para depois traduzi-lo de volta não compraria nada. */
+    const cod = VOZ.sala.toUpperCase();
+    estJanela("Convite da sala",
+      '<p class="est-nota">Mande este código para quem você quer na sala. ' +
+      "Ele entra por AMIGOS › ENTRAR NUMA SALA.</p>" +
+      '<p class="voz-codigo">' + escaparTexto(cod) + "</p>" +
+      '<button class="est-jan-ok" id="voz-copiar">COPIAR</button>',
+      () => $("voz-copiar").addEventListener("click", () => {
+        try { navigator.clipboard.writeText(cod); estAvisar("Copiado."); }
+        catch (e) { estAvisar("Copie na mão: " + cod); }
+      }));
+    return;
+  }
+  if (id === "verRegistro") {
+    const reg = (await nuvemReq(vozCaminho(VOZ.sala) + "/registro")) || {};
+    const linhas = Object.keys(reg).sort().reverse().slice(0, VOZ_REGISTRO_TETO)
+      .map(k => reg[k]);
+    estJanela("O que aconteceu aqui",
+      linhas.length
+        ? linhas.map(l => '<div class="voz-reg"><b>' + escaparTexto(l.quem) + "</b> " +
+            escaparTexto(l.tipo) + " · " + escaparLongo(l.txt) +
+            '<em>' + estHora(l.quando) + "</em></div>").join("")
+        : '<p class="est-nota">Nada anotado. Ligue “Anotar tudo” em AS REGRAS ' +
+          "para começar a guardar.</p>");
+    return;
+  }
+  estAvisar("Feito.");
+}
 /* ---------- Loop ---------- */
 let last = performance.now();
 function loop(now) {
@@ -37780,6 +40430,29 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "9.0", itens: [
+      "FOTO DE PERFIL: escolha uma imagem do aparelho. Ela é recortada no quadrado e encolhida para 96×96 no seu próprio celular antes de subir — uma foto de 4 MB vira 4 KB, e a lista de pilotos não pesa nada por causa disso",
+      "FONTES DO NOME: nove jeitos de escrever o seu nome, duas de graça. Nenhuma baixa nada, então funcionam sem internet",
+      "DUAS CORES SUAS no fundo do perfil, escolhidas em duas rodas de cor — uma em cima para a cor de cima, outra embaixo para a de baixo, com a faixa do meio mostrando o resultado. Vale com ou sem NeoNebula",
+      "O perfil virou uma janela alta, montada por blocos: Sobre mim, Emblemas, Interesses, Atividade recente, Amigos em comum e Coleção. Você escolhe quais aparecem e em que ordem",
+      "EMBLEMAS saem das conquistas que você já ganhou, e INTERESSES deixam você dizer o que gosta de jogar",
+      "BRILHO DO AVATAR: anel girando, faíscas, batimento e órbita",
+      "COR DO JOGO INTEIRO: troque o tom de destaque de todas as telas, não só do perfil. Mais toque de aviso e efeito de clique",
+      "O GLITCH DO NOME ESTAVA ILEGÍVEL — as sombras coloridas ficavam coladas na letra e o nome era um borrão o tempo todo. Agora o nome fica limpo e a falha acontece de vez em quando, que é o que um glitch deveria ser",
+      "O NEONEBULA saiu de dentro do perfil e foi para o alto da barra, com Bronze, Prata e Ouro à vista. Embaixo dele aparecem ofertas — e só quando existe alguma",
+      "CASTIGO SOB MEDIDA para o dono do jogo: uma setinha no perfil de qualquer pessoa, e você escolhe o número e se são segundos, minutos, horas ou dias. Dá para tirar só a fala, só a voz, ou as duas"
+    ] },
+  { v: "8.9", itens: [
+      "MENSAGEM CHEGAVA CORTADA. Tudo o que você escrevia com mais de 40 letras aparecia pela metade do outro lado — sem reticências, sem aviso, desde que a Estação existe. Consertado: agora vai inteiro",
+      "A conversa ficou com cara de conversa: a sua fala de um lado, a dos outros do outro, cada uma no seu balão. E o que a pessoa falou ficou maior que o nome dela",
+      "Digite @ e a lista de quem dá para marcar aparece sozinha. Setas para escolher, Enter para pôr o nome. Nada de acertar o apelido de cabeça",
+      "Busca no topo da barra: acha canal, sala de voz e conversa sem rolar",
+      "O seu cartão no canto de baixo ficou opaco — a lista passava por trás dele e o nome saía sujo",
+      "SALAS DE VOZ COM DONO: 40 coisas para fazer, em quatro grupos (A SALA, AS PESSOAS, O SOM, AS REGRAS). Trancar, pôr senha, limite de gente, calar, tirar, banir, mover, fazer ajudante, modo palestra, fila para falar com ✋, entrar calado, fase mínima, tirar quem some, anotar tudo e mais",
+      "Você é dono de TODAS as salas de voz, sempre — e a sala que estiver vazia fica de quem chegar primeiro, para ninguém ficar refém do engraçadinho",
+      "SERVIDORES E GRUPOS SAÍRAM. Criar servidor abria uma janela e não gravava nada, e uma comunidade dividida em cantinhos vazios é pior que uma cheia. Agora é um chat global só: #geral, #trocas e #ajuda, mais as conversas de um para um",
+      "Todo botão da Estação passou a ser apertado por um teste antes de cada versão. Botão que não faz nada agora reprova a publicação"
+    ] },
   { v: "8.8", itens: [
       "CHEGOU A VOZ: as salas da Estação abrem de verdade. O som vai direto de um aparelho para o outro, sem passar por servidor nenhum",
       "Canal de voz de servidor entra na sala em vez de abrir conversa, e respeita a permissão de quem pode entrar",
@@ -38359,7 +41032,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.8";
+const VERSAO = "9.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

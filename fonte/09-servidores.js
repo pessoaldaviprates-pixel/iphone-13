@@ -29,6 +29,31 @@
    ===================================================================== */
 
 /* =====================================================================
+   GUARDADO, NÃO APAGADO
+   ---------------------------------------------------------------------
+   Os servidores estão desligados. Foi decisão do dono do jogo: criar
+   servidor virou uma segunda casa vazia ao lado da Estação, e quem
+   entrava não achava ninguém lá dentro. A comunidade é uma só, e é o
+   chat global — #geral, #trocas, #ajuda — que a enche.
+
+   E havia um motivo técnico junto: "servidores/" é galho NOVO no banco,
+   e as contas com as regras antigas do Firebase recusavam a gravação. O
+   botão CRIAR existia, a janela abria, e nada acontecia. Um botão que
+   não faz nada é pior que um botão que não existe.
+
+   Desligado assim: o + some da barra, a seção inteira não é desenhada,
+   e nada do que está aqui é montado. Religar é trocar false por true --
+   o sistema inteiro (cargos, 50 permissões, moderação, impulsos, tag)
+   continua aqui, inteiro, esperando.
+   ===================================================================== */
+const SERVIDORES_LIGADOS = false;
+
+/* Os grupos privados saíram junto, e pelo mesmo motivo: a conversa é
+   para ser global. Quem quer falar com uma pessoa tem a conversa
+   reservada; quem quer falar com todo mundo tem os canais. */
+const GRUPOS_LIGADOS = false;
+
+/* =====================================================================
    AS PERMISSÕES
    ---------------------------------------------------------------------
    Cinquenta, em cinco famílias de dez. Não é enfeite: cada uma é

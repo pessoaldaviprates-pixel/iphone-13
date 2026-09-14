@@ -598,6 +598,29 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "9.0", itens: [
+      "FOTO DE PERFIL: escolha uma imagem do aparelho. Ela é recortada no quadrado e encolhida para 96×96 no seu próprio celular antes de subir — uma foto de 4 MB vira 4 KB, e a lista de pilotos não pesa nada por causa disso",
+      "FONTES DO NOME: nove jeitos de escrever o seu nome, duas de graça. Nenhuma baixa nada, então funcionam sem internet",
+      "DUAS CORES SUAS no fundo do perfil, escolhidas em duas rodas de cor — uma em cima para a cor de cima, outra embaixo para a de baixo, com a faixa do meio mostrando o resultado. Vale com ou sem NeoNebula",
+      "O perfil virou uma janela alta, montada por blocos: Sobre mim, Emblemas, Interesses, Atividade recente, Amigos em comum e Coleção. Você escolhe quais aparecem e em que ordem",
+      "EMBLEMAS saem das conquistas que você já ganhou, e INTERESSES deixam você dizer o que gosta de jogar",
+      "BRILHO DO AVATAR: anel girando, faíscas, batimento e órbita",
+      "COR DO JOGO INTEIRO: troque o tom de destaque de todas as telas, não só do perfil. Mais toque de aviso e efeito de clique",
+      "O GLITCH DO NOME ESTAVA ILEGÍVEL — as sombras coloridas ficavam coladas na letra e o nome era um borrão o tempo todo. Agora o nome fica limpo e a falha acontece de vez em quando, que é o que um glitch deveria ser",
+      "O NEONEBULA saiu de dentro do perfil e foi para o alto da barra, com Bronze, Prata e Ouro à vista. Embaixo dele aparecem ofertas — e só quando existe alguma",
+      "CASTIGO SOB MEDIDA para o dono do jogo: uma setinha no perfil de qualquer pessoa, e você escolhe o número e se são segundos, minutos, horas ou dias. Dá para tirar só a fala, só a voz, ou as duas"
+    ] },
+  { v: "8.9", itens: [
+      "MENSAGEM CHEGAVA CORTADA. Tudo o que você escrevia com mais de 40 letras aparecia pela metade do outro lado — sem reticências, sem aviso, desde que a Estação existe. Consertado: agora vai inteiro",
+      "A conversa ficou com cara de conversa: a sua fala de um lado, a dos outros do outro, cada uma no seu balão. E o que a pessoa falou ficou maior que o nome dela",
+      "Digite @ e a lista de quem dá para marcar aparece sozinha. Setas para escolher, Enter para pôr o nome. Nada de acertar o apelido de cabeça",
+      "Busca no topo da barra: acha canal, sala de voz e conversa sem rolar",
+      "O seu cartão no canto de baixo ficou opaco — a lista passava por trás dele e o nome saía sujo",
+      "SALAS DE VOZ COM DONO: 40 coisas para fazer, em quatro grupos (A SALA, AS PESSOAS, O SOM, AS REGRAS). Trancar, pôr senha, limite de gente, calar, tirar, banir, mover, fazer ajudante, modo palestra, fila para falar com ✋, entrar calado, fase mínima, tirar quem some, anotar tudo e mais",
+      "Você é dono de TODAS as salas de voz, sempre — e a sala que estiver vazia fica de quem chegar primeiro, para ninguém ficar refém do engraçadinho",
+      "SERVIDORES E GRUPOS SAÍRAM. Criar servidor abria uma janela e não gravava nada, e uma comunidade dividida em cantinhos vazios é pior que uma cheia. Agora é um chat global só: #geral, #trocas e #ajuda, mais as conversas de um para um",
+      "Todo botão da Estação passou a ser apertado por um teste antes de cada versão. Botão que não faz nada agora reprova a publicação"
+    ] },
   { v: "8.8", itens: [
       "CHEGOU A VOZ: as salas da Estação abrem de verdade. O som vai direto de um aparelho para o outro, sem passar por servidor nenhum",
       "Canal de voz de servidor entra na sala em vez de abrir conversa, e respeita a permissão de quem pode entrar",
@@ -1177,7 +1200,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.8";
+const VERSAO = "9.0";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

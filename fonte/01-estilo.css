@@ -5584,11 +5584,32 @@
   .neo-pulso{animation:neoPulso 1.8s ease-in-out infinite}
   @keyframes neoPulso{0%,100%{opacity:1;text-shadow:0 0 6px currentColor}
     50%{opacity:.72;text-shadow:0 0 16px currentColor}}
-  .neo-glitch{text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan);
-    animation:neoGlitch 2.6s steps(1) infinite}
-  @keyframes neoGlitch{0%,92%,100%{transform:none;text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan)}
-    94%{transform:translateX(-1.5px);text-shadow:-2px 0 var(--magenta),2px 0 var(--cyan)}
-    96%{transform:translateX(1.5px);text-shadow:2px 0 var(--verde),-2px 0 var(--amber)}}
+  /* O GLITCH ESTAVA ILEGÍVEL. As duas sombras coloridas ficavam a 1,5px
+     do texto -- ou seja, coladas nele: em letra pequena elas invadiam o
+     próprio traço e o nome virava um borrão rosa e azul. Agora as
+     sombras ficam mais longe (3px), mais fracas, e as letras ganham um
+     respiro (.04em) para o desencontro ser visível SEM comer o texto.
+     Efeito é para fazer olhar duas vezes, não para esconder o nome. */
+  /* O GLITCH ESTAVA ILEGÍVEL. As duas sombras coloridas ficavam a 1,5px
+     do texto -- ou seja, coladas nele: em letra pequena elas invadiam o
+     traço e o nome virava um borrão rosa e azul, o tempo todo.
+
+     O conserto não foi afastar as sombras: foi TIRÁ-LAS DO DESCANSO. Um
+     glitch é uma falha que acontece de vez em quando; se ela está lá
+     sempre, não é glitch, é desenho ruim. Agora o nome fica limpo 93%
+     do tempo, com um fiapo de brilho só, e desencontra forte por dois
+     décimos de segundo a cada três segundos. Dá para ler sempre e ainda
+     assusta na hora certa. */
+  .neo-glitch{
+    letter-spacing:.03em;
+    text-shadow:0 0 5px currentColor;
+    animation:neoGlitch 3.2s steps(1) infinite;
+  }
+  @keyframes neoGlitch{
+    0%,90%,100%{transform:none;text-shadow:0 0 5px currentColor}
+    92%{transform:translateX(-2px);text-shadow:-4px 0 rgba(255,77,143,.9),4px 0 rgba(77,232,255,.9)}
+    94%{transform:translateX(2px);text-shadow:4px 0 rgba(91,240,176,.9),-4px 0 rgba(255,193,69,.9)}
+    96%{transform:translateX(-1px);text-shadow:-2px 0 rgba(255,77,143,.7),2px 0 rgba(77,232,255,.7)}}
   .neo-arco{
     background:linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF,#C34DFF,#FF4D8F);
     background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
@@ -5740,11 +5761,19 @@
   .est-cab-b.mudo{border-color:rgba(255,193,69,.35);color:var(--amber)}
 
   /* ---- a barra do próprio piloto, embaixo da lista ---- */
+  /* OPACA, E NÃO "QUASE". Ela é sticky: a lista de canais passa POR
+     BAIXO dela ao rolar. Com fundo semitransparente dava para ler o
+     nome de um canal atravessando o meu próprio nome, e o cartão
+     parecia sujo em vez de parecer fixo. Fundo cheio, e uma linha em
+     cima para mostrar onde a lista termina. */
   .est-eu{
-    display:flex;align-items:center;gap:8px;margin-top:12px;padding:8px;
-    border-radius:12px;background:rgba(0,0,0,.35);
-    border:1px solid rgba(120,200,255,.14);
-    position:sticky;bottom:0;
+    display:flex;align-items:center;gap:8px;margin-top:12px;
+    padding:9px 8px;
+    border-radius:12px;
+    background:linear-gradient(180deg,#141F3A,#0B1120);
+    border:1px solid rgba(120,200,255,.22);
+    box-shadow:0 -10px 18px rgba(8,13,26,.9), 0 2px 10px rgba(0,0,0,.4);
+    position:sticky;bottom:0;z-index:3;
   }
   .est-eu-av{
     position:relative;width:34px;height:34px;flex:none;border-radius:11px;cursor:pointer;
@@ -6171,4 +6200,577 @@
     /* o campo de procurar ocupa a linha toda: metade de 390px não cabe
        "Procurar pelo nome" e a pessoa não sabe o que digitar ali */
     #adm-nuvem-busca{width:100%;flex:1 0 100%}
+  }
+
+  /* =================================================================
+     A BUSCA DA BARRA LATERAL
+     -----------------------------------------------------------------
+     Gruda no topo pelo mesmo motivo que o perfil gruda embaixo: são os
+     dois cantos onde a mão procura, e nenhum dos dois pode sumir com a
+     rolagem.
+     ================================================================= */
+  .est-busca-cx{
+    position:sticky;top:0;z-index:3;
+    display:flex;align-items:center;gap:6px;
+    margin:0 0 8px;padding:8px 0 9px;
+    background:linear-gradient(180deg,#0E1A2E 76%,rgba(14,26,46,0));
+  }
+  .est-busca-cx input{
+    flex:1;min-width:0;height:34px;padding:0 11px;border-radius:10px;
+    background:rgba(4,8,18,.75);border:1px solid rgba(120,200,255,.2);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.64rem;
+  }
+  .est-busca-cx input:focus{border-color:rgba(77,232,255,.55);outline:none}
+  .est-busca-cx input::placeholder{color:var(--fraco)}
+  .est-busca-x{
+    flex:none;width:30px;height:30px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.6rem;line-height:1;
+  }
+  .est-busca-x:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+  @media (max-width:780px){
+    .est-busca-cx input{height:40px;font-size:.72rem}
+    .est-busca-x{width:36px;height:36px}
+  }
+
+  /* =================================================================
+     A LISTA DO @
+     -----------------------------------------------------------------
+     Sobe de dentro da barra de escrever, encostada nela. Fica ACIMA do
+     campo e não abaixo: no celular o teclado ocupa a metade de baixo da
+     tela, e uma lista que descesse nasceria escondida atrás dele.
+     ================================================================= */
+  .est-arroba{display:none}
+  .est-arroba.on{
+    display:block;position:absolute;left:10px;right:10px;bottom:100%;
+    margin-bottom:6px;z-index:20;
+    max-height:44vh;overflow-y:auto;
+    border-radius:12px;padding:5px;
+    background:linear-gradient(180deg,#16233E,#0B1120);
+    border:1px solid rgba(120,200,255,.28);
+    box-shadow:0 -10px 30px rgba(0,0,0,.55);
+  }
+  .est-arroba-l{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    padding:7px 8px;border-radius:9px;cursor:pointer;
+    background:none;border:1px solid transparent;color:var(--ink2);
+  }
+  .est-arroba-l.on{background:rgba(77,232,255,.14);border-color:rgba(77,232,255,.4)}
+  .est-arroba-l.alarme.on{background:rgba(255,193,69,.16);border-color:rgba(255,193,69,.45)}
+  .est-arroba-l b{
+    flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    background:rgba(120,200,255,.2);color:var(--ink);
+    font-family:"Russo One",sans-serif;font-size:.6rem;font-weight:400;
+  }
+  .est-arroba-l.alarme b{background:rgba(255,193,69,.2)}
+  .est-arroba-l span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .est-arroba-l strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-arroba-l em{
+    font-style:normal;font-size:.52rem;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  @media (max-width:780px){
+    .est-arroba-l{padding:10px 8px}
+    .est-arroba-l b{width:30px;height:30px}
+  }
+
+  /* =================================================================
+     O PAINEL DO DONO DA SALA DE VOZ
+     -----------------------------------------------------------------
+     Quarenta poderes não cabem numa lista só sem virar caça-palavras.
+     Quatro famílias, uma de cada vez, e a pessoa escolhida no topo --
+     assim as dez de PESSOAS não precisam repetir a lista de gente dez
+     vezes na mesma tela.
+     ================================================================= */
+  .voz-b.eng{flex:none;width:26px;height:26px;padding:0;
+    border-color:rgba(77,232,255,.4);color:var(--cyan)}
+  .voz-b.on{background:rgba(255,193,69,.2);border-color:rgba(255,193,69,.5);color:var(--amber)}
+  .voz-recado{
+    margin-top:7px;padding:6px 8px;border-radius:8px;
+    background:rgba(255,193,69,.1);border:1px solid rgba(255,193,69,.25);
+    font-size:.53rem;line-height:1.4;color:var(--amber);
+  }
+  .voz-abas{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+  .voz-aba{
+    flex:1 1 auto;padding:8px 9px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.53rem;letter-spacing:.04em;white-space:nowrap;
+  }
+  .voz-aba.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan)}
+  .voz-quem-h{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.5rem;
+    letter-spacing:.2em;color:var(--fraco);margin:2px 0 6px;
+  }
+  .voz-alvos{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .voz-alvo{
+    display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px;
+    border-radius:20px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.16);
+    color:var(--ink2);font-size:.58rem;
+  }
+  .voz-alvo.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .voz-alvo b{
+    width:20px;height:20px;border-radius:50%;display:grid;place-items:center;
+    background:rgba(120,200,255,.25);font-size:.5rem;font-weight:700;color:var(--ink);
+  }
+  .voz-poderes{display:flex;flex-direction:column;gap:2px}
+  .voz-poder{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 2px;border-bottom:1px solid rgba(120,200,255,.09);
+  }
+  .voz-poder:last-child{border-bottom:0}
+  .voz-poder-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+  .voz-poder-txt strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.63rem;color:var(--ink);
+  }
+  .voz-poder-txt em{font-style:normal;font-size:.52rem;color:var(--dim);margin-top:2px}
+  /* a chavinha: o estado tem que ser óbvio de longe, porque quarenta
+     linhas iguais viram um borrão */
+  .voz-chave{
+    flex:none;width:40px;height:23px;border-radius:99px;cursor:pointer;position:relative;
+    background:rgba(255,255,255,.08);border:1px solid rgba(120,200,255,.2);
+  }
+  .voz-chave i{
+    position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;
+    background:var(--dim);transition:left .16s ease,background .16s ease;
+  }
+  .voz-chave.on{background:rgba(35,220,140,.22);border-color:rgba(35,220,140,.55)}
+  .voz-chave.on i{left:19px;background:#23DC8C}
+  .voz-nums{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:58%}
+  .voz-num{
+    min-width:30px;padding:5px 7px;border-radius:8px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.16);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-size:.55rem;font-weight:700;
+  }
+  .voz-num.on{background:rgba(77,232,255,.18);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .voz-bola{display:block;width:13px;height:13px;border-radius:50%}
+  .voz-txt{
+    flex:none;width:46%;height:32px;padding:0 9px;border-radius:9px;
+    background:rgba(4,8,18,.7);border:1px solid rgba(120,200,255,.2);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.6rem;
+  }
+  .voz-fazer{
+    flex:none;padding:8px 14px;border-radius:9px;cursor:pointer;
+    background:rgba(77,232,255,.14);border:1px solid rgba(77,232,255,.42);
+    color:var(--cyan);font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.55rem;letter-spacing:.06em;
+  }
+  .voz-fazer:active{transform:scale(.96)}
+  .voz-codigo{
+    font-family:"Russo One",sans-serif;font-size:1.3rem;letter-spacing:.2em;
+    text-align:center;color:var(--cyan);padding:14px 0;
+  }
+  .voz-reg{
+    padding:7px 0;border-bottom:1px solid rgba(120,200,255,.1);
+    font-size:.58rem;color:var(--ink2);line-height:1.4;
+  }
+  .voz-reg b{color:var(--cyan);font-weight:700}
+  .voz-reg em{display:block;font-style:normal;font-size:.5rem;color:var(--fraco);margin-top:2px}
+  @media (max-width:780px){
+    .voz-aba{min-height:38px;font-size:.55rem}
+    .voz-alvo{min-height:36px}
+    .voz-chave{width:46px;height:27px}
+    .voz-chave i{width:21px;height:21px}
+    .voz-chave.on i{left:21px}
+    .voz-num{min-height:34px}
+    .voz-fazer{min-height:38px}
+    .voz-txt{height:38px}
+  }
+
+  /* =================================================================
+     A CONVERSA NO ARRANJO DE APLICATIVO DE CHAT
+     -----------------------------------------------------------------
+     Foi mandada uma referência: lista à esquerda, conversa à direita, e
+     as falas em balões — a minha de um lado, a dos outros do outro.
+     Três coisas mudaram aqui, e cada uma conserta algo que estava
+     errado antes:
+
+     1. A HIERARQUIA ESTAVA INVERTIDA. O nome de quem falou era maior
+        que o que a pessoa falou. Numa conversa o conteúdo é a
+        mensagem; o nome é etiqueta. Agora o nome é pequeno e a fala é
+        o que se lê de longe.
+     2. A LARGURA NÃO ERA USADA. As falas ficavam espremidas à
+        esquerda com meia tela vazia do lado. Agora o balão cresce até
+        onde dá para ler sem cansar (68ch) e a minha vai para a
+        direita, que é como a mão espera.
+     3. NÃO DAVA PARA SABER O QUE É MEU. Tudo tinha a mesma cara.
+
+     Isto vem no FIM do arquivo de propósito: as regras de cima têm a
+     mesma especificidade, e quem vem depois vence. Escrito lá em cima,
+     o balão perderia para a linha lisa e nasceria morto — foi o que já
+     aconteceu com a grade do painel.
+     ================================================================= */
+  .est-msgs{padding:14px 16px;gap:3px}
+  .est-msg{align-items:flex-end;gap:8px;padding:2px 0}
+  /* a minha fala espelha: avatar à direita, balão colado nele */
+  .est-msg.meu{flex-direction:row-reverse}
+  .est-av{width:30px;height:30px;border-radius:50%;font-size:.6rem;align-self:flex-end}
+  .est-msg.colado .est-av.vazio{width:30px;height:0}
+  .est-corpo{
+    flex:0 1 auto;max-width:min(68ch,74%);
+    padding:8px 11px 7px;border-radius:14px;
+    background:linear-gradient(170deg,rgba(24,38,68,.95),rgba(15,24,46,.95));
+    border:1px solid rgba(120,200,255,.16);
+  }
+  /* o cantinho que aponta para o avatar: é o que faz virar balão em vez
+     de caixa. Só na primeira de uma sequência -- nas coladas, o rabinho
+     repetido viraria serrilha. */
+  .est-msg:not(.colado) .est-corpo{border-bottom-left-radius:5px}
+  .est-msg.meu:not(.colado) .est-corpo{
+    border-bottom-left-radius:14px;border-bottom-right-radius:5px;
+  }
+  .est-msg.meu .est-corpo{
+    background:linear-gradient(170deg,rgba(28,86,124,.95),rgba(16,52,80,.95));
+    border-color:rgba(77,232,255,.32);
+  }
+  .est-linha1{gap:6px;margin-bottom:2px;align-items:center}
+  /* nome pequeno, fala grande: a etiqueta não pode gritar mais que o
+     conteúdo */
+  .est-nome{font-size:.58rem;letter-spacing:.02em}
+  .est-hora{font-size:.46rem;margin-left:auto;padding-left:8px}
+  .est-txt{font-size:.76rem;line-height:1.5;color:var(--ink)}
+  .est-msg.meu .est-txt{color:#EAF8FF}
+  /* quem me chamou fica marcado no balão, e não numa faixa atrás dele:
+     a faixa atravessava a tela inteira e parecia erro de desenho */
+  .est-msg.chamou{background:none;box-shadow:none;padding-left:0;margin-left:0}
+  .est-msg.chamou .est-corpo{
+    border-color:rgba(255,193,69,.6);
+    box-shadow:0 0 0 1px rgba(255,193,69,.25), 0 0 18px rgba(255,193,69,.13);
+  }
+  /* o ⋯ fica fora do balão, do lado de fora da conversa */
+  .est-msg-b{align-self:center}
+  /* os cartões (enquete, evento, chamada) já têm moldura própria: dentro
+     do balão eles ficariam com duas bordas, uma dentro da outra */
+  .est-corpo:has(.enq-cx),
+  .est-corpo:has(.ev-cx),
+  .est-corpo:has(.voz-cartao){
+    background:none;border-color:transparent;padding:2px 0;max-width:min(78ch,86%);
+  }
+  @media (max-width:780px){
+    .est-msgs{padding:12px 11px}
+    .est-corpo{max-width:84%}
+    .est-txt{font-size:.8rem}
+  }
+
+  /* =================================================================
+     O PERFIL DA v9.0
+     -----------------------------------------------------------------
+     Foto, duas rodas de cor, abas no editor, blocos no cartão e a
+     setinha do castigo. Vale para computador e para celular: a janela
+     estica para baixo, e as grades quebram em menos colunas quando a
+     tela é estreita — em vez de encolher os botões até não caber o
+     dedo.
+     ================================================================= */
+
+  /* ---- o cartão de quem se olha ---- */
+  .pf-cartao{display:block}
+  .est-jan-cx:has(.pf-cartao){max-width:520px}
+  /* mais alto, que foi o pedido: dá para ver mais coisa sem fechar */
+  .est-jan-cx:has(.pf-cartao) .est-jan-corpo,
+  .est-jan-cx:has(.pf-corpo) .est-jan-corpo{max-height:78vh}
+  .pf-bl{
+    margin-top:14px;padding-top:12px;
+    border-top:1px solid rgba(120,200,255,.12);
+  }
+  .pf-bl:first-of-type{border-top:0;padding-top:0}
+  .pf-bl h4{
+    display:flex;align-items:center;gap:7px;margin-bottom:8px;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.54rem;letter-spacing:.2em;color:var(--fraco);text-transform:uppercase;
+  }
+  .pf-bl h4 i{
+    font-style:normal;background:rgba(120,200,255,.16);color:var(--ink2);
+    border-radius:99px;padding:1px 7px;font-size:.5rem;letter-spacing:0;
+  }
+  .pf-embs{display:flex;flex-wrap:wrap;gap:6px}
+  .pf-emb{
+    display:flex;align-items:center;gap:6px;padding:5px 10px 5px 6px;border-radius:20px;
+    background:linear-gradient(150deg,rgba(255,193,69,.18),rgba(255,193,69,.06));
+    border:1px solid rgba(255,193,69,.32);
+    font-size:.56rem;color:var(--ink2);
+  }
+  .pf-emb b{color:var(--amber);font-size:.6rem;line-height:1}
+  .pf-emb em{font-style:normal}
+  .pf-ints{display:flex;flex-wrap:wrap;gap:6px}
+  .pf-int{
+    padding:6px 11px;border-radius:20px;cursor:default;
+    background:rgba(120,200,255,.1);border:1px solid rgba(120,200,255,.22);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-size:.58rem;
+  }
+  .pf-ints.escolher .pf-int{cursor:pointer}
+  .pf-ints.escolher .pf-int.on{
+    background:rgba(77,232,255,.2);border-color:rgba(77,232,255,.55);color:var(--cyan);
+  }
+  .pf-ativ{display:flex;flex-direction:column;gap:5px}
+  .pf-ativ-l{
+    display:flex;align-items:center;gap:8px;font-size:.62rem;color:var(--ink2);
+  }
+  .pf-ativ-l b{
+    flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+    background:rgba(120,200,255,.14);font-size:.62rem;font-weight:400;
+  }
+  .pf-nums{display:flex;gap:8px}
+  .pf-nums span{
+    flex:1;text-align:center;padding:9px 4px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14);
+    font-size:.5rem;letter-spacing:.12em;color:var(--dim);
+  }
+  .pf-nums b{
+    display:block;font-family:"Russo One",sans-serif;font-size:1.05rem;
+    color:var(--cyan);margin-bottom:2px;letter-spacing:0;
+  }
+  /* a setinha do castigo: discreta, no canto, e só para o dono */
+  .pf-castigo{
+    position:absolute;top:-16px;right:0;
+    width:28px;height:28px;border-radius:9px;cursor:pointer;
+    background:rgba(255,77,143,.14);border:1px solid rgba(255,77,143,.45);
+    color:var(--magenta);font-size:.7rem;line-height:1;
+  }
+  .pf-castigo:active{transform:scale(.92)}
+  .pf-castigado{
+    margin-top:10px;padding:8px 11px;border-radius:10px;
+    background:rgba(255,77,143,.12);border:1px solid rgba(255,77,143,.32);
+    font-size:.58rem;line-height:1.45;color:#FFA8C4;
+  }
+
+  /* ---- o brilho do avatar ---- */
+  .pf-av.pequeno{width:26px;height:26px;font-size:.55rem}
+  .pf-brilho-suave{box-shadow:0 0 14px rgba(77,232,255,.55)}
+  .pf-brilho-anel::after{
+    content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;
+    border:2px solid transparent;border-top-color:var(--cyan);border-right-color:var(--violet);
+    animation:pfGira 2.6s linear infinite;
+  }
+  @keyframes pfGira{to{transform:rotate(360deg)}}
+  .pf-brilho-faisca{box-shadow:0 0 0 2px rgba(255,193,69,.4),0 0 18px rgba(255,193,69,.5);
+    animation:pfFaisca 2.2s ease-in-out infinite}
+  @keyframes pfFaisca{50%{box-shadow:0 0 0 3px rgba(255,193,69,.6),0 0 26px rgba(255,193,69,.8)}}
+  .pf-brilho-pulso{animation:pfBate 1.5s ease-in-out infinite}
+  @keyframes pfBate{0%,100%{transform:scale(1)}45%{transform:scale(1.07)}}
+  .pf-brilho-orbita::after{
+    content:"";position:absolute;inset:-7px;border-radius:50%;pointer-events:none;
+    border:1px dashed rgba(195,77,255,.6);
+    animation:pfGira 5s linear infinite reverse;
+  }
+  .pf-brilho-orbita::before{
+    content:"";position:absolute;top:-9px;left:50%;width:5px;height:5px;border-radius:50%;
+    background:var(--violet);box-shadow:0 0 8px var(--violet);pointer-events:none;
+    transform-origin:2.5px calc(50% + 24px);
+    animation:pfGira 5s linear infinite;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pf-brilho-anel::after,.pf-brilho-faisca,.pf-brilho-pulso,
+    .pf-brilho-orbita::after,.pf-brilho-orbita::before{animation:none}
+  }
+
+  /* ---- o editor em abas ---- */
+  .pf-abas{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 10px}
+  .pf-aba{
+    flex:1 1 auto;padding:9px 8px;border-radius:10px;cursor:pointer;white-space:nowrap;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.55rem;
+  }
+  .pf-aba.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.45);color:var(--cyan)}
+  .pf-corpo{min-height:180px}
+  .pf-pe{display:flex;gap:8px;margin-top:14px}
+  .pf-pe .est-jan-ok{margin-top:0}
+  .pf-bt{
+    width:100%;padding:10px;border-radius:10px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.22);
+    color:var(--ink2);font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.6rem;
+  }
+  .pf-bt.on{background:rgba(77,232,255,.18);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .pf-bt.fraco{background:transparent;border-color:rgba(255,77,143,.3);color:var(--magenta)}
+
+  /* ---- a foto ---- */
+  .pf-foto-linha{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .pf-foto-previa{
+    flex:none;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);background-size:cover;
+    background-position:center;color:#04060F;
+    font-family:"Russo One",sans-serif;font-size:1.2rem;
+    border:2px solid rgba(120,200,255,.3);
+  }
+  .pf-foto-bts{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+
+  /* ---- as duas rodas de cor ----
+     Uma em cima e uma embaixo dentro da mesma caixa, e a caixa fica
+     ENTRE o banner e a bio: foi o pedido, e evita que o dedo, ao girar
+     a roda, esbarre no que está sendo editado. */
+  /* UMA EM CIMA E OUTRA EMBAIXO, com a prévia do degradê no meio: foi
+     o pedido, e é o arranjo que EXPLICA o controle -- a roda de cima
+     manda na cor de cima, a de baixo na de baixo, e a faixa entre elas
+     mostra o resultado. Lado a lado, as duas pareciam alternativas uma
+     da outra em vez das duas pontas da mesma coisa. */
+  .pf-rodas{
+    display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;
+    gap:10px 14px;align-items:center;margin:4px 0 12px;
+  }
+  .pf-rodas .pf-faixa{
+    grid-column:2;grid-row:1 / span 2;align-self:stretch;
+    border-radius:12px;min-height:150px;
+    border:1px solid rgba(120,200,255,.2);
+  }
+  .pf-roda-cx{display:flex;flex-direction:column;align-items:center;gap:7px;width:120px}
+  .pf-roda-h{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.5rem;
+    letter-spacing:.14em;color:var(--dim);text-transform:uppercase;
+  }
+  .pf-roda{
+    position:relative;width:104px;height:104px;border-radius:50%;cursor:pointer;
+    touch-action:none;
+    background:conic-gradient(from 0deg,
+      hsl(0 72% 50%),hsl(60 72% 50%),hsl(120 72% 50%),
+      hsl(180 72% 50%),hsl(240 72% 50%),hsl(300 72% 50%),hsl(360 72% 50%));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 4px 14px rgba(0,0,0,.4);
+  }
+  .pf-roda-meio{
+    position:absolute;inset:26px;border-radius:50%;pointer-events:none;
+    border:2px solid rgba(8,13,26,.9);box-shadow:0 0 10px rgba(0,0,0,.5);
+  }
+  .pf-roda-dot{
+    position:absolute;width:17px;height:17px;border-radius:50%;pointer-events:none;
+    transform:translate(-50%,-50%);
+    border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.6);
+  }
+  .pf-tom{
+    width:104px;height:20px;padding:0;background:transparent;border:0;
+    -webkit-appearance:none;appearance:none;cursor:pointer;
+  }
+  .pf-tom::-webkit-slider-runnable-track{
+    height:8px;border-radius:99px;
+    background:linear-gradient(90deg,#000,#888,#fff);
+  }
+  .pf-tom::-moz-range-track{
+    height:8px;border-radius:99px;
+    background:linear-gradient(90deg,#000,#888,#fff);
+  }
+  .pf-tom::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;margin-top:-4px;
+    width:16px;height:16px;border-radius:50%;background:#fff;
+    border:2px solid rgba(8,13,26,.8);box-shadow:0 1px 4px rgba(0,0,0,.6);
+  }
+  .pf-tom::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid rgba(8,13,26,.8);
+  }
+  .pf-fonte{
+    display:grid;place-items:center;width:100%;height:26px;
+    font-size:.92rem;color:var(--ink);
+  }
+
+  /* ---- arrumar a ordem dos blocos ---- */
+  .pf-ordem{display:flex;flex-direction:column;gap:5px}
+  .pf-ord-l{
+    display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14);
+  }
+  .pf-ord-l b{
+    flex:1;min-width:0;font-family:"Chakra Petch",sans-serif;font-weight:700;
+    font-size:.62rem;color:var(--ink2);
+  }
+  .pf-ord-b{
+    flex:none;width:28px;height:28px;border-radius:8px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.66rem;
+  }
+  .pf-ord-b:disabled{opacity:.3;cursor:default}
+  .pf-ord-b.tira{border-color:rgba(255,77,143,.3);color:var(--magenta)}
+  .pf-ord-fixo{flex:none;font-size:.48rem;letter-spacing:.12em;color:var(--fraco)}
+
+  /* ---- o cartão do NeoNebula na barra ---- */
+  .est-neo-cx{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    margin-bottom:6px;padding:10px;border-radius:13px;cursor:pointer;
+    background:linear-gradient(120deg,rgba(195,77,255,.2),rgba(77,232,255,.12));
+    border:1px solid rgba(195,77,255,.4);
+  }
+  .est-neo-cx.tem{
+    background:linear-gradient(120deg,rgba(255,193,69,.2),rgba(255,123,77,.1));
+    border-color:rgba(255,193,69,.45);
+  }
+  .est-neo-selo{flex:none;font-size:1.1rem;line-height:1}
+  .est-neo-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .est-neo-txt strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-neo-txt em{
+    font-style:normal;font-size:.5rem;color:var(--ink2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-neo-seta{font-style:normal;flex:none;color:var(--ink2);font-size:.9rem}
+  .est-ofertas{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+  .est-oferta{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    padding:8px 9px;border-radius:11px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+  }
+  .est-oferta b{flex:none;font-size:.82rem;line-height:1}
+  .est-oferta span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .est-oferta strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.6rem;color:var(--ink2);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-oferta em{
+    font-style:normal;font-size:.48rem;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-of-selo{
+    flex:none;font-style:normal;font-size:.46rem;letter-spacing:.08em;
+    padding:2px 7px;border-radius:99px;
+    background:rgba(91,240,176,.18);color:#7CF7C0;
+  }
+
+  /* ---- o castigo ---- */
+  .cast-linha{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+  .cast-linha input{width:78px;flex:none;margin:0}
+  .cast-uni{display:flex;gap:4px;flex-wrap:wrap}
+  .cast-u{
+    padding:8px 11px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-size:.55rem;font-weight:700;
+  }
+  .cast-u.on{background:rgba(77,232,255,.18);border-color:rgba(77,232,255,.5);color:var(--cyan)}
+  .cast-tipos{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+  .cast-t{
+    display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+    padding:9px 11px;border-radius:10px;cursor:pointer;text-align:left;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+  }
+  .cast-t.on{background:rgba(255,77,143,.14);border-color:rgba(255,77,143,.45)}
+  .cast-t strong{
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.62rem;color:var(--ink);
+  }
+  .cast-t em{font-style:normal;font-size:.52rem;color:var(--dim)}
+
+  /* ---- o efeito de clique, no jogo inteiro ---- */
+  body[data-clique="afunda"] button:active{transform:scale(.96)}
+  body[data-clique="onda"] button:active{
+    box-shadow:0 0 0 6px rgba(77,232,255,.16);transition:box-shadow .12s ease;
+  }
+  body[data-clique="brilha"] button:active{
+    filter:brightness(1.35) saturate(1.2);
+  }
+  body[data-clique="faisca"] button:active{
+    box-shadow:0 0 0 3px rgba(255,193,69,.35),0 0 22px rgba(255,193,69,.5);
+    filter:brightness(1.2);
+  }
+
+  /* ---- e no celular tudo cabe no dedo ---- */
+  @media (max-width:780px){
+    .pf-aba{min-height:40px;font-size:.58rem}
+    .pf-bt{min-height:42px}
+    .pf-roda{width:118px;height:118px}
+    .pf-tom{width:118px;height:28px}
+    .pf-roda-cx{width:132px}
+    .pf-foto-previa{width:74px;height:74px}
+    .pf-int{min-height:36px;display:flex;align-items:center}
+    .pf-ord-b{width:34px;height:34px}
+    .cast-u{min-height:38px}
+    .est-jan-cx:has(.pf-cartao) .est-jan-corpo,
+    .est-jan-cx:has(.pf-corpo) .est-jan-corpo{max-height:74vh}
   }

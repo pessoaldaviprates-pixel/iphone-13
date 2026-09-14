@@ -64,6 +64,8 @@ se encontrar `127.0.0.1` lá.
 - `test_social` enquetes, `@everyone`/`@here` e eventos
 - `test_voz` a voz de verdade: dois navegadores com microfone de mentira,
   ligação fechando, mudo, surdo, chamada — e nenhum fluxo a mais
+- `test_botoes` aperta CADA botão da Estação e cobra que ele faça alguma coisa
+- `test_perfil` foto, fontes, duas cores, blocos, castigos e o NeoNebula exposto
 
 ## Dois hábitos que salvaram a bateria
 
@@ -74,3 +76,10 @@ ou do relógio. Use `waitForFunction`.
 **Limpe a nuvem falsa no começo, e feche o navegador no fim.** Sem a limpeza o
 teste herda a rodada anterior e só passa na primeira vez. Sem o `b.close()`
 ele passa e nunca termina, que na bateria é indistinguível de travar.
+
+## E uma regra que custou duas baterias
+
+**Não monte o `index.html` enquanto `testar.sh` estiver rodando.** O
+`montar.py` trunca e reescreve o arquivo; o teste que estiver carregando a
+página naquele instante lê um arquivo pela metade e falha com um erro que não
+existe. Editar `fonte/` durante a bateria é seguro — montar não é.

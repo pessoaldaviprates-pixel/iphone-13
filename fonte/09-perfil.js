@@ -184,7 +184,13 @@ const NEO_ANIMACOES = [
 
 const PERFIL_PADRAO = {
   bio: "", pronomes: "", cor: "", efeito: "nenhum",
-  fundo: "vazio", animacao: "nenhuma", avatar: ""
+  fundo: "vazio", animacao: "nenhuma", avatar: "",
+  /* o que entrou na v9.0 (ver 09-perfil2.js). Tudo com um padrão, para
+     que um perfil antigo, salvo antes disto existir, continue abrindo
+     sem buraco nenhum. */
+  fonte: "padrao", brilho: "nenhum", tema: "padrao", toque: "curto",
+  clique: "afunda", interesses: "", blocos: "", foto: 0,
+  c1h: 205, c1l: 30, c2h: 275, c2l: 22
 };
 function perfilMeu() {
   save.perfil = Object.assign({}, PERFIL_PADRAO, save.perfil || {});
@@ -254,7 +260,36 @@ function perfilSalvar(novo) {
   guardaSe("efeito", NEO_EFEITOS);
   guardaSe("fundo", NEO_FUNDOS);
   guardaSe("animacao", NEO_ANIMACOES);
+  guardaSe("fonte", NEO_FONTES);
+  guardaSe("brilho", NEO_BRILHOS);
+  guardaSe("tema", NEO_TEMAS);
+  guardaSe("toque", NEO_TOQUES);
+  guardaSe("clique", NEO_CLIQUES);
   if (novo.avatar !== undefined) p.avatar = String(novo.avatar).slice(0, 12);
+  /* O FUNDO DE DUAS CORES é o único que não vem de lista, então a guarda
+     é outra: números, presos na faixa, nunca texto. Assim não existe
+     jeito de escrever CSS aqui dentro. */
+  if (novo.fundo === "meu") p.fundo = "meu";
+  const numEntre = (v, min, max, reserva) => {
+    const n = parseInt(v, 10);
+    return isNaN(n) ? reserva : Math.max(min, Math.min(max, n));
+  };
+  if (novo.c1h !== undefined) p.c1h = numEntre(novo.c1h, 0, 359, p.c1h);
+  if (novo.c2h !== undefined) p.c2h = numEntre(novo.c2h, 0, 359, p.c2h);
+  if (novo.c1l !== undefined) p.c1l = numEntre(novo.c1l, 12, 72, p.c1l);
+  if (novo.c2l !== undefined) p.c2l = numEntre(novo.c2l, 12, 72, p.c2l);
+  /* interesses e blocos são listas de ids conhecidos, coladas por
+     vírgula: o que não estiver na lista simplesmente não entra */
+  if (novo.interesses !== undefined) {
+    const teto = INTERESSES_MAX[neoNivel()] || 2;
+    p.interesses = String(novo.interesses).split(",")
+      .filter(x => NEO_INTERESSES.some(i => i.id === x)).slice(0, teto).join(",");
+  }
+  if (novo.blocos !== undefined) {
+    p.blocos = String(novo.blocos).split(",")
+      .filter(x => PF_BLOCOS.some(b => b.id === x)).join(",");
+  }
+  try { temaAplicar(); } catch (e) {}
   persist();
   try { nuvemEnviar(true); } catch (e) {}
   try { refreshMenu(); } catch (e) {}
@@ -277,12 +312,27 @@ function perfilDaNuvem(p) {
   const efItem = neoAchar(NEO_EFEITOS, perfil.efeito);
   const fundoItem = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
   const vale = item => item && NEO_ORDEM[nivel] >= NEO_ORDEM[item.nivel];
+  /* o mesmo filtro para o que entrou na v9.0: fonte, brilho e
+     interesses são de outra pessoa, então também só valem se estiverem
+     numa lista que existe aqui */
+  const daLista = (lista, id) => {
+    const it = neoAchar(lista, id) || lista[0];
+    return vale(it) ? it : lista[0];
+  };
   return {
     nivel,
     selo: neoSelo(nivel),
     cor: vale(corItem) ? corItem.cor : "",
     efeito: vale(efItem) && efItem.id !== "nenhum" ? efItem.id : "",
     fundo: vale(fundoItem) ? fundoItem : NEO_FUNDOS[0],
+    fundoCSS: perfilFundoCSSDaNuvem(perfil, nivel),
+    fonte: daLista(NEO_FONTES, perfil.fonte),
+    brilho: daLista(NEO_BRILHOS, perfil.brilho),
+    temFoto: !!perfil.foto,
+    interesses: String(perfil.interesses || "").split(",")
+      .filter(x => NEO_INTERESSES.some(i => i.id === x)).slice(0, 10),
+    blocos: String(perfil.blocos || "").split(",")
+      .filter(x => PF_BLOCOS.some(b => b.id === x)),
     bio: String(perfil.bio || "").slice(0, 300),
     pronomes: String(perfil.pronomes || "").slice(0, 20)
   };
@@ -291,6 +341,12 @@ function perfilDaNuvem(p) {
 function perfilEstiloDoNome(v) {
   let e = "";
   if (v.cor) e += "color:" + v.cor + ";";
+  /* a fonte vem de uma lista nossa, nunca do que a pessoa digitou:
+     "font-family" aceita quase tudo, e "tudo" inclui coisa ruim */
+  if (v.fonte && v.fonte.css) {
+    e += "font-family:" + v.fonte.css + ";";
+    if (v.fonte.espaco) e += "letter-spacing:" + v.fonte.espaco + ";";
+  }
   return e;
 }
 function perfilClasseDoNome(v) {

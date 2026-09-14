@@ -20,9 +20,11 @@
 07-extras-1.js
 08-exploracao.js
 09-perfil.js
+09-perfil2.js
 09-servidores.js
 09-estacao.js
 09-social.js
 09-voz.js
+09-vozdono.js
 07-extras-2.js
 07-extras-fim.html

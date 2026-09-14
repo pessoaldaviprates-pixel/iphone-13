@@ -264,7 +264,15 @@ function escaparHtml(t) {
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+/* APELIDO. O corte em 40 é a regra do nick, e não um detalhe do
+   escapador -- quem usar isto num texto de gente vai CORTAR o texto, sem
+   reticências e sem aviso. Foi o que aconteceu com a Estação inteira: as
+   mensagens do bate-papo passavam por aqui, e toda frase com mais de 40
+   letras chegava ao outro lado pela metade. Ninguém percebeu porque
+   mensagem curta cabia. */
 function escaparTexto(t) { return escaparHtml(t).slice(0, 40); }
+/* FALA. Recado, sugestão, bio, mensagem, pergunta de enquete: tudo o que
+   uma pessoa escreve para outra ler passa por aqui. */
 function escaparLongo(t) { return escaparHtml(String(t == null ? "" : t).slice(0, 500)); }
 /* =====================================================================
    v6.0 — AJUSTES, PRESENTE DO DIA, MISSÕES, COMBO E ESTRELAS

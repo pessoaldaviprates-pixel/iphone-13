@@ -29,10 +29,12 @@ não for exatamente o que sai desta pasta, ele para e avisa.
 | `07-extras-*.js` | tudo da v6.0 em diante: missões, conquistas, idiomas… |
 | `08-exploracao.js` | a exploração espacial, guardada atrás de `EXPLORACAO_LIGADA` |
 | `09-perfil.js` | NeoNebula, perfil e presença |
+| `09-perfil2.js` | fonte do nome, foto, fundo de duas cores, ofertas e castigos |
 | `09-servidores.js` | servidores: cargos, permissões, moderação, impulsos, tag |
 | `09-estacao.js` | a Estação: canais, amigos, grupos, conversas |
 | `09-social.js` | enquetes, @everyone/@here e eventos |
 | `09-voz.js` | salas de voz e chamadas (microfone e WebRTC) |
+| `09-vozdono.js` | os 40 poderes de quem manda numa sala de voz |
 | `ordem.txt` | a ordem em que os pedaços são colados |
 
 **Peça nova entra ANTES do `07-extras-2.js`.** É lá que mora o

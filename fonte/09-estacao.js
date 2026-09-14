@@ -123,7 +123,8 @@ const EST = {
   ultimas: {},              // destino -> relógio da última que existe
   ritmo: [],                // os relógios das minhas últimas mensagens
   relogio: null,            // a batida que atualiza online e não lidos
-  aba: "canais"             // que parte da barra lateral está aberta
+  aba: "canais",            // que parte da barra lateral está aberta
+  busca: ""                 // o que está escrito na busca da barra
   /* a voz tem estado próprio (VOZ, em 09-voz.js): guardar uma cópia
      dela aqui só criaria dois lugares para a mesma verdade, e um deles
      ficaria desatualizado */
@@ -403,6 +404,14 @@ const EST_RITMO = { janela: 10000, maxNaJanela: 6, minEntre: 700, repetidas: 3 }
 let estUltimas = [];
 
 function estPodeFalar(texto) {
+  /* O CASTIGO VEM ANTES DE TUDO. Antes do ritmo, antes do palavrão: de
+     castigo a pessoa não fala, e dizer o motivo certo importa -- levar
+     "calma, respira" quando o problema é outro faz a pessoa tentar de
+     novo em vez de entender. */
+  try {
+    const barra = castigoBarraFalar();
+    if (barra) return { ok: false, motivo: barra };
+  } catch (e) {}
   const agora = Date.now();
   EST.ritmo = EST.ritmo.filter(t => agora - t < EST_RITMO.janela);
 
@@ -747,7 +756,7 @@ function estDia(t) {
    Escapa PRIMEIRO e só então põe as marcas: fazer ao contrário deixaria
    o texto de um estranho virar HTML dentro da minha tela. */
 function estTextoComMencoes(txt, eu) {
-  let s = escaparTexto(String(txt || ""));
+  let s = escaparLongo(String(txt || ""));
   /* UMA PASSADA SÓ. Duas seriam o caminho curto para o bug: a primeira
      transformaria @everyone em HTML e a segunda ainda enxergaria o
      "@everyone" lá dentro, marcando de novo em cima da marca. */
@@ -779,7 +788,21 @@ function estPintarLado() {
   const cx = $("est-lado");
   if (!cx) return;
   const eu = estEu();
+  /* A BUSCA É UM FILTRO, NÃO UMA SEGUNDA LISTA.
+     Se ela montasse a própria lista, um dia acharia algo que a barra
+     esconde e o toque cairia numa tela morta -- foi o que já aconteceu
+     no menu do jogo. Aqui ela só decide quais linhas da MESMA barra
+     continuam desenhadas. */
+  const alvoBusca = semAcento(String(EST.busca || "").trim().toLowerCase());
+  const casa = (nome, sub) => !alvoBusca ||
+    semAcento(String(nome || "").toLowerCase()).indexOf(alvoBusca) >= 0 ||
+    semAcento(String(sub || "").toLowerCase()).indexOf(alvoBusca) >= 0;
+  /* procurando, os títulos de seção somem: "CANAIS DE TEXTO" sozinho,
+     sem nenhum canal embaixo, faz a pessoa achar que a busca quebrou */
+  const cabeca = (txt, extra) => alvoBusca ? "" :
+    '<div class="est-grupo-h">' + txt + (extra || "") + "</div>";
   const linha = (d, nome, sub, ic, extra) => {
+    if (!casa(nome, sub)) return "";
     const mudo = silenciado(estChave(d));
     const nova = mudo ? 0 : estNaoLidas(d);
     extra = (extra || "") + (mudo ? " mudo" : "");
@@ -788,22 +811,75 @@ function estPintarLado() {
       (extra || "") + '" data-dest="' + d.tipo + "|" + d.id + '">' +
       '<b class="est-dest-ic">' + ic + "</b>" +
       '<span class="est-dest-txt"><strong>' + escaparTexto(nome) + "</strong>" +
-      (sub ? "<em>" + escaparTexto(sub) + "</em>" : "") + "</span>" +
+      (sub ? "<em>" + escaparLongo(sub) + "</em>" : "") + "</span>" +
       (nova ? '<i class="est-pip"></i>' : "") + "</button>";
   };
 
   let h = '<div class="est-serv"><b>' + escaparTexto(EST_SERVIDOR.nome.slice(0, 2)) + "</b>" +
           "<span><strong>" + escaparTexto(EST_SERVIDOR.nome) + "</strong>" +
-          "<em>" + escaparTexto(EST_SERVIDOR.sobre) + "</em></span>" +
+          "<em>" + escaparLongo(EST_SERVIDOR.sobre) + "</em></span>" +
           /* o ✕ da gaveta: só aparece no celular, onde ela é gaveta mesmo.
              Tocar fora também fecha, mas botão que se vê ensina; véu
              invisível, não. */
           '<button class="est-lado-x" id="est-lado-x" aria-label="Fechar os canais">✕</button></div>';
 
+  /* A BUSCA NO TOPO DA LISTA.
+     Com canais, salas de voz, conversas e amigos na mesma barra, achar
+     "aquela conversa com o Lucas" virava rolagem. A busca filtra a lista
+     inteira de uma vez -- e é a MESMA lista, só com menos linhas: uma
+     regra só decide o que aparece, como no menu do jogo. */
+  h += '<div class="est-busca-cx">' +
+       '<input id="est-busca" placeholder="Procurar canal ou pessoa" autocomplete="off" ' +
+       'value="' + escaparTexto(EST.busca || "") + '">' +
+       (EST.busca ? '<button class="est-busca-x" id="est-busca-x" aria-label="Limpar">✕</button>' : "") +
+       "</div>";
+
   /* AMIGOS é um destino como qualquer outro -- é o que a divisão em
      "destinos" comprou: uma tela nova entra como mais uma linha, e nem a
      barra nem os não lidos precisaram saber o que ela é. */
   const pedidos = Object.keys((typeof AM !== "undefined" && AM.pedidos) || {}).length;
+  /* =====================================================================
+     O CARTÃO DO NEONEBULA, NO TOPO DE TUDO
+     ---------------------------------------------------------------------
+     Foi pedido que a assinatura ficasse exposta, e não escondida atrás
+     de dois toques dentro do perfil. Ela fica aqui, acima de AMIGOS,
+     porque este é o primeiro lugar onde o olho cai ao abrir a Estação.
+
+     Para quem JÁ assina ele muda de cara: em vez de vender de novo, ele
+     mostra o que a pessoa tem e quantos dias faltam. Continuar vendendo
+     para quem já comprou é o jeito mais rápido de irritar quem pagou.
+     ===================================================================== */
+  if (!alvoBusca) {
+    const nv = neoNivel();
+    const meu = neoInfo(nv);
+    const dias = neoDiasQueFaltam();
+    h += '<button class="est-neo-cx' + (nv === "nenhum" ? "" : " tem") +
+         '" id="est-neo-cartao">' +
+      '<b class="est-neo-selo">' + (meu && meu.selo ? meu.selo : "✦") + "</b>" +
+      '<span class="est-neo-txt"><strong>' +
+        (nv === "nenhum" ? "NeoNebula"
+                         : escaparTexto((meu && meu.nome) || "NeoNebula")) + "</strong>" +
+        "<em>" + (nv === "nenhum"
+          ? "Bronze R$0,50 · Prata R$1 · Ouro R$3"
+          : (nv === "ilimitado" ? "Sem prazo" : dias + (dias === 1 ? " dia" : " dias") + " restantes")) +
+        "</em></span>" +
+      '<i class="est-neo-seta">›</i></button>';
+
+    /* AS OFERTAS. Ficam logo abaixo, e só aparecem quando existe alguma:
+       um cartão "nenhuma oferta agora" toda vez que se abre a Estação é
+       ruído permanente em troca de nada. */
+    const ofertas = estOfertas();
+    if (ofertas.length) {
+      h += '<div class="est-ofertas">' + ofertas.map(o =>
+        '<button class="est-oferta" data-oferta="' + o.id + '">' +
+        '<b>' + o.ic + "</b><span><strong>" + escaparTexto(o.nome) + "</strong>" +
+        "<em>" + escaparLongo(o.sobre) + "</em></span>" +
+        (o.selo ? '<i class="est-of-selo">' + escaparTexto(o.selo) + "</i>" : "") +
+        "</button>").join("") + "</div>";
+    }
+  }
+
+  if (casa("Amigos", "ver adicionar responder"))
   h += '<button class="est-dest est-amigos-b' +
        (EST.destino && EST.destino.tipo === "amigos" ? " on" : "") + '" data-dest="amigos|tudo">' +
        '<b class="est-dest-ic">👥</b><span class="est-dest-txt"><strong>Amigos</strong>' +
@@ -816,20 +892,22 @@ function estPintarLado() {
      juntas, com quem falou por último em cima. */
   const naoLidasDM = Object.keys((typeof AM !== "undefined" && AM.lista) || {})
     .filter(x => estNaoLidas({ tipo: "dm", id: x })).length;
+  if (casa("Mensagens diretas", "conversas privadas dm"))
   h += '<button class="est-dest est-dm-b' +
        (EST.destino && EST.destino.tipo === "dms" ? " on" : "") + '" data-dest="dms|tudo">' +
        '<b class="est-dest-ic">✉</b><span class="est-dest-txt"><strong>Mensagens diretas</strong>' +
        "<em>suas conversas de um para um</em></span>" +
        (naoLidasDM ? '<i class="est-pip conta">' + naoLidasDM + "</i>" : "") + "</button>";
 
-  h += '<div class="est-grupo-h">CANAIS DE TEXTO</div>';
+  h += cabeca("CANAIS DE TEXTO");
   for (const c of EST_CANAIS)
     h += linha({ tipo: "canal", id: c.id }, c.nome, c.sobre, "#");
 
   /* AS SALAS DE VOZ, com quem está dentro logo abaixo do nome: é o que
      faz alguém entrar. Uma lista de salas vazias ninguém abre. */
-  h += '<div class="est-grupo-h">SALAS DE VOZ</div>';
+  h += cabeca("SALAS DE VOZ");
   for (const v of EST_VOZ) {
+    if (!casa(v.nome, "voz sala falar")) continue;
     const aqui = VOZ.sala === v.id;
     const gente = aqui ? Object.keys(VOZ.dentro).filter(u =>
       Date.now() - (VOZ.dentro[u].quando || 0) < VOZ_SUMIU) : [];
@@ -844,13 +922,21 @@ function estPintarLado() {
   }
 
   /* OS SERVIDORES. Cada um com os canais dele logo abaixo, para não ser
-     preciso entrar num lugar para descobrir o que tem dentro. */
-  h += '<div class="est-grupo-h">MEUS SERVIDORES' +
-       '<button class="est-mais" id="est-novo-srv" aria-label="Criar servidor">+</button></div>';
-  const sids = Object.keys(SRV.meus || {});
-  if (!sids.length)
-    h += '<p class="est-vazio-lado">Nenhum servidor. Toque no + para criar o seu ' +
-         "ou entrar com um convite.</p>";
+     preciso entrar num lugar para descobrir o que tem dentro.
+
+     GUARDADOS desde a v8.9 (ver SERVIDORES_LIGADOS em 09-servidores.js):
+     desligados, a seção inteira não é desenhada -- nem o título, nem o
+     +, nem o "nenhum servidor ainda". Esconder o botão e deixar o
+     título seria pior que deixar tudo: a pessoa procuraria o + que não
+     existe mais. */
+  const sids = SERVIDORES_LIGADOS ? Object.keys(SRV.meus || {}) : [];
+  if (SERVIDORES_LIGADOS) {
+    h += cabeca("MEUS SERVIDORES",
+         '<button class="est-mais" id="est-novo-srv" aria-label="Criar servidor">+</button>');
+    if (!sids.length)
+      h += '<p class="est-vazio-lado">Nenhum servidor. Toque no + para criar o seu ' +
+           "ou entrar com um convite.</p>";
+  }
   for (const sid of sids) {
     const sv = SRV.meus[sid];
     const aqui = EST.destino && EST.destino.tipo === "srv" && EST.destino.id === sid;
@@ -893,20 +979,29 @@ function estPintarLado() {
     }
   }
 
-  const gids = Object.keys(EST.grupos);
-  h += '<div class="est-grupo-h">MEUS GRUPOS' +
-       '<button class="est-mais" id="est-novo-grupo" aria-label="Criar grupo">+</button></div>';
-  if (!gids.length) h += '<p class="est-vazio-lado">Nenhum grupo ainda. Toque no + e chame a galera.</p>';
-  for (const gid of gids) {
+  /* OS GRUPOS saíram junto com os servidores, e pelo mesmo motivo: a
+     conversa aqui é para ser global. Quem já está num grupo continua
+     vendo o grupo -- tirar da tela uma conversa que existe seria perder
+     mensagem de gente de verdade. O que sumiu foi o + de criar. */
+  const gids = GRUPOS_LIGADOS ? Object.keys(EST.grupos) : [];
+  if (GRUPOS_LIGADOS || Object.keys(EST.grupos).length) {
+    h += cabeca("MEUS GRUPOS", GRUPOS_LIGADOS
+           ? '<button class="est-mais" id="est-novo-grupo" aria-label="Criar grupo">+</button>'
+           : "");
+    if (GRUPOS_LIGADOS && !gids.length)
+      h += '<p class="est-vazio-lado">Nenhum grupo ainda. Toque no + e chame a galera.</p>';
+  }
+  for (const gid of (GRUPOS_LIGADOS ? gids : Object.keys(EST.grupos))) {
     const g = EST.grupos[gid];
     const n = Object.keys(g.membros || {}).length;
     h += linha({ tipo: "grupo", id: gid }, g.nome, n + (n === 1 ? " pessoa" : " pessoas"), "◈");
   }
 
-  h += '<div class="est-grupo-h">CONVERSAS' +
-       '<button class="est-mais" id="est-novo-amigo" aria-label="Adicionar amigo">+</button></div>';
+  h += cabeca("CONVERSAS",
+       '<button class="est-mais" id="est-novo-amigo" aria-label="Adicionar amigo">+</button>');
   const amigos = Object.keys((typeof AM !== "undefined" && AM.lista) || {});
-  if (!amigos.length) h += '<p class="est-vazio-lado">Você ainda não tem amigos aqui. Toque no + para chamar alguém pelo nick.</p>';
+  if (!amigos.length && !alvoBusca)
+    h += '<p class="est-vazio-lado">Você ainda não tem amigos aqui. Toque no + para chamar alguém pelo nick.</p>';
   /* online primeiro: é com quem dá para falar agora */
   amigos.sort((a, b) => {
     const pa = estOndeEsta(a).cor === "off" ? 1 : 0, pb = estOndeEsta(b).cor === "off" ? 1 : 0;
@@ -920,8 +1015,13 @@ function estPintarLado() {
                EST.bloq[id] ? " bloqueado" : "");
   }
 
+  /* busca que não acha nada tem que DIZER que não achou. Uma barra vazia
+     e muda parece uma tela quebrada. */
+  if (alvoBusca && h.indexOf('class="est-dest') < 0)
+    h += '<p class="est-vazio-lado">Nada com “' + escaparTexto(EST.busca) + '”.</p>';
+
   const ped = Object.keys((typeof AM !== "undefined" && AM.pedidos) || {}).length;
-  if (ped) h += '<button class="est-pedidos" id="est-ver-pedidos">' + ped +
+  if (ped && !alvoBusca) h += '<button class="est-pedidos" id="est-ver-pedidos">' + ped +
                 (ped === 1 ? " pedido de amizade" : " pedidos de amizade") + " ›</button>";
 
   /* A BARRA DO PRÓPRIO PILOTO, colada embaixo: quem sou eu agora e como
@@ -988,6 +1088,30 @@ function estPintarLado() {
   if (vp) vp.addEventListener("click", () => estAbrirPedidos());
   const lx = $("est-lado-x");
   if (lx) lx.addEventListener("click", () => $("estacao").classList.remove("lado-aberto"));
+
+  /* A BUSCA REDESENHA A BARRA a cada tecla, e a barra inclui o próprio
+     campo. Sem devolver o cursor para dentro dele, a pessoa digitava uma
+     letra e perdia o foco -- e aí a segunda letra ia para lugar nenhum. */
+  const neoCx = $("est-neo-cartao");
+  if (neoCx) neoCx.addEventListener("click", estAbrirNeo);
+  cx.querySelectorAll("[data-oferta]").forEach(b =>
+    b.addEventListener("click", () => estAbrirOferta(b.getAttribute("data-oferta"))));
+
+  const campoBusca = $("est-busca");
+  if (campoBusca) {
+    campoBusca.addEventListener("input", () => {
+      EST.busca = campoBusca.value;
+      const onde = campoBusca.selectionStart;
+      estPintarLado();
+      const novo = $("est-busca");
+      if (novo) { novo.focus(); try { novo.setSelectionRange(onde, onde); } catch (e) {} }
+    });
+    campoBusca.addEventListener("keydown", e => {
+      if (e.key === "Escape") { e.stopPropagation(); EST.busca = ""; estPintarLado(); }
+    });
+  }
+  const bx = $("est-busca-x");
+  if (bx) bx.addEventListener("click", () => { EST.busca = ""; estPintarLado(); });
 }
 
 /* =====================================================================
@@ -1210,7 +1334,7 @@ function estPintarDMs() {
       '<span class="est-av">' + estLuz(onde) +
       escaparTexto(estIni(nome)) + "</span>" +
       '<span class="est-dm-txt"><strong>' + escaparTexto(nome) + "</strong>" +
-      "<em>" + (ult ? escaparTexto(quem + String(ult.txt).slice(0, 60))
+      "<em>" + (ult ? escaparLongo(quem + String(ult.txt).slice(0, 60))
                     : "vocês ainda não conversaram") + "</em></span>" +
       '<span class="est-dm-lado">' +
       (ult ? '<u>' + quandoTexto(ult.quando) + "</u>" : "") +
@@ -1269,7 +1393,7 @@ function estPintarConversa(grudarNoFim) {
   cab.innerHTML =
     '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
     '<div class="est-cab-txt"><strong>' + (d.tipo === "canal" ? "#" : "") +
-    escaparTexto(d.nome || d.id) + "</strong><em>" + escaparTexto(sub) + "</em></div>" +
+    escaparTexto(d.nome || d.id) + "</strong><em>" + escaparLongo(sub) + "</em></div>" +
     '<div class="est-cab-acoes">' + acoes + "</div>";
   const al = $("est-abrir-lado");
   if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
@@ -1570,7 +1694,7 @@ function estMenuDaMensagem(k, botao) {
   const m = EST.msgs.filter(x => x.k === k)[0];
   if (!m) return;
   estJanela(m.nome || "Piloto",
-    '<p class="est-citado">' + escaparTexto(String(m.txt).slice(0, 160)) + "</p>" +
+    '<p class="est-citado">' + escaparLongo(String(m.txt).slice(0, 160)) + "</p>" +
     '<button class="est-jan-ok" data-m="responder">responder chamando @' +
       escaparTexto(m.nome || "") + "</button>" +
     '<button class="est-jan-ok" data-m="silenciar">' +
@@ -1672,8 +1796,23 @@ function estacaoAlternar() {
   };
   if (manda) manda.addEventListener("click", enviar);
   if (campo) campo.addEventListener("keydown", e => {
+    /* a lista do @ tem que ver a tecla ANTES do campo: com ela aberta,
+       Enter escolhe o nome, e não manda a mensagem pela metade */
+    try { if (arrobaTecla(e)) return; } catch (err) {}
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); }
   });
+  if (campo) {
+    const olhar = () => { try { arrobaOlhar(); } catch (err) {} };
+    campo.addEventListener("input", olhar);
+    /* clicar noutro ponto do texto muda de qual @ estamos falando */
+    campo.addEventListener("click", olhar);
+    campo.addEventListener("keyup", e => {
+      if (/^Arrow(Left|Right)$/.test(e.key)) olhar();
+    });
+    campo.addEventListener("blur", () => setTimeout(() => {
+      try { arrobaFechar(); } catch (err) {}
+    }, 180));
+  }
 
   /* o ＋: enquete, evento e chamar todo mundo */
   const mais = $("est-mais");
@@ -1718,99 +1857,221 @@ setTimeout(() => { try { estCarregarVistos(); estOlharNovidades(); estGruposCarr
 /* =====================================================================
    O CARTÃO DE PERFIL
    ---------------------------------------------------------------------
-   Abre de QUALQUER lugar onde um nome ou um avatar apareça: no
-   bate-papo, na lista de amigos, na barra lateral. Se for você, tem o
-   botão de editar; se for outro, tem o que dá para fazer com ele.
+   Abre de QUALQUER lugar onde um nome ou um avatar apareça. Foi pedido
+   que ele fosse mais completo: mais alto, com mais coisa para ver, e a
+   foto de verdade em vez da inicial.
 
-   Foi pedido assim, e faz sentido: o nome da pessoa É o botão para saber
-   quem ela é. Ter que ir a uma tela de ajustes para trocar a própria
-   cor é o tipo de caminho que ninguém encontra.
+   Ele é MONTADO POR BLOCOS, na ordem que o dono do perfil escolheu.
+   Isso é o "layout modular" da referência, e não é enfeite: cada pessoa
+   mostra o que tem orgulho de mostrar. Quem não escolheu nada fica com
+   a ordem de fábrica, que é a mais comum.
    ===================================================================== */
+function pfBlocoHTML(id, dono, v, souEu) {
+  if (id === "sobre") {
+    return v.bio
+      ? '<div class="pf-bl"><h4>Sobre mim</h4><p class="pf-bio">' +
+        escaparLongo(v.bio) + "</p></div>"
+      : '<div class="pf-bl"><h4>Sobre mim</h4><p class="pf-bio vazia">' +
+        (souEu ? "Você ainda não escreveu nada sobre você."
+               : "Esta pessoa ainda não escreveu nada.") + "</p></div>";
+  }
+  if (id === "emblemas") {
+    const lista = perfilEmblemas(dono);
+    if (!lista.length) return "";
+    return '<div class="pf-bl"><h4>Emblemas <i>' + lista.length + "</i></h4>" +
+      '<div class="pf-embs">' + lista.slice(0, 12).map(c =>
+        '<span class="pf-emb" title="' + escaparTexto(c.nome) + '">' +
+        '<b>★</b><em>' + escaparTexto(c.nome) + "</em></span>").join("") + "</div></div>";
+  }
+  if (id === "interesses") {
+    const lista = souEu ? perfilInteresses() : (v.interesses || []);
+    if (!lista.length) return "";
+    return '<div class="pf-bl"><h4>Interesses</h4><div class="pf-ints">' +
+      lista.map(x => {
+        const it = NEO_INTERESSES.filter(i => i.id === x)[0];
+        return it ? '<span class="pf-int">' + it.ic + " " + escaparTexto(it.nome) + "</span>" : "";
+      }).join("") + "</div></div>";
+  }
+  if (id === "atividade") {
+    const lista = perfilAtividade(dono);
+    if (!lista.length) return "";
+    return '<div class="pf-bl"><h4>Atividade recente</h4><div class="pf-ativ">' +
+      lista.map(l => '<span class="pf-ativ-l"><b>' + l.ic + "</b>" +
+        escaparLongo(l.txt) + "</span>").join("") + "</div></div>";
+  }
+  if (id === "amigos") {
+    /* AMIGOS EM COMUM. No meu próprio perfil não faz sentido -- eu tenho
+       todos em comum comigo mesmo. */
+    if (souEu) return "";
+    const meus = (typeof AM !== "undefined" && AM.lista) || {};
+    const nomes = Object.keys(meus).map(u => (meus[u].tag || meus[u].nome)).slice(0, 6);
+    if (!nomes.length) return "";
+    return '<div class="pf-bl"><h4>Amigos em comum</h4><div class="pf-ints">' +
+      nomes.map(n => '<span class="pf-int">' + escaparTexto(n) + "</span>").join("") +
+      "</div></div>";
+  }
+  if (id === "naves") {
+    const n = (dono && dono.naves) || (dono && dono.ships ? dono.ships.length : 0);
+    const fase = (dono && dono.best) || 0;
+    if (!n && !fase) return "";
+    return '<div class="pf-bl"><h4>Coleção</h4><div class="pf-nums">' +
+      '<span><b>' + fase + "</b>fase</span>" +
+      '<span><b>' + (n || 1) + "</b>naves</span>" +
+      '<span><b>' + ((dono && dono.prestigio) || 0) + "</b>renascimentos</span>" +
+      "</div></div>";
+  }
+  return "";
+}
+
 function estAbrirPerfil(id) {
   const eu = estEu();
   if (!id || !eu) return;
+  /* a foto e o castigo vêm da nuvem, então a janela abre primeiro e se
+     completa depois: esperar a rede para desenhar deixaria o toque sem
+     resposta por um segundo, e um segundo parado parece travado */
+  Promise.all([fotoDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
+  estPintarPerfil(id);
+}
+
+function estPintarPerfil(id) {
+  const eu = estEu();
+  if (!eu) return;
   const souEu = id === eu.id;
-  const ficha = EST.pilotos[id] || {};
+  const ficha = souEu ? save : (EST.pilotos[id] || {});
   const v = souEu
     ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
-        fundo: perfilFundo(), bio: perfilMeu().bio, pronomes: perfilMeu().pronomes }
+        fonte: perfilFonteDoNome(), brilho: perfilBrilho(), fundoCSS: perfilFundoCSS(),
+        anima: perfilFundo().anima, bio: perfilMeu().bio, pronomes: perfilMeu().pronomes,
+        interesses: perfilInteresses(), blocos: perfilBlocos() }
     : perfilDaNuvem(ficha);
   const nome = souEu ? eu.tag : (ficha.nome || "Piloto");
   const onde = estOndeEsta(id);
   const info = neoInfo(v.nivel);
+  const foto = FOTOS[id] || "";
+  const castigo = CASTIGO_DE[id];
+  const blocos = (v.blocos && v.blocos.length) ? v.blocos : PF_BLOCOS_PADRAO;
 
   const cabeca =
-    '<div class="pf-banner" style="background:' + v.fundo.css + '"' +
-      (v.fundo.anima ? ' data-anima="1"' : "") + "></div>" +
+    '<div class="pf-banner" style="background:' + (v.fundoCSS || (v.fundo && v.fundo.css)) + '"' +
+      (v.anima || (v.fundo && v.fundo.anima) ? ' data-anima="1"' : "") + "></div>" +
     '<div class="pf-topo">' +
-      '<span class="pf-av">' + estLuz(onde) +
-      escaparTexto(estIni(nome)) + "</span>" +
+      '<span class="pf-av pf-brilho-' + ((v.brilho && v.brilho.id) || "nenhum") + '"' +
+        (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
+        estLuz(onde) + (foto ? "" : escaparTexto(estIni(nome))) + "</span>" +
       '<div class="pf-nome-cx">' +
-        '<b class="pf-nome' + perfilClasseDoNome(v) + '"' +
-        (v.cor ? ' style="' + perfilEstiloDoNome(v) + '"' : "") + ">" +
-        escaparTexto(nome) + "</b>" +
+        '<b class="pf-nome' + perfilClasseDoNome(v) + '" style="' +
+        perfilEstiloDoNome(v) + '">' + escaparTexto(nome) + "</b>" +
         (v.pronomes ? '<span class="pf-pron">' + escaparTexto(v.pronomes) + "</span>" : "") +
-        '<span class="pf-onde">' + escaparTexto(onde.txt) + "</span>" +
+        '<span class="pf-onde">' + escaparLongo(onde.txt) + "</span>" +
       "</div>" +
+      /* A SETINHA DO CASTIGO. Só aparece para o dono do jogo, e só no
+         perfil dos outros -- dar castigo em si mesmo não existe. */
+      (souOChefe() && !souEu
+        ? '<button class="pf-castigo" data-p="castigo" aria-label="Dar castigo">▾</button>' : "") +
       (info && info.id !== "nenhum"
         ? '<span class="pf-neo" style="border-color:' + info.cor + ';color:' + info.cor + '">' +
           info.selo + " " + escaparTexto(info.nome.replace("NEONEBULA ", "")) + "</span>"
         : "") +
     "</div>" +
-    (v.bio ? '<p class="pf-bio">' + escaparTexto(v.bio) + "</p>"
-           : '<p class="pf-bio vazia">' + (souEu ? "Você ainda não escreveu nada sobre você."
-                                                 : "Sem bio.") + "</p>");
+    (castigo
+      ? '<div class="pf-castigado">🔇 De castigo: ' +
+        escaparLongo(castigoQuantoFalta(castigo)) + " restantes" +
+        (castigo.motivo ? " · " + escaparLongo(castigo.motivo) : "") + "</div>"
+      : "");
+
+  const corpo = blocos.map(b => pfBlocoHTML(b, ficha, v, souEu)).join("");
 
   const acoes = souEu
-    ? '<button class="est-jan-ok" data-p="editar">EDITAR MEU PERFIL</button>' +
+    ? '<button class="est-jan-ok" data-p="editar">Editar meu perfil</button>' +
       '<button class="est-jan-ok" data-p="neo">' +
-        (neoNivel() === "nenhum" ? "CONHECER O NEONEBULA" : "MINHA ASSINATURA") + "</button>"
-    : '<button class="est-jan-ok" data-p="falar">conversar</button>' +
+        (neoNivel() === "nenhum" ? "Conhecer o NeoNebula" : "Minha assinatura") + "</button>"
+    : '<button class="est-jan-ok" data-p="falar">Conversar</button>' +
+      '<button class="est-jan-ok" data-p="ligar">Ligar</button>' +
       '<button class="est-jan-ok" data-p="mudo">' +
-        (EST.mudo[id] ? "voltar a ver" : "silenciar") + "</button>" +
+        (EST.mudo[id] ? "Voltar a ver" : "Silenciar") + "</button>" +
       '<button class="est-jan-ok" data-p="bloq">' +
-        (EST.bloq[id] ? "desbloquear" : "bloquear") + "</button>";
+        (EST.bloq[id] ? "Desbloquear" : "Bloquear") + "</button>";
 
-  estJanela(souEu ? "Meu perfil" : nome, cabeca + acoes, cx =>
+  estJanela(souEu ? "Meu perfil" : nome,
+    '<div class="pf-cartao">' + cabeca + corpo + acoes + "</div>", cx =>
     cx.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => {
       const q = b.getAttribute("data-p");
+      if (q === "castigo") { castigoAbrir(id, nome); return; }
       estFecharJanela();
       if (q === "editar") estEditarPerfil();
       else if (q === "neo") estAbrirNeo();
       else if (q === "falar") estAbrir({ tipo: "dm", id, nome });
+      else if (q === "ligar") vozLigar(id, nome);
       else if (q === "mudo") { estSilenciar(id, nome); estPintar(); }
       else if (q === "bloq") { estBloquear(id, nome); estPintar(); }
     })));
 }
 
-/* ---------- editar, e SALVAR ----------
+/* =====================================================================
+   EDITAR, E SALVAR
+   ---------------------------------------------------------------------
    Nada se aplica enquanto a pessoa mexe: ela escolhe, vê a prévia em
-   cima, e só o SALVAR grava. Desistir tem que ser possível sem estrago. */
+   cima, e só o SALVAR grava. Desistir tem que ser possível sem estrago.
+
+   O editor é dividido em abas porque virou grande demais para uma
+   rolagem só: com fonte, foto, fundo, duas rodas de cor, efeito,
+   brilho, interesses, tema, toque, clique e a ordem dos blocos, uma
+   lista corrida faria a pessoa rolar sem achar. Cada aba cabe na tela.
+   ===================================================================== */
 let estRascunho = null;
+let pfAba = "quem";
+const PF_ABAS = [
+  { id: "quem",  nome: "Quem sou",   ic: "👤" },
+  { id: "nome",  nome: "Meu nome",   ic: "✎" },
+  { id: "fundo", nome: "Fundo",      ic: "🎨" },
+  { id: "jogo",  nome: "O jogo",     ic: "🎮" },
+  { id: "ordem", nome: "Arrumar",    ic: "☰" }
+];
+
 function estEditarPerfil() {
   const p = perfilMeu();
-  estRascunho = { bio: p.bio, pronomes: p.pronomes, cor: p.cor,
-                  efeito: p.efeito, fundo: p.fundo, animacao: p.animacao };
+  estRascunho = {
+    bio: p.bio, pronomes: p.pronomes, cor: p.cor, efeito: p.efeito,
+    fundo: p.fundo, animacao: p.animacao, fonte: p.fonte, brilho: p.brilho,
+    tema: p.tema, toque: p.toque, clique: p.clique,
+    interesses: p.interesses, blocos: perfilBlocos().join(","),
+    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l
+  };
+  pfAba = "quem";
   estPintarEditor();
 }
+
+/* a prévia do cartão, igual em todas as abas: mexer e ver mudar na hora
+   é o que faz a pessoa entender o que está escolhendo */
+function pfPreviaHTML() {
+  const r = estRascunho, eu = estEu();
+  const corItem = neoAchar(NEO_CORES, r.cor);
+  const efItem = neoAchar(NEO_EFEITOS, r.efeito);
+  const fonte = neoAchar(NEO_FONTES, r.fonte) || NEO_FONTES[0];
+  const fundoCSS = r.fundo === "meu"
+    ? "linear-gradient(150deg," + corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ")"
+    : (neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0]).css;
+  const foto = FOTOS[eu.id] || "";
+  let estilo = "";
+  if (corItem) estilo += "color:" + corItem.cor + ";";
+  estilo += "font-family:" + fonte.css + ";";
+  if (fonte.espaco) estilo += "letter-spacing:" + fonte.espaco + ";";
+  return '<div class="pf-banner" style="background:' + fundoCSS + '"></div>' +
+    '<div class="pf-topo">' +
+      '<span class="pf-av pf-brilho-' + (r.brilho || "nenhum") + '"' +
+      (foto ? ' style="background-image:url(' + foto + ');background-size:cover"' : "") + ">" +
+      (foto ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+      '<div class="pf-nome-cx"><b class="pf-nome' +
+        (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") +
+        '" style="' + estilo + '">' + escaparTexto(eu.tag) + "</b>" +
+        (r.pronomes ? '<span class="pf-pron">' + escaparTexto(r.pronomes) + "</span>" : "") +
+      "</div></div>";
+}
+
 function estPintarEditor() {
   const r = estRascunho;
   const eu = estEu();
-  const fundo = neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0];
-  const corItem = neoAchar(NEO_CORES, r.cor);
-  const efItem = neoAchar(NEO_EFEITOS, r.efeito);
-
-  /* a prévia é o próprio cartão, com o que está sendo escolhido agora */
-  const previa =
-    '<div class="pf-banner" style="background:' + fundo.css + '"></div>' +
-    '<div class="pf-topo">' +
-      '<span class="pf-av">' + escaparTexto(estIni(eu.tag)) + "</span>" +
-      '<div class="pf-nome-cx"><b class="pf-nome' +
-        (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") + '"' +
-        (corItem ? ' style="color:' + corItem.cor + '"' : "") + ">" +
-        escaparTexto(eu.tag) + "</b>" +
-        (r.pronomes ? '<span class="pf-pron">' + escaparTexto(r.pronomes) + "</span>" : "") +
-      "</div></div>";
+  if (!r || !eu) return;
 
   /* cada grade mostra TUDO, e o que está travado aparece com cadeado em
      vez de sumir: ver o que existe é metade do motivo de assinar */
@@ -1819,78 +2080,285 @@ function estPintarEditor() {
       const livre = neoLiberado(it);
       return '<button class="pf-op' + (r[campo] === it.id ? " on" : "") +
         (livre ? "" : " travado") + '" data-campo="' + campo + '" data-id="' + it.id + '"' +
-        (livre ? "" : ' title="Precisa do NeoNebula ' + it.nivel + '"') + ">" +
+        (livre ? "" : ' title="Precisa do NeoNebula ' + it.nivel + '">') + ">" +
         desenha(it) + (livre ? "" : '<i class="pf-cad">🔒</i>') + "</button>";
     }).join("") + "</div>";
 
+  let corpo = "";
+  if (pfAba === "quem") {
+    corpo =
+      '<div class="pf-campo"><label>Sua foto</label>' +
+      '<div class="pf-foto-linha">' +
+        '<span class="pf-foto-previa"' +
+          (FOTOS[eu.id] ? ' style="background-image:url(' + FOTOS[eu.id] + ')"' : "") + ">" +
+          (FOTOS[eu.id] ? "" : escaparTexto(estIni(eu.tag))) + "</span>" +
+        '<div class="pf-foto-bts">' +
+          '<button class="pf-bt" id="pf-foto">Escolher imagem</button>' +
+          (FOTOS[eu.id] ? '<button class="pf-bt fraco" id="pf-foto-x">Tirar a foto</button>' : "") +
+          '<input type="file" id="pf-arq" accept="image/*" hidden>' +
+        "</div>" +
+      "</div>" +
+      '<p class="est-nota">A imagem é recortada no quadrado e encolhida para 96×96 aqui ' +
+      "mesmo, no seu aparelho, antes de subir. Assim ela pesa uns 4 KB em vez de 4 MB.</p></div>" +
+
+      '<div class="pf-campo"><label>Pronomes</label>' +
+      '<input id="pf-pron" maxlength="20" value="' + escaparTexto(r.pronomes) +
+      '" placeholder="ele/dele, ela/dela, elu/delu…" autocomplete="off"></div>' +
+
+      '<div class="pf-campo"><label>Sobre mim ' +
+      '<i id="pf-conta">' + (r.bio || "").length + "/" + perfilLimiteBio() + "</i></label>" +
+      '<textarea id="pf-bio" maxlength="' + perfilLimiteBio() +
+      '" rows="4" placeholder="Conte alguma coisa sua">' + escaparLongo(r.bio) + "</textarea>" +
+      (neoTem("bronze") ? "" : '<p class="est-nota">Com o NeoNebula a bio vai a 300 letras.</p>') +
+      "</div>" +
+
+      '<div class="pf-campo"><label>Interesses <i>' +
+        perfilInteresses({ perfil: { interesses: r.interesses }, neo: save.neo }).length +
+        "/" + (INTERESSES_MAX[neoNivel()] || 2) + "</i></label>" +
+      '<div class="pf-ints escolher">' + NEO_INTERESSES.map(it => {
+        const tem = String(r.interesses || "").split(",").indexOf(it.id) >= 0;
+        return '<button class="pf-int' + (tem ? " on" : "") + '" data-int="' + it.id + '">' +
+               it.ic + " " + escaparTexto(it.nome) + "</button>";
+      }).join("") + "</div></div>";
+
+  } else if (pfAba === "nome") {
+    corpo =
+      '<div class="pf-campo"><label>Fonte do nome</label>' +
+      grade(NEO_FONTES, "fonte", f =>
+        '<span class="pf-fonte" style="font-family:' + f.css + '">Aa</span><em>' +
+        escaparTexto(f.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Cor do nome</label>' +
+      grade(NEO_CORES, "cor", c =>
+        '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
+        escaparTexto(c.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Efeito do nome</label>' +
+      grade(NEO_EFEITOS, "efeito", e =>
+        '<span class="pf-ef neo-ef neo-' + e.id + '">' + escaparTexto(eu.tag).slice(0, 6) +
+        "</span><em>" + escaparTexto(e.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Brilho do avatar</label>' +
+      grade(NEO_BRILHOS, "brilho", b =>
+        '<span class="pf-av pequeno pf-brilho-' + b.id + '">' +
+        escaparTexto(estIni(eu.tag)) + "</span><em>" + escaparTexto(b.nome) + "</em>") + "</div>";
+
+  } else if (pfAba === "fundo") {
+    /* AS DUAS RODAS, uma em cima e uma embaixo, como foi pedido: a de
+       cima escolhe a cor onde o banner começa, a de baixo a cor onde ele
+       termina. Nenhuma das duas encosta no banner nem na bio -- elas
+       ficam entre os dois. */
+    corpo =
+      '<div class="pf-campo"><label>Duas cores suas</label>' +
+      '<div class="pf-rodas">' +
+        rodaHTML("c1", r.c1h, r.c1l, "Cor de cima") +
+        '<span class="pf-faixa" id="pf-faixa" style="background:linear-gradient(180deg,' +
+          corDeHSL(r.c1h, r.c1l) + "," + corDeHSL(r.c2h, r.c2l) + ')"></span>' +
+        rodaHTML("c2", r.c2h, r.c2l, "Cor de baixo") +
+      "</div>" +
+      '<button class="pf-bt' + (r.fundo === "meu" ? " on" : "") + '" id="pf-usar-meu">' +
+      (r.fundo === "meu" ? "Usando as suas cores" : "Usar estas duas cores") + "</button>" +
+      '<p class="est-nota">Mexa na roda para a cor e na barrinha para o tom. ' +
+      "Vale para todo mundo, com ou sem NeoNebula.</p></div>" +
+
+      '<div class="pf-campo"><label>Ou um fundo pronto</label>' +
+      grade(NEO_FUNDOS, "fundo", f =>
+        '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
+        escaparTexto(f.nome) + "</em>") + "</div>";
+
+  } else if (pfAba === "jogo") {
+    corpo =
+      '<div class="pf-campo"><label>Cor do jogo inteiro</label>' +
+      grade(NEO_TEMAS, "tema", t =>
+        '<span class="pf-bola" style="background:' + t.cor + '"></span><em>' +
+        escaparTexto(t.nome) + "</em>") +
+      '<p class="est-nota">Troca a cor de destaque em todas as telas, não só aqui.</p></div>' +
+
+      '<div class="pf-campo"><label>Rastro da nave</label>' +
+      grade(NEO_ANIMACOES, "animacao", a =>
+        '<span class="pf-rastro" style="background:' +
+        (a.cor === "arco" ? "linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF)"
+                          : (a.cor || "rgba(255,255,255,.12)")) + '"></span><em>' +
+        escaparTexto(a.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Toque de aviso</label>' +
+      grade(NEO_TOQUES, "toque", t =>
+        '<span class="pf-bola" style="background:rgba(120,200,255,.25)">♪</span><em>' +
+        escaparTexto(t.nome) + "</em>") + "</div>" +
+
+      '<div class="pf-campo"><label>Efeito de clique</label>' +
+      grade(NEO_CLIQUES, "clique", c =>
+        '<span class="pf-bola" style="background:rgba(195,77,255,.25)">✦</span><em>' +
+        escaparTexto(c.nome) + "</em>") + "</div>";
+
+  } else {
+    /* ARRUMAR: quais blocos aparecem e em que ordem. Subir e descer em
+       botão, e não arrastando: arrastar numa lista dentro de uma janela
+       que já rola briga com a rolagem, e no celular vira loteria. */
+    const atuais = String(r.blocos || "").split(",").filter(Boolean);
+    corpo = '<div class="pf-campo"><label>O que aparece no meu perfil</label>' +
+      '<div class="pf-ordem">' + atuais.map((bid, i) => {
+        const b = PF_BLOCOS.filter(x => x.id === bid)[0];
+        if (!b) return "";
+        return '<div class="pf-ord-l"><b>' + escaparTexto(b.nome) + "</b>" +
+          '<button class="pf-ord-b" data-sobe="' + i + '" aria-label="Subir"' +
+            (i === 0 ? " disabled" : "") + ">↑</button>" +
+          '<button class="pf-ord-b" data-desce="' + i + '" aria-label="Descer"' +
+            (i === atuais.length - 1 ? " disabled" : "") + ">↓</button>" +
+          (b.sempre ? '<span class="pf-ord-fixo">sempre</span>'
+                    : '<button class="pf-ord-b tira" data-tira="' + bid + '">✕</button>') +
+          "</div>";
+      }).join("") + "</div>" +
+      (PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).length
+        ? '<label style="margin-top:12px">Guardados</label><div class="pf-ints">' +
+          PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).map(b =>
+            '<button class="pf-int" data-poe="' + b.id + '">+ ' +
+            escaparTexto(b.nome) + "</button>").join("") + "</div>"
+        : "") + "</div>";
+  }
+
   estJanela("Editar meu perfil",
-    '<div class="pf-previa">' + previa + "</div>" +
-
-    '<div class="pf-campo"><label>PRONOMES</label>' +
-    '<input id="pf-pron" maxlength="20" value="' + escaparTexto(r.pronomes) +
-    '" placeholder="ele/dele, ela/dela, elu/delu…" autocomplete="off"></div>' +
-
-    '<div class="pf-campo"><label>SOBRE MIM ' +
-    '<i id="pf-conta">' + (r.bio || "").length + "/" + perfilLimiteBio() + "</i></label>" +
-    '<textarea id="pf-bio" maxlength="' + perfilLimiteBio() +
-    '" rows="3" placeholder="conte alguma coisa sua">' + escaparTexto(r.bio) + "</textarea>" +
-    (neoTem("bronze") ? "" : '<p class="est-nota">Com o NeoNebula a bio vai a 300 letras.</p>') +
-    "</div>" +
-
-    '<div class="pf-campo"><label>FUNDO DO PERFIL</label>' +
-    grade(NEO_FUNDOS, "fundo", f =>
-      '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
-      escaparTexto(f.nome) + "</em>") + "</div>" +
-
-    '<div class="pf-campo"><label>COR DO NOME</label>' +
-    grade(NEO_CORES, "cor", c =>
-      '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
-      escaparTexto(c.nome) + "</em>") + "</div>" +
-
-    '<div class="pf-campo"><label>EFEITO DO NOME</label>' +
-    grade(NEO_EFEITOS, "efeito", e =>
-      '<span class="pf-ef neo-ef neo-' + e.id + '">' + escaparTexto(eu.tag).slice(0, 6) +
-      "</span><em>" + escaparTexto(e.nome) + "</em>") + "</div>" +
-
-    '<div class="pf-campo"><label>RASTRO DA NAVE</label>' +
-    grade(NEO_ANIMACOES, "animacao", a =>
-      '<span class="pf-rastro" style="background:' +
-      (a.cor === "arco" ? "linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF)"
-                        : (a.cor || "rgba(255,255,255,.12)")) + '"></span><em>' +
-      escaparTexto(a.nome) + "</em>") + "</div>" +
-
-    '<button class="est-jan-ok salvar" id="pf-salvar">SALVAR</button>' +
-    '<button class="est-jan-ok" id="pf-cancelar">cancelar</button>',
+    '<div class="pf-previa">' + pfPreviaHTML() + "</div>" +
+    '<div class="pf-abas">' + PF_ABAS.map(a =>
+      '<button class="pf-aba' + (a.id === pfAba ? " on" : "") + '" data-pfaba="' + a.id + '">' +
+      a.ic + " " + a.nome + "</button>").join("") + "</div>" +
+    '<div class="pf-corpo">' + corpo + "</div>" +
+    '<div class="pf-pe">' +
+      '<button class="est-jan-ok salvar" id="pf-salvar">Salvar</button>' +
+      '<button class="est-jan-ok" id="pf-cancelar">Cancelar</button>' +
+    "</div>",
     cx => {
+      cx.querySelectorAll("[data-pfaba]").forEach(b => b.addEventListener("click", () => {
+        pfAba = b.getAttribute("data-pfaba");
+        estPintarEditor();
+      }));
       cx.querySelectorAll("[data-campo]").forEach(b =>
         b.addEventListener("click", () => {
           if (b.classList.contains("travado")) {
-            estAvisar("Isso é do NeoNebula. Toque em MEU PERFIL › assinatura para ver.");
+            estAvisar("Isso é do NeoNebula. Toque em Meu perfil › assinatura para ver.");
             return;
           }
           const campo = b.getAttribute("data-campo");
-          /* a cor é a única que dá para tirar: tocar na que já está
-             escolhida volta ao normal */
+          /* a cor do nome é a única que dá para TIRAR: tocar na que já
+             está escolhida volta ao normal */
           estRascunho[campo] = (campo === "cor" && estRascunho.cor === b.getAttribute("data-id"))
             ? "" : b.getAttribute("data-id");
+          if (campo === "toque") { estRascunho.toque = b.getAttribute("data-id"); }
           estPintarEditor();
+          /* o toque de aviso tem que TOCAR na hora de escolher: escolher
+             um som sem ouvir é escolher no escuro */
+          if (campo === "toque") { const g = perfilToque; try { toqueDemo(estRascunho.toque); } catch (e) {} }
         }));
+      /* as duas rodas */
+      if (pfAba === "fundo") {
+        const pintaFaixa = () => {
+          const f = $("pf-faixa");
+          if (f) f.style.background = "linear-gradient(180deg," +
+            corDeHSL(estRascunho.c1h, estRascunho.c1l) + "," +
+            corDeHSL(estRascunho.c2h, estRascunho.c2l) + ")";
+        };
+        rodaLigar("c1", r.c1h, r.c1l, (h, l) => {
+          estRascunho.c1h = h; estRascunho.c1l = l; pintaFaixa(); pfAtualizarPrevia();
+        });
+        rodaLigar("c2", r.c2h, r.c2l, (h, l) => {
+          estRascunho.c2h = h; estRascunho.c2l = l; pintaFaixa(); pfAtualizarPrevia();
+        });
+        const usar = $("pf-usar-meu");
+        if (usar) usar.addEventListener("click", () => {
+          estRascunho.fundo = estRascunho.fundo === "meu" ? "vazio" : "meu";
+          estPintarEditor();
+        });
+      }
+      /* a foto */
+      const bfoto = $("pf-foto"), arq = $("pf-arq"), tira = $("pf-foto-x");
+      if (bfoto && arq) {
+        bfoto.addEventListener("click", () => arq.click());
+        arq.addEventListener("change", async () => {
+          if (!arq.files || !arq.files[0]) return;
+          if (await fotoGuardar(arq.files[0])) estPintarEditor();
+        });
+      }
+      if (tira) tira.addEventListener("click", async () => {
+        await fotoApagar();
+        estPintarEditor();
+      });
+      /* os interesses */
+      cx.querySelectorAll("[data-int]").forEach(b => b.addEventListener("click", () => {
+        const id = b.getAttribute("data-int");
+        const atual = String(estRascunho.interesses || "").split(",").filter(Boolean);
+        const onde = atual.indexOf(id);
+        const teto = INTERESSES_MAX[neoNivel()] || 2;
+        if (onde >= 0) atual.splice(onde, 1);
+        else if (atual.length >= teto) {
+          estAvisar("Dá para escolher " + teto + ". Com o NeoNebula cabem mais.");
+          return;
+        } else atual.push(id);
+        estRascunho.interesses = atual.join(",");
+        estPintarEditor();
+      }));
+      /* arrumar a ordem */
+      const mexer = (de, para) => {
+        const l = String(estRascunho.blocos || "").split(",").filter(Boolean);
+        if (para < 0 || para >= l.length) return;
+        const x = l[de]; l[de] = l[para]; l[para] = x;
+        estRascunho.blocos = l.join(",");
+        estPintarEditor();
+      };
+      cx.querySelectorAll("[data-sobe]").forEach(b => b.addEventListener("click", () => {
+        const i = parseInt(b.getAttribute("data-sobe"), 10); mexer(i, i - 1);
+      }));
+      cx.querySelectorAll("[data-desce]").forEach(b => b.addEventListener("click", () => {
+        const i = parseInt(b.getAttribute("data-desce"), 10); mexer(i, i + 1);
+      }));
+      cx.querySelectorAll("[data-tira]").forEach(b => b.addEventListener("click", () => {
+        estRascunho.blocos = String(estRascunho.blocos || "").split(",")
+          .filter(x => x && x !== b.getAttribute("data-tira")).join(",");
+        estPintarEditor();
+      }));
+      cx.querySelectorAll("[data-poe]").forEach(b => b.addEventListener("click", () => {
+        const l = String(estRascunho.blocos || "").split(",").filter(Boolean);
+        l.push(b.getAttribute("data-poe"));
+        estRascunho.blocos = l.join(",");
+        estPintarEditor();
+      }));
+      /* os textos */
       const bio = $("pf-bio"), conta = $("pf-conta");
       if (bio) bio.addEventListener("input", () => {
         estRascunho.bio = bio.value;
         if (conta) conta.textContent = bio.value.length + "/" + perfilLimiteBio();
       });
       const pron = $("pf-pron");
-      if (pron) pron.addEventListener("input", () => { estRascunho.pronomes = pron.value; });
+      if (pron) pron.addEventListener("input", () => {
+        estRascunho.pronomes = pron.value;
+        pfAtualizarPrevia();
+      });
       $("pf-cancelar").addEventListener("click", () => { estRascunho = null; estFecharJanela(); });
       $("pf-salvar").addEventListener("click", () => {
         perfilSalvar(estRascunho);
         estRascunho = null;
         estFecharJanela();
         estAvisar("Perfil salvo.");
+        temaAplicar();
         estPintar();
       });
     });
+}
+
+/* a prévia se repinta sozinha sem refazer a aba inteira: repintar tudo a
+   cada grau da roda faria o dedo perder o arrasto no meio */
+function pfAtualizarPrevia() {
+  const cx = document.querySelector(".pf-previa");
+  if (cx && estRascunho) cx.innerHTML = pfPreviaHTML();
+}
+
+/* toca o som escolhido na hora de escolher */
+function toqueDemo(id) {
+  const t = NEO_TOQUES.filter(x => x.id === id)[0];
+  if (!t || !t.nota) return;
+  const guardado = perfilMeu().toque;
+  perfilMeu().toque = id;
+  toqueTocar();
+  perfilMeu().toque = guardado;
 }
 
 /* ---------- a loja do NeoNebula ---------- */
@@ -1950,7 +2418,7 @@ function estAbrirStatus() {
       '<button class="est-status' + (agora === p.id ? " on" : "") + '" data-pres="' + p.id + '">' +
       '<i style="color:' + p.cor + '">' + p.ic + "</i>" +
       "<span><strong>" + escaparTexto(p.nome) + "</strong>" +
-      "<em>" + escaparTexto(p.sobre) + "</em></span>" +
+      "<em>" + escaparLongo(p.sobre) + "</em></span>" +
       (agora === p.id ? '<b class="est-status-ok">✓</b>' : "") + "</button>").join("") +
     (valendo === "ausente" && agora === "online"
       ? '<p class="est-nota">Agora você está aparecendo como <b>ausente</b>, porque ficou ' +
@@ -1960,7 +2428,7 @@ function estAbrirStatus() {
     '<div class="est-add-linha">' +
     '<input id="est-rec-emoji" maxlength="2" value="' + escaparTexto((r && r.emoji) || "") +
     '" placeholder="🙂" style="flex:0 0 54px;text-align:center">' +
-    '<input id="est-rec-txt" maxlength="60" value="' + escaparTexto((r && r.txt) || "") +
+    '<input id="est-rec-txt" maxlength="60" value="' + escaparLongo((r && r.txt) || "") +
     '" placeholder="o que você está fazendo?"></div>' +
     '<label style="margin-top:9px">SUMIR DEPOIS DE</label>' +
     '<div class="est-prazos">' + PRESENCA_PRAZOS.map(pz =>
