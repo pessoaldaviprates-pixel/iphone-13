@@ -260,6 +260,151 @@ async function piloto(ctx, nome) {
     return AM.mensagens.some(m => /so nos dois/.test(m.txt));
   }, await a.evaluate(() => estEu().id));
 
+  /* =====================================================================
+     NEONEBULA E O PERFIL
+     A assinatura só vale se ela (1) chegar sozinha quando o pagamento
+     cai, (2) travar de verdade o que não foi pago, e (3) voltar ao
+     normal quando o prazo acaba. Sem as três, é enfeite.
+     ===================================================================== */
+  out.neo = await a.evaluate(() => {
+    const r = {};
+    save.neo = { nivel: 'nenhum', ate: 0 };
+    r.comeca = neoNivel();
+    /* 1) entrega automática: o mesmo cano de todo o resto */
+    const res = aplicarPresente(save, { compra: { neo: { nivel: 'ouro', dias: 30 } } });
+    r.entregou = { nivel: neoNivel(), dias: neoDiasQueFaltam(), avisou: res.itens.length > 0 };
+    /* 2) trava: com Bronze não dá para salvar coisa de Ouro nem mexendo aqui */
+    save.neo = { nivel: 'bronze', ate: Date.now() + 86400000 };
+    perfilSalvar({ cor: 'branco', efeito: 'glitch', fundo: 'prisma' });
+    r.recusouOPago = { cor: perfilMeu().cor, efeito: perfilMeu().efeito, fundo: perfilMeu().fundo };
+    perfilSalvar({ cor: 'verde' });
+    r.aceitouODoNivel = perfilMeu().cor;
+    /* 3) prazo vencido: o nome volta ao normal, mas a ESCOLHA fica guardada
+       para voltar sozinha se a pessoa renovar */
+    save.neo = { nivel: 'ouro', ate: Date.now() + 86400000 };
+    perfilSalvar({ cor: 'branco', efeito: 'glitch' });
+    r.valendo = { cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome() };
+    save.neo.ate = Date.now() - 1000;
+    r.vencido = { cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
+                  guardado: perfilMeu().cor, nivel: neoNivel() };
+    /* 4) o perfil de um estranho vem da nuvem: nada dele entra na tela sem
+       passar por uma lista conhecida */
+    const v = perfilDaNuvem({ neo: 'ouro',
+      perfil: { cor: '<img src=x onerror=alert(1)>', efeito: 'inventado', fundo: 'nao-existe' } });
+    r.estranho = { cor: v.cor, efeito: v.efeito, fundo: v.fundo.id };
+    /* 5) e quem diz ser Ouro sem ser não ganha o efeito de Ouro */
+    const w = perfilDaNuvem({ neo: 'bronze', perfil: { cor: 'branco', efeito: 'glitch' } });
+    r.mentiroso = { cor: w.cor, efeito: w.efeito };
+    /* 6) o dono tem ilimitado sem comprar nada */
+    r.niveis = NEO_NIVEIS.map(n => n.id);
+    r.precos = NEO_NIVEIS.filter(n => !n.oculto).map(n => n.preco);
+    return r;
+  });
+
+  /* ---- o perfil abre de qualquer lugar, e SALVA ---- */
+  out.perfil = await a.evaluate(async () => {
+    save.neo = { nivel: 'ouro', ate: Date.now() + 30 * 86400000 };
+    perfilSalvar({ cor: 'ambar', efeito: 'neon', fundo: 'prisma',
+                   bio: 'piloto de teste', pronomes: 'ele/dele' });
+    await estAbrir({ tipo: 'canal', id: 'geral', nome: 'geral' });
+    await new Promise(r => setTimeout(r, 400));
+    await estEnviar('mensagem para clicar no perfil');
+    await new Promise(r => setTimeout(r, 700));
+    const nome = document.querySelector('#est-msgs b[data-perfil]');
+    const r = {
+      nomePintado: nome ? nome.getAttribute('style') : null,
+      temEfeito: nome ? /neo-neon/.test(nome.className) : false,
+      temSelo: !!document.querySelector('#est-msgs .est-selo-neo'),
+      clicavel: !!nome
+    };
+    nome.click();
+    await new Promise(x => setTimeout(x, 300));
+    r.cartao = { abriu: document.getElementById('est-janela').classList.contains('on'),
+                 bio: (document.querySelector('.pf-bio') || {}).textContent,
+                 pronomes: (document.querySelector('.pf-pron') || {}).textContent,
+                 temEditar: !!document.querySelector('[data-p="editar"]') };
+    document.querySelector('[data-p="editar"]').click();
+    await new Promise(x => setTimeout(x, 300));
+    r.editor = { opcoes: document.querySelectorAll('.pf-op').length,
+                 temSalvar: !!document.getElementById('pf-salvar'),
+                 temBio: !!document.getElementById('pf-bio'),
+                 temPronomes: !!document.getElementById('pf-pron') };
+    /* mexer NÃO pode aplicar: só o SALVAR grava */
+    const antes = perfilMeu().fundo;
+    document.querySelector('[data-campo="fundo"][data-id="aurora"]').click();
+    await new Promise(x => setTimeout(x, 200));
+    r.soMexeuNaoSalvou = perfilMeu().fundo === antes;
+    document.getElementById('pf-salvar').click();
+    await new Promise(x => setTimeout(x, 300));
+    r.salvou = perfilMeu().fundo;
+    return r;
+  });
+
+  /* =====================================================================
+     PRESENÇA: estar aqui, estar fora, e não querer ser incomodado
+     ===================================================================== */
+  out.presenca = await a.evaluate(async () => {
+    const r = { estados: PRESENCAS.map(x => x.id) };
+    presencaTrocar('online');
+    /* AUSENTE entra sozinho: ninguém lembra de marcar */
+    presencaUltimoToque = Date.now() - 6 * 60000;
+    r.parado = presencaAgora();
+    presencaAcordar();
+    r.voltou = presencaAgora();
+    /* NÃO PERTURBE cala o número vermelho, que é a interrupção de verdade */
+    EST.visto = {}; EST.ultimas = { 'canal:geral': Date.now() };
+    r.seloNormal = estSeloGeral();
+    presencaTrocar('ocupado');
+    r.seloOcupado = estSeloGeral();
+    r.deixaIncomodar = podeIncomodar('canal:geral');
+    presencaTrocar('online');
+    /* SILENCIAR um canal some com o aviso dele, e só dele */
+    EST.visto = {}; EST.ultimas = { 'canal:geral': Date.now(), 'canal:trocas': Date.now() };
+    r.antesDeCalar = estSeloGeral();
+    silenciar('canal:geral', '1h');
+    r.depoisDeCalar = estSeloGeral();
+    r.ficouMudo = silenciado('canal:geral');
+    silenciar('canal:geral', null);
+    r.religou = estSeloGeral();
+    /* INVISÍVEL: a nuvem tem que receber um relógio velho, senão qualquer
+       um lendo o banco vê a pessoa ali */
+    presencaTrocar('invisivel');
+    await nuvemEnviar(true);
+    await new Promise(x => setTimeout(x, 600));
+    const ficha = await nuvemReq('pilotos/' + meuIdNuvem());
+    r.invisivel = { atrasoSegundos: Math.round((Date.now() - (ficha.atualizado || 0)) / 1000),
+                    pareceForaDoAr: (Date.now() - (ficha.atualizado || 0)) > 70000 };
+    presencaTrocar('online');
+    /* RECADO com prazo */
+    recadoDefinir('jogando a maratona', '1h', '🔥');
+    const rec = recadoMeu();
+    r.recado = { txt: rec.txt, emoji: rec.emoji, valePrazo: rec.ate > Date.now() };
+    save.recado.ate = Date.now() - 1000;
+    r.recadoVenceu = recadoMeu() === null;
+    recadoDefinir('na arena', '0', '🚀');
+    estPintar();
+    r.barra = { existe: !!document.querySelector('.est-eu'),
+                estado: (document.querySelector('.est-eu-txt em') || {}).textContent };
+    document.getElementById('est-eu-status').click();
+    await new Promise(x => setTimeout(x, 250));
+    r.seletor = { opcoes: document.querySelectorAll('[data-pres]').length,
+                  prazos: document.querySelectorAll('[data-prazo]').length };
+    estFecharJanela();
+    recadoDefinir('');
+    return r;
+  });
+
+  /* ---- MENSAGENS DIRETAS têm lugar próprio ---- */
+  out.dms = await a.evaluate(async () => {
+    await estAbrir({ tipo: 'dms', id: 'tudo' });
+    await new Promise(r => setTimeout(r, 900));
+    return { naBarra: !!document.querySelector('[data-dest="dms|tudo"]'),
+             linhas: document.querySelectorAll('#est-msgs .est-dm').length,
+             previa: (document.querySelector('.est-dm-txt em') || {}).textContent,
+             semBarra: getComputedStyle(document.querySelector('.est-barra')).display === 'none',
+             semFluxo: EST.fluxo === null };
+  });
+
   /* ---- A TELA DE AMIGOS ---- */
   out.telaAmigos = await a.evaluate(async () => {
     await estAbrir({ tipo: 'amigos', id: 'tudo' });
@@ -476,6 +621,67 @@ async function piloto(ctx, nome) {
   if (!out.dm.naLista) erro('o amigo nao aparece na barra de conversas');
   if (!out.dm.mandou) erro('a mensagem reservada nao entrou');
   if (!out.dmChegou) erro('a mensagem da estacao NAO aparece na tela de amigos: sao duas caixas separadas');
+  const N = out.neo;
+  if (N.comeca !== 'nenhum') erro('a conta nova ja nasce com NeoNebula');
+  if (N.entregou.nivel !== 'ouro') erro('a entrega automatica nao deu o nivel');
+  if (N.entregou.dias < 29) erro('a entrega deu ' + N.entregou.dias + ' dias em vez de 30');
+  if (!N.entregou.avisou) erro('a entrega nao avisa o jogador do que ele ganhou');
+  if (N.recusouOPago.cor || N.recusouOPago.efeito !== 'nenhum' || N.recusouOPago.fundo !== 'vazio')
+    erro('com Bronze deu para salvar coisa de Ouro: ' + JSON.stringify(N.recusouOPago));
+  if (N.aceitouODoNivel !== 'verde') erro('nem o que o nivel permite foi aceito');
+  if (!N.valendo.cor || !N.valendo.efeito) erro('com Ouro a cor e o efeito nao valeram');
+  if (N.vencido.cor || N.vencido.efeito) erro('a assinatura venceu e o nome continuou enfeitado');
+  if (N.vencido.guardado !== 'branco') erro('vencer apagou a ESCOLHA: renovar nao traria de volta');
+  if (N.vencido.nivel !== 'nenhum') erro('o nivel nao caiu ao vencer');
+  if (N.estranho.cor || N.estranho.efeito) erro('perfil inventado de estranho passou para a tela');
+  if (N.estranho.fundo !== 'vazio') erro('fundo inexistente de estranho nao caiu no padrao');
+  if (N.mentiroso.cor || N.mentiroso.efeito)
+    erro('quem diz ser Ouro sem ser ganhou o enfeite de Ouro');
+  if (N.niveis.join() !== 'bronze,prata,ouro,ilimitado') erro('os niveis sao ' + N.niveis.join());
+  if (N.precos.join() !== '0.5,1,3') erro('os precos sao ' + N.precos.join());
+  const P = out.perfil;
+  if (!P.clicavel) erro('o nome no bate-papo nao abre o perfil');
+  if (!/color:/.test(P.nomePintado || '')) erro('a cor do NeoNebula nao pintou o nome');
+  if (!P.temEfeito) erro('o efeito do nome nao chegou ao bate-papo');
+  if (!P.temSelo) erro('falta o selo do NeoNebula do lado do nome');
+  if (!P.cartao.abriu) erro('o cartao de perfil nao abriu');
+  if (!/piloto de teste/.test(P.cartao.bio || '')) erro('a bio nao aparece no cartao');
+  if (!/ele\/dele/.test(P.cartao.pronomes || '')) erro('os pronomes nao aparecem');
+  if (!P.cartao.temEditar) erro('no MEU perfil falta o botao de editar');
+  if (P.editor.opcoes < 30) erro('o editor tem so ' + P.editor.opcoes + ' opcoes');
+  if (!P.editor.temSalvar || !P.editor.temBio || !P.editor.temPronomes)
+    erro('falta campo no editor de perfil');
+  if (!P.soMexeuNaoSalvou) erro('mexer no editor ja aplicou: tinha que esperar o SALVAR');
+  if (P.salvou !== 'aurora') erro('o SALVAR nao gravou a escolha');
+  const PR = out.presenca;
+  if (PR.estados.join() !== 'online,ausente,ocupado,invisivel')
+    erro('os estados de presenca sao ' + PR.estados.join());
+  if (PR.parado !== 'ausente') erro('cinco minutos parado nao virou AUSENTE sozinho');
+  if (PR.voltou !== 'online') erro('tocar na tela nao tirou o AUSENTE');
+  if (!PR.seloNormal) erro('o teste nao conseguiu gerar um aviso para medir');
+  if (PR.seloOcupado) erro('NAO PERTURBE nao calou o numero de nao lidas');
+  if (PR.deixaIncomodar !== false && PR.deixaIncomodar !== true)
+    erro('podeIncomodar nao respondeu');
+  if (PR.depoisDeCalar >= PR.antesDeCalar) erro('silenciar o canal nao tirou o aviso dele');
+  if (!PR.ficouMudo) erro('o canal nao ficou silenciado');
+  if (PR.religou !== PR.antesDeCalar) erro('religar nao devolveu o aviso');
+  if (!PR.invisivel.pareceForaDoAr)
+    erro('INVISIVEL mandou relogio de agora: qualquer um lendo o banco veria a pessoa online');
+  if (PR.invisivel.atrasoSegundos < 70) erro('o relogio do invisivel atrasou so ' +
+      PR.invisivel.atrasoSegundos + 's; o jogo considera online ate 70s');
+  if (PR.recado.txt !== 'jogando a maratona' || PR.recado.emoji !== '🔥')
+    erro('o recado nao guardou o texto e o emoji');
+  if (!PR.recado.valePrazo) erro('o recado de 1 hora nasceu sem prazo');
+  if (!PR.recadoVenceu) erro('o recado nao some quando o prazo acaba');
+  if (!PR.barra.existe) erro('falta a barra do proprio piloto na lista');
+  if (!/na arena/.test(PR.barra.estado || '')) erro('o recado nao aparece na barra do piloto');
+  if (PR.seletor.opcoes !== 4) erro('o seletor tem ' + PR.seletor.opcoes + ' estados');
+  if (PR.seletor.prazos < 4) erro('faltam prazos de recado no seletor');
+  const D = out.dms;
+  if (!D.naBarra) erro('MENSAGENS DIRETAS nao aparece na barra');
+  if (!D.linhas) erro('a area de mensagens diretas nao lista as conversas');
+  if (!D.semBarra) erro('a barra de escrever aparece na lista de conversas');
+  if (!D.semFluxo) erro('a lista de conversas gastou o fluxo');
   const TA = out.telaAmigos;
   if (TA.abas.join() !== 'online,tudo,pendentes,bloqueados,adicionar')
     erro('as abas da tela de amigos sao ' + TA.abas.join());

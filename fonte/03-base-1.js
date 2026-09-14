@@ -857,7 +857,40 @@ async function nuvemEnviar(forcar) {
        a moldura nao decorava nada. */
     vip: (function () { try { return !!temVip(); } catch (e) { return false; } })(),
     moldura: (function () { try { return molduraAtual(); } catch (e) { return "nenhuma"; } })(),
-    atualizado: agora
+    /* O PERFIL TEM QUE SAIR DAQUI, senão ele decora só a própria tela.
+       Foi exatamente o que já aconteceu com o VIP e com a moldura: o
+       desenho esperava um dado que ninguém enviava, e quem pagou não
+       aparecia diferente para mais ninguém. Vai o NÍVEL e o que a pessoa
+       escolheu — quem lê decide o que vale, porque o nível pode ter
+       acabado no caminho. */
+    neo: (function () { try { return neoNivel(); } catch (e) { return "nenhum"; } })(),
+    perfil: (function () {
+      try {
+        const p = perfilMeu();
+        return { bio: p.bio || "", pronomes: p.pronomes || "", cor: p.cor || "",
+                 efeito: p.efeito || "nenhum", fundo: p.fundo || "vazio", avatar: p.avatar || "" };
+      } catch (e) { return null; }
+    })(),
+    /* PRESENÇA. O "onde" já dizia em que tela a pessoa está; isto diz se
+       ela quer ser incomodada. Vai também por qual aparelho, porque
+       saber que alguém está no celular muda o que você espera: quem está
+       no telefone responde devagar, e isso evita cobrança à toa. */
+    presenca: (function () { try { return presencaAgora(); } catch (e) { return "online"; } })(),
+    aparelho: (function () {
+      try { return matchMedia("(max-width: 780px)").matches ? "celular" : "computador"; }
+      catch (e) { return "computador"; }
+    })(),
+    recado: (function () { try { return recadoMeu(); } catch (e) { return null; } })(),
+    /* O INVISÍVEL MENTE O RELÓGIO, e é de propósito.
+       Mandar "estou invisível" e torcer para o outro lado respeitar não
+       é esconder: qualquer um lendo o banco direto veria a pessoa ali.
+       Mandando um relógio velho, ela fica fora do ar para TODO MUNDO --
+       para o jogo, para o ranking e para quem for curioso. Segredo que
+       depende da boa educação alheia não é segredo. */
+    atualizado: (function () {
+      try { return presencaAgora() === "invisivel" ? agora - 600000 : agora; }
+      catch (e) { return agora; }
+    })()
   };
   await nuvemReq("pilotos/" + nuvemId(save.__name), {
     method: "PUT",
@@ -1077,6 +1110,19 @@ function aplicarPresente(p, g) {
       }
       p.ship = c.naves[c.naves.length - 1];
       partes.push(c.naves.length + " nave" + (c.naves.length === 1 ? "" : "s"));
+    }
+    /* ENTREGA AUTOMÁTICA DO NEONEBULA.
+       Assim que o pagamento é confirmado, o nível cai na conta pelo mesmo
+       cano de todo o resto — sem ninguém mexer à mão, e sem um segundo
+       jeito de entregar que um dia ficaria diferente deste. */
+    if (c.neo) {
+      try {
+        neoDar(p, c.neo.nivel, c.neo.dias);
+        const info = neoInfo(c.neo.nivel);
+        partes.push(info ? info.nome : "NeoNebula");
+        anota(info ? info.selo : "✦", (info ? info.nome : "NeoNebula") +
+              (c.neo.dias ? " por " + c.neo.dias + " dias" : ""));
+      } catch (e) {}
     }
   }
 

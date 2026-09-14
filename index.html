@@ -5193,8 +5193,8 @@
   .estacao{
     position:fixed;inset:0;z-index:60;display:none;
     grid-template-columns:250px minmax(0,1fr);
-    background:rgba(4,7,16,.92);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    background:rgba(3,5,12,.97);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     padding:calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bot));
     gap:10px;
   }
@@ -5203,8 +5203,12 @@
   /* ---- a barra dos destinos ---- */
   .est-lado{
     min-height:0;overflow-y:auto;padding:10px 9px;border-radius:16px;
-    background:linear-gradient(175deg,rgba(14,26,50,.6),rgba(5,10,22,.75));
-    border:1px solid rgba(120,200,255,.16);
+    /* SÓLIDA, não translúcida. Ela estava deixando o jogo passar por trás
+       e o nome dos canais brigava com a nebulosa do fundo -- bonito na
+       imagem parada, ruim de ler. Coluna de navegação tem que ser chão
+       firme; quem brilha é a conversa. */
+    background:linear-gradient(175deg,#0E1A2E,#080D1A);
+    border:1px solid rgba(120,200,255,.2);
     scrollbar-width:thin;scrollbar-color:rgba(120,200,255,.3) transparent;
   }
   .est-serv{display:flex;align-items:center;gap:9px;padding:2px 4px 12px;
@@ -5290,7 +5294,7 @@
   /* ---- a conversa ---- */
   .est-meio{
     display:flex;flex-direction:column;min-height:0;min-width:0;border-radius:16px;
-    background:linear-gradient(175deg,rgba(12,22,44,.5),rgba(5,10,22,.7));
+    background:linear-gradient(175deg,rgba(10,18,36,.94),rgba(5,10,22,.96));
     border:1px solid rgba(120,200,255,.16);overflow:hidden;
   }
   .est-cab{
@@ -5587,6 +5591,226 @@
     .est-aba-am{flex:1;text-align:center;min-height:34px;padding:6px 4px}
     .est-cab{flex-wrap:wrap}
   }
+
+  /* =====================================================================
+     NEONEBULA — o perfil e o que a assinatura destrava
+     ===================================================================== */
+
+  /* ---- os efeitos do nome ---- */
+  .neo-ef{position:relative}
+  .neo-neon{text-shadow:0 0 6px currentColor,0 0 14px currentColor}
+  .neo-pulso{animation:neoPulso 1.8s ease-in-out infinite}
+  @keyframes neoPulso{0%,100%{opacity:1;text-shadow:0 0 6px currentColor}
+    50%{opacity:.72;text-shadow:0 0 16px currentColor}}
+  .neo-glitch{text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan);
+    animation:neoGlitch 2.6s steps(1) infinite}
+  @keyframes neoGlitch{0%,92%,100%{transform:none;text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan)}
+    94%{transform:translateX(-1.5px);text-shadow:-2px 0 var(--magenta),2px 0 var(--cyan)}
+    96%{transform:translateX(1.5px);text-shadow:2px 0 var(--verde),-2px 0 var(--amber)}}
+  .neo-arco{
+    background:linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF,#C34DFF,#FF4D8F);
+    background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    animation:neoArco 5s linear infinite;
+  }
+  @keyframes neoArco{to{background-position:250% 0}}
+  @media (prefers-reduced-motion:reduce){
+    .neo-pulso,.neo-glitch,.neo-arco{animation:none}
+    .neo-arco{-webkit-text-fill-color:currentColor;color:var(--cyan)}
+  }
+  .est-selo-neo{font-size:.6rem;line-height:1;opacity:.95}
+  /* o nome e o avatar viram botão sem parecer botão */
+  .est-abre-perfil{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit}
+  b.est-abre-perfil:hover{text-decoration:underline}
+
+  /* ---- o cartão de perfil ---- */
+  .pf-banner{height:82px;border-radius:12px;margin:-4px -3px 0}
+  .pf-banner[data-anima]{background-size:200% 200%;animation:pfFundo 9s ease infinite}
+  @keyframes pfFundo{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  @media (prefers-reduced-motion:reduce){.pf-banner[data-anima]{animation:none}}
+  .pf-topo{display:flex;align-items:flex-end;gap:11px;margin:-26px 2px 10px;position:relative}
+  .pf-av{
+    width:62px;height:62px;flex:none;border-radius:18px;display:grid;place-items:center;
+    font-family:"Russo One",sans-serif;font-size:1.3rem;color:#04060F;position:relative;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);
+    border:3px solid #0A1020;
+  }
+  .pf-nome-cx{min-width:0;flex:1;padding-bottom:4px}
+  .pf-nome{
+    display:block;font-family:"Russo One",sans-serif;font-size:1rem;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .pf-pron{display:inline-block;font-size:.54rem;color:var(--dim);margin-top:2px;
+    padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.07)}
+  .pf-onde{display:block;font-size:.56rem;color:var(--fraco);margin-top:3px}
+  .pf-neo{
+    flex:none;align-self:flex-start;margin-top:30px;
+    padding:4px 9px;border-radius:99px;border:1px solid;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.5rem;letter-spacing:.1em;
+  }
+  .pf-bio{
+    font-size:.72rem;line-height:1.55;color:var(--ink2);margin:0 2px 12px;
+    padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .pf-bio.vazia{color:var(--fraco);font-style:italic}
+
+  /* ---- o editor ---- */
+  .pf-previa{
+    padding:10px 12px 4px;margin:-4px -4px 14px;border-radius:12px;
+    background:rgba(0,0,0,.3);border:1px solid rgba(120,200,255,.14);
+  }
+  .pf-campo{margin-bottom:15px}
+  .pf-campo label{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:.48rem;letter-spacing:.2em;color:var(--fraco);font-weight:700;margin-bottom:6px;
+  }
+  .pf-campo label i{font-style:normal;letter-spacing:.06em;opacity:.8}
+  .pf-campo textarea{
+    width:100%;padding:10px 12px;border-radius:10px;resize:vertical;min-height:66px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.72rem;line-height:1.5;
+  }
+  .pf-campo textarea:focus{outline:none;border-color:rgba(77,232,255,.55)}
+  .pf-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+  .pf-op{
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;
+    padding:8px 6px;border-radius:10px;cursor:pointer;min-height:60px;justify-content:center;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+  }
+  .pf-op em{font-style:normal;font-size:.5rem;color:var(--dim);text-align:center;line-height:1.2}
+  .pf-op.on{border-color:var(--cyan);background:rgba(77,232,255,.14)}
+  .pf-op.on em{color:var(--ink)}
+  .pf-op.travado{opacity:.42}
+  .pf-cad{position:absolute;top:4px;right:5px;font-style:normal;font-size:.56rem}
+  .pf-mini{width:100%;height:22px;border-radius:6px}
+  .pf-bola{width:22px;height:22px;border-radius:50%}
+  .pf-ef{font-family:"Russo One",sans-serif;font-size:.66rem;color:var(--cyan)}
+  .pf-rastro{width:100%;height:7px;border-radius:99px}
+  .est-jan-ok.salvar{
+    background:rgba(91,240,176,.18);border-color:rgba(91,240,176,.5);color:var(--verde);
+    font-size:.7rem;margin-top:12px;
+  }
+
+  /* ---- a loja do NeoNebula ---- */
+  .neo-meu{
+    display:flex;align-items:center;justify-content:space-between;gap:9px;
+    padding:11px 13px;margin-bottom:12px;border-radius:11px;border:1px solid;
+    background:rgba(255,255,255,.04);
+  }
+  .neo-meu b{font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.08em}
+  .neo-meu span{font-size:.56rem;color:var(--dim)}
+  .neo-cx{
+    padding:13px;margin-bottom:11px;border-radius:13px;border:1px solid;
+    background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  }
+  .neo-h{display:flex;align-items:baseline;justify-content:space-between;gap:9px;flex-wrap:wrap}
+  .neo-h b{font-family:"Russo One",sans-serif;font-size:.74rem;letter-spacing:.08em}
+  .neo-preco{font-family:"Russo One",sans-serif;font-size:.9rem;color:var(--ink)}
+  .neo-preco em{font-style:normal;font-size:.5rem;color:var(--fraco);margin-left:3px}
+  .neo-resumo{font-size:.62rem;color:var(--dim);margin:5px 0 9px}
+  .neo-lista{list-style:none;margin:0 0 11px;padding:0}
+  .neo-lista li{
+    position:relative;padding:3px 0 3px 17px;font-size:.66rem;line-height:1.45;color:var(--ink2);
+  }
+  .neo-lista li::before{content:"✦";position:absolute;left:0;color:var(--cyan);font-size:.6rem}
+
+  /* ---- as mensagens diretas ---- */
+  .est-dm{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:10px 8px;border-radius:11px;cursor:pointer;
+    background:none;border:0;border-bottom:1px solid rgba(120,200,255,.09);
+  }
+  .est-dm:hover{background:rgba(255,255,255,.04)}
+  .est-dm-txt{min-width:0;flex:1}
+  .est-dm-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;
+    color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-dm.nova .est-dm-txt strong{color:var(--ink)}
+  .est-dm-txt em{
+    display:block;font-style:normal;font-size:.6rem;color:var(--fraco);margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-dm.nova .est-dm-txt em{color:var(--dim)}
+  .est-dm-lado{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+  .est-dm-lado u{font-size:.48rem;color:var(--fraco);text-decoration:none}
+  .est-dm-b .est-dest-ic{background:rgba(195,77,255,.14);color:var(--violet)}
+  @media (max-width: 780px){
+    .pf-grade{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+    .pf-op{min-height:64px}
+    .est-jan-ok{min-height:42px}
+  }
+
+  /* ---- presença: a luzinha de cada estado ---- */
+  .est-luz.on,.est-luz.online{background:#4CE07A}
+  .est-luz.jogo{background:var(--cyan)}
+  .est-luz.ausente{background:#FFC145}
+  .est-luz.ocupado{background:#FF4D6B}
+  .est-luz.off{background:rgba(237,243,255,.22)}
+  /* no celular a luzinha vira um celularzinho: saber POR ONDE a pessoa
+     está muda o que se espera dela */
+  .est-luz.cel{
+    width:11px;height:15px;border-radius:3px;display:grid;place-items:center;
+    font-size:.4rem;color:#07101F;font-style:normal;bottom:-2px;right:-3px;
+  }
+  .est-dest.mudo,.est-amigo.mudo{opacity:.55}
+  .est-cab-b.mudo{border-color:rgba(255,193,69,.35);color:var(--amber)}
+
+  /* ---- a barra do próprio piloto, embaixo da lista ---- */
+  .est-eu{
+    display:flex;align-items:center;gap:8px;margin-top:12px;padding:8px;
+    border-radius:12px;background:rgba(0,0,0,.35);
+    border:1px solid rgba(120,200,255,.14);
+    position:sticky;bottom:0;
+  }
+  .est-eu-av{
+    position:relative;width:34px;height:34px;flex:none;border-radius:11px;cursor:pointer;
+    display:grid;place-items:center;border:0;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);color:#04060F;
+    font-family:"Russo One",sans-serif;font-size:.68rem;
+  }
+  .est-eu-txt{
+    flex:1;min-width:0;text-align:left;background:none;border:0;cursor:pointer;padding:0;
+  }
+  .est-eu-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;
+    color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-eu-txt em{
+    display:block;font-style:normal;font-size:.5rem;color:var(--dim);margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-eu-txt:hover em{color:var(--cyan)}
+  .est-eu-b{
+    width:30px;height:30px;flex:none;border-radius:9px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.66rem;
+  }
+  .est-eu-b:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+
+  /* ---- o seletor de estado ---- */
+  .est-status{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:10px 11px;margin-bottom:6px;border-radius:11px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14);
+  }
+  .est-status.on{border-color:rgba(77,232,255,.45);background:rgba(77,232,255,.1)}
+  .est-status i{font-style:normal;font-size:.9rem;flex:none;width:18px;text-align:center}
+  .est-status span{min-width:0;flex:1}
+  .est-status strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.7rem;
+    color:var(--ink);
+  }
+  .est-status em{display:block;font-style:normal;font-size:.56rem;color:var(--dim);margin-top:1px}
+  .est-status-ok{color:var(--cyan);font-size:.8rem;flex:none}
+  .est-prazos{display:flex;flex-wrap:wrap;gap:5px}
+  .est-prazo{
+    padding:7px 11px;border-radius:99px;cursor:pointer;min-height:34px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.56rem;
+  }
+  .est-prazo.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan)}
 
 </style>
 </head>
@@ -8283,7 +8507,40 @@ async function nuvemEnviar(forcar) {
        a moldura nao decorava nada. */
     vip: (function () { try { return !!temVip(); } catch (e) { return false; } })(),
     moldura: (function () { try { return molduraAtual(); } catch (e) { return "nenhuma"; } })(),
-    atualizado: agora
+    /* O PERFIL TEM QUE SAIR DAQUI, senão ele decora só a própria tela.
+       Foi exatamente o que já aconteceu com o VIP e com a moldura: o
+       desenho esperava um dado que ninguém enviava, e quem pagou não
+       aparecia diferente para mais ninguém. Vai o NÍVEL e o que a pessoa
+       escolheu — quem lê decide o que vale, porque o nível pode ter
+       acabado no caminho. */
+    neo: (function () { try { return neoNivel(); } catch (e) { return "nenhum"; } })(),
+    perfil: (function () {
+      try {
+        const p = perfilMeu();
+        return { bio: p.bio || "", pronomes: p.pronomes || "", cor: p.cor || "",
+                 efeito: p.efeito || "nenhum", fundo: p.fundo || "vazio", avatar: p.avatar || "" };
+      } catch (e) { return null; }
+    })(),
+    /* PRESENÇA. O "onde" já dizia em que tela a pessoa está; isto diz se
+       ela quer ser incomodada. Vai também por qual aparelho, porque
+       saber que alguém está no celular muda o que você espera: quem está
+       no telefone responde devagar, e isso evita cobrança à toa. */
+    presenca: (function () { try { return presencaAgora(); } catch (e) { return "online"; } })(),
+    aparelho: (function () {
+      try { return matchMedia("(max-width: 780px)").matches ? "celular" : "computador"; }
+      catch (e) { return "computador"; }
+    })(),
+    recado: (function () { try { return recadoMeu(); } catch (e) { return null; } })(),
+    /* O INVISÍVEL MENTE O RELÓGIO, e é de propósito.
+       Mandar "estou invisível" e torcer para o outro lado respeitar não
+       é esconder: qualquer um lendo o banco direto veria a pessoa ali.
+       Mandando um relógio velho, ela fica fora do ar para TODO MUNDO --
+       para o jogo, para o ranking e para quem for curioso. Segredo que
+       depende da boa educação alheia não é segredo. */
+    atualizado: (function () {
+      try { return presencaAgora() === "invisivel" ? agora - 600000 : agora; }
+      catch (e) { return agora; }
+    })()
   };
   await nuvemReq("pilotos/" + nuvemId(save.__name), {
     method: "PUT",
@@ -8503,6 +8760,19 @@ function aplicarPresente(p, g) {
       }
       p.ship = c.naves[c.naves.length - 1];
       partes.push(c.naves.length + " nave" + (c.naves.length === 1 ? "" : "s"));
+    }
+    /* ENTREGA AUTOMÁTICA DO NEONEBULA.
+       Assim que o pagamento é confirmado, o nível cai na conta pelo mesmo
+       cano de todo o resto — sem ninguém mexer à mão, e sem um segundo
+       jeito de entregar que um dia ficaria diferente deste. */
+    if (c.neo) {
+      try {
+        neoDar(p, c.neo.nivel, c.neo.dias);
+        const info = neoInfo(c.neo.nivel);
+        partes.push(info ? info.nome : "NeoNebula");
+        anota(info ? info.selo : "✦", (info ? info.nome : "NeoNebula") +
+              (c.neo.dias ? " por " + c.neo.dias + " dias" : ""));
+      } catch (e) {}
     }
   }
 
@@ -11884,6 +12154,13 @@ async function admEntregarPedido(chave, pd, botao) {
     else presente.passes = [id];
   } else if (String(pd.item).indexOf("nave:") === 0) {
     presente.naves = [Number(String(pd.item).slice(5))];
+  } else if (String(pd.item).indexOf("neo_") === 0) {
+    /* O NEONEBULA CHEGA SOZINHO. O pedido já carrega qual nível e por
+       quantos dias (veio do botão ASSINAR), então a entrega não depende
+       de ninguém lembrar de digitar nada -- que é onde a entrega à mão
+       erra. */
+    const n = pd.neo || { nivel: String(pd.item).slice(4), dias: 30 };
+    presente.compra = { neo: { nivel: n.nivel, dias: n.dias || 30 } };
   }
   /* comprou para um amigo: quem recebe é o amigo, e os dois são avisados */
   const paraQuem = pd.presentePara || pd.de;
@@ -31420,6 +31697,448 @@ addEventListener("orientationchange", () => setTimeout(explOlharOrientacao, 220)
     }));
 })();
 /* =====================================================================
+   NEONEBULA E O PERFIL DO PILOTO
+   =====================================================================
+   Duas coisas que andam juntas: quem você é para os outros (o perfil) e
+   o que a assinatura NeoNebula destrava nele.
+
+   POR QUE ISTO MORA NUM ARQUIVO SÓ, E ANTES DA ESTAÇÃO
+   ---------------------------------------------------------------------
+   O perfil é usado em três lugares que não se conhecem: o bate-papo
+   (que desenha o nome e o avatar), o ranking e a tela de perfil do jogo.
+   Se cada um guardasse a própria ideia de "cor do nome", um dia
+   apareceria dourado num lugar e branco no outro. Aqui é a única fonte.
+
+   O QUE O NEONEBULA É, E O QUE ELE NÃO É
+   ---------------------------------------------------------------------
+   São três níveis que valem 30 dias cada. O pedido foi "por mês" — e é
+   isso na prática, mas vendido como um passe de 30 dias, não como
+   cobrança automática. O motivo é honesto: Pix não faz cobrança
+   recorrente sem contrato de provedor de pagamento (que exige CNPJ e
+   maior de idade). Fingir que renova sozinho seria mentir para quem
+   paga; um passe que acaba e avisa é verdade.
+
+   O nível ILIMITADO não se compra: é do dono do jogo, e vem de graça
+   junto com a conta dele.
+   ===================================================================== */
+
+const NEO_NIVEIS = [
+  {
+    id: "bronze", nome: "NEONEBULA BRONZE", preco: 0.50, dias: 30,
+    cor: "#C77B3F", selo: "✦",
+    resumo: "o começo: cor no nome, bio maior e selo",
+    beneficios: [
+      "cor do nome no bate-papo (8 cores)",
+      "selo de bronze do lado do seu nome",
+      "bio de 300 letras em vez de 140",
+      "6 fundos de perfil",
+      "1 animação de nave exclusiva"
+    ]
+  },
+  {
+    id: "prata", nome: "NEONEBULA PRATA", preco: 1.00, dias: 30,
+    cor: "#C8D4E8", selo: "✧",
+    resumo: "o nome brilha, e o perfil ganha vida",
+    beneficios: [
+      "tudo do Bronze",
+      "brilho no nome (o efeito NEON)",
+      "16 cores de nome",
+      "12 fundos de perfil, alguns em movimento",
+      "3 animações de nave exclusivas",
+      "emojis extras no bate-papo",
+      "mensagem de 500 letras em vez de 300"
+    ]
+  },
+  {
+    id: "ouro", nome: "NEONEBULA OURO", preco: 3.00, dias: 30,
+    cor: "#FFC145", selo: "★",
+    resumo: "tudo, e o nome com efeito de verdade",
+    beneficios: [
+      "tudo do Prata",
+      "efeitos de nome GLITCH e ARCO-ÍRIS",
+      "todas as cores de nome",
+      "todos os fundos de perfil",
+      "todas as animações de nave",
+      "sua entrada aparece no #geral",
+      "prioridade quando você denunciar alguém"
+    ]
+  },
+  {
+    id: "ilimitado", nome: "NEONEBULA ILIMITADO", preco: 0, dias: 0,
+    cor: "#C34DFF", selo: "♛", oculto: true,
+    resumo: "a assinatura do dono: tudo, para sempre",
+    beneficios: ["tudo do Ouro, sem prazo para acabar"]
+  }
+];
+const NEO_ORDEM = { nenhum: 0, bronze: 1, prata: 2, ouro: 3, ilimitado: 4 };
+
+function neoDe(p) {
+  p = p || save;
+  if (!p) return "nenhum";
+  /* o dono tem ILIMITADO de graça, e isso não depende de nada guardado:
+     se dependesse, um save perdido tiraria o dono do próprio jogo */
+  try { if (contaDeDono(p.__name)) return "ilimitado"; } catch (e) {}
+  const n = p.neo && p.neo.nivel;
+  if (!n || n === "nenhum") return "nenhum";
+  if (n === "ilimitado") return "ilimitado";
+  if ((p.neo.ate || 0) < Date.now()) return "nenhum";      // passou do prazo
+  return n;
+}
+function neoNivel() { return neoDe(save); }
+function neoTem(minimo) { return NEO_ORDEM[neoNivel()] >= NEO_ORDEM[minimo || "bronze"]; }
+function neoInfo(id) { return NEO_NIVEIS.filter(x => x.id === id)[0] || null; }
+function neoDiasQueFaltam() {
+  if (neoNivel() === "ilimitado") return Infinity;
+  return Math.max(0, Math.ceil(((save.neo && save.neo.ate || 0) - Date.now()) / 86400000));
+}
+/* o selo que aparece do lado do nome, em qualquer lugar */
+function neoSelo(nivel) {
+  const i = neoInfo(nivel || neoNivel());
+  return i && i.id !== "nenhum" ? i.selo : "";
+}
+
+/* dar o nível a uma conta. Um lugar só, porque a entrega automática, o
+   painel e o presente do dono passam todos por aqui. */
+function neoDar(p, nivel, dias) {
+  if (!p) return;
+  const info = neoInfo(nivel);
+  if (!info) return;
+  p.neo = p.neo || { nivel: "nenhum", ate: 0 };
+  const agora = Date.now();
+  /* subiu de nível: o prazo recomeça. Continuou no mesmo: soma.
+     Somar dias de Bronze num Ouro seria rebaixar quem pagou mais. */
+  const mesmo = p.neo.nivel === nivel && (p.neo.ate || 0) > agora;
+  const base = mesmo ? p.neo.ate : agora;
+  p.neo.nivel = nivel;
+  p.neo.ate = nivel === "ilimitado" ? 0 : base + (dias || info.dias) * 86400000;
+}
+
+/* =====================================================================
+   O PERFIL
+   ---------------------------------------------------------------------
+   Bio, pronomes, avatar, fundo, cor e efeito do nome. Tudo o que a
+   pessoa escolhe sobre si mesma mora aqui, e sai daqui para o bate-papo,
+   o ranking e a nuvem — um lugar só, uma verdade só.
+   ===================================================================== */
+
+/* As cores do nome. As primeiras oito são do Bronze para cima; o resto
+   vai destravando. Quem não assina fica com a cor de sempre — que não é
+   castigo, é o padrão bonito do jogo. */
+const NEO_CORES = [
+  { id: "cyan",    nome: "Ciano",    cor: "#4DE8FF", nivel: "bronze" },
+  { id: "verde",   nome: "Verde",    cor: "#5BF0B0", nivel: "bronze" },
+  { id: "magenta", nome: "Magenta",  cor: "#FF4D8F", nivel: "bronze" },
+  { id: "ambar",   nome: "Âmbar",    cor: "#FFC145", nivel: "bronze" },
+  { id: "violeta", nome: "Violeta",  cor: "#C34DFF", nivel: "bronze" },
+  { id: "coral",   nome: "Coral",    cor: "#FF7B4D", nivel: "bronze" },
+  { id: "gelo",    nome: "Gelo",     cor: "#C8D4E8", nivel: "bronze" },
+  { id: "limao",   nome: "Limão",    cor: "#C8F94D", nivel: "bronze" },
+  { id: "rosa",    nome: "Rosa",     cor: "#FFA8D8", nivel: "prata" },
+  { id: "turquesa",nome: "Turquesa", cor: "#4DFFD5", nivel: "prata" },
+  { id: "azul",    nome: "Azul",     cor: "#7FB6FF", nivel: "prata" },
+  { id: "lilas",   nome: "Lilás",    cor: "#B9A6FF", nivel: "prata" },
+  { id: "fogo",    nome: "Fogo",     cor: "#FF5A3C", nivel: "prata" },
+  { id: "ouro",    nome: "Ouro",     cor: "#FFE066", nivel: "prata" },
+  { id: "menta",   nome: "Menta",    cor: "#9BF7C4", nivel: "prata" },
+  { id: "sangue",  nome: "Sangue",   cor: "#E03050", nivel: "prata" },
+  { id: "branco",  nome: "Branco",   cor: "#FFFFFF", nivel: "ouro" },
+  { id: "abismo",  nome: "Abismo",   cor: "#6B7BFF", nivel: "ouro" }
+];
+/* os efeitos do nome: o que faz a pessoa olhar duas vezes */
+const NEO_EFEITOS = [
+  { id: "nenhum", nome: "Sem efeito", nivel: "nenhum" },
+  { id: "neon",   nome: "Neon",       nivel: "prata" },
+  { id: "pulso",  nome: "Pulso",      nivel: "prata" },
+  { id: "glitch", nome: "Glitch",     nivel: "ouro" },
+  { id: "arco",   nome: "Arco-íris",  nivel: "ouro" }
+];
+/* os fundos do perfil. Os três primeiros são de graça — o pedido foi
+   exatamente esse: alguns grátis, o resto do NeoNebula. */
+const NEO_FUNDOS = [
+  { id: "vazio",   nome: "Vazio",        nivel: "nenhum", css: "linear-gradient(160deg,#0A1428,#050813)" },
+  { id: "nebulosa",nome: "Nebulosa",     nivel: "nenhum", css: "linear-gradient(140deg,#1B1040,#0A1428 60%,#050813)" },
+  { id: "aurora",  nome: "Aurora",       nivel: "nenhum", css: "linear-gradient(120deg,#06263A,#0B3B45 50%,#071A2E)" },
+  { id: "brasa",   nome: "Brasa",        nivel: "bronze", css: "linear-gradient(140deg,#3A1608,#1A0A10 60%,#0A0610)" },
+  { id: "gelo2",   nome: "Geleira",      nivel: "bronze", css: "linear-gradient(150deg,#0E2E42,#123A52 55%,#071626)" },
+  { id: "ferro",   nome: "Ferro-velho",  nivel: "bronze", css: "linear-gradient(160deg,#2A2E36,#14171E)" },
+  { id: "roxo",    nome: "Vazio roxo",   nivel: "prata",  css: "linear-gradient(135deg,#2B0B4A,#120726 60%,#070312)" },
+  { id: "mar",     nome: "Mar de Plasma",nivel: "prata",  css: "linear-gradient(130deg,#04304A,#0A5566 45%,#031C2B)" },
+  { id: "fenda",   nome: "Fenda",        nivel: "prata",  css: "linear-gradient(105deg,#0A0618,#4A0F5C 50%,#0A0618)", anima: true },
+  { id: "sol",     nome: "Estrela Morta",nivel: "prata",  css: "linear-gradient(140deg,#4A2A05,#7A4A08 40%,#1A0E02)", anima: true },
+  { id: "prisma",  nome: "Prisma",       nivel: "ouro",   css: "linear-gradient(100deg,#4DE8FF,#C34DFF 40%,#FF4D8F 70%,#FFC145)", anima: true },
+  { id: "buraco",  nome: "Buraco Negro", nivel: "ouro",   css: "radial-gradient(circle at 50% 45%,#000 18%,#2A1050 45%,#0A0618 75%)", anima: true }
+];
+/* as animações de nave: três de graça, como foi pedido */
+const NEO_ANIMACOES = [
+  { id: "nenhuma", nome: "Sem rastro",   nivel: "nenhum", cor: null },
+  { id: "fogo",    nome: "Rastro de fogo", nivel: "nenhum", cor: "#FF7B4D" },
+  { id: "gelo",    nome: "Rastro gelado",  nivel: "nenhum", cor: "#7FD4FF" },
+  { id: "neon",    nome: "Rastro neon",    nivel: "bronze", cor: "#4DE8FF" },
+  { id: "veneno",  nome: "Rastro tóxico",  nivel: "prata",  cor: "#9BF7C4" },
+  { id: "sangue",  nome: "Rastro carmesim",nivel: "prata",  cor: "#FF4D6B" },
+  { id: "arco",    nome: "Rastro arco-íris", nivel: "ouro", cor: "arco" },
+  { id: "vazio",   nome: "Rastro do vazio",  nivel: "ouro", cor: "#C34DFF" }
+];
+
+const PERFIL_PADRAO = {
+  bio: "", pronomes: "", cor: "", efeito: "nenhum",
+  fundo: "vazio", animacao: "nenhuma", avatar: ""
+};
+function perfilMeu() {
+  save.perfil = Object.assign({}, PERFIL_PADRAO, save.perfil || {});
+  return save.perfil;
+}
+/* posso usar isto? A regra é uma só, e vale para cor, efeito, fundo e
+   animação — senão um dia o fundo checaria o nível e a cor não. */
+function neoLiberado(item) {
+  return NEO_ORDEM[neoNivel()] >= NEO_ORDEM[(item && item.nivel) || "nenhum"];
+}
+function neoAchar(lista, id) { return lista.filter(x => x.id === id)[0] || null; }
+
+/* A cor e o efeito que valem AGORA — já filtrados pelo nível.
+   Se a assinatura acabar, o nome volta ao normal sozinho em vez de
+   continuar dourado de graça; e a escolha fica guardada, então
+   renovando ela volta sem a pessoa ter que escolher de novo. */
+function perfilCorDoNome(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const c = neoAchar(NEO_CORES, perfil.cor);
+  if (!c) return "";
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[c.nivel] ? c.cor : "";
+}
+function perfilEfeitoDoNome(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const e = neoAchar(NEO_EFEITOS, perfil.efeito);
+  if (!e || e.id === "nenhum") return "";
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[e.nivel] ? e.id : "";
+}
+function perfilFundo(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const f = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[f.nivel] ? f : NEO_FUNDOS[0];
+}
+function perfilAnimacao(p) {
+  p = p || save;
+  const perfil = Object.assign({}, PERFIL_PADRAO, (p && p.perfil) || {});
+  const a = neoAchar(NEO_ANIMACOES, perfil.animacao) || NEO_ANIMACOES[0];
+  return NEO_ORDEM[neoDe(p)] >= NEO_ORDEM[a.nivel] ? a : NEO_ANIMACOES[0];
+}
+/* quantas letras a bio e a mensagem podem ter, por nível */
+function perfilLimiteBio() { return neoTem("bronze") ? 300 : 140; }
+function perfilLimiteMsg() { return neoTem("prata") ? 500 : 300; }
+
+/* =====================================================================
+   SALVAR
+   ---------------------------------------------------------------------
+   O pedido foi explícito: "vai ter que salvar". Então nada se aplica
+   enquanto a pessoa mexe — ela escolhe, vê a prévia, e só o botão
+   SALVAR grava. Assim dá para desistir sem estrago, que é o que a gente
+   espera de um formulário.
+   ===================================================================== */
+function perfilSalvar(novo) {
+  const p = perfilMeu();
+  if (novo.bio !== undefined) p.bio = limparTexto(String(novo.bio).slice(0, perfilLimiteBio()));
+  if (novo.pronomes !== undefined) p.pronomes = limparTexto(String(novo.pronomes).slice(0, 20));
+  /* só entra o que o nível permite: sem isto, mexer no aparelho passaria
+     uma cor de Ouro sem pagar, e ela apareceria para todo mundo */
+  const guardaSe = (campo, lista) => {
+    if (novo[campo] === undefined) return;
+    const item = neoAchar(lista, novo[campo]);
+    if (item && neoLiberado(item)) p[campo] = item.id;
+  };
+  guardaSe("cor", NEO_CORES);
+  guardaSe("efeito", NEO_EFEITOS);
+  guardaSe("fundo", NEO_FUNDOS);
+  guardaSe("animacao", NEO_ANIMACOES);
+  if (novo.avatar !== undefined) p.avatar = String(novo.avatar).slice(0, 12);
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  try { refreshMenu(); } catch (e) {}
+  return p;
+}
+
+/* =====================================================================
+   O QUE OS OUTROS VEEM
+   ---------------------------------------------------------------------
+   Os dados de outro jogador vêm da nuvem, ou seja: foram escritos por um
+   estranho. Nada daqui entra na tela sem passar por escaparTexto, e a
+   cor e o efeito só valem se forem de uma lista conhecida. Um "cor" com
+   HTML dentro não vira nada.
+   ===================================================================== */
+function perfilDaNuvem(p) {
+  const perfil = (p && p.perfil) || {};
+  const nivelBruto = (p && p.neo) || "nenhum";
+  const nivel = NEO_ORDEM[nivelBruto] !== undefined ? nivelBruto : "nenhum";
+  const corItem = neoAchar(NEO_CORES, perfil.cor);
+  const efItem = neoAchar(NEO_EFEITOS, perfil.efeito);
+  const fundoItem = neoAchar(NEO_FUNDOS, perfil.fundo) || NEO_FUNDOS[0];
+  const vale = item => item && NEO_ORDEM[nivel] >= NEO_ORDEM[item.nivel];
+  return {
+    nivel,
+    selo: neoSelo(nivel),
+    cor: vale(corItem) ? corItem.cor : "",
+    efeito: vale(efItem) && efItem.id !== "nenhum" ? efItem.id : "",
+    fundo: vale(fundoItem) ? fundoItem : NEO_FUNDOS[0],
+    bio: String(perfil.bio || "").slice(0, 300),
+    pronomes: String(perfil.pronomes || "").slice(0, 20)
+  };
+}
+/* o pedacinho de estilo que pinta um nome, aqui e em qualquer lugar */
+function perfilEstiloDoNome(v) {
+  let e = "";
+  if (v.cor) e += "color:" + v.cor + ";";
+  return e;
+}
+function perfilClasseDoNome(v) {
+  return v.efeito ? " neo-ef neo-" + v.efeito : "";
+}
+
+/* =====================================================================
+   PRESENÇA: O QUE EU ESTOU FAZENDO, E O QUE OS OUTROS VEEM
+   ---------------------------------------------------------------------
+   Quatro estados, e cada um resolve um problema diferente de quem joga:
+
+     ONLINE     estou aqui, pode falar comigo
+     AUSENTE    saí um pouco (o jogo percebe sozinho, ver abaixo)
+     OCUPADO    estou aqui mas NÃO me interrompa: sem som, sem pop-up
+     INVISÍVEL  estou aqui e ninguém precisa saber
+
+   O AUSENTE É AUTOMÁTICO porque ninguém lembra de marcar. Cinco minutos
+   sem tocar em nada e ele entra sozinho; qualquer toque tira. Depender
+   da pessoa lembrar é a mesma coisa que não existir.
+
+   O INVISÍVEL é o único que MENTE para a nuvem: em vez de mandar "estou
+   invisível" e torcer para o outro lado respeitar, ele manda um relógio
+   velho — e todo mundo que ler vê "fora do ar", inclusive um curioso
+   lendo o banco direto. Segredo que depende do outro lado ser educado
+   não é segredo.
+
+   NO CELULAR o pontinho vira um celularzinho, porque saber POR ONDE a
+   pessoa está mudou o que você espera dela: quem está no telefone
+   responde devagar, e isso evita cobrança à toa.
+   ===================================================================== */
+const PRESENCAS = [
+  { id: "online",    nome: "Disponível",    cor: "#4CE07A", ic: "●",
+    sobre: "todo mundo vê que você está aqui" },
+  { id: "ausente",   nome: "Ausente",       cor: "#FFC145", ic: "☾",
+    sobre: "entra sozinho depois de 5 minutos parado" },
+  { id: "ocupado",   nome: "Não perturbe",  cor: "#FF4D6B", ic: "⊘",
+    sobre: "sem som e sem aviso na tela" },
+  { id: "invisivel", nome: "Invisível",     cor: "#7A8699", ic: "○",
+    sobre: "você joga normal e aparece como fora do ar" }
+];
+const PRESENCA_PARADO = 5 * 60000;      // o que conta como "saiu um pouco"
+
+function presencaEscolhida() {
+  const p = (save && save.presenca) || "online";
+  return PRESENCAS.some(x => x.id === p) ? p : "online";
+}
+function presencaInfo(id) { return PRESENCAS.filter(x => x.id === id)[0] || PRESENCAS[0]; }
+
+/* a última vez que o dedo (ou o mouse) tocou em alguma coisa */
+let presencaUltimoToque = Date.now();
+function presencaAcordar() {
+  const antes = presencaAgora();
+  presencaUltimoToque = Date.now();
+  /* estava ausente e voltou: a nuvem precisa saber já, senão o amigo
+     continua vendo a luinha amarela de alguém que está bem ali */
+  if (antes === "ausente") { try { nuvemEnviar(true); } catch (e) {} }
+}
+for (const ev of ["pointerdown", "keydown", "touchstart", "wheel"]) {
+  addEventListener(ev, presencaAcordar, { passive: true });
+}
+/* trocar de aba conta como sair; voltar conta como acordar */
+addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") presencaAcordar();
+  else presencaUltimoToque = Date.now() - PRESENCA_PARADO;
+});
+
+/* o estado que vale AGORA: a escolha manda, menos quando a pessoa
+   escolheu "disponível" e simplesmente parou */
+function presencaAgora() {
+  const escolhida = presencaEscolhida();
+  if (escolhida !== "online") return escolhida;
+  return (Date.now() - presencaUltimoToque > PRESENCA_PARADO) ? "ausente" : "online";
+}
+function presencaTrocar(id) {
+  if (!PRESENCAS.some(x => x.id === id)) return;
+  save.presenca = id;
+  presencaUltimoToque = Date.now();
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  try { estPintar(); } catch (e) {}
+}
+
+/* ---- o recado personalizado ----
+   "Jogando a maratona", "voltando já", com emoji e com hora para sumir.
+   O prazo importa: recado sem prazo fica meses dizendo "almoçando". */
+const PRESENCA_PRAZOS = [
+  { id: "0",   nome: "até eu tirar", ms: 0 },
+  { id: "30m", nome: "30 minutos",   ms: 30 * 60000 },
+  { id: "1h",  nome: "1 hora",       ms: 60 * 60000 },
+  { id: "4h",  nome: "4 horas",      ms: 4 * 60 * 60000 },
+  { id: "hoje",nome: "até o fim do dia", ms: -1 }
+];
+function recadoMeu() {
+  const r = (save && save.recado) || null;
+  if (!r || !r.txt) return null;
+  if (r.ate && r.ate < Date.now()) { save.recado = null; persist(); return null; }
+  return r;
+}
+function recadoDefinir(txt, prazoId, emoji) {
+  txt = limparTexto(String(txt || "").trim().slice(0, 60));
+  if (!txt) { save.recado = null; persist(); try { nuvemEnviar(true); } catch (e) {} return null; }
+  const pz = PRESENCA_PRAZOS.filter(x => x.id === prazoId)[0] || PRESENCA_PRAZOS[0];
+  let ate = 0;
+  if (pz.ms > 0) ate = Date.now() + pz.ms;
+  else if (pz.ms === -1) { const d = new Date(); d.setHours(23, 59, 59, 0); ate = d.getTime(); }
+  save.recado = { txt, ate, emoji: String(emoji || "").slice(0, 4) };
+  persist();
+  try { nuvemEnviar(true); } catch (e) {}
+  return save.recado;
+}
+
+/* ---- silenciar um canal, um grupo ou o servidor inteiro ----
+   Por 15 min, 1 hora, 8 horas, 1 dia, ou até eu religar. Fica só neste
+   aparelho de propósito: silenciar é sobre o MEU sossego agora, e
+   carregar isso para o computador da escola seria surpresa ruim. */
+const SILENCIO_PRAZOS = [
+  { id: "15m", nome: "15 minutos", ms: 15 * 60000 },
+  { id: "1h",  nome: "1 hora",     ms: 60 * 60000 },
+  { id: "8h",  nome: "8 horas",    ms: 8 * 60 * 60000 },
+  { id: "24h", nome: "24 horas",   ms: 24 * 60 * 60000 },
+  { id: "sempre", nome: "até eu religar", ms: 0 }
+];
+let SILENCIADOS = {};
+try { SILENCIADOS = JSON.parse(storageGet("nn_silencio", "{}")) || {}; } catch (e) { SILENCIADOS = {}; }
+function silencioGuardar() {
+  try { storageSet("nn_silencio", JSON.stringify(SILENCIADOS)); } catch (e) {}
+}
+function silenciado(chave) {
+  const s = SILENCIADOS[chave];
+  if (!s) return false;
+  if (s.ate && s.ate < Date.now()) { delete SILENCIADOS[chave]; silencioGuardar(); return false; }
+  return true;
+}
+function silenciar(chave, prazoId) {
+  if (prazoId === null) { delete SILENCIADOS[chave]; silencioGuardar(); return false; }
+  const pz = SILENCIO_PRAZOS.filter(x => x.id === prazoId)[0] || SILENCIO_PRAZOS[0];
+  SILENCIADOS[chave] = { ate: pz.ms ? Date.now() + pz.ms : 0 };
+  silencioGuardar();
+  return true;
+}
+
+/* ---- NÃO PERTURBE de verdade ----
+   Não adianta o ícone ficar vermelho e o jogo continuar apitando. Quem
+   for tocar um som de aviso pergunta aqui primeiro. */
+function podeIncomodar(chave) {
+  if (presencaAgora() === "ocupado") return false;
+  if (chave && silenciado(chave)) return false;
+  return true;
+}
+/* =====================================================================
    A ESTAÇÃO — o bate-papo da comunidade, dentro do jogo
    =====================================================================
    Um lugar só onde todo mundo conversa: canais abertos da comunidade,
@@ -31626,11 +32345,12 @@ async function estAbrir(d) {
   estDesligarFluxo();
   /* a tela de amigos não é conversa: não tem mensagem para ouvir, então
      não gasta o único fluxo que temos */
-  if (d.tipo === "amigos") {
+  if (d.tipo === "amigos" || d.tipo === "dms") {
     EST.destino = d;
     EST.msgs = [];
     await amigosCarregar();
     estOlharNovidades();
+    if (d.tipo === "dms") await estLerPreviasDM();
     estPintar();
     return;
   }
@@ -31693,7 +32413,10 @@ async function estEnviar(texto) {
   const eu = estEu();
   const d = EST.destino;
   if (!eu || !d) return false;
-  texto = String(texto || "").trim().slice(0, 300);
+  /* quanto dá para escrever depende do nível: é um dos benefícios */
+  let teto = 300;
+  try { teto = perfilLimiteMsg(); } catch (e) {}
+  texto = String(texto || "").trim().slice(0, teto);
   if (!texto) return false;
 
   const veredito = estPodeFalar(texto);
@@ -31887,9 +32610,13 @@ async function estOlharNovidades() {
 /* o selo no botão do menu: some quando não tem nada */
 function estSeloGeral() {
   let n = 0;
-  for (const c of EST_CANAIS) n += estNaoLidas({ tipo: "canal", id: c.id });
-  for (const gid in EST.grupos) n += estNaoLidas({ tipo: "grupo", id: gid });
-  try { for (const id in AM.lista) n += estNaoLidas({ tipo: "dm", id }); } catch (e) {}
+  /* o que foi silenciado não entra na conta, e NÃO PERTURBE zera tudo:
+     um número vermelho piscando é exatamente o tipo de interrupção que
+     essas duas coisas existem para evitar */
+  const conta = d => (podeIncomodar(estChave(d)) ? estNaoLidas(d) : 0);
+  for (const c of EST_CANAIS) n += conta({ tipo: "canal", id: c.id });
+  for (const gid in EST.grupos) n += conta({ tipo: "grupo", id: gid });
+  try { for (const id in AM.lista) n += conta({ tipo: "dm", id }); } catch (e) {}
   const selo = $("est-selo");
   if (selo) { selo.textContent = n || ""; selo.classList.toggle("on", n > 0); }
   return n;
@@ -31897,14 +32624,40 @@ function estSeloGeral() {
 
 /* onde cada piloto está agora: online, em partida ou fora */
 function estOndeEsta(id) {
+  const eu = estEu();
+  /* EU sei de mim na hora; a nuvem só é relida de 20 em 20 segundos, e
+     trocar o próprio estado e não ver nada mudar parece defeito */
+  if (eu && id === eu.id) {
+    const agora = presencaAgora();
+    const r = recadoMeu();
+    const inf = presencaInfo(agora);
+    return { cor: agora === "invisivel" ? "off" : agora, ic: inf.ic,
+             cel: matchMedia("(max-width: 780px)").matches,
+             txt: r ? ((r.emoji ? r.emoji + " " : "") + r.txt)
+                    : (agora === "invisivel" ? "invisível (só você vê)" : inf.nome) };
+  }
   const p = EST.pilotos[id];
   if (!p) return { cor: "off", txt: "fora do ar" };
   const on = Date.now() - (p.atualizado || 0) < 70000;
   if (!on) return { cor: "off", txt: "visto " + quandoTexto(p.atualizado || Date.now()) };
+  /* o recado que a pessoa escreveu ganha da tela em que ela está: ela
+     escreveu justamente para dizer outra coisa */
+  const rec = p.recado && p.recado.txt && (!p.recado.ate || p.recado.ate > Date.now())
+    ? (p.recado.emoji ? p.recado.emoji + " " : "") + String(p.recado.txt).slice(0, 60) : "";
+  const pres = PRESENCAS.some(x => x.id === p.presenca) ? p.presenca : "online";
+  const cel = p.aparelho === "celular";
+  if (pres === "ocupado") return { cor: "ocupado", ic: "⊘", cel, txt: rec || "não perturbe" };
+  if (pres === "ausente") return { cor: "ausente", ic: "☾", cel, txt: rec || "ausente" };
   const onde = String(p.onde || "");
   if (/Jogando|Arena|Cooperativo|Ranqueada|Maratona/i.test(onde))
-    return { cor: "jogo", txt: "em partida" };
-  return { cor: "on", txt: onde || "no jogo" };
+    return { cor: "jogo", ic: "●", cel, txt: rec || "em partida" };
+  return { cor: "on", ic: "●", cel, txt: rec || onde || "no jogo" };
+}
+/* a luzinha: pontinho, lua, bloqueado — ou um celularzinho, quando a
+   pessoa está no telefone */
+function estLuz(onde) {
+  return '<i class="est-luz ' + onde.cor + (onde.cel ? " cel" : "") + '">' +
+    (onde.cel ? "▯" : "") + "</i>";
 }
 
 /* =====================================================================
@@ -32104,7 +32857,9 @@ function estPintarLado() {
   if (!cx) return;
   const eu = estEu();
   const linha = (d, nome, sub, ic, extra) => {
-    const nova = estNaoLidas(d);
+    const mudo = silenciado(estChave(d));
+    const nova = mudo ? 0 : estNaoLidas(d);
+    extra = (extra || "") + (mudo ? " mudo" : "");
     const aqui = estMesmoDestino(EST.destino, d);
     return '<button class="est-dest' + (aqui ? " on" : "") + (nova ? " nova" : "") +
       (extra || "") + '" data-dest="' + d.tipo + "|" + d.id + '">' +
@@ -32131,6 +32886,18 @@ function estPintarLado() {
        '<b class="est-dest-ic">👥</b><span class="est-dest-txt"><strong>Amigos</strong>' +
        "<em>ver, adicionar e responder</em></span>" +
        (pedidos ? '<i class="est-pip conta">' + pedidos + "</i>" : "") + "</button>";
+
+  /* MENSAGENS DIRETAS tem lugar próprio, do lado de AMIGOS. Antes as
+     conversas só existiam soltas lá embaixo da barra, misturadas com o
+     resto: quem tinha três conversas abertas não tinha onde ver as três
+     juntas, com quem falou por último em cima. */
+  const naoLidasDM = Object.keys((typeof AM !== "undefined" && AM.lista) || {})
+    .filter(x => estNaoLidas({ tipo: "dm", id: x })).length;
+  h += '<button class="est-dest est-dm-b' +
+       (EST.destino && EST.destino.tipo === "dms" ? " on" : "") + '" data-dest="dms|tudo">' +
+       '<b class="est-dest-ic">✉</b><span class="est-dest-txt"><strong>Mensagens diretas</strong>' +
+       "<em>suas conversas de um para um</em></span>" +
+       (naoLidasDM ? '<i class="est-pip conta">' + naoLidasDM + "</i>" : "") + "</button>";
 
   h += '<div class="est-grupo-h">CANAIS DE TEXTO</div>';
   for (const c of EST_CANAIS)
@@ -32167,7 +32934,7 @@ function estPintarLado() {
     const a = AM.lista[id];
     const onde = estOndeEsta(id);
     h += linha({ tipo: "dm", id }, a.tag || a.nome, onde.txt,
-               '<i class="est-luz ' + onde.cor + '"></i>' + estIni(a.tag || a.nome),
+               estLuz(onde) + estIni(a.tag || a.nome),
                EST.bloq[id] ? " bloqueado" : "");
   }
 
@@ -32175,7 +32942,28 @@ function estPintarLado() {
   if (ped) h += '<button class="est-pedidos" id="est-ver-pedidos">' + ped +
                 (ped === 1 ? " pedido de amizade" : " pedidos de amizade") + " ›</button>";
 
+  /* A BARRA DO PRÓPRIO PILOTO, colada embaixo: quem sou eu agora e como
+     eu quero aparecer. É onde a mão procura, e é o que faltava para
+     trocar de estado sem caçar em tela de ajustes. */
+  const minha = estOndeEsta(eu.id);
+  const vMeu = { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
+                 efeito: perfilEfeitoDoNome() };
+  h += '<div class="est-eu">' +
+       '<button class="est-eu-av" id="est-eu-perfil" aria-label="Meu perfil">' +
+       estLuz(minha) + escaparTexto(eu.ini) + "</button>" +
+       '<button class="est-eu-txt" id="est-eu-status">' +
+       '<strong class="' + perfilClasseDoNome(vMeu).trim() + '"' +
+       (vMeu.cor ? ' style="' + perfilEstiloDoNome(vMeu) + '"' : "") + ">" +
+       escaparTexto(eu.tag) + (vMeu.selo ? " " + vMeu.selo : "") + "</strong>" +
+       "<em>" + escaparTexto(minha.txt) + "</em></button>" +
+       '<button class="est-eu-b" id="est-eu-editar" aria-label="Editar perfil">✎</button>' +
+       "</div>";
+
   cx.innerHTML = h;
+  const bp = $("est-eu-perfil"), bs = $("est-eu-status"), be = $("est-eu-editar");
+  if (bp) bp.addEventListener("click", () => estAbrirPerfil(eu.id));
+  if (bs) bs.addEventListener("click", estAbrirStatus);
+  if (be) be.addEventListener("click", estEditarPerfil);
   cx.querySelectorAll("[data-dest]").forEach(b =>
     b.addEventListener("click", () => {
       const [tipo, id] = b.getAttribute("data-dest").split("|");
@@ -32218,7 +33006,7 @@ function estLinhaDeAmigo(id, dados, acoes) {
   const onde = estOndeEsta(id);
   const nome = (dados && (dados.tag || dados.nome)) || "Piloto";
   return '<div class="est-amigo" data-amigo="' + id + '">' +
-    '<span class="est-av"><i class="est-luz ' + onde.cor + '"></i>' +
+    '<span class="est-av">' + estLuz(onde) +
     escaparTexto(estIni(nome)) + "</span>" +
     '<span class="est-amigo-txt"><strong>' + escaparTexto(nome) + "</strong>" +
     "<em>" + escaparTexto(onde.txt) + "</em></span>" +
@@ -32354,9 +33142,84 @@ function estPintarAmigos() {
     }));
 }
 
+/* =====================================================================
+   MENSAGENS DIRETAS
+   ---------------------------------------------------------------------
+   A lista das conversas de um para um, com a última coisa que foi dita e
+   quando — igual a qualquer aplicativo de mensagem. É o que faltava:
+   antes as conversas só apareciam soltas na barra lateral, e quem tinha
+   várias não tinha onde ver todas juntas, em ordem de quem falou por
+   último.
+
+   A PRÉVIA CUSTA UMA LEITURA POR CONVERSA, e é por isso que ela só
+   acontece quando esta tela abre — não a cada quadro, não em segundo
+   plano. Com dez amigos seriam dez buscas: fazer isso o tempo todo
+   gastaria a internet de quem joga no 3G da mãe.
+   ===================================================================== */
+const EST_PREVIAS = {};
+async function estLerPreviasDM() {
+  const eu = estEu();
+  if (!eu) return;
+  const ids = Object.keys((typeof AM !== "undefined" && AM.lista) || {});
+  for (const id of ids) {
+    const bruto = await nuvemReq("conversas/" + salaDaConversa(eu.id, id),
+                                 null, '?orderBy="$key"&limitToLast=1');
+    const arr = estArrumar(bruto);
+    EST_PREVIAS[id] = arr.length ? arr[arr.length - 1] : null;
+  }
+}
+
+function estPintarDMs() {
+  const lista = $("est-msgs"), cab = $("est-cab");
+  if (!lista || !cab) return;
+  const eu = estEu();
+  const amigos = (typeof AM !== "undefined" && AM.lista) || {};
+  cab.innerHTML =
+    '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
+    '<div class="est-cab-txt"><strong>✉ Mensagens diretas</strong>' +
+    "<em>só você e a outra pessoa leem</em></div>";
+  const al = $("est-abrir-lado");
+  if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
+
+  /* quem falou por último vem primeiro, que é como a cabeça procura */
+  const ids = Object.keys(amigos).sort((a, b) => {
+    const qa = (EST_PREVIAS[a] && EST_PREVIAS[a].quando) || 0;
+    const qb = (EST_PREVIAS[b] && EST_PREVIAS[b].quando) || 0;
+    return qb - qa;
+  });
+  if (!ids.length) {
+    lista.innerHTML = '<div class="est-vazio"><b>✉</b>Nenhuma conversa ainda. ' +
+      "Vá em <b>Amigos</b>, chame alguém pelo nick e comece a falar.</div>";
+    return;
+  }
+  lista.innerHTML = ids.map(id => {
+    const a = amigos[id];
+    const nome = a.tag || a.nome;
+    const ult = EST_PREVIAS[id];
+    const onde = estOndeEsta(id);
+    const nova = estNaoLidas({ tipo: "dm", id });
+    const quem = ult && eu && ult.de === eu.id ? "você: " : "";
+    return '<button class="est-dm' + (nova ? " nova" : "") + '" data-dm="' + id + '">' +
+      '<span class="est-av">' + estLuz(onde) +
+      escaparTexto(estIni(nome)) + "</span>" +
+      '<span class="est-dm-txt"><strong>' + escaparTexto(nome) + "</strong>" +
+      "<em>" + (ult ? escaparTexto(quem + String(ult.txt).slice(0, 60))
+                    : "vocês ainda não conversaram") + "</em></span>" +
+      '<span class="est-dm-lado">' +
+      (ult ? '<u>' + quandoTexto(ult.quando) + "</u>" : "") +
+      (nova ? '<i class="est-pip"></i>' : "") + "</span></button>";
+  }).join("");
+  lista.querySelectorAll("[data-dm]").forEach(b =>
+    b.addEventListener("click", () => {
+      const id = b.getAttribute("data-dm");
+      estAbrir({ tipo: "dm", id, nome: (amigos[id].tag || amigos[id].nome) });
+    }));
+}
+
 /* ---------- a conversa ---------- */
 function estPintarConversa(grudarNoFim) {
   if (EST.destino && EST.destino.tipo === "amigos") { estPintarAmigos(); return; }
+  if (EST.destino && EST.destino.tipo === "dms") { estPintarDMs(); return; }
   const lista = $("est-msgs"), cab = $("est-cab");
   if (!lista || !cab) return;
   const eu = estEu();
@@ -32370,21 +33233,24 @@ function estPintarConversa(grudarNoFim) {
 
   /* cabeçalho: quem é, e o que dá para fazer aqui */
   let sub = "", acoes = "";
+  const chaveSil = estChave(d);
+  const silBt = '<button class="est-cab-b' + (silenciado(chaveSil) ? " mudo" : "") +
+    '" data-acao="silenciar-aqui">' + (silenciado(chaveSil) ? "🔕 mudo" : "🔔 avisos") + "</button>";
   if (d.tipo === "canal") {
     const c = EST_CANAIS.filter(x => x.id === d.id)[0];
     sub = c ? c.sobre : "";
+    acoes = silBt;
   } else if (d.tipo === "dm") {
     const onde = estOndeEsta(d.id);
     sub = onde.txt;
-    acoes = '<button class="est-cab-b" data-acao="bloquear">' +
-            (EST.bloq[d.id] ? "desbloquear" : "bloquear") + "</button>" +
-            '<button class="est-cab-b" data-acao="silenciar">' +
-            (EST.mudo[d.id] ? "ouvir" : "silenciar") + "</button>";
+    acoes = silBt +
+            '<button class="est-cab-b" data-acao="bloquear">' +
+            (EST.bloq[d.id] ? "desbloquear" : "bloquear") + "</button>";
   } else if (d.tipo === "grupo") {
     const g = EST.grupos[d.id];
     const n = g ? Object.keys(g.membros || {}).length : 0;
     sub = n + (n === 1 ? " pessoa" : " pessoas");
-    acoes = '<button class="est-cab-b" data-acao="membros">quem está</button>';
+    acoes = silBt + '<button class="est-cab-b" data-acao="membros">quem está</button>';
     if (estMeuNivel(d.id) >= EST_MOD)
       acoes += '<button class="est-cab-b" data-acao="renomear">renomear</button>';
     acoes += '<button class="est-cab-b sai" data-acao="sair">sair</button>';
@@ -32431,10 +33297,30 @@ function estPintarConversa(grudarNoFim) {
     h += '<div class="est-msg' + (meu ? " meu" : "") + (colado ? " colado" : "") +
          (chamou ? " chamou" : "") + (m.indo ? " indo" : "") + '" data-k="' + m.k + '">';
     if (!colado) {
-      h += '<span class="est-av' + (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") + '">' +
-           escaparTexto(estIni(m.nome)) + "</span>";
+      /* O NOME E O AVATAR ABREM O PERFIL — o de qualquer um, inclusive o
+         meu. Foi o pedido: "eu mandei uma mensagem, eu posso clicar no
+         meu perfil e editar". Então clicar em si mesmo abre a edição, e
+         clicar em outro abre o cartão dele. */
+      /* O MEU PERFIL VEM DE MIM, não da nuvem. A ficha de cada piloto só
+         é relida de vinte em vinte segundos, então a minha própria
+         mensagem saía sem cor até a próxima leitura — eu trocava a cor e
+         não via nada acontecer. Para os outros a nuvem é a única fonte
+         possível; para mim, ela é a fonte errada. */
+      const v = (eu && m.de === eu.id)
+        ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
+            efeito: perfilEfeitoDoNome() }
+        : perfilDaNuvem(EST.pilotos[m.de] || {});
+      h += '<button class="est-av est-abre-perfil' +
+           (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") +
+           '" data-perfil="' + escaparTexto(m.de || "") + '">' +
+           escaparTexto(estIni(m.nome)) + "</button>";
       h += '<div class="est-corpo"><div class="est-linha1">' +
-           '<b class="est-nome">' + escaparTexto(m.nome || "Piloto") + "</b>" +
+           '<b class="est-nome est-abre-perfil' + perfilClasseDoNome(v) +
+           '" data-perfil="' + escaparTexto(m.de || "") + '"' +
+           (v.cor ? ' style="' + perfilEstiloDoNome(v) + '"' : "") + ">" +
+           escaparTexto(m.nome || "Piloto") + "</b>" +
+           (v.selo ? '<span class="est-selo-neo" title="NeoNebula ' + v.nivel + '">' +
+                     v.selo + "</span>" : "") +
            '<span class="est-hora">' + estHora(m.quando) + "</span></div>";
     } else {
       h += '<span class="est-av vazio"></span><div class="est-corpo">';
@@ -32452,6 +33338,11 @@ function estPintarConversa(grudarNoFim) {
     b.addEventListener("click", e => {
       e.stopPropagation();
       estMenuDaMensagem(b.getAttribute("data-menu"), b);
+    }));
+  lista.querySelectorAll("[data-perfil]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      estAbrirPerfil(b.getAttribute("data-perfil"));
     }));
 
   if (grudarNoFim || perto) lista.scrollTop = lista.scrollHeight;
@@ -32476,7 +33367,7 @@ function estPintar(grudarNoFim) {
      texto que não manda para lugar nenhum é convite a digitar à toa. */
   const barra = document.querySelector(".est-barra");
   if (barra) barra.style.display =
-    (EST.destino && EST.destino.tipo === "amigos") ? "none" : "";
+    (EST.destino && (EST.destino.tipo === "amigos" || EST.destino.tipo === "dms")) ? "none" : "";
 }
 
 /* ---------- as janelinhas ---------- */
@@ -32585,8 +33476,8 @@ function estAbrirMembros(gid) {
     Object.keys(g.membros).map(id => {
       const m = g.membros[id];
       const onde = estOndeEsta(id);
-      return '<div class="est-pedido"><span class="est-av pequeno"><i class="est-luz ' + onde.cor +
-        '"></i>' + escaparTexto(estIni(m.nome)) + "</span>" +
+      return '<div class="est-pedido"><span class="est-av pequeno">' + estLuz(onde) +
+        escaparTexto(estIni(m.nome)) + "</span>" +
         "<b>" + escaparTexto(m.nome) + (cargos[m.nivel || 0] ? ' <em class="est-cargo">' +
         cargos[m.nivel || 0] + "</em>" : "") + "</b>" +
         (meu >= EST_DONO && id !== g.dono
@@ -32617,6 +33508,7 @@ function estAbrirMembros(gid) {
 function estAcaoDoCabecalho(acao) {
   const d = EST.destino;
   if (!d) return;
+  if (acao === "silenciar-aqui") { estAbrirSilenciar(estChave(d), d.nome || d.id); return; }
   if (acao === "bloquear") estBloquear(d.id, d.nome);
   else if (acao === "silenciar") estSilenciar(d.id, d.nome);
   else if (acao === "membros") estAbrirMembros(d.id);
@@ -32796,6 +33688,323 @@ function estacaoAlternar() {
    olhada devagar (dois minutos) basta, e não pesa. */
 setInterval(() => { if (!EST.aberta && nuvemAtiva()) estOlharNovidades(); }, 120000);
 setTimeout(() => { try { estCarregarVistos(); estOlharNovidades(); estGruposCarregar(); } catch (e) {} }, 4000);
+
+/* =====================================================================
+   O CARTÃO DE PERFIL
+   ---------------------------------------------------------------------
+   Abre de QUALQUER lugar onde um nome ou um avatar apareça: no
+   bate-papo, na lista de amigos, na barra lateral. Se for você, tem o
+   botão de editar; se for outro, tem o que dá para fazer com ele.
+
+   Foi pedido assim, e faz sentido: o nome da pessoa É o botão para saber
+   quem ela é. Ter que ir a uma tela de ajustes para trocar a própria
+   cor é o tipo de caminho que ninguém encontra.
+   ===================================================================== */
+function estAbrirPerfil(id) {
+  const eu = estEu();
+  if (!id || !eu) return;
+  const souEu = id === eu.id;
+  const ficha = EST.pilotos[id] || {};
+  const v = souEu
+    ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
+        fundo: perfilFundo(), bio: perfilMeu().bio, pronomes: perfilMeu().pronomes }
+    : perfilDaNuvem(ficha);
+  const nome = souEu ? eu.tag : (ficha.nome || "Piloto");
+  const onde = estOndeEsta(id);
+  const info = neoInfo(v.nivel);
+
+  const cabeca =
+    '<div class="pf-banner" style="background:' + v.fundo.css + '"' +
+      (v.fundo.anima ? ' data-anima="1"' : "") + "></div>" +
+    '<div class="pf-topo">' +
+      '<span class="pf-av">' + estLuz(onde) +
+      escaparTexto(estIni(nome)) + "</span>" +
+      '<div class="pf-nome-cx">' +
+        '<b class="pf-nome' + perfilClasseDoNome(v) + '"' +
+        (v.cor ? ' style="' + perfilEstiloDoNome(v) + '"' : "") + ">" +
+        escaparTexto(nome) + "</b>" +
+        (v.pronomes ? '<span class="pf-pron">' + escaparTexto(v.pronomes) + "</span>" : "") +
+        '<span class="pf-onde">' + escaparTexto(onde.txt) + "</span>" +
+      "</div>" +
+      (info && info.id !== "nenhum"
+        ? '<span class="pf-neo" style="border-color:' + info.cor + ';color:' + info.cor + '">' +
+          info.selo + " " + escaparTexto(info.nome.replace("NEONEBULA ", "")) + "</span>"
+        : "") +
+    "</div>" +
+    (v.bio ? '<p class="pf-bio">' + escaparTexto(v.bio) + "</p>"
+           : '<p class="pf-bio vazia">' + (souEu ? "Você ainda não escreveu nada sobre você."
+                                                 : "Sem bio.") + "</p>");
+
+  const acoes = souEu
+    ? '<button class="est-jan-ok" data-p="editar">EDITAR MEU PERFIL</button>' +
+      '<button class="est-jan-ok" data-p="neo">' +
+        (neoNivel() === "nenhum" ? "CONHECER O NEONEBULA" : "MINHA ASSINATURA") + "</button>"
+    : '<button class="est-jan-ok" data-p="falar">conversar</button>' +
+      '<button class="est-jan-ok" data-p="mudo">' +
+        (EST.mudo[id] ? "voltar a ver" : "silenciar") + "</button>" +
+      '<button class="est-jan-ok" data-p="bloq">' +
+        (EST.bloq[id] ? "desbloquear" : "bloquear") + "</button>";
+
+  estJanela(souEu ? "Meu perfil" : nome, cabeca + acoes, cx =>
+    cx.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => {
+      const q = b.getAttribute("data-p");
+      estFecharJanela();
+      if (q === "editar") estEditarPerfil();
+      else if (q === "neo") estAbrirNeo();
+      else if (q === "falar") estAbrir({ tipo: "dm", id, nome });
+      else if (q === "mudo") { estSilenciar(id, nome); estPintar(); }
+      else if (q === "bloq") { estBloquear(id, nome); estPintar(); }
+    })));
+}
+
+/* ---------- editar, e SALVAR ----------
+   Nada se aplica enquanto a pessoa mexe: ela escolhe, vê a prévia em
+   cima, e só o SALVAR grava. Desistir tem que ser possível sem estrago. */
+let estRascunho = null;
+function estEditarPerfil() {
+  const p = perfilMeu();
+  estRascunho = { bio: p.bio, pronomes: p.pronomes, cor: p.cor,
+                  efeito: p.efeito, fundo: p.fundo, animacao: p.animacao };
+  estPintarEditor();
+}
+function estPintarEditor() {
+  const r = estRascunho;
+  const eu = estEu();
+  const fundo = neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0];
+  const corItem = neoAchar(NEO_CORES, r.cor);
+  const efItem = neoAchar(NEO_EFEITOS, r.efeito);
+
+  /* a prévia é o próprio cartão, com o que está sendo escolhido agora */
+  const previa =
+    '<div class="pf-banner" style="background:' + fundo.css + '"></div>' +
+    '<div class="pf-topo">' +
+      '<span class="pf-av">' + escaparTexto(estIni(eu.tag)) + "</span>" +
+      '<div class="pf-nome-cx"><b class="pf-nome' +
+        (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") + '"' +
+        (corItem ? ' style="color:' + corItem.cor + '"' : "") + ">" +
+        escaparTexto(eu.tag) + "</b>" +
+        (r.pronomes ? '<span class="pf-pron">' + escaparTexto(r.pronomes) + "</span>" : "") +
+      "</div></div>";
+
+  /* cada grade mostra TUDO, e o que está travado aparece com cadeado em
+     vez de sumir: ver o que existe é metade do motivo de assinar */
+  const grade = (lista, campo, desenha) =>
+    '<div class="pf-grade">' + lista.map(it => {
+      const livre = neoLiberado(it);
+      return '<button class="pf-op' + (r[campo] === it.id ? " on" : "") +
+        (livre ? "" : " travado") + '" data-campo="' + campo + '" data-id="' + it.id + '"' +
+        (livre ? "" : ' title="Precisa do NeoNebula ' + it.nivel + '"') + ">" +
+        desenha(it) + (livre ? "" : '<i class="pf-cad">🔒</i>') + "</button>";
+    }).join("") + "</div>";
+
+  estJanela("Editar meu perfil",
+    '<div class="pf-previa">' + previa + "</div>" +
+
+    '<div class="pf-campo"><label>PRONOMES</label>' +
+    '<input id="pf-pron" maxlength="20" value="' + escaparTexto(r.pronomes) +
+    '" placeholder="ele/dele, ela/dela, elu/delu…" autocomplete="off"></div>' +
+
+    '<div class="pf-campo"><label>SOBRE MIM ' +
+    '<i id="pf-conta">' + (r.bio || "").length + "/" + perfilLimiteBio() + "</i></label>" +
+    '<textarea id="pf-bio" maxlength="' + perfilLimiteBio() +
+    '" rows="3" placeholder="conte alguma coisa sua">' + escaparTexto(r.bio) + "</textarea>" +
+    (neoTem("bronze") ? "" : '<p class="est-nota">Com o NeoNebula a bio vai a 300 letras.</p>') +
+    "</div>" +
+
+    '<div class="pf-campo"><label>FUNDO DO PERFIL</label>' +
+    grade(NEO_FUNDOS, "fundo", f =>
+      '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
+      escaparTexto(f.nome) + "</em>") + "</div>" +
+
+    '<div class="pf-campo"><label>COR DO NOME</label>' +
+    grade(NEO_CORES, "cor", c =>
+      '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
+      escaparTexto(c.nome) + "</em>") + "</div>" +
+
+    '<div class="pf-campo"><label>EFEITO DO NOME</label>' +
+    grade(NEO_EFEITOS, "efeito", e =>
+      '<span class="pf-ef neo-ef neo-' + e.id + '">' + escaparTexto(eu.tag).slice(0, 6) +
+      "</span><em>" + escaparTexto(e.nome) + "</em>") + "</div>" +
+
+    '<div class="pf-campo"><label>RASTRO DA NAVE</label>' +
+    grade(NEO_ANIMACOES, "animacao", a =>
+      '<span class="pf-rastro" style="background:' +
+      (a.cor === "arco" ? "linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF)"
+                        : (a.cor || "rgba(255,255,255,.12)")) + '"></span><em>' +
+      escaparTexto(a.nome) + "</em>") + "</div>" +
+
+    '<button class="est-jan-ok salvar" id="pf-salvar">SALVAR</button>' +
+    '<button class="est-jan-ok" id="pf-cancelar">cancelar</button>',
+    cx => {
+      cx.querySelectorAll("[data-campo]").forEach(b =>
+        b.addEventListener("click", () => {
+          if (b.classList.contains("travado")) {
+            estAvisar("Isso é do NeoNebula. Toque em MEU PERFIL › assinatura para ver.");
+            return;
+          }
+          const campo = b.getAttribute("data-campo");
+          /* a cor é a única que dá para tirar: tocar na que já está
+             escolhida volta ao normal */
+          estRascunho[campo] = (campo === "cor" && estRascunho.cor === b.getAttribute("data-id"))
+            ? "" : b.getAttribute("data-id");
+          estPintarEditor();
+        }));
+      const bio = $("pf-bio"), conta = $("pf-conta");
+      if (bio) bio.addEventListener("input", () => {
+        estRascunho.bio = bio.value;
+        if (conta) conta.textContent = bio.value.length + "/" + perfilLimiteBio();
+      });
+      const pron = $("pf-pron");
+      if (pron) pron.addEventListener("input", () => { estRascunho.pronomes = pron.value; });
+      $("pf-cancelar").addEventListener("click", () => { estRascunho = null; estFecharJanela(); });
+      $("pf-salvar").addEventListener("click", () => {
+        perfilSalvar(estRascunho);
+        estRascunho = null;
+        estFecharJanela();
+        estAvisar("Perfil salvo.");
+        estPintar();
+      });
+    });
+}
+
+/* ---------- a loja do NeoNebula ---------- */
+function estAbrirNeo() {
+  const agora = neoNivel();
+  const meu = neoInfo(agora);
+  const dias = neoDiasQueFaltam();
+  const cabeca = agora === "nenhum"
+    ? '<p class="est-nota">Três níveis, cada um valendo 30 dias. O que você escolher ' +
+      "aparece para todo mundo no bate-papo e no ranking.</p>"
+    : '<div class="neo-meu" style="border-color:' + meu.cor + '"><b style="color:' + meu.cor +
+      '">' + meu.selo + " " + escaparTexto(meu.nome) + "</b><span>" +
+      (dias === Infinity ? "sem prazo para acabar" : "faltam " + dias + " dias") + "</span></div>";
+
+  estJanela("NeoNebula",
+    cabeca +
+    NEO_NIVEIS.filter(n => !n.oculto).map(n =>
+      '<div class="neo-cx" style="border-color:' + n.cor + '33">' +
+        '<div class="neo-h"><b style="color:' + n.cor + '">' + n.selo + " " +
+        escaparTexto(n.nome) + "</b>" +
+        '<span class="neo-preco">' + reais(n.preco) + "<em>/30 dias</em></span></div>" +
+        '<p class="neo-resumo">' + escaparTexto(n.resumo) + "</p>" +
+        "<ul class=\"neo-lista\">" + n.beneficios.map(b =>
+          "<li>" + escaparTexto(b) + "</li>").join("") + "</ul>" +
+        '<button class="est-jan-ok" data-neo="' + n.id + '">' +
+        (NEO_ORDEM[agora] >= NEO_ORDEM[n.id] ? "RENOVAR POR 30 DIAS" : "ASSINAR") + "</button>" +
+      "</div>").join("") +
+    '<p class="est-nota">O pagamento é por Pix e a entrega é automática: assim que ' +
+    "cai, o nível entra na sua conta sozinho. Não é cobrança automática — quando os " +
+    "30 dias acabarem, você escolhe se renova.</p>",
+    cx => cx.querySelectorAll("[data-neo]").forEach(b =>
+      b.addEventListener("click", () => {
+        const n = neoInfo(b.getAttribute("data-neo"));
+        if (!n) return;
+        estFecharJanela();
+        estacaoFechar();
+        /* usa a MESMA tela de pagamento do resto da loja: uma só, para
+           não haver dois jeitos de pagar que um dia divergem */
+        abrirPagamento("neo_" + n.id, n.nome, n.preco,
+                       { neo: { nivel: n.id, dias: n.dias } });
+      })));
+}
+
+/* =====================================================================
+   O SELETOR DE ESTADO
+   ---------------------------------------------------------------------
+   Quatro estados e um recado. O que muda de verdade em cada um está
+   escrito embaixo do nome — porque "Não perturbe" só quer dizer alguma
+   coisa se a pessoa souber que o som some.
+   ===================================================================== */
+function estAbrirStatus() {
+  const agora = presencaEscolhida();
+  const valendo = presencaAgora();
+  const r = recadoMeu();
+  estJanela("Como eu apareço",
+    PRESENCAS.map(p =>
+      '<button class="est-status' + (agora === p.id ? " on" : "") + '" data-pres="' + p.id + '">' +
+      '<i style="color:' + p.cor + '">' + p.ic + "</i>" +
+      "<span><strong>" + escaparTexto(p.nome) + "</strong>" +
+      "<em>" + escaparTexto(p.sobre) + "</em></span>" +
+      (agora === p.id ? '<b class="est-status-ok">✓</b>' : "") + "</button>").join("") +
+    (valendo === "ausente" && agora === "online"
+      ? '<p class="est-nota">Agora você está aparecendo como <b>ausente</b>, porque ficou ' +
+        "uns minutos sem mexer. Toca em qualquer coisa e volta sozinho.</p>" : "") +
+
+    '<div class="pf-campo" style="margin-top:14px"><label>RECADO</label>' +
+    '<div class="est-add-linha">' +
+    '<input id="est-rec-emoji" maxlength="2" value="' + escaparTexto((r && r.emoji) || "") +
+    '" placeholder="🙂" style="flex:0 0 54px;text-align:center">' +
+    '<input id="est-rec-txt" maxlength="60" value="' + escaparTexto((r && r.txt) || "") +
+    '" placeholder="o que você está fazendo?"></div>' +
+    '<label style="margin-top:9px">SUMIR DEPOIS DE</label>' +
+    '<div class="est-prazos">' + PRESENCA_PRAZOS.map(pz =>
+      '<button class="est-prazo" data-prazo="' + pz.id + '">' +
+      escaparTexto(pz.nome) + "</button>").join("") + "</div>" +
+    '<button class="est-jan-ok salvar" id="est-rec-salvar">SALVAR RECADO</button>' +
+    (r ? '<button class="est-jan-ok" id="est-rec-tirar">tirar o recado</button>' : "") +
+    "</div>",
+    cx => {
+      cx.querySelectorAll("[data-pres]").forEach(b =>
+        b.addEventListener("click", () => {
+          presencaTrocar(b.getAttribute("data-pres"));
+          estFecharJanela();
+          estAvisar("Agora você aparece como " +
+                    presencaInfo(presencaEscolhida()).nome.toLowerCase() + ".");
+        }));
+      let prazo = "0";
+      const pinta = () => cx.querySelectorAll("[data-prazo]").forEach(x =>
+        x.classList.toggle("on", x.getAttribute("data-prazo") === prazo));
+      cx.querySelectorAll("[data-prazo]").forEach(b =>
+        b.addEventListener("click", () => { prazo = b.getAttribute("data-prazo"); pinta(); }));
+      pinta();
+      $("est-rec-salvar").addEventListener("click", () => {
+        recadoDefinir($("est-rec-txt").value, prazo, $("est-rec-emoji").value);
+        estFecharJanela();
+        estPintar();
+        estAvisar("Recado salvo.");
+      });
+      const tirar = $("est-rec-tirar");
+      if (tirar) tirar.addEventListener("click", () => {
+        recadoDefinir("");
+        estFecharJanela();
+        estPintar();
+      });
+    });
+}
+
+/* =====================================================================
+   SILENCIAR UM CANAL, UM GRUPO OU A ESTAÇÃO INTEIRA
+   ---------------------------------------------------------------------
+   Por 15 minutos, 1 hora, 8 horas, 24 horas, ou até religar. Silenciado
+   não avisa nem apita — mas continua tendo o pontinho, porque sumir com
+   a conversa não é silenciar, é esconder.
+   ===================================================================== */
+function estAbrirSilenciar(chave, nome) {
+  const ja = silenciado(chave);
+  estJanela("Silenciar " + nome,
+    '<p class="est-nota">Silenciado, isto para de te avisar e de apitar. ' +
+    "As mensagens continuam chegando normalmente.</p>" +
+    (ja ? '<button class="est-jan-ok salvar" id="est-sil-tirar">VOLTAR A AVISAR</button>' : "") +
+    '<div class="est-prazos" style="margin-top:10px">' + SILENCIO_PRAZOS.map(pz =>
+      '<button class="est-prazo" data-sil="' + pz.id + '">' +
+      escaparTexto(pz.nome) + "</button>").join("") + "</div>",
+    cx => {
+      cx.querySelectorAll("[data-sil]").forEach(b =>
+        b.addEventListener("click", () => {
+          silenciar(chave, b.getAttribute("data-sil"));
+          estFecharJanela();
+          estPintar();
+          estAvisar(nome + " silenciado.");
+        }));
+      const t = $("est-sil-tirar");
+      if (t) t.addEventListener("click", () => {
+        silenciar(chave, null);
+        estFecharJanela();
+        estPintar();
+        estAvisar(nome + " volta a avisar.");
+      });
+    });
+}
 /* ---------- Loop ---------- */
 let last = performance.now();
 function loop(now) {
@@ -33396,6 +34605,19 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.5", itens: [
+      "CHEGOU O NEONEBULA: três níveis de assinatura (Bronze R$0,50 · Prata R$1 · Ouro R$3), cada um valendo 30 dias, com entrega automática assim que o Pix cai",
+      "COR E EFEITO NO NOME: escolha entre 18 cores e os efeitos Neon, Pulso, Glitch e Arco-íris — e todo mundo vê no bate-papo",
+      "PERFIL DE VERDADE: banner, bio, pronomes e um selo do seu nível. Clique no seu nome em QUALQUER lugar para abrir e editar — e tem botão de salvar, nada muda sem você mandar",
+      "12 FUNDOS DE PERFIL (três de graça) e 8 rastros de nave (três de graça)",
+      "MENSAGENS DIRETAS ganharam lugar próprio, com quem falou por último em cima e a última frase de cada conversa",
+      "ESTOU AQUI, OU NÃO: Disponível, Ausente, Não perturbe e Invisível. O Ausente entra sozinho depois de 5 minutos parado, e o Invisível deixa você jogar sem aparecer para ninguém",
+      "RECADO PERSONALIZADO com emoji e hora para sumir: “🔥 jogando a maratona”, some em 1 hora",
+      "NO CELULAR a sua luzinha vira um celularzinho — assim quem te chama sabe que você pode demorar",
+      "SILENCIAR canal, grupo ou conversa por 15 minutos, 1 hora, 8 horas, 24 horas ou até você religar",
+      "A barra dos canais ficou sólida: estava transparente demais e o nome dos canais brigava com o fundo",
+      "CORRIGIDO: no celular, a aba dos canais abria e não dava para fechar de volta. Agora fecha no ✕, tocando fora ou escolhendo um canal"
+    ] },
   { v: "8.4", itens: [
       "CHEGOU A ESTAÇÃO: o bate-papo de toda a comunidade, dentro do jogo. Fica em AMIGOS › Estação",
       "Três canais abertos: #geral para conversa solta, #trocas para trocar e vender, #ajuda para dúvida e dica",
@@ -33931,7 +35153,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.4";
+const VERSAO = "8.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

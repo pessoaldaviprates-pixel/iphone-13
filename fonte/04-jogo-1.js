@@ -1475,6 +1475,13 @@ async function admEntregarPedido(chave, pd, botao) {
     else presente.passes = [id];
   } else if (String(pd.item).indexOf("nave:") === 0) {
     presente.naves = [Number(String(pd.item).slice(5))];
+  } else if (String(pd.item).indexOf("neo_") === 0) {
+    /* O NEONEBULA CHEGA SOZINHO. O pedido já carrega qual nível e por
+       quantos dias (veio do botão ASSINAR), então a entrega não depende
+       de ninguém lembrar de digitar nada -- que é onde a entrega à mão
+       erra. */
+    const n = pd.neo || { nivel: String(pd.item).slice(4), dias: 30 };
+    presente.compra = { neo: { nivel: n.nivel, dias: n.dias || 30 } };
   }
   /* comprou para um amigo: quem recebe é o amigo, e os dois são avisados */
   const paraQuem = pd.presentePara || pd.de;

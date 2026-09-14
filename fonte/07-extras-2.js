@@ -598,6 +598,19 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "8.5", itens: [
+      "CHEGOU O NEONEBULA: três níveis de assinatura (Bronze R$0,50 · Prata R$1 · Ouro R$3), cada um valendo 30 dias, com entrega automática assim que o Pix cai",
+      "COR E EFEITO NO NOME: escolha entre 18 cores e os efeitos Neon, Pulso, Glitch e Arco-íris — e todo mundo vê no bate-papo",
+      "PERFIL DE VERDADE: banner, bio, pronomes e um selo do seu nível. Clique no seu nome em QUALQUER lugar para abrir e editar — e tem botão de salvar, nada muda sem você mandar",
+      "12 FUNDOS DE PERFIL (três de graça) e 8 rastros de nave (três de graça)",
+      "MENSAGENS DIRETAS ganharam lugar próprio, com quem falou por último em cima e a última frase de cada conversa",
+      "ESTOU AQUI, OU NÃO: Disponível, Ausente, Não perturbe e Invisível. O Ausente entra sozinho depois de 5 minutos parado, e o Invisível deixa você jogar sem aparecer para ninguém",
+      "RECADO PERSONALIZADO com emoji e hora para sumir: “🔥 jogando a maratona”, some em 1 hora",
+      "NO CELULAR a sua luzinha vira um celularzinho — assim quem te chama sabe que você pode demorar",
+      "SILENCIAR canal, grupo ou conversa por 15 minutos, 1 hora, 8 horas, 24 horas ou até você religar",
+      "A barra dos canais ficou sólida: estava transparente demais e o nome dos canais brigava com o fundo",
+      "CORRIGIDO: no celular, a aba dos canais abria e não dava para fechar de volta. Agora fecha no ✕, tocando fora ou escolhendo um canal"
+    ] },
   { v: "8.4", itens: [
       "CHEGOU A ESTAÇÃO: o bate-papo de toda a comunidade, dentro do jogo. Fica em AMIGOS › Estação",
       "Três canais abertos: #geral para conversa solta, #trocas para trocar e vender, #ajuda para dúvida e dica",
@@ -1133,7 +1146,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "8.4";
+const VERSAO = "8.5";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

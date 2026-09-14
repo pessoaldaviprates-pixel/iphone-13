@@ -205,11 +205,12 @@ async function estAbrir(d) {
   estDesligarFluxo();
   /* a tela de amigos não é conversa: não tem mensagem para ouvir, então
      não gasta o único fluxo que temos */
-  if (d.tipo === "amigos") {
+  if (d.tipo === "amigos" || d.tipo === "dms") {
     EST.destino = d;
     EST.msgs = [];
     await amigosCarregar();
     estOlharNovidades();
+    if (d.tipo === "dms") await estLerPreviasDM();
     estPintar();
     return;
   }
@@ -272,7 +273,10 @@ async function estEnviar(texto) {
   const eu = estEu();
   const d = EST.destino;
   if (!eu || !d) return false;
-  texto = String(texto || "").trim().slice(0, 300);
+  /* quanto dá para escrever depende do nível: é um dos benefícios */
+  let teto = 300;
+  try { teto = perfilLimiteMsg(); } catch (e) {}
+  texto = String(texto || "").trim().slice(0, teto);
   if (!texto) return false;
 
   const veredito = estPodeFalar(texto);
@@ -466,9 +470,13 @@ async function estOlharNovidades() {
 /* o selo no botão do menu: some quando não tem nada */
 function estSeloGeral() {
   let n = 0;
-  for (const c of EST_CANAIS) n += estNaoLidas({ tipo: "canal", id: c.id });
-  for (const gid in EST.grupos) n += estNaoLidas({ tipo: "grupo", id: gid });
-  try { for (const id in AM.lista) n += estNaoLidas({ tipo: "dm", id }); } catch (e) {}
+  /* o que foi silenciado não entra na conta, e NÃO PERTURBE zera tudo:
+     um número vermelho piscando é exatamente o tipo de interrupção que
+     essas duas coisas existem para evitar */
+  const conta = d => (podeIncomodar(estChave(d)) ? estNaoLidas(d) : 0);
+  for (const c of EST_CANAIS) n += conta({ tipo: "canal", id: c.id });
+  for (const gid in EST.grupos) n += conta({ tipo: "grupo", id: gid });
+  try { for (const id in AM.lista) n += conta({ tipo: "dm", id }); } catch (e) {}
   const selo = $("est-selo");
   if (selo) { selo.textContent = n || ""; selo.classList.toggle("on", n > 0); }
   return n;
@@ -476,14 +484,40 @@ function estSeloGeral() {
 
 /* onde cada piloto está agora: online, em partida ou fora */
 function estOndeEsta(id) {
+  const eu = estEu();
+  /* EU sei de mim na hora; a nuvem só é relida de 20 em 20 segundos, e
+     trocar o próprio estado e não ver nada mudar parece defeito */
+  if (eu && id === eu.id) {
+    const agora = presencaAgora();
+    const r = recadoMeu();
+    const inf = presencaInfo(agora);
+    return { cor: agora === "invisivel" ? "off" : agora, ic: inf.ic,
+             cel: matchMedia("(max-width: 780px)").matches,
+             txt: r ? ((r.emoji ? r.emoji + " " : "") + r.txt)
+                    : (agora === "invisivel" ? "invisível (só você vê)" : inf.nome) };
+  }
   const p = EST.pilotos[id];
   if (!p) return { cor: "off", txt: "fora do ar" };
   const on = Date.now() - (p.atualizado || 0) < 70000;
   if (!on) return { cor: "off", txt: "visto " + quandoTexto(p.atualizado || Date.now()) };
+  /* o recado que a pessoa escreveu ganha da tela em que ela está: ela
+     escreveu justamente para dizer outra coisa */
+  const rec = p.recado && p.recado.txt && (!p.recado.ate || p.recado.ate > Date.now())
+    ? (p.recado.emoji ? p.recado.emoji + " " : "") + String(p.recado.txt).slice(0, 60) : "";
+  const pres = PRESENCAS.some(x => x.id === p.presenca) ? p.presenca : "online";
+  const cel = p.aparelho === "celular";
+  if (pres === "ocupado") return { cor: "ocupado", ic: "⊘", cel, txt: rec || "não perturbe" };
+  if (pres === "ausente") return { cor: "ausente", ic: "☾", cel, txt: rec || "ausente" };
   const onde = String(p.onde || "");
   if (/Jogando|Arena|Cooperativo|Ranqueada|Maratona/i.test(onde))
-    return { cor: "jogo", txt: "em partida" };
-  return { cor: "on", txt: onde || "no jogo" };
+    return { cor: "jogo", ic: "●", cel, txt: rec || "em partida" };
+  return { cor: "on", ic: "●", cel, txt: rec || onde || "no jogo" };
+}
+/* a luzinha: pontinho, lua, bloqueado — ou um celularzinho, quando a
+   pessoa está no telefone */
+function estLuz(onde) {
+  return '<i class="est-luz ' + onde.cor + (onde.cel ? " cel" : "") + '">' +
+    (onde.cel ? "▯" : "") + "</i>";
 }
 
 /* =====================================================================
@@ -683,7 +717,9 @@ function estPintarLado() {
   if (!cx) return;
   const eu = estEu();
   const linha = (d, nome, sub, ic, extra) => {
-    const nova = estNaoLidas(d);
+    const mudo = silenciado(estChave(d));
+    const nova = mudo ? 0 : estNaoLidas(d);
+    extra = (extra || "") + (mudo ? " mudo" : "");
     const aqui = estMesmoDestino(EST.destino, d);
     return '<button class="est-dest' + (aqui ? " on" : "") + (nova ? " nova" : "") +
       (extra || "") + '" data-dest="' + d.tipo + "|" + d.id + '">' +
@@ -710,6 +746,18 @@ function estPintarLado() {
        '<b class="est-dest-ic">👥</b><span class="est-dest-txt"><strong>Amigos</strong>' +
        "<em>ver, adicionar e responder</em></span>" +
        (pedidos ? '<i class="est-pip conta">' + pedidos + "</i>" : "") + "</button>";
+
+  /* MENSAGENS DIRETAS tem lugar próprio, do lado de AMIGOS. Antes as
+     conversas só existiam soltas lá embaixo da barra, misturadas com o
+     resto: quem tinha três conversas abertas não tinha onde ver as três
+     juntas, com quem falou por último em cima. */
+  const naoLidasDM = Object.keys((typeof AM !== "undefined" && AM.lista) || {})
+    .filter(x => estNaoLidas({ tipo: "dm", id: x })).length;
+  h += '<button class="est-dest est-dm-b' +
+       (EST.destino && EST.destino.tipo === "dms" ? " on" : "") + '" data-dest="dms|tudo">' +
+       '<b class="est-dest-ic">✉</b><span class="est-dest-txt"><strong>Mensagens diretas</strong>' +
+       "<em>suas conversas de um para um</em></span>" +
+       (naoLidasDM ? '<i class="est-pip conta">' + naoLidasDM + "</i>" : "") + "</button>";
 
   h += '<div class="est-grupo-h">CANAIS DE TEXTO</div>';
   for (const c of EST_CANAIS)
@@ -746,7 +794,7 @@ function estPintarLado() {
     const a = AM.lista[id];
     const onde = estOndeEsta(id);
     h += linha({ tipo: "dm", id }, a.tag || a.nome, onde.txt,
-               '<i class="est-luz ' + onde.cor + '"></i>' + estIni(a.tag || a.nome),
+               estLuz(onde) + estIni(a.tag || a.nome),
                EST.bloq[id] ? " bloqueado" : "");
   }
 
@@ -754,7 +802,28 @@ function estPintarLado() {
   if (ped) h += '<button class="est-pedidos" id="est-ver-pedidos">' + ped +
                 (ped === 1 ? " pedido de amizade" : " pedidos de amizade") + " ›</button>";
 
+  /* A BARRA DO PRÓPRIO PILOTO, colada embaixo: quem sou eu agora e como
+     eu quero aparecer. É onde a mão procura, e é o que faltava para
+     trocar de estado sem caçar em tela de ajustes. */
+  const minha = estOndeEsta(eu.id);
+  const vMeu = { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
+                 efeito: perfilEfeitoDoNome() };
+  h += '<div class="est-eu">' +
+       '<button class="est-eu-av" id="est-eu-perfil" aria-label="Meu perfil">' +
+       estLuz(minha) + escaparTexto(eu.ini) + "</button>" +
+       '<button class="est-eu-txt" id="est-eu-status">' +
+       '<strong class="' + perfilClasseDoNome(vMeu).trim() + '"' +
+       (vMeu.cor ? ' style="' + perfilEstiloDoNome(vMeu) + '"' : "") + ">" +
+       escaparTexto(eu.tag) + (vMeu.selo ? " " + vMeu.selo : "") + "</strong>" +
+       "<em>" + escaparTexto(minha.txt) + "</em></button>" +
+       '<button class="est-eu-b" id="est-eu-editar" aria-label="Editar perfil">✎</button>' +
+       "</div>";
+
   cx.innerHTML = h;
+  const bp = $("est-eu-perfil"), bs = $("est-eu-status"), be = $("est-eu-editar");
+  if (bp) bp.addEventListener("click", () => estAbrirPerfil(eu.id));
+  if (bs) bs.addEventListener("click", estAbrirStatus);
+  if (be) be.addEventListener("click", estEditarPerfil);
   cx.querySelectorAll("[data-dest]").forEach(b =>
     b.addEventListener("click", () => {
       const [tipo, id] = b.getAttribute("data-dest").split("|");
@@ -797,7 +866,7 @@ function estLinhaDeAmigo(id, dados, acoes) {
   const onde = estOndeEsta(id);
   const nome = (dados && (dados.tag || dados.nome)) || "Piloto";
   return '<div class="est-amigo" data-amigo="' + id + '">' +
-    '<span class="est-av"><i class="est-luz ' + onde.cor + '"></i>' +
+    '<span class="est-av">' + estLuz(onde) +
     escaparTexto(estIni(nome)) + "</span>" +
     '<span class="est-amigo-txt"><strong>' + escaparTexto(nome) + "</strong>" +
     "<em>" + escaparTexto(onde.txt) + "</em></span>" +
@@ -933,9 +1002,84 @@ function estPintarAmigos() {
     }));
 }
 
+/* =====================================================================
+   MENSAGENS DIRETAS
+   ---------------------------------------------------------------------
+   A lista das conversas de um para um, com a última coisa que foi dita e
+   quando — igual a qualquer aplicativo de mensagem. É o que faltava:
+   antes as conversas só apareciam soltas na barra lateral, e quem tinha
+   várias não tinha onde ver todas juntas, em ordem de quem falou por
+   último.
+
+   A PRÉVIA CUSTA UMA LEITURA POR CONVERSA, e é por isso que ela só
+   acontece quando esta tela abre — não a cada quadro, não em segundo
+   plano. Com dez amigos seriam dez buscas: fazer isso o tempo todo
+   gastaria a internet de quem joga no 3G da mãe.
+   ===================================================================== */
+const EST_PREVIAS = {};
+async function estLerPreviasDM() {
+  const eu = estEu();
+  if (!eu) return;
+  const ids = Object.keys((typeof AM !== "undefined" && AM.lista) || {});
+  for (const id of ids) {
+    const bruto = await nuvemReq("conversas/" + salaDaConversa(eu.id, id),
+                                 null, '?orderBy="$key"&limitToLast=1');
+    const arr = estArrumar(bruto);
+    EST_PREVIAS[id] = arr.length ? arr[arr.length - 1] : null;
+  }
+}
+
+function estPintarDMs() {
+  const lista = $("est-msgs"), cab = $("est-cab");
+  if (!lista || !cab) return;
+  const eu = estEu();
+  const amigos = (typeof AM !== "undefined" && AM.lista) || {};
+  cab.innerHTML =
+    '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
+    '<div class="est-cab-txt"><strong>✉ Mensagens diretas</strong>' +
+    "<em>só você e a outra pessoa leem</em></div>";
+  const al = $("est-abrir-lado");
+  if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
+
+  /* quem falou por último vem primeiro, que é como a cabeça procura */
+  const ids = Object.keys(amigos).sort((a, b) => {
+    const qa = (EST_PREVIAS[a] && EST_PREVIAS[a].quando) || 0;
+    const qb = (EST_PREVIAS[b] && EST_PREVIAS[b].quando) || 0;
+    return qb - qa;
+  });
+  if (!ids.length) {
+    lista.innerHTML = '<div class="est-vazio"><b>✉</b>Nenhuma conversa ainda. ' +
+      "Vá em <b>Amigos</b>, chame alguém pelo nick e comece a falar.</div>";
+    return;
+  }
+  lista.innerHTML = ids.map(id => {
+    const a = amigos[id];
+    const nome = a.tag || a.nome;
+    const ult = EST_PREVIAS[id];
+    const onde = estOndeEsta(id);
+    const nova = estNaoLidas({ tipo: "dm", id });
+    const quem = ult && eu && ult.de === eu.id ? "você: " : "";
+    return '<button class="est-dm' + (nova ? " nova" : "") + '" data-dm="' + id + '">' +
+      '<span class="est-av">' + estLuz(onde) +
+      escaparTexto(estIni(nome)) + "</span>" +
+      '<span class="est-dm-txt"><strong>' + escaparTexto(nome) + "</strong>" +
+      "<em>" + (ult ? escaparTexto(quem + String(ult.txt).slice(0, 60))
+                    : "vocês ainda não conversaram") + "</em></span>" +
+      '<span class="est-dm-lado">' +
+      (ult ? '<u>' + quandoTexto(ult.quando) + "</u>" : "") +
+      (nova ? '<i class="est-pip"></i>' : "") + "</span></button>";
+  }).join("");
+  lista.querySelectorAll("[data-dm]").forEach(b =>
+    b.addEventListener("click", () => {
+      const id = b.getAttribute("data-dm");
+      estAbrir({ tipo: "dm", id, nome: (amigos[id].tag || amigos[id].nome) });
+    }));
+}
+
 /* ---------- a conversa ---------- */
 function estPintarConversa(grudarNoFim) {
   if (EST.destino && EST.destino.tipo === "amigos") { estPintarAmigos(); return; }
+  if (EST.destino && EST.destino.tipo === "dms") { estPintarDMs(); return; }
   const lista = $("est-msgs"), cab = $("est-cab");
   if (!lista || !cab) return;
   const eu = estEu();
@@ -949,21 +1093,24 @@ function estPintarConversa(grudarNoFim) {
 
   /* cabeçalho: quem é, e o que dá para fazer aqui */
   let sub = "", acoes = "";
+  const chaveSil = estChave(d);
+  const silBt = '<button class="est-cab-b' + (silenciado(chaveSil) ? " mudo" : "") +
+    '" data-acao="silenciar-aqui">' + (silenciado(chaveSil) ? "🔕 mudo" : "🔔 avisos") + "</button>";
   if (d.tipo === "canal") {
     const c = EST_CANAIS.filter(x => x.id === d.id)[0];
     sub = c ? c.sobre : "";
+    acoes = silBt;
   } else if (d.tipo === "dm") {
     const onde = estOndeEsta(d.id);
     sub = onde.txt;
-    acoes = '<button class="est-cab-b" data-acao="bloquear">' +
-            (EST.bloq[d.id] ? "desbloquear" : "bloquear") + "</button>" +
-            '<button class="est-cab-b" data-acao="silenciar">' +
-            (EST.mudo[d.id] ? "ouvir" : "silenciar") + "</button>";
+    acoes = silBt +
+            '<button class="est-cab-b" data-acao="bloquear">' +
+            (EST.bloq[d.id] ? "desbloquear" : "bloquear") + "</button>";
   } else if (d.tipo === "grupo") {
     const g = EST.grupos[d.id];
     const n = g ? Object.keys(g.membros || {}).length : 0;
     sub = n + (n === 1 ? " pessoa" : " pessoas");
-    acoes = '<button class="est-cab-b" data-acao="membros">quem está</button>';
+    acoes = silBt + '<button class="est-cab-b" data-acao="membros">quem está</button>';
     if (estMeuNivel(d.id) >= EST_MOD)
       acoes += '<button class="est-cab-b" data-acao="renomear">renomear</button>';
     acoes += '<button class="est-cab-b sai" data-acao="sair">sair</button>';
@@ -1010,10 +1157,30 @@ function estPintarConversa(grudarNoFim) {
     h += '<div class="est-msg' + (meu ? " meu" : "") + (colado ? " colado" : "") +
          (chamou ? " chamou" : "") + (m.indo ? " indo" : "") + '" data-k="' + m.k + '">';
     if (!colado) {
-      h += '<span class="est-av' + (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") + '">' +
-           escaparTexto(estIni(m.nome)) + "</span>";
+      /* O NOME E O AVATAR ABREM O PERFIL — o de qualquer um, inclusive o
+         meu. Foi o pedido: "eu mandei uma mensagem, eu posso clicar no
+         meu perfil e editar". Então clicar em si mesmo abre a edição, e
+         clicar em outro abre o cartão dele. */
+      /* O MEU PERFIL VEM DE MIM, não da nuvem. A ficha de cada piloto só
+         é relida de vinte em vinte segundos, então a minha própria
+         mensagem saía sem cor até a próxima leitura — eu trocava a cor e
+         não via nada acontecer. Para os outros a nuvem é a única fonte
+         possível; para mim, ela é a fonte errada. */
+      const v = (eu && m.de === eu.id)
+        ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(),
+            efeito: perfilEfeitoDoNome() }
+        : perfilDaNuvem(EST.pilotos[m.de] || {});
+      h += '<button class="est-av est-abre-perfil' +
+           (m.mold ? " moldurado mold-" + escaparTexto(m.mold) : "") +
+           '" data-perfil="' + escaparTexto(m.de || "") + '">' +
+           escaparTexto(estIni(m.nome)) + "</button>";
       h += '<div class="est-corpo"><div class="est-linha1">' +
-           '<b class="est-nome">' + escaparTexto(m.nome || "Piloto") + "</b>" +
+           '<b class="est-nome est-abre-perfil' + perfilClasseDoNome(v) +
+           '" data-perfil="' + escaparTexto(m.de || "") + '"' +
+           (v.cor ? ' style="' + perfilEstiloDoNome(v) + '"' : "") + ">" +
+           escaparTexto(m.nome || "Piloto") + "</b>" +
+           (v.selo ? '<span class="est-selo-neo" title="NeoNebula ' + v.nivel + '">' +
+                     v.selo + "</span>" : "") +
            '<span class="est-hora">' + estHora(m.quando) + "</span></div>";
     } else {
       h += '<span class="est-av vazio"></span><div class="est-corpo">';
@@ -1031,6 +1198,11 @@ function estPintarConversa(grudarNoFim) {
     b.addEventListener("click", e => {
       e.stopPropagation();
       estMenuDaMensagem(b.getAttribute("data-menu"), b);
+    }));
+  lista.querySelectorAll("[data-perfil]").forEach(b =>
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      estAbrirPerfil(b.getAttribute("data-perfil"));
     }));
 
   if (grudarNoFim || perto) lista.scrollTop = lista.scrollHeight;
@@ -1055,7 +1227,7 @@ function estPintar(grudarNoFim) {
      texto que não manda para lugar nenhum é convite a digitar à toa. */
   const barra = document.querySelector(".est-barra");
   if (barra) barra.style.display =
-    (EST.destino && EST.destino.tipo === "amigos") ? "none" : "";
+    (EST.destino && (EST.destino.tipo === "amigos" || EST.destino.tipo === "dms")) ? "none" : "";
 }
 
 /* ---------- as janelinhas ---------- */
@@ -1164,8 +1336,8 @@ function estAbrirMembros(gid) {
     Object.keys(g.membros).map(id => {
       const m = g.membros[id];
       const onde = estOndeEsta(id);
-      return '<div class="est-pedido"><span class="est-av pequeno"><i class="est-luz ' + onde.cor +
-        '"></i>' + escaparTexto(estIni(m.nome)) + "</span>" +
+      return '<div class="est-pedido"><span class="est-av pequeno">' + estLuz(onde) +
+        escaparTexto(estIni(m.nome)) + "</span>" +
         "<b>" + escaparTexto(m.nome) + (cargos[m.nivel || 0] ? ' <em class="est-cargo">' +
         cargos[m.nivel || 0] + "</em>" : "") + "</b>" +
         (meu >= EST_DONO && id !== g.dono
@@ -1196,6 +1368,7 @@ function estAbrirMembros(gid) {
 function estAcaoDoCabecalho(acao) {
   const d = EST.destino;
   if (!d) return;
+  if (acao === "silenciar-aqui") { estAbrirSilenciar(estChave(d), d.nome || d.id); return; }
   if (acao === "bloquear") estBloquear(d.id, d.nome);
   else if (acao === "silenciar") estSilenciar(d.id, d.nome);
   else if (acao === "membros") estAbrirMembros(d.id);
@@ -1375,3 +1548,320 @@ function estacaoAlternar() {
    olhada devagar (dois minutos) basta, e não pesa. */
 setInterval(() => { if (!EST.aberta && nuvemAtiva()) estOlharNovidades(); }, 120000);
 setTimeout(() => { try { estCarregarVistos(); estOlharNovidades(); estGruposCarregar(); } catch (e) {} }, 4000);
+
+/* =====================================================================
+   O CARTÃO DE PERFIL
+   ---------------------------------------------------------------------
+   Abre de QUALQUER lugar onde um nome ou um avatar apareça: no
+   bate-papo, na lista de amigos, na barra lateral. Se for você, tem o
+   botão de editar; se for outro, tem o que dá para fazer com ele.
+
+   Foi pedido assim, e faz sentido: o nome da pessoa É o botão para saber
+   quem ela é. Ter que ir a uma tela de ajustes para trocar a própria
+   cor é o tipo de caminho que ninguém encontra.
+   ===================================================================== */
+function estAbrirPerfil(id) {
+  const eu = estEu();
+  if (!id || !eu) return;
+  const souEu = id === eu.id;
+  const ficha = EST.pilotos[id] || {};
+  const v = souEu
+    ? { nivel: neoNivel(), selo: neoSelo(), cor: perfilCorDoNome(), efeito: perfilEfeitoDoNome(),
+        fundo: perfilFundo(), bio: perfilMeu().bio, pronomes: perfilMeu().pronomes }
+    : perfilDaNuvem(ficha);
+  const nome = souEu ? eu.tag : (ficha.nome || "Piloto");
+  const onde = estOndeEsta(id);
+  const info = neoInfo(v.nivel);
+
+  const cabeca =
+    '<div class="pf-banner" style="background:' + v.fundo.css + '"' +
+      (v.fundo.anima ? ' data-anima="1"' : "") + "></div>" +
+    '<div class="pf-topo">' +
+      '<span class="pf-av">' + estLuz(onde) +
+      escaparTexto(estIni(nome)) + "</span>" +
+      '<div class="pf-nome-cx">' +
+        '<b class="pf-nome' + perfilClasseDoNome(v) + '"' +
+        (v.cor ? ' style="' + perfilEstiloDoNome(v) + '"' : "") + ">" +
+        escaparTexto(nome) + "</b>" +
+        (v.pronomes ? '<span class="pf-pron">' + escaparTexto(v.pronomes) + "</span>" : "") +
+        '<span class="pf-onde">' + escaparTexto(onde.txt) + "</span>" +
+      "</div>" +
+      (info && info.id !== "nenhum"
+        ? '<span class="pf-neo" style="border-color:' + info.cor + ';color:' + info.cor + '">' +
+          info.selo + " " + escaparTexto(info.nome.replace("NEONEBULA ", "")) + "</span>"
+        : "") +
+    "</div>" +
+    (v.bio ? '<p class="pf-bio">' + escaparTexto(v.bio) + "</p>"
+           : '<p class="pf-bio vazia">' + (souEu ? "Você ainda não escreveu nada sobre você."
+                                                 : "Sem bio.") + "</p>");
+
+  const acoes = souEu
+    ? '<button class="est-jan-ok" data-p="editar">EDITAR MEU PERFIL</button>' +
+      '<button class="est-jan-ok" data-p="neo">' +
+        (neoNivel() === "nenhum" ? "CONHECER O NEONEBULA" : "MINHA ASSINATURA") + "</button>"
+    : '<button class="est-jan-ok" data-p="falar">conversar</button>' +
+      '<button class="est-jan-ok" data-p="mudo">' +
+        (EST.mudo[id] ? "voltar a ver" : "silenciar") + "</button>" +
+      '<button class="est-jan-ok" data-p="bloq">' +
+        (EST.bloq[id] ? "desbloquear" : "bloquear") + "</button>";
+
+  estJanela(souEu ? "Meu perfil" : nome, cabeca + acoes, cx =>
+    cx.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => {
+      const q = b.getAttribute("data-p");
+      estFecharJanela();
+      if (q === "editar") estEditarPerfil();
+      else if (q === "neo") estAbrirNeo();
+      else if (q === "falar") estAbrir({ tipo: "dm", id, nome });
+      else if (q === "mudo") { estSilenciar(id, nome); estPintar(); }
+      else if (q === "bloq") { estBloquear(id, nome); estPintar(); }
+    })));
+}
+
+/* ---------- editar, e SALVAR ----------
+   Nada se aplica enquanto a pessoa mexe: ela escolhe, vê a prévia em
+   cima, e só o SALVAR grava. Desistir tem que ser possível sem estrago. */
+let estRascunho = null;
+function estEditarPerfil() {
+  const p = perfilMeu();
+  estRascunho = { bio: p.bio, pronomes: p.pronomes, cor: p.cor,
+                  efeito: p.efeito, fundo: p.fundo, animacao: p.animacao };
+  estPintarEditor();
+}
+function estPintarEditor() {
+  const r = estRascunho;
+  const eu = estEu();
+  const fundo = neoAchar(NEO_FUNDOS, r.fundo) || NEO_FUNDOS[0];
+  const corItem = neoAchar(NEO_CORES, r.cor);
+  const efItem = neoAchar(NEO_EFEITOS, r.efeito);
+
+  /* a prévia é o próprio cartão, com o que está sendo escolhido agora */
+  const previa =
+    '<div class="pf-banner" style="background:' + fundo.css + '"></div>' +
+    '<div class="pf-topo">' +
+      '<span class="pf-av">' + escaparTexto(estIni(eu.tag)) + "</span>" +
+      '<div class="pf-nome-cx"><b class="pf-nome' +
+        (efItem && efItem.id !== "nenhum" ? " neo-ef neo-" + efItem.id : "") + '"' +
+        (corItem ? ' style="color:' + corItem.cor + '"' : "") + ">" +
+        escaparTexto(eu.tag) + "</b>" +
+        (r.pronomes ? '<span class="pf-pron">' + escaparTexto(r.pronomes) + "</span>" : "") +
+      "</div></div>";
+
+  /* cada grade mostra TUDO, e o que está travado aparece com cadeado em
+     vez de sumir: ver o que existe é metade do motivo de assinar */
+  const grade = (lista, campo, desenha) =>
+    '<div class="pf-grade">' + lista.map(it => {
+      const livre = neoLiberado(it);
+      return '<button class="pf-op' + (r[campo] === it.id ? " on" : "") +
+        (livre ? "" : " travado") + '" data-campo="' + campo + '" data-id="' + it.id + '"' +
+        (livre ? "" : ' title="Precisa do NeoNebula ' + it.nivel + '"') + ">" +
+        desenha(it) + (livre ? "" : '<i class="pf-cad">🔒</i>') + "</button>";
+    }).join("") + "</div>";
+
+  estJanela("Editar meu perfil",
+    '<div class="pf-previa">' + previa + "</div>" +
+
+    '<div class="pf-campo"><label>PRONOMES</label>' +
+    '<input id="pf-pron" maxlength="20" value="' + escaparTexto(r.pronomes) +
+    '" placeholder="ele/dele, ela/dela, elu/delu…" autocomplete="off"></div>' +
+
+    '<div class="pf-campo"><label>SOBRE MIM ' +
+    '<i id="pf-conta">' + (r.bio || "").length + "/" + perfilLimiteBio() + "</i></label>" +
+    '<textarea id="pf-bio" maxlength="' + perfilLimiteBio() +
+    '" rows="3" placeholder="conte alguma coisa sua">' + escaparTexto(r.bio) + "</textarea>" +
+    (neoTem("bronze") ? "" : '<p class="est-nota">Com o NeoNebula a bio vai a 300 letras.</p>') +
+    "</div>" +
+
+    '<div class="pf-campo"><label>FUNDO DO PERFIL</label>' +
+    grade(NEO_FUNDOS, "fundo", f =>
+      '<span class="pf-mini" style="background:' + f.css + '"></span><em>' +
+      escaparTexto(f.nome) + "</em>") + "</div>" +
+
+    '<div class="pf-campo"><label>COR DO NOME</label>' +
+    grade(NEO_CORES, "cor", c =>
+      '<span class="pf-bola" style="background:' + c.cor + '"></span><em>' +
+      escaparTexto(c.nome) + "</em>") + "</div>" +
+
+    '<div class="pf-campo"><label>EFEITO DO NOME</label>' +
+    grade(NEO_EFEITOS, "efeito", e =>
+      '<span class="pf-ef neo-ef neo-' + e.id + '">' + escaparTexto(eu.tag).slice(0, 6) +
+      "</span><em>" + escaparTexto(e.nome) + "</em>") + "</div>" +
+
+    '<div class="pf-campo"><label>RASTRO DA NAVE</label>' +
+    grade(NEO_ANIMACOES, "animacao", a =>
+      '<span class="pf-rastro" style="background:' +
+      (a.cor === "arco" ? "linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF)"
+                        : (a.cor || "rgba(255,255,255,.12)")) + '"></span><em>' +
+      escaparTexto(a.nome) + "</em>") + "</div>" +
+
+    '<button class="est-jan-ok salvar" id="pf-salvar">SALVAR</button>' +
+    '<button class="est-jan-ok" id="pf-cancelar">cancelar</button>',
+    cx => {
+      cx.querySelectorAll("[data-campo]").forEach(b =>
+        b.addEventListener("click", () => {
+          if (b.classList.contains("travado")) {
+            estAvisar("Isso é do NeoNebula. Toque em MEU PERFIL › assinatura para ver.");
+            return;
+          }
+          const campo = b.getAttribute("data-campo");
+          /* a cor é a única que dá para tirar: tocar na que já está
+             escolhida volta ao normal */
+          estRascunho[campo] = (campo === "cor" && estRascunho.cor === b.getAttribute("data-id"))
+            ? "" : b.getAttribute("data-id");
+          estPintarEditor();
+        }));
+      const bio = $("pf-bio"), conta = $("pf-conta");
+      if (bio) bio.addEventListener("input", () => {
+        estRascunho.bio = bio.value;
+        if (conta) conta.textContent = bio.value.length + "/" + perfilLimiteBio();
+      });
+      const pron = $("pf-pron");
+      if (pron) pron.addEventListener("input", () => { estRascunho.pronomes = pron.value; });
+      $("pf-cancelar").addEventListener("click", () => { estRascunho = null; estFecharJanela(); });
+      $("pf-salvar").addEventListener("click", () => {
+        perfilSalvar(estRascunho);
+        estRascunho = null;
+        estFecharJanela();
+        estAvisar("Perfil salvo.");
+        estPintar();
+      });
+    });
+}
+
+/* ---------- a loja do NeoNebula ---------- */
+function estAbrirNeo() {
+  const agora = neoNivel();
+  const meu = neoInfo(agora);
+  const dias = neoDiasQueFaltam();
+  const cabeca = agora === "nenhum"
+    ? '<p class="est-nota">Três níveis, cada um valendo 30 dias. O que você escolher ' +
+      "aparece para todo mundo no bate-papo e no ranking.</p>"
+    : '<div class="neo-meu" style="border-color:' + meu.cor + '"><b style="color:' + meu.cor +
+      '">' + meu.selo + " " + escaparTexto(meu.nome) + "</b><span>" +
+      (dias === Infinity ? "sem prazo para acabar" : "faltam " + dias + " dias") + "</span></div>";
+
+  estJanela("NeoNebula",
+    cabeca +
+    NEO_NIVEIS.filter(n => !n.oculto).map(n =>
+      '<div class="neo-cx" style="border-color:' + n.cor + '33">' +
+        '<div class="neo-h"><b style="color:' + n.cor + '">' + n.selo + " " +
+        escaparTexto(n.nome) + "</b>" +
+        '<span class="neo-preco">' + reais(n.preco) + "<em>/30 dias</em></span></div>" +
+        '<p class="neo-resumo">' + escaparTexto(n.resumo) + "</p>" +
+        "<ul class=\"neo-lista\">" + n.beneficios.map(b =>
+          "<li>" + escaparTexto(b) + "</li>").join("") + "</ul>" +
+        '<button class="est-jan-ok" data-neo="' + n.id + '">' +
+        (NEO_ORDEM[agora] >= NEO_ORDEM[n.id] ? "RENOVAR POR 30 DIAS" : "ASSINAR") + "</button>" +
+      "</div>").join("") +
+    '<p class="est-nota">O pagamento é por Pix e a entrega é automática: assim que ' +
+    "cai, o nível entra na sua conta sozinho. Não é cobrança automática — quando os " +
+    "30 dias acabarem, você escolhe se renova.</p>",
+    cx => cx.querySelectorAll("[data-neo]").forEach(b =>
+      b.addEventListener("click", () => {
+        const n = neoInfo(b.getAttribute("data-neo"));
+        if (!n) return;
+        estFecharJanela();
+        estacaoFechar();
+        /* usa a MESMA tela de pagamento do resto da loja: uma só, para
+           não haver dois jeitos de pagar que um dia divergem */
+        abrirPagamento("neo_" + n.id, n.nome, n.preco,
+                       { neo: { nivel: n.id, dias: n.dias } });
+      })));
+}
+
+/* =====================================================================
+   O SELETOR DE ESTADO
+   ---------------------------------------------------------------------
+   Quatro estados e um recado. O que muda de verdade em cada um está
+   escrito embaixo do nome — porque "Não perturbe" só quer dizer alguma
+   coisa se a pessoa souber que o som some.
+   ===================================================================== */
+function estAbrirStatus() {
+  const agora = presencaEscolhida();
+  const valendo = presencaAgora();
+  const r = recadoMeu();
+  estJanela("Como eu apareço",
+    PRESENCAS.map(p =>
+      '<button class="est-status' + (agora === p.id ? " on" : "") + '" data-pres="' + p.id + '">' +
+      '<i style="color:' + p.cor + '">' + p.ic + "</i>" +
+      "<span><strong>" + escaparTexto(p.nome) + "</strong>" +
+      "<em>" + escaparTexto(p.sobre) + "</em></span>" +
+      (agora === p.id ? '<b class="est-status-ok">✓</b>' : "") + "</button>").join("") +
+    (valendo === "ausente" && agora === "online"
+      ? '<p class="est-nota">Agora você está aparecendo como <b>ausente</b>, porque ficou ' +
+        "uns minutos sem mexer. Toca em qualquer coisa e volta sozinho.</p>" : "") +
+
+    '<div class="pf-campo" style="margin-top:14px"><label>RECADO</label>' +
+    '<div class="est-add-linha">' +
+    '<input id="est-rec-emoji" maxlength="2" value="' + escaparTexto((r && r.emoji) || "") +
+    '" placeholder="🙂" style="flex:0 0 54px;text-align:center">' +
+    '<input id="est-rec-txt" maxlength="60" value="' + escaparTexto((r && r.txt) || "") +
+    '" placeholder="o que você está fazendo?"></div>' +
+    '<label style="margin-top:9px">SUMIR DEPOIS DE</label>' +
+    '<div class="est-prazos">' + PRESENCA_PRAZOS.map(pz =>
+      '<button class="est-prazo" data-prazo="' + pz.id + '">' +
+      escaparTexto(pz.nome) + "</button>").join("") + "</div>" +
+    '<button class="est-jan-ok salvar" id="est-rec-salvar">SALVAR RECADO</button>' +
+    (r ? '<button class="est-jan-ok" id="est-rec-tirar">tirar o recado</button>' : "") +
+    "</div>",
+    cx => {
+      cx.querySelectorAll("[data-pres]").forEach(b =>
+        b.addEventListener("click", () => {
+          presencaTrocar(b.getAttribute("data-pres"));
+          estFecharJanela();
+          estAvisar("Agora você aparece como " +
+                    presencaInfo(presencaEscolhida()).nome.toLowerCase() + ".");
+        }));
+      let prazo = "0";
+      const pinta = () => cx.querySelectorAll("[data-prazo]").forEach(x =>
+        x.classList.toggle("on", x.getAttribute("data-prazo") === prazo));
+      cx.querySelectorAll("[data-prazo]").forEach(b =>
+        b.addEventListener("click", () => { prazo = b.getAttribute("data-prazo"); pinta(); }));
+      pinta();
+      $("est-rec-salvar").addEventListener("click", () => {
+        recadoDefinir($("est-rec-txt").value, prazo, $("est-rec-emoji").value);
+        estFecharJanela();
+        estPintar();
+        estAvisar("Recado salvo.");
+      });
+      const tirar = $("est-rec-tirar");
+      if (tirar) tirar.addEventListener("click", () => {
+        recadoDefinir("");
+        estFecharJanela();
+        estPintar();
+      });
+    });
+}
+
+/* =====================================================================
+   SILENCIAR UM CANAL, UM GRUPO OU A ESTAÇÃO INTEIRA
+   ---------------------------------------------------------------------
+   Por 15 minutos, 1 hora, 8 horas, 24 horas, ou até religar. Silenciado
+   não avisa nem apita — mas continua tendo o pontinho, porque sumir com
+   a conversa não é silenciar, é esconder.
+   ===================================================================== */
+function estAbrirSilenciar(chave, nome) {
+  const ja = silenciado(chave);
+  estJanela("Silenciar " + nome,
+    '<p class="est-nota">Silenciado, isto para de te avisar e de apitar. ' +
+    "As mensagens continuam chegando normalmente.</p>" +
+    (ja ? '<button class="est-jan-ok salvar" id="est-sil-tirar">VOLTAR A AVISAR</button>' : "") +
+    '<div class="est-prazos" style="margin-top:10px">' + SILENCIO_PRAZOS.map(pz =>
+      '<button class="est-prazo" data-sil="' + pz.id + '">' +
+      escaparTexto(pz.nome) + "</button>").join("") + "</div>",
+    cx => {
+      cx.querySelectorAll("[data-sil]").forEach(b =>
+        b.addEventListener("click", () => {
+          silenciar(chave, b.getAttribute("data-sil"));
+          estFecharJanela();
+          estPintar();
+          estAvisar(nome + " silenciado.");
+        }));
+      const t = $("est-sil-tirar");
+      if (t) t.addEventListener("click", () => {
+        silenciar(chave, null);
+        estFecharJanela();
+        estPintar();
+        estAvisar(nome + " volta a avisar.");
+      });
+    });
+}

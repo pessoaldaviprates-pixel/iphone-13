@@ -5175,8 +5175,8 @@
   .estacao{
     position:fixed;inset:0;z-index:60;display:none;
     grid-template-columns:250px minmax(0,1fr);
-    background:rgba(4,7,16,.92);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    background:rgba(3,5,12,.97);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     padding:calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bot));
     gap:10px;
   }
@@ -5185,8 +5185,12 @@
   /* ---- a barra dos destinos ---- */
   .est-lado{
     min-height:0;overflow-y:auto;padding:10px 9px;border-radius:16px;
-    background:linear-gradient(175deg,rgba(14,26,50,.6),rgba(5,10,22,.75));
-    border:1px solid rgba(120,200,255,.16);
+    /* SÓLIDA, não translúcida. Ela estava deixando o jogo passar por trás
+       e o nome dos canais brigava com a nebulosa do fundo -- bonito na
+       imagem parada, ruim de ler. Coluna de navegação tem que ser chão
+       firme; quem brilha é a conversa. */
+    background:linear-gradient(175deg,#0E1A2E,#080D1A);
+    border:1px solid rgba(120,200,255,.2);
     scrollbar-width:thin;scrollbar-color:rgba(120,200,255,.3) transparent;
   }
   .est-serv{display:flex;align-items:center;gap:9px;padding:2px 4px 12px;
@@ -5272,7 +5276,7 @@
   /* ---- a conversa ---- */
   .est-meio{
     display:flex;flex-direction:column;min-height:0;min-width:0;border-radius:16px;
-    background:linear-gradient(175deg,rgba(12,22,44,.5),rgba(5,10,22,.7));
+    background:linear-gradient(175deg,rgba(10,18,36,.94),rgba(5,10,22,.96));
     border:1px solid rgba(120,200,255,.16);overflow:hidden;
   }
   .est-cab{
@@ -5569,3 +5573,223 @@
     .est-aba-am{flex:1;text-align:center;min-height:34px;padding:6px 4px}
     .est-cab{flex-wrap:wrap}
   }
+
+  /* =====================================================================
+     NEONEBULA — o perfil e o que a assinatura destrava
+     ===================================================================== */
+
+  /* ---- os efeitos do nome ---- */
+  .neo-ef{position:relative}
+  .neo-neon{text-shadow:0 0 6px currentColor,0 0 14px currentColor}
+  .neo-pulso{animation:neoPulso 1.8s ease-in-out infinite}
+  @keyframes neoPulso{0%,100%{opacity:1;text-shadow:0 0 6px currentColor}
+    50%{opacity:.72;text-shadow:0 0 16px currentColor}}
+  .neo-glitch{text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan);
+    animation:neoGlitch 2.6s steps(1) infinite}
+  @keyframes neoGlitch{0%,92%,100%{transform:none;text-shadow:1.5px 0 var(--magenta),-1.5px 0 var(--cyan)}
+    94%{transform:translateX(-1.5px);text-shadow:-2px 0 var(--magenta),2px 0 var(--cyan)}
+    96%{transform:translateX(1.5px);text-shadow:2px 0 var(--verde),-2px 0 var(--amber)}}
+  .neo-arco{
+    background:linear-gradient(90deg,#FF4D8F,#FFC145,#5BF0B0,#4DE8FF,#C34DFF,#FF4D8F);
+    background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    animation:neoArco 5s linear infinite;
+  }
+  @keyframes neoArco{to{background-position:250% 0}}
+  @media (prefers-reduced-motion:reduce){
+    .neo-pulso,.neo-glitch,.neo-arco{animation:none}
+    .neo-arco{-webkit-text-fill-color:currentColor;color:var(--cyan)}
+  }
+  .est-selo-neo{font-size:.6rem;line-height:1;opacity:.95}
+  /* o nome e o avatar viram botão sem parecer botão */
+  .est-abre-perfil{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit}
+  b.est-abre-perfil:hover{text-decoration:underline}
+
+  /* ---- o cartão de perfil ---- */
+  .pf-banner{height:82px;border-radius:12px;margin:-4px -3px 0}
+  .pf-banner[data-anima]{background-size:200% 200%;animation:pfFundo 9s ease infinite}
+  @keyframes pfFundo{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  @media (prefers-reduced-motion:reduce){.pf-banner[data-anima]{animation:none}}
+  .pf-topo{display:flex;align-items:flex-end;gap:11px;margin:-26px 2px 10px;position:relative}
+  .pf-av{
+    width:62px;height:62px;flex:none;border-radius:18px;display:grid;place-items:center;
+    font-family:"Russo One",sans-serif;font-size:1.3rem;color:#04060F;position:relative;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);
+    border:3px solid #0A1020;
+  }
+  .pf-nome-cx{min-width:0;flex:1;padding-bottom:4px}
+  .pf-nome{
+    display:block;font-family:"Russo One",sans-serif;font-size:1rem;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .pf-pron{display:inline-block;font-size:.54rem;color:var(--dim);margin-top:2px;
+    padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.07)}
+  .pf-onde{display:block;font-size:.56rem;color:var(--fraco);margin-top:3px}
+  .pf-neo{
+    flex:none;align-self:flex-start;margin-top:30px;
+    padding:4px 9px;border-radius:99px;border:1px solid;
+    font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.5rem;letter-spacing:.1em;
+  }
+  .pf-bio{
+    font-size:.72rem;line-height:1.55;color:var(--ink2);margin:0 2px 12px;
+    padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .pf-bio.vazia{color:var(--fraco);font-style:italic}
+
+  /* ---- o editor ---- */
+  .pf-previa{
+    padding:10px 12px 4px;margin:-4px -4px 14px;border-radius:12px;
+    background:rgba(0,0,0,.3);border:1px solid rgba(120,200,255,.14);
+  }
+  .pf-campo{margin-bottom:15px}
+  .pf-campo label{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:.48rem;letter-spacing:.2em;color:var(--fraco);font-weight:700;margin-bottom:6px;
+  }
+  .pf-campo label i{font-style:normal;letter-spacing:.06em;opacity:.8}
+  .pf-campo textarea{
+    width:100%;padding:10px 12px;border-radius:10px;resize:vertical;min-height:66px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.2);
+    color:var(--ink);font-family:"Chakra Petch",sans-serif;font-size:.72rem;line-height:1.5;
+  }
+  .pf-campo textarea:focus{outline:none;border-color:rgba(77,232,255,.55)}
+  .pf-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+  .pf-op{
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;
+    padding:8px 6px;border-radius:10px;cursor:pointer;min-height:60px;justify-content:center;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.16);
+  }
+  .pf-op em{font-style:normal;font-size:.5rem;color:var(--dim);text-align:center;line-height:1.2}
+  .pf-op.on{border-color:var(--cyan);background:rgba(77,232,255,.14)}
+  .pf-op.on em{color:var(--ink)}
+  .pf-op.travado{opacity:.42}
+  .pf-cad{position:absolute;top:4px;right:5px;font-style:normal;font-size:.56rem}
+  .pf-mini{width:100%;height:22px;border-radius:6px}
+  .pf-bola{width:22px;height:22px;border-radius:50%}
+  .pf-ef{font-family:"Russo One",sans-serif;font-size:.66rem;color:var(--cyan)}
+  .pf-rastro{width:100%;height:7px;border-radius:99px}
+  .est-jan-ok.salvar{
+    background:rgba(91,240,176,.18);border-color:rgba(91,240,176,.5);color:var(--verde);
+    font-size:.7rem;margin-top:12px;
+  }
+
+  /* ---- a loja do NeoNebula ---- */
+  .neo-meu{
+    display:flex;align-items:center;justify-content:space-between;gap:9px;
+    padding:11px 13px;margin-bottom:12px;border-radius:11px;border:1px solid;
+    background:rgba(255,255,255,.04);
+  }
+  .neo-meu b{font-family:"Russo One",sans-serif;font-size:.72rem;letter-spacing:.08em}
+  .neo-meu span{font-size:.56rem;color:var(--dim)}
+  .neo-cx{
+    padding:13px;margin-bottom:11px;border-radius:13px;border:1px solid;
+    background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  }
+  .neo-h{display:flex;align-items:baseline;justify-content:space-between;gap:9px;flex-wrap:wrap}
+  .neo-h b{font-family:"Russo One",sans-serif;font-size:.74rem;letter-spacing:.08em}
+  .neo-preco{font-family:"Russo One",sans-serif;font-size:.9rem;color:var(--ink)}
+  .neo-preco em{font-style:normal;font-size:.5rem;color:var(--fraco);margin-left:3px}
+  .neo-resumo{font-size:.62rem;color:var(--dim);margin:5px 0 9px}
+  .neo-lista{list-style:none;margin:0 0 11px;padding:0}
+  .neo-lista li{
+    position:relative;padding:3px 0 3px 17px;font-size:.66rem;line-height:1.45;color:var(--ink2);
+  }
+  .neo-lista li::before{content:"✦";position:absolute;left:0;color:var(--cyan);font-size:.6rem}
+
+  /* ---- as mensagens diretas ---- */
+  .est-dm{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:10px 8px;border-radius:11px;cursor:pointer;
+    background:none;border:0;border-bottom:1px solid rgba(120,200,255,.09);
+  }
+  .est-dm:hover{background:rgba(255,255,255,.04)}
+  .est-dm-txt{min-width:0;flex:1}
+  .est-dm-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.72rem;
+    color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-dm.nova .est-dm-txt strong{color:var(--ink)}
+  .est-dm-txt em{
+    display:block;font-style:normal;font-size:.6rem;color:var(--fraco);margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-dm.nova .est-dm-txt em{color:var(--dim)}
+  .est-dm-lado{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+  .est-dm-lado u{font-size:.48rem;color:var(--fraco);text-decoration:none}
+  .est-dm-b .est-dest-ic{background:rgba(195,77,255,.14);color:var(--violet)}
+  @media (max-width: 780px){
+    .pf-grade{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+    .pf-op{min-height:64px}
+    .est-jan-ok{min-height:42px}
+  }
+
+  /* ---- presença: a luzinha de cada estado ---- */
+  .est-luz.on,.est-luz.online{background:#4CE07A}
+  .est-luz.jogo{background:var(--cyan)}
+  .est-luz.ausente{background:#FFC145}
+  .est-luz.ocupado{background:#FF4D6B}
+  .est-luz.off{background:rgba(237,243,255,.22)}
+  /* no celular a luzinha vira um celularzinho: saber POR ONDE a pessoa
+     está muda o que se espera dela */
+  .est-luz.cel{
+    width:11px;height:15px;border-radius:3px;display:grid;place-items:center;
+    font-size:.4rem;color:#07101F;font-style:normal;bottom:-2px;right:-3px;
+  }
+  .est-dest.mudo,.est-amigo.mudo{opacity:.55}
+  .est-cab-b.mudo{border-color:rgba(255,193,69,.35);color:var(--amber)}
+
+  /* ---- a barra do próprio piloto, embaixo da lista ---- */
+  .est-eu{
+    display:flex;align-items:center;gap:8px;margin-top:12px;padding:8px;
+    border-radius:12px;background:rgba(0,0,0,.35);
+    border:1px solid rgba(120,200,255,.14);
+    position:sticky;bottom:0;
+  }
+  .est-eu-av{
+    position:relative;width:34px;height:34px;flex:none;border-radius:11px;cursor:pointer;
+    display:grid;place-items:center;border:0;
+    background:linear-gradient(150deg,var(--cyan),#7FB6FF);color:#04060F;
+    font-family:"Russo One",sans-serif;font-size:.68rem;
+  }
+  .est-eu-txt{
+    flex:1;min-width:0;text-align:left;background:none;border:0;cursor:pointer;padding:0;
+  }
+  .est-eu-txt strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.66rem;
+    color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-eu-txt em{
+    display:block;font-style:normal;font-size:.5rem;color:var(--dim);margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .est-eu-txt:hover em{color:var(--cyan)}
+  .est-eu-b{
+    width:30px;height:30px;flex:none;border-radius:9px;cursor:pointer;line-height:1;
+    background:rgba(255,255,255,.06);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-size:.66rem;
+  }
+  .est-eu-b:active{background:rgba(77,232,255,.2);color:var(--cyan)}
+
+  /* ---- o seletor de estado ---- */
+  .est-status{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:10px 11px;margin-bottom:6px;border-radius:11px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(120,200,255,.14);
+  }
+  .est-status.on{border-color:rgba(77,232,255,.45);background:rgba(77,232,255,.1)}
+  .est-status i{font-style:normal;font-size:.9rem;flex:none;width:18px;text-align:center}
+  .est-status span{min-width:0;flex:1}
+  .est-status strong{
+    display:block;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:.7rem;
+    color:var(--ink);
+  }
+  .est-status em{display:block;font-style:normal;font-size:.56rem;color:var(--dim);margin-top:1px}
+  .est-status-ok{color:var(--cyan);font-size:.8rem;flex:none}
+  .est-prazos{display:flex;flex-wrap:wrap;gap:5px}
+  .est-prazo{
+    padding:7px 11px;border-radius:99px;cursor:pointer;min-height:34px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(120,200,255,.18);
+    color:var(--dim);font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.56rem;
+  }
+  .est-prazo.on{background:rgba(77,232,255,.16);border-color:rgba(77,232,255,.5);color:var(--cyan)}
