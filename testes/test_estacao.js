@@ -260,6 +260,25 @@ async function piloto(ctx, nome) {
     return AM.mensagens.some(m => /so nos dois/.test(m.txt));
   }, await a.evaluate(() => estEu().id));
 
+  /* ---- A TELA DE AMIGOS ---- */
+  out.telaAmigos = await a.evaluate(async () => {
+    await estAbrir({ tipo: 'amigos', id: 'tudo' });
+    await new Promise(r => setTimeout(r, 500));
+    const abas = [...document.querySelectorAll('[data-abam]')].map(x => x.getAttribute('data-abam'));
+    const semBarra = getComputedStyle(document.querySelector('.est-barra')).display === 'none';
+    estAbaAmigos = 'tudo'; estPintar();
+    const linhas = document.querySelectorAll('#est-msgs .est-amigo').length;
+    const acoes = [...document.querySelectorAll('.est-amigo-acoes .est-ac')].length;
+    estAbaAmigos = 'adicionar'; estPintar();
+    const temCampo = !!document.getElementById('est-add-nome');
+    estAbaAmigos = 'bloqueados'; estPintar();
+    const bloqueados = document.querySelectorAll('#est-msgs .est-amigo').length;
+    estAbaAmigos = 'online'; estPintar();
+    return { abas, semBarra, linhas, acoes, temCampo, bloqueados,
+             /* a tela de amigos não é conversa: não pode gastar o fluxo */
+             semFluxo: EST.fluxo === null };
+  });
+
   /* ---- 3b. GRUPOS ---- */
   out.grupo = await a.evaluate(async id => {
     const gid = await estGrupoCriar('Esquadrão Alfa', [id]);
@@ -312,8 +331,20 @@ async function piloto(ctx, nome) {
     const gavetaFechada = getComputedStyle(lado).display === 'none';
     document.getElementById('est-abrir-lado').click();
     const gavetaAbre = getComputedStyle(lado).display !== 'none';
+    /* A GAVETA ABRE POR CIMA DO PRÓPRIO ☰, então o segundo toque nunca
+       chegava nele: abria e não fechava mais. Três saídas agora, e o
+       teste cobra as três. */
+    document.getElementById('est-lado-x').click();
+    const fechaNoX = getComputedStyle(lado).display === 'none';
+    document.getElementById('est-abrir-lado').click();
+    document.getElementById('est-veu').click();
+    const fechaTocandoFora = getComputedStyle(lado).display === 'none';
+    document.getElementById('est-abrir-lado').click();
+    document.querySelector('#est-lado [data-dest]').click();
+    const fechaAoEscolher = getComputedStyle(lado).display === 'none';
     est.classList.remove('lado-aberto');
     return { colide, fora, pequenos, gavetaFechada, gavetaAbre,
+             fechaNoX, fechaTocandoFora, fechaAoEscolher,
              botaoDaGaveta: getComputedStyle(document.getElementById('est-abrir-lado')).display !== 'none' };
   });
   await a.setViewportSize({ width: 1280, height: 800 });
@@ -334,14 +365,20 @@ async function piloto(ctx, nome) {
   await a.keyboard.press('Escape');
   await a.waitForTimeout(400);
   out.escFecha = await a.evaluate(() => !EST.aberta);
-  /* a tecla não pode roubar a letra de quem está escrevendo */
-  out.teclaNoCampo = await a.evaluate(() => {
+  /* a tecla não pode roubar a letra de quem está escrevendo.
+     Num CANAL, de propósito: na tela de amigos a barra de escrever nem
+     existe, e focar um campo escondido não foca nada -- o teste passaria
+     a medir outra coisa sem ninguém perceber. */
+  out.teclaNoCampo = await a.evaluate(async () => {
     estacaoAbrir();
+    await estAbrir({ tipo: 'canal', id: 'geral', nome: 'geral' });
+    await new Promise(r => setTimeout(r, 500));
     const campo = document.getElementById('est-campo');
     campo.focus();
+    const focado = document.activeElement === campo;
     const antes = EST.aberta;
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'c', bubbles: true }));
-    return { antes, depois: EST.aberta };
+    return { focado, antes, depois: EST.aberta };
   });
   out.selo = await a.evaluate(async () => {
     EST.visto = {};
@@ -439,6 +476,14 @@ async function piloto(ctx, nome) {
   if (!out.dm.naLista) erro('o amigo nao aparece na barra de conversas');
   if (!out.dm.mandou) erro('a mensagem reservada nao entrou');
   if (!out.dmChegou) erro('a mensagem da estacao NAO aparece na tela de amigos: sao duas caixas separadas');
+  const TA = out.telaAmigos;
+  if (TA.abas.join() !== 'online,tudo,pendentes,bloqueados,adicionar')
+    erro('as abas da tela de amigos sao ' + TA.abas.join());
+  if (!TA.semBarra) erro('a barra de escrever aparece na tela de amigos, onde nao ha para quem');
+  if (!TA.linhas) erro('a tela de amigos nao lista o amigo');
+  if (TA.acoes < 3) erro('faltam acoes (conversar, ligar, mais) na linha do amigo');
+  if (!TA.temCampo) erro('a aba ADICIONAR nao tem campo para o nick');
+  if (!TA.semFluxo) erro('a tela de amigos gastou o fluxo, que e o unico que temos');
   if (!out.grupo.criou) erro('nao deu para criar o grupo');
   if (out.grupo.membros !== 2) erro('o grupo nasceu com ' + out.grupo.membros + ' membros');
   if (out.grupo.meuNivel !== 2) erro('quem criou o grupo nao virou dono');
@@ -453,6 +498,9 @@ async function piloto(ctx, nome) {
   if (C.pequenos) erro('no celular, ' + C.pequenos + ' botoes menores que o dedo alcanca');
   if (!C.gavetaFechada) erro('no celular a barra devia comecar fechada');
   if (!C.gavetaAbre) erro('no celular a gaveta nao abre');
+  if (!C.fechaNoX) erro('a gaveta nao fecha no X: abre e nao volta mais');
+  if (!C.fechaTocandoFora) erro('tocar fora nao fecha a gaveta');
+  if (!C.fechaAoEscolher) erro('escolher um canal nao fecha a gaveta');
   if (!C.botaoDaGaveta) erro('no celular falta o botao que abre a gaveta');
   if (out.fechou.aberta) erro('fechar nao fechou');
   if (!out.fechou.fluxoSolto) erro('fechar NAO soltou o fluxo: a conexao fica presa a toa');
@@ -460,6 +508,7 @@ async function piloto(ctx, nome) {
   if (out.fechou.vivos > 0) erro('depois de fechar sobraram ' + out.fechou.vivos + ' fluxos');
   if (!out.tecla) erro('a tecla C nao abriu a estacao');
   if (!out.escFecha) erro('o Esc nao fechou');
+  if (!out.teclaNoCampo.focado) erro('o teste nao conseguiu focar o campo de escrever');
   if (out.teclaNoCampo.antes !== out.teclaNoCampo.depois)
     erro('a tecla C fechou a estacao enquanto a pessoa escrevia');
   if (!out.selo.n || !out.selo.aceso) erro('o selo de nao lidas nao acendeu');

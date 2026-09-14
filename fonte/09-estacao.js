@@ -137,7 +137,7 @@ function estCaminho(d) {
   if (d.tipo === "canal") return "conversas/canal__" + d.id;
   if (d.tipo === "dm")    return "conversas/" + salaDaConversa(eu.id, d.id);
   if (d.tipo === "grupo") return "conversas/grupo__" + d.id + "/msgs";
-  return null;              // voz não tem mensagens (ainda)
+  return null;              // amigos e voz não são conversa: não têm caminho
 }
 /* a etiqueta curta que serve de chave dos não lidos e do localStorage */
 function estChave(d) { return d ? d.tipo + ":" + d.id : ""; }
@@ -203,6 +203,16 @@ async function estAbrir(d) {
   if (!eu) { estAvisar("Entre com um piloto para conversar."); return; }
 
   estDesligarFluxo();
+  /* a tela de amigos não é conversa: não tem mensagem para ouvir, então
+     não gasta o único fluxo que temos */
+  if (d.tipo === "amigos") {
+    EST.destino = d;
+    EST.msgs = [];
+    await amigosCarregar();
+    estOlharNovidades();
+    estPintar();
+    return;
+  }
   EST.destino = d;
   EST.msgs = [];
   EST.fim = false;
@@ -685,7 +695,21 @@ function estPintarLado() {
 
   let h = '<div class="est-serv"><b>' + escaparTexto(EST_SERVIDOR.nome.slice(0, 2)) + "</b>" +
           "<span><strong>" + escaparTexto(EST_SERVIDOR.nome) + "</strong>" +
-          "<em>" + escaparTexto(EST_SERVIDOR.sobre) + "</em></span></div>";
+          "<em>" + escaparTexto(EST_SERVIDOR.sobre) + "</em></span>" +
+          /* o ✕ da gaveta: só aparece no celular, onde ela é gaveta mesmo.
+             Tocar fora também fecha, mas botão que se vê ensina; véu
+             invisível, não. */
+          '<button class="est-lado-x" id="est-lado-x" aria-label="Fechar os canais">✕</button></div>';
+
+  /* AMIGOS é um destino como qualquer outro -- é o que a divisão em
+     "destinos" comprou: uma tela nova entra como mais uma linha, e nem a
+     barra nem os não lidos precisaram saber o que ela é. */
+  const pedidos = Object.keys((typeof AM !== "undefined" && AM.pedidos) || {}).length;
+  h += '<button class="est-dest est-amigos-b' +
+       (EST.destino && EST.destino.tipo === "amigos" ? " on" : "") + '" data-dest="amigos|tudo">' +
+       '<b class="est-dest-ic">👥</b><span class="est-dest-txt"><strong>Amigos</strong>' +
+       "<em>ver, adicionar e responder</em></span>" +
+       (pedidos ? '<i class="est-pip conta">' + pedidos + "</i>" : "") + "</button>";
 
   h += '<div class="est-grupo-h">CANAIS DE TEXTO</div>';
   for (const c of EST_CANAIS)
@@ -746,10 +770,172 @@ function estPintarLado() {
   if (na) na.addEventListener("click", e => { e.stopPropagation(); estAbrirAdicionar(); });
   const vp = $("est-ver-pedidos");
   if (vp) vp.addEventListener("click", () => estAbrirPedidos());
+  const lx = $("est-lado-x");
+  if (lx) lx.addEventListener("click", () => $("estacao").classList.remove("lado-aberto"));
+}
+
+/* =====================================================================
+   A TELA DE AMIGOS
+   ---------------------------------------------------------------------
+   As mesmas cinco abas que todo mundo já conhece de outros aplicativos:
+   ONLINE, TODOS, PENDENTES, BLOQUEADOS e ADICIONAR. Não é invenção --
+   é o arranjo que o seu amigo já sabe usar sem ninguém explicar, e
+   copiar isso é respeitar o tempo de quem chega.
+
+   Ela vive dentro do mesmo canto onde as conversas aparecem, porque é
+   um DESTINO como os outros. Não precisou de tela nova no jogo.
+   ===================================================================== */
+const EST_ABAS_AMIGOS = [
+  { id: "online",     nome: "Online" },
+  { id: "tudo",       nome: "Todos" },
+  { id: "pendentes",  nome: "Pendentes" },
+  { id: "bloqueados", nome: "Bloqueados" }
+];
+let estAbaAmigos = "online";
+
+function estLinhaDeAmigo(id, dados, acoes) {
+  const onde = estOndeEsta(id);
+  const nome = (dados && (dados.tag || dados.nome)) || "Piloto";
+  return '<div class="est-amigo" data-amigo="' + id + '">' +
+    '<span class="est-av"><i class="est-luz ' + onde.cor + '"></i>' +
+    escaparTexto(estIni(nome)) + "</span>" +
+    '<span class="est-amigo-txt"><strong>' + escaparTexto(nome) + "</strong>" +
+    "<em>" + escaparTexto(onde.txt) + "</em></span>" +
+    '<span class="est-amigo-acoes">' + acoes + "</span></div>";
+}
+
+function estPintarAmigos() {
+  const lista = $("est-msgs"), cab = $("est-cab");
+  if (!lista || !cab) return;
+  const amigos = (typeof AM !== "undefined" && AM.lista) || {};
+  const pedidos = (typeof AM !== "undefined" && AM.pedidos) || {};
+  const enviados = (typeof AM !== "undefined" && AM.enviados) || {};
+  const nPend = Object.keys(pedidos).length + Object.keys(enviados).length;
+
+  cab.innerHTML =
+    '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
+    '<div class="est-cab-txt"><strong>👥 Amigos</strong></div>' +
+    '<div class="est-amigos-abas">' +
+    EST_ABAS_AMIGOS.map(a => {
+      const n = a.id === "pendentes" ? nPend
+              : a.id === "bloqueados" ? Object.keys(EST.bloq).length : 0;
+      return '<button class="est-aba-am' + (estAbaAmigos === a.id ? " on" : "") +
+        '" data-abam="' + a.id + '">' + a.nome +
+        (n ? '<i class="est-aba-n">' + n + "</i>" : "") + "</button>";
+    }).join("") +
+    '<button class="est-aba-am novo" data-abam="adicionar">Adicionar</button></div>';
+  const al = $("est-abrir-lado");
+  if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
+  cab.querySelectorAll("[data-abam]").forEach(b =>
+    b.addEventListener("click", () => { estAbaAmigos = b.getAttribute("data-abam"); estPintar(); }));
+
+  let h = "";
+  const vazio = (ic, txt) => '<div class="est-vazio"><b>' + ic + "</b>" + txt + "</div>";
+
+  if (estAbaAmigos === "adicionar") {
+    h = '<div class="est-add"><h3>ADICIONAR AMIGO</h3>' +
+        '<p class="est-nota">Escreva o nick do piloto, do jeito que ele aparece no jogo. ' +
+        "Ele precisa aceitar antes de vocês virarem amigos.</p>" +
+        '<div class="est-add-linha">' +
+        '<input id="est-add-nome" maxlength="20" placeholder="nick do piloto" autocomplete="off">' +
+        '<button id="est-add-b">MANDAR PEDIDO</button></div>' +
+        '<p class="est-nota" id="est-add-resp"></p></div>';
+  } else if (estAbaAmigos === "pendentes") {
+    const rec = Object.keys(pedidos), env = Object.keys(enviados);
+    if (!rec.length && !env.length) h = vazio("📭", "Nenhum pedido esperando.");
+    else {
+      if (rec.length) {
+        h += '<div class="est-am-h">RECEBIDOS — ' + rec.length + "</div>";
+        for (const id of rec) h += estLinhaDeAmigo(id, pedidos[id],
+          '<button class="est-ac sim" data-sim="' + id + '" aria-label="Aceitar">✓</button>' +
+          '<button class="est-ac nao" data-nao="' + id + '" aria-label="Recusar">✕</button>');
+      }
+      if (env.length) {
+        h += '<div class="est-am-h">ENVIADOS — ' + env.length + "</div>";
+        for (const id of env) h += estLinhaDeAmigo(id, enviados[id],
+          '<button class="est-ac nao" data-cancela="' + id + '" aria-label="Cancelar">✕</button>');
+      }
+    }
+  } else if (estAbaAmigos === "bloqueados") {
+    const ids = Object.keys(EST.bloq);
+    if (!ids.length) h = vazio("🛡", "Você não bloqueou ninguém.");
+    else {
+      h += '<div class="est-am-h">BLOQUEADOS — ' + ids.length + "</div>";
+      for (const id of ids) h += estLinhaDeAmigo(id, amigos[id] || { nome: "Piloto" },
+        '<button class="est-ac nao" data-desbloq="' + id + '">desbloquear</button>');
+    }
+  } else {
+    let ids = Object.keys(amigos);
+    if (estAbaAmigos === "online") ids = ids.filter(id => estOndeEsta(id).cor !== "off");
+    ids.sort((a, b) => (estOndeEsta(a).cor === "off" ? 1 : 0) - (estOndeEsta(b).cor === "off" ? 1 : 0));
+    if (!ids.length) {
+      h = vazio("👋", estAbaAmigos === "online"
+        ? "Ninguém online agora. Quem estiver com o jogo aberto aparece aqui."
+        : "Você ainda não tem amigos. Vá em ADICIONAR e chame alguém pelo nick.");
+    } else {
+      h += '<div class="est-am-h">' +
+           (estAbaAmigos === "online" ? "ONLINE AGORA" : "TODOS") + " — " + ids.length + "</div>";
+      for (const id of ids) h += estLinhaDeAmigo(id, amigos[id],
+        '<button class="est-ac" data-falar="' + id + '" aria-label="Conversar">💬</button>' +
+        '<button class="est-ac" data-ligar="' + id + '" aria-label="Ligar">📞</button>' +
+        '<button class="est-ac" data-mais="' + id + '" aria-label="Mais">⋯</button>');
+    }
+  }
+  lista.innerHTML = h;
+
+  const add = $("est-add-b");
+  if (add) {
+    const manda = async () => {
+      const r = await amigoPedir($("est-add-nome").value);
+      const el = $("est-add-resp");
+      if (el) el.textContent = (r && r.msg) || "";
+      if (r && r.ok) { $("est-add-nome").value = ""; await amigosCarregar(); }
+    };
+    add.addEventListener("click", manda);
+    $("est-add-nome").addEventListener("keydown", e => { if (e.key === "Enter") manda(); });
+  }
+  const refaz = async () => { await amigosCarregar(); estPintar(); };
+  lista.querySelectorAll("[data-sim]").forEach(b =>
+    b.addEventListener("click", async () => { await amigoAceitar(b.getAttribute("data-sim")); refaz(); }));
+  lista.querySelectorAll("[data-nao]").forEach(b =>
+    b.addEventListener("click", async () => { await amigoRecusar(b.getAttribute("data-nao")); refaz(); }));
+  lista.querySelectorAll("[data-cancela]").forEach(b =>
+    b.addEventListener("click", async () => { await amigoRemover(b.getAttribute("data-cancela")); refaz(); }));
+  lista.querySelectorAll("[data-desbloq]").forEach(b =>
+    b.addEventListener("click", () => { estBloquear(b.getAttribute("data-desbloq")); estPintar(); }));
+  lista.querySelectorAll("[data-falar]").forEach(b =>
+    b.addEventListener("click", () => {
+      const id = b.getAttribute("data-falar");
+      estAbrir({ tipo: "dm", id, nome: (amigos[id].tag || amigos[id].nome) });
+    }));
+  lista.querySelectorAll("[data-ligar]").forEach(b =>
+    b.addEventListener("click", () => estLigarPara(b.getAttribute("data-ligar"),
+      (amigos[b.getAttribute("data-ligar")] || {}).tag)));
+  lista.querySelectorAll("[data-mais]").forEach(b =>
+    b.addEventListener("click", () => {
+      const id = b.getAttribute("data-mais");
+      const nome = (amigos[id].tag || amigos[id].nome);
+      estJanela(nome,
+        '<button class="est-jan-ok" data-o="falar">conversar</button>' +
+        '<button class="est-jan-ok" data-o="mudo">' +
+          (EST.mudo[id] ? "voltar a ver" : "silenciar") + "</button>" +
+        '<button class="est-jan-ok" data-o="bloq">' +
+          (EST.bloq[id] ? "desbloquear" : "bloquear") + "</button>" +
+        '<button class="est-jan-ok perigo" data-o="tirar">desfazer amizade</button>',
+        cx => cx.querySelectorAll("[data-o]").forEach(x => x.addEventListener("click", async () => {
+          const q = x.getAttribute("data-o");
+          estFecharJanela();
+          if (q === "falar") estAbrir({ tipo: "dm", id, nome });
+          else if (q === "mudo") { estSilenciar(id, nome); estPintar(); }
+          else if (q === "bloq") { estBloquear(id, nome); estPintar(); }
+          else { await amigoRemover(id); refaz(); }
+        })));
+    }));
 }
 
 /* ---------- a conversa ---------- */
 function estPintarConversa(grudarNoFim) {
+  if (EST.destino && EST.destino.tipo === "amigos") { estPintarAmigos(); return; }
   const lista = $("est-msgs"), cab = $("est-cab");
   if (!lista || !cab) return;
   const eu = estEu();
@@ -865,6 +1051,11 @@ function estPintar(grudarNoFim) {
   estPintarLado();
   estPintarConversa(grudarNoFim);
   estLigarRolagem();
+  /* a barra de escrever some onde não há para quem escrever. Campo de
+     texto que não manda para lugar nenhum é convite a digitar à toa. */
+  const barra = document.querySelector(".est-barra");
+  if (barra) barra.style.display =
+    (EST.destino && EST.destino.tipo === "amigos") ? "none" : "";
 }
 
 /* ---------- as janelinhas ---------- */
@@ -1068,6 +1259,11 @@ function estMenuDaMensagem(k, botao) {
    conta de fluxos continuam iguais.
    ===================================================================== */
 function estVozCaminho(sala) { return "conversas/voz__" + sala; }
+/* ligar para uma pessoa: a chamada de um para um usa a mesma máquina das
+   salas, então quando a voz chegar as duas nascem juntas */
+function estLigarPara(id, nome) {
+  estAvisar("Ligar para " + (nome || "esse piloto") + " ainda não está pronto — a voz vem já já.");
+}
 function estVozEntrar(sala) {
   const v = EST_VOZ.filter(x => x.id === sala)[0];
   estAvisar("A sala " + (v ? v.nome : sala) + " ainda não abriu — a voz vem numa próxima versão.");
@@ -1122,6 +1318,8 @@ function estacaoAlternar() {
 }
 
 (function ligarEstacao() {
+  const veu = $("est-veu");
+  if (veu) veu.addEventListener("click", () => $("estacao").classList.remove("lado-aberto"));
   const abrir = $("btn-estacao");
   if (abrir) abrir.addEventListener("click", () => estacaoAbrir());
   const x = $("est-fechar");

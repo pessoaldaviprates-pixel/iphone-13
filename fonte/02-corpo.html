@@ -1523,6 +1523,11 @@
      partida sem pausar nada — o jogo continua desenhando atrás.
      ===================================================================== -->
 <div class="estacao" id="estacao">
+  <!-- O VÉU. A gaveta dos canais abre POR CIMA do próprio ☰ que a abriu,
+       então o segundo toque nunca chegava nele e não dava para fechar de
+       volta. Este véu cobre o resto da tela enquanto ela está aberta:
+       tocar fora fecha, que é o que a mão faz sozinha. -->
+  <div class="est-veu" id="est-veu"></div>
   <div class="est-lado" id="est-lado"></div>
 
   <div class="est-meio">
