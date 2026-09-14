@@ -140,6 +140,37 @@ async function ate(pg, fn, arg, ms) {
     return { depois, tirou: enqMeuVoto(EST.msgs.filter(x => x.k === k)[0]) };
   }, K);
 
+  /* ---- 4b. JUNTAR SEM PERDER ----
+     A releitura do canal traz só as últimas 40 mensagens. Juntar isso
+     com o que já está na tela é uma REGRA, e regra dá para testar sem
+     reproduzir corrida nenhuma -- que foi o erro da primeira versão
+     deste teste: ela forçava uma corrida que pegava outro caminho, e
+     por isso passava mesmo com o bug no lugar.
+
+     O caso 3 é o que estava quebrado: a leitura sai antes da minha
+     gravação e volta depois dela. Nessa janela a minha mensagem já não
+     é "a caminho" e ainda não está na resposta -- e era jogada fora. */
+  out.juntar = await a.evaluate(() => {
+    const m = (k, extra) => Object.assign({ k, txt: k, quando: 1 }, extra || {});
+    /* 1. o que já foi rolado para cima não pode sumir */
+    const comVelhas = estJuntarMensagens([m('a1'), m('a2'), m('b1')], [m('b1'), m('b2')]);
+    /* 2. o que está a caminho não pode sumir */
+    const comIndo = estJuntarMensagens([m('b1'), m('zz', { indo: true })], [m('b1'), m('b2')]);
+    /* 3. o que é mais novo que a resposta não pode sumir */
+    const comNova = estJuntarMensagens([m('b1'), m('zz')], [m('b1'), m('b2')]);
+    /* e o que a nuvem ATUALIZOU vale mais que a cópia velha da tela */
+    const atualizada = estJuntarMensagens([m('b1', { votos: { x: '0' } })],
+                                          [m('b1', { votos: { x: '1' } })]);
+    return {
+      velhas: comVelhas.map(x => x.k),
+      indo: comIndo.map(x => x.k),
+      nova: comNova.map(x => x.k),
+      voto: (atualizada[0].votos || {}).x,
+      /* e nada pode aparecer duas vezes */
+      semRepetido: comNova.length === new Set(comNova.map(x => x.k)).size
+    };
+  });
+
   /* ---- 5. MARCAR MAIS DE UMA ---- */
   out.multi = await a.evaluate(async () => {
     await enqCriar('Que dias você joga?', ['Sexta', 'Sábado', 'Domingo'], 1, 0);
@@ -295,6 +326,15 @@ async function ate(pg, fn, arg, ms) {
   if (!out.contaFinal.mostraNumero) erro('depois de votar a porcentagem devia aparecer');
   if (String(out.trocou.depois) !== '2') erro('trocar o voto nao trocou');
   if (out.trocou.tirou.length) erro('clicar de novo na mesma nao tirou o voto');
+  const J = out.juntar;
+  if (String(J.velhas) !== 'a1,a2,b1,b2')
+    erro('juntar perdeu o que ja tinha sido rolado para cima: ' + J.velhas);
+  if (J.indo.indexOf('zz') < 0)
+    erro('juntar apagou a mensagem que ainda estava a caminho: ' + J.indo);
+  if (J.nova.indexOf('zz') < 0)
+    erro('JUNTAR APAGOU A MENSAGEM MAIS NOVA QUE A RESPOSTA: e ela some da tela sozinha');
+  if (J.voto !== '1') erro('juntar ficou com a copia velha da mensagem em vez da atualizada');
+  if (!J.semRepetido) erro('juntar deixou mensagem repetida');
   if (out.multi.marcados !== 2 || !out.multi.tem0 || !out.multi.tem2)
     erro('marcar mais de uma nao funcionou: ' + JSON.stringify(out.multi));
   if (!out.fechou.acabou) erro('fechar a enquete nao fechou');

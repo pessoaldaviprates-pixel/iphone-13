@@ -35530,6 +35530,48 @@ async function estLer(d, antesDe) {
   return antesDe ? arr.filter(m => m.k !== antesDe) : arr;
 }
 
+/* =====================================================================
+   JUNTAR O QUE ESTÁ NA TELA COM O QUE A NUVEM ACABOU DE MANDAR
+   ---------------------------------------------------------------------
+   A releitura traz só as últimas 40 mensagens. Juntar isso com o que já
+   está na tela tem três regras, e cada uma existe por um estrago:
+
+   1. O QUE É MAIS VELHO QUE A RESPOSTA FICA. Quem rolou para cima
+      carregou mensagens que a releitura nem tenta trazer; jogá-las fora
+      apagaria o que a pessoa está lendo.
+
+   2. O QUE ESTÁ A CAMINHO FICA. A minha mensagem aparece na tela antes
+      de a nuvem responder. Uma releitura no meio disso a apagaria na
+      cara de quem acabou de escrever.
+
+   3. O QUE É MAIS NOVO QUE A RESPOSTA FICA. Esta é a que faltava, e a
+      que mais doeu: a leitura SAI antes da minha gravação e VOLTA
+      depois dela. Nessa janela a minha mensagem já não é "a caminho"
+      (a nuvem respondeu OK) e ainda não está na resposta que estava no
+      ar -- então ela aparecia e sumia sozinha um instante depois.
+      Era isso que fazia a enquete recém-criada desaparecer entre um
+      voto e outro.
+
+   Se uma mensagem tiver sido apagada de verdade, a releitura seguinte
+   traz a lista sem ela e aí sim ela sai: segurar por uma rodada é
+   barato, perder o que a pessoa escreveu não é.
+
+   Está numa função com nome, e não solta dentro do fluxo, porque é uma
+   REGRA -- e regra dá para testar sem precisar reproduzir uma corrida.
+   ===================================================================== */
+function estJuntarMensagens(atuais, novas) {
+  atuais = atuais || [];
+  novas = novas || [];
+  const chegou = {};
+  for (const n of novas) chegou[n.k] = 1;
+  const primeira = novas.length ? novas[0].k : "";
+  const ultima = novas.length ? novas[novas.length - 1].k : "";
+  const velhas = atuais.filter(m => !chegou[m.k] && (!novas.length || m.k < primeira));
+  const recentes = atuais.filter(m => !chegou[m.k] &&
+                                      (m.indo || !ultima || m.k > ultima));
+  return velhas.concat(novas, recentes);
+}
+
 async function estAbrir(d) {
   if (!d) return;
   const eu = estEu();
@@ -35579,15 +35621,7 @@ async function estAbrir(d) {
       (m.enq && m.enq.ate ? ":" + m.enq.ate : "")).join(",");
     const daquiParaTras = EST.msgs.slice(-novas.length || -1);
     if (impressao(novas) === impressao(daquiParaTras)) return;
-    /* guarda o que já foi carregado para trás: reler traz só as últimas,
-       e quem rolou para cima perderia o que estava lendo */
-    const velhas = EST.msgs.filter(m => !novas.some(n => n.k === m.k) &&
-                                        (!novas.length || m.k < novas[0].k));
-    /* a minha mensagem que ainda está a caminho não pode sumir no meio:
-       ela está na tela e não na nuvem, então uma releitura que chegasse
-       entre o clique e a gravação a apagaria na cara de quem escreveu */
-    const indo = EST.msgs.filter(m => m.indo && !novas.some(n => n.k === m.k));
-    EST.msgs = velhas.concat(novas, indo);
+    EST.msgs = estJuntarMensagens(EST.msgs, novas);
     estMarcarLido(d);
     estPintar(true);
   };

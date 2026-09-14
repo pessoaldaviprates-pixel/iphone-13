@@ -260,6 +260,21 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   não pode tirar o dono do próprio jogo. Logo, **o Cr1cket não serve para
   provar que a trava do NeoNebula trava**: esse teste precisa de um piloto
   comum.
+- **A releitura do canal apagava a mensagem recém-enviada.** Ela traz as
+  últimas 40 e jogava fora tudo o que não viesse nela e fosse mais novo que a
+  última. Só que a leitura SAI antes da minha gravação e VOLTA depois dela:
+  nessa janela a minha mensagem já não é "a caminho" (a nuvem respondeu OK) e
+  ainda não está na resposta que estava no ar. Ela aparecia e sumia sozinha,
+  voltando na releitura seguinte. Era isso que fazia a enquete recém-criada
+  desaparecer entre um voto e outro. A regra virou `estJuntarMensagens()`, com
+  nome: **segurar por uma rodada é barato, perder o que a pessoa escreveu
+  não é.**
+- **Teste de corrida que não corre não testa nada.** A primeira versão do
+  teste desse bug forçava uma corrida artificial — e passava com o bug no
+  lugar, porque a corrida forçada pegava outro caminho do código. Um teste de
+  regressão só vale depois de você **desfazer o conserto e ver ele falhar**.
+  Quando o comportamento for uma regra, dê nome à regra e teste a regra: não
+  se precisa reproduzir corrida para conferir uma decisão.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 
