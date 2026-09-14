@@ -322,12 +322,24 @@ async function piloto(ctx, nome) {
                  temEditar: !!document.querySelector('[data-p="editar"]') };
     document.querySelector('[data-p="editar"]').click();
     await new Promise(x => setTimeout(x, 300));
+    /* O EDITOR VIROU ABAS na v9.0: ele ficou grande demais para uma
+       rolagem só (fonte, foto, fundo, duas rodas, efeito, brilho,
+       interesses, tema, toque, clique e a ordem dos blocos). O fundo
+       mora na aba FUNDO, então o teste precisa ir até lá -- procurá-lo
+       na aba de entrada devolvia null e o teste morria no clique. */
+    pfAba = 'fundo'; estPintarEditor();
+    await new Promise(x => setTimeout(x, 250));
     r.editor = { opcoes: document.querySelectorAll('.pf-op').length,
                  temSalvar: !!document.getElementById('pf-salvar'),
-                 temBio: !!document.getElementById('pf-bio'),
-                 temPronomes: !!document.getElementById('pf-pron') };
+                 abas: document.querySelectorAll('[data-pfaba]').length };
+    pfAba = 'quem'; estPintarEditor();
+    await new Promise(x => setTimeout(x, 250));
+    r.editor.temBio = !!document.getElementById('pf-bio');
+    r.editor.temPronomes = !!document.getElementById('pf-pron');
     /* mexer NÃO pode aplicar: só o SALVAR grava */
     const antes = perfilMeu().fundo;
+    pfAba = 'fundo'; estPintarEditor();
+    await new Promise(x => setTimeout(x, 250));
     document.querySelector('[data-campo="fundo"][data-id="aurora"]').click();
     await new Promise(x => setTimeout(x, 200));
     r.soMexeuNaoSalvou = perfilMeu().fundo === antes;
@@ -725,7 +737,10 @@ async function piloto(ctx, nome) {
   if (!/piloto de teste/.test(P.cartao.bio || '')) erro('a bio nao aparece no cartao');
   if (!/ele\/dele/.test(P.cartao.pronomes || '')) erro('os pronomes nao aparecem');
   if (!P.cartao.temEditar) erro('no MEU perfil falta o botao de editar');
-  if (P.editor.opcoes < 30) erro('o editor tem so ' + P.editor.opcoes + ' opcoes');
+  /* a aba FUNDO sozinha tem os doze fundos prontos; o resto das opções
+     mora nas outras abas e é o test_perfil.js que as conta */
+  if (P.editor.opcoes < 10) erro('a aba FUNDO do editor tem so ' + P.editor.opcoes + ' opcoes');
+  if (P.editor.abas !== 5) erro('o editor abriu com ' + P.editor.abas + ' abas');
   if (!P.editor.temSalvar || !P.editor.temBio || !P.editor.temPronomes)
     erro('falta campo no editor de perfil');
   if (!P.soMexeuNaoSalvou) erro('mexer no editor ja aplicou: tinha que esperar o SALVAR');

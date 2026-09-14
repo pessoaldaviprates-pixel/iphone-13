@@ -83,3 +83,9 @@ ele passa e nunca termina, que na bateria é indistinguível de travar.
 `montar.py` trunca e reescreve o arquivo; o teste que estiver carregando a
 página naquele instante lê um arquivo pela metade e falha com um erro que não
 existe. Editar `fonte/` durante a bateria é seguro — montar não é.
+
+**Não deixe um `fakefb` seu rodando ao chamar a bateria.** Cada teste sobe um
+Firebase falso *limpo* na porta 8099. Se já houver um ali, o da bateria não
+sobe, todos os testes dividem a mesma nuvem suja e dois ou três falham por
+herdarem o que o teste anterior deixou — com erro que parece bug de verdade.
+`pgrep -f 'node fakefb.js'` antes de começar resolve.
