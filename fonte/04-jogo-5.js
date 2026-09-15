@@ -29,7 +29,7 @@ function rkAtualizarCartao() {
   const v = save.vitorias || 0, d = save.derrotas || 0;
   const tot = v + d;
   $("rk-placar").innerHTML =
-    '<div><b style="color:#4CE07A">' + v + "</b><span>VITÓRIAS</span></div>" +
+    '<div><b style="color:var(--verde)">' + v + "</b><span>VITÓRIAS</span></div>" +
     '<div><b style="color:var(--danger)">' + d + "</b><span>DERROTAS</span></div>" +
     "<div><b>" + (tot ? Math.round(v / tot * 100) : 0) + "%</b><span>APROVEITAMENTO</span></div>";
 }
@@ -803,7 +803,7 @@ async function renderAmigos() {
     b.className = "profile-btn";
     const jaAmigo = (save.amigos || []).indexOf(o.nome) >= 0;
     b.innerHTML = '<span class="profile-name">' + escaparTexto(o.nome) +
-        (estaOnline(o) ? ' <span style="color:#4CE07A">●</span>' : "") + "</span>" +
+        (estaOnline(o) ? ' <span style="color:var(--verde)">●</span>' : "") + "</span>" +
       '<span class="profile-meta">' + (jaAmigo ? "já é seu amigo · toque para ver a tela"
                                                : "👤+ adicionar") + "</span>";
     b.addEventListener("click", () => {

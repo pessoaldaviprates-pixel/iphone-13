@@ -444,9 +444,16 @@ const NEO_BRILHOS = [
   { id: "pulso",  nome: "Batimento",   nivel: "prata" },
   { id: "orbita", nome: "Órbita",      nivel: "ouro" }
 ];
-/* a cor de acento do jogo inteiro -- o "tema global" da referência */
+/* A COR DE DESTAQUE, que entra POR CIMA do tema.
+   Antes esta lista era o "tema": trocava o --cyan e nada mais. Os temas
+   de verdade chegaram depois (09-temas.js) e trocam a paleta inteira.
+   Esta lista não foi jogada fora por dois motivos: quem já tinha
+   escolhido "Carmim" não pode perder a escolha numa atualização, e
+   destaque separado do tema é UMA combinação a mais, não uma a menos --
+   dá para ter o Cyberpunk com o destaque rosa. "Nebulosa" aqui quer
+   dizer "deixa o destaque que o tema escolheu". */
 const NEO_TEMAS = [
-  { id: "padrao",  nome: "Nebulosa",  nivel: "nenhum", cor: "#4DE8FF" },
+  { id: "padrao",  nome: "Do tema",   nivel: "nenhum", cor: "" },
   { id: "verde",   nome: "Plasma",    nivel: "bronze", cor: "#5BF0B0" },
   { id: "rosa",    nome: "Carmim",    nivel: "bronze", cor: "#FF4D8F" },
   { id: "ambar",   nome: "Solar",     nivel: "prata",  cor: "#FFC145" },
@@ -521,16 +528,10 @@ function perfilBlocos(p) {
   return guardado.length ? guardado : PF_BLOCOS_PADRAO.slice();
 }
 
-/* O TEMA VALE NA TELA INTEIRA, e por isso mexe numa variável do CSS em
-   vez de repintar botão por botão. Uma troca, tudo muda junto. */
-function temaAplicar() {
-  try {
-    const t = perfilTema();
-    const c = perfilClique();
-    document.documentElement.style.setProperty("--cyan", t.cor);
-    document.body.setAttribute("data-clique", c.id);
-  } catch (e) {}
-}
+/* `temaAplicar()` mora em 09-temas.js: ela aplica a paleta inteira e só
+   depois deixa esta cor de destaque por cima. Duas funções com esse nome
+   seriam um "Identifier has already been declared" -- e o jogo inteiro
+   pararia de abrir. */
 
 /* o toque de aviso: uma nota curta, feita na hora. Não é arquivo de som
    -- o jogo tem que caber num arquivo só e funcionar sem internet. */

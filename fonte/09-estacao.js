@@ -2328,11 +2328,29 @@ function estPintarEditor() {
 
   } else if (pfAba === "jogo") {
     corpo =
-      '<div class="pf-campo"><label>Cor do jogo inteiro</label>' +
-      grade(NEO_TEMAS, "tema", t =>
-        '<span class="pf-bola" style="background:' + t.cor + '"></span><em>' +
+      /* O TEMA VEM PRIMEIRO porque ele manda em tudo o que está embaixo:
+         escolher o destaque antes de escolher o tema é escolher a cor da
+         parede antes de saber a cor da casa. */
+      '<div class="pf-campo"><label>Tema do jogo</label>' +
+      grade(NEO_TEMAS_10, "tema10", t =>
+        '<span class="pf-tema" style="' + temaAmostraCSS(t) + '">' +
+        '<i style="background:' + temaAmostraDestaque(t) + '"></i></span><em>' +
         escaparTexto(t.nome) + "</em>") +
-      '<p class="est-nota">Troca a cor de destaque em todas as telas, não só aqui.</p></div>' +
+      /* a explicação fala do tema que está MARCADO no rascunho, não do
+         que está salvo: quem toca em Cyberpunk quer ler sobre o
+         Cyberpunk, e não sobre o tema que ele acabou de trocar */
+      '<p class="est-nota">Muda o fundo, os cartões e as letras do jogo inteiro — ' +
+      "não só desta tela. " +
+      escaparLongo(temaAchar(r.tema10).sobre || "Você escolhe o fundo e o destaque.") +
+      " Vale ao salvar.</p></div>" +
+
+      '<div class="pf-campo"><label>Cor de destaque</label>' +
+      grade(NEO_TEMAS, "tema", t =>
+        '<span class="pf-bola" style="background:' +
+        (t.cor || "linear-gradient(135deg,var(--cyan),var(--violet))") +
+        '"></span><em>' + escaparTexto(t.nome) + "</em>") +
+      '<p class="est-nota">Entra por cima do tema. Em “Do tema” fica a cor que o ' +
+      "tema escolheu.</p></div>" +
 
       '<div class="pf-campo"><label>Rastro da nave</label>' +
       grade(NEO_ANIMACOES, "animacao", a =>

@@ -598,6 +598,14 @@ function protegido(fn, nome) {
 
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
+  { v: "9.2", itens: [
+      "DEZ TEMAS PARA O JOGO INTEIRO, em AJUSTES › Meu perfil › Jogo: Dark Nebula, Light Clean, Cyberpunk, Retrô Synthwave, Monocromático, OLED Black, Pastel Soft, Nature Moss, Solar Gold e Do meu jeito",
+      "TEM MODO CLARO DE VERDADE. Não é o escuro clareado: o fundo, os cartões, as letras, as sombras e as cores de destaque mudam todos juntos. Dá para jogar no sol",
+      "OLED BLACK é preto de verdade. Em celular com tela OLED o pixel preto desliga, e isso gasta menos bateria",
+      "DO MEU JEITO monta o tema com as SUAS duas cores do perfil, sem escolher nada duas vezes",
+      "A COR DE DESTAQUE ficou separada do tema: dá para ter o Cyberpunk com o destaque rosa. Quem já tinha escolhido a sua não perdeu nada",
+      "Cada tema foi conferido por conta, e não no olho: nenhuma letra do jogo pode ficar apagada demais em cima do fundo que ela escolheu"
+    ] },
   { v: "9.1", itens: [
       "SEM FOTO? VOCÊ GANHA UM ROBÔ. Cada conta tem o seu, cinza em fundo branco, montado a partir do seu nome — cabeça, olhos, antena, boca e detalhes diferentes. São mais de 1.500 robôs possíveis, e o seu é sempre o mesmo, no seu celular e no do seu amigo",
       "MINI-AVATAR NO BATE-PAPO: a sua foto (ou o seu robô) aparece do lado de todas as mensagens. Antes eram três pessoas com nome começando em L e três bolinhas iguais",
@@ -1211,7 +1219,7 @@ function abrirNovidades() {
 }
 
 /* ---------- Versão do jogo ---------- */
-const VERSAO = "9.1";
+const VERSAO = "9.2";
 (function mostrarVersao() {
   const el = $("versao");
   if (el) el.textContent = "v" + VERSAO;

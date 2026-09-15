@@ -1675,7 +1675,10 @@ function renderHangar(scrollToSel) {
         (feita ? ' <span style="color:var(--violet);font-size:.62rem">🛠 SUA</span>' : '') + '</div>' +
       '<div class="ship-power"><b>' + sh.powerName + '</b> — ' +
         (sh.troca
-          ? '<span style="color:#7CF7C0">' + sh.virtude + '</span>, mas <span style="color:#FF8A8A">' + sh.defeito + '</span>'
+          /* verde e vermelho pela VARIÁVEL, e não pelo hexa: um
+             verde-menta some no tema claro, e a cor escrita aqui dentro
+             não obedece a tema nenhum */
+          ? '<span style="color:var(--verde)">' + sh.virtude + '</span>, mas <span style="color:var(--danger)">' + sh.defeito + '</span>'
           : sh.powerDesc) + '</div>' +
       '<div class="ship-ult">ULT: ' + ult.name +
         (habs ? ' · ' + habs + ' habilidades' : '') + '</div>' +

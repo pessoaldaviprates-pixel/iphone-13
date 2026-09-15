@@ -22,6 +22,7 @@
 09-perfil.js
 09-perfil2.js
 09-perfil3.js
+09-temas.js
 09-robo.js
 09-servidores.js
 09-estacao.js

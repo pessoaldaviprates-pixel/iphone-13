@@ -392,6 +392,12 @@ function mostrarAvisoLimpeza() {
 }
 function entrarNoMenu(name) {
   loginAs(name);
+  /* O TEMA ENTRA AQUI, e não lá na frente. Ele só passou a valer 3,5
+     segundos depois de abrir, junto com a foto e o castigo -- o que num
+     tema claro quer dizer três segundos e meio de tela escura a cada
+     vez que o jogo abre. O tema é do save, e o save acabou de ser
+     escolhido nesta linha: é aqui que dá para saber qual é. */
+  try { temaAplicar(); } catch (e) {}
   ligarBatimento();
   setTimeout(() => { try { sugEnviarPendentes(); } catch (e) {} }, 2500);
   try { mundoLigar(); } catch (e) {}

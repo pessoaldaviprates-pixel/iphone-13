@@ -198,7 +198,12 @@ const PERFIL_PADRAO = {
   corTitulo: "", estadoIc: "bolinha", desfoque: 10, opacidade: 82,
   /* o degradê das duas cores saiu do banner e foi para o miolo do
      cartão (v9.1). Ângulo, formato, textura e movimento são dele. */
-  angulo: 150, formato: "linear", textura: "nenhuma", fluir: 0
+  angulo: 150, formato: "linear", textura: "nenhuma", fluir: 0,
+  /* o tema do jogo inteiro (v9.2, ver 09-temas.js). Campo NOVO em vez de
+     reaproveitar o `tema`, que guarda a cor de destaque desde a v9.0:
+     um save antigo com tema:"verde" tem que continuar querendo dizer
+     "destaque verde", e não virar um tema que não existe. */
+  tema10: "nebula"
 };
 function perfilMeu() {
   save.perfil = Object.assign({}, PERFIL_PADRAO, save.perfil || {});
@@ -271,6 +276,7 @@ function perfilSalvar(novo) {
   guardaSe("fonte", NEO_FONTES);
   guardaSe("brilho", NEO_BRILHOS);
   guardaSe("tema", NEO_TEMAS);
+  guardaSe("tema10", NEO_TEMAS_10);
   guardaSe("toque", NEO_TOQUES);
   guardaSe("clique", NEO_CLIQUES);
   guardaSe("particula", NEO_PARTICULAS);
