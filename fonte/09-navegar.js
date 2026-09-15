@@ -96,7 +96,47 @@ function navMarcarAparelho() {
     /* o dedo também decide coisas que não são largura: passar o mouse
        não existe, e um efeito preso ao hover some para sempre */
     document.body.classList.toggle("com-dedo", ehDedo());
+    navMedir();
   } catch (e) {}
+}
+
+/* =====================================================================
+   A BARRA PUBLICA O PRÓPRIO TAMANHO
+   ---------------------------------------------------------------------
+   Ela é `position:fixed`: não empurra nada, só cobre. Então quem desenha
+   por baixo precisa saber quanto ela ocupa — e "62px" escrito à mão em
+   três lugares vira três números que um dia discordam (é o padding, é a
+   conta do menu, é a folga da Estação).
+
+   Aqui ela MEDE a si mesma e publica em `--nav-baixo` / `--nav-lado`. O
+   CSS soma, o `menuCaber()` subtrai, e quando alguém mudar a altura da
+   barra os dois acompanham sozinhos.
+
+   Isto não é capricho: sem a conta, o menu decidia que cabia usando a
+   janela inteira e a última linha (⚙ AJUSTES · ☁ SALVAR NA NUVEM) ficava
+   embaixo da barra — um botão que o dedo não alcança, que é justamente o
+   que o `menuCaber()` existe para impedir.
+   ===================================================================== */
+function navMedir() {
+  const raiz = document.documentElement;
+  const barra = $("nav-barra");
+  if (!barra || barra.classList.contains("sumiu")) {
+    raiz.style.setProperty("--nav-baixo", "0px");
+    raiz.style.setProperty("--nav-lado", "0px");
+    return;
+  }
+  const c = barra.getBoundingClientRect();
+  const cel = document.body.classList.contains("no-celular");
+  raiz.style.setProperty("--nav-baixo", (cel ? Math.ceil(c.height) : 0) + "px");
+  raiz.style.setProperty("--nav-lado", (cel ? 0 : Math.ceil(c.width)) + "px");
+}
+
+/* quanto da altura da janela a barra come. É isto que o menu subtrai. */
+function navAlturaEmbaixo() {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--nav-baixo");
+    return parseFloat(v) || 0;
+  } catch (e) { return 0; }
 }
 
 /* =====================================================================
@@ -170,7 +210,15 @@ function navAtualizar() {
      existir um piloto, e os três levariam a lugar nenhum */
   let antesDeEntrar = false;
   try { antesDeEntrar = S && (S.mode === "login" || S.mode === "senha"); } catch (e) {}
+  const sumiuAntes = barra.classList.contains("sumiu");
   barra.classList.toggle("sumiu", !!(jogando || antesDeEntrar));
+  /* apareceu ou sumiu: o espaço embaixo mudou, e o menu precisa refazer
+     a conta -- senão ele fica com a folga de uma barra que não está mais
+     lá, ou sem a folga de uma que acabou de voltar */
+  if (sumiuAntes !== barra.classList.contains("sumiu")) {
+    navMedir();
+    try { menuCaber(); } catch (e) {}
+  }
 
   /* o selo de não lidas vai no ícone da estação, que é onde a pessoa
      procura por ele */

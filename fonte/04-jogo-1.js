@@ -328,13 +328,52 @@ function menuCaber() {
   }
   tela.classList.remove("menu-rola");
 
-  const fundoDisponivel = () => innerHeight - 6;
-  const naoCabe = () => {
-    const chips = tela.querySelector(".menu-chips");
-    const alvo = chips || tela.lastElementChild;
-    if (!alvo) return false;
-    return alvo.getBoundingClientRect().bottom > fundoDisponivel();
+  /* O FUNDO DISPONÍVEL DESCONTA A BARRA DE TRÊS.
+     Ela é fixed e fica POR CIMA: a janela continua com a mesma altura,
+     mas os últimos pixels dela estão cobertos. Sem este desconto o menu
+     concluía que tudo cabia e deixava a última linha embaixo da barra --
+     exatamente o botão fora do alcance do dedo que esta função existe
+     para impedir. O número vem da própria barra (ver navMedir). */
+  const fundoDisponivel = () => {
+    let barra = 0;
+    try { barra = navAlturaEmbaixo(); } catch (e) {}
+    return innerHeight - 6 - barra;
   };
+  /* MEDE O MAIS BAIXO DE TODOS, e não um elemento escolhido.
+     Aqui a sonda era a `.menu-chips` -- só que ela NÃO é a última coisa
+     da tela: o mapa e as missões vêm depois dela. Com isso o menu
+     concluía que cabia olhando para o penúltimo e deixava o último
+     cortado. Dava um resultado esquisito de explicar: a 844px de altura
+     cabia, e a 900px (mais espaço!) cortava 24px, porque em 900 ele
+     parava de guardar cartões cedo demais.
+
+     A regra do CLAUDE.md já dizia isto para o teste e vale igual para o
+     jogo: quem manda é a borda de baixo do último elemento VISÍVEL, que
+     é o que o dedo alcança. */
+  const bordaMaisBaixa = () => {
+    let baixo = 0;
+    /* DESCENDENTES, e não filhos diretos. Os cartões opcionais moram
+       DENTRO da .menu-btns, e a .menu-btns é `flex:1` -- ela encolhe até
+       caber e depois deixa o conteúdo transbordar por baixo, calada.
+       Medindo só os filhos diretos, a borda de baixo nunca passava do
+       limite e o menu concluía que estava tudo bem enquanto escondia
+       botão embaixo da barra. (Primeira tentativa deste conserto: ela
+       parou de guardar cartão nenhum em qualquer altura.)
+
+       Posicionados fora do fluxo ficam de fora: são enfeite (brilho,
+       selo, véu) e não são o que o dedo precisa alcançar. */
+    const todos = tela.querySelectorAll("*");
+    for (const el of todos) {
+      const q = getComputedStyle(el);
+      if (q.display === "none" || q.visibility === "hidden") continue;
+      if (q.position === "absolute" || q.position === "fixed") continue;
+      const c = el.getBoundingClientRect();
+      if (c.height < 2 || c.width < 2) continue;
+      if (c.bottom > baixo) baixo = c.bottom;
+    }
+    return baixo;
+  };
+  const naoCabe = () => bordaMaisBaixa() > fundoDisponivel();
 
   for (const id of MENU_OPCIONAIS) {
     if (!naoCabe()) return;
@@ -346,6 +385,47 @@ function menuCaber() {
 }
 
 addEventListener("resize", () => { try { menuCaber(); } catch (e) {} });
+
+/* O MENU GANHA CONTEÚDO DEPOIS DE MEDIDO, e por isso a medida sozinha
+   não basta. O aviso "☁ Sem conexão com a nuvem" chega quando a rede
+   desiste, o cartão do presente do dia chega da nuvem, a barra de
+   missões aparece quando a missão carrega — tudo DEPOIS do menuCaber().
+   O resultado: o menu concluía que cabia, o aviso nascia por baixo, e a
+   última linha ficava fora do alcance do dedo, sem nada remediar. Media
+   38px em quase todo tamanho de tela, que é exatamente a altura daquele
+   aviso.
+
+   TEM QUE SER MutationObserver, E NÃO ResizeObserver -- foi a primeira
+   tentativa e não funcionou. A `.menu-btns` é `flex:1`: ela já está
+   esticada até o fim do espaço, então ganhar um filho novo NÃO muda o
+   tamanho dela. Não há resize nenhum para observar. O que muda é o
+   conteúdo, e é o conteúdo que se observa.
+
+   O observador se DESLIGA enquanto o menuCaber roda: guardar um cartão
+   é mexer no DOM, e mexer no DOM acordaria o observador de novo, para
+   sempre. */
+let caberObs = null;
+function caberObservar() {
+  const alvo = $("screen-menu");
+  if (!alvo || !window.MutationObserver) return;
+  caberObs = new MutationObserver(() => {
+    if (!caberObs) return;
+    caberObs.disconnect();
+    try { menuCaber(); } catch (e) {}
+    /* volta a ouvir no quadro seguinte, já com o DOM parado */
+    requestAnimationFrame(() => {
+      try {
+        if (caberObs) caberObs.observe(alvo,
+          { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+      } catch (e) {}
+    });
+  });
+  try {
+    caberObs.observe(alvo,
+      { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+  } catch (e) {}
+}
+try { caberObservar(); } catch (e) {}
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
 
 /* ---------- Login ---------- */
@@ -801,12 +881,29 @@ $("senha-voltar").addEventListener("click", () => {
 });
 
 /* ---------- Painel ADM ----------
-   Segurança possível num jogo sem servidor: a senha mestre fica no código
-   (embaralhada), o que impede o acesso casual. Quem souber abrir o código do
-   navegador consegue contornar — não existe proteção real do lado do cliente.
-   Para trocar a senha: abra o console do navegador, rode admHash("suasenha")
-   e cole o resultado em ADM_MASTER abaixo.                                   */
-const ADM_MASTER = "9db9df1e";   // senha padrão: neonadmin
+   O QUE ESTA SENHA FAZ E O QUE ELA NÃO FAZ.
+
+   Ela impede o acesso casual: quem achar a tela do painel não entra só
+   por ter achado. Ela NÃO é proteção de verdade — o jogo inteiro roda no
+   computador de quem joga, e quem abrir as ferramentas do desenvolvedor
+   passa por qualquer checagem que esteja aqui dentro. Não existe segredo
+   dentro de um arquivo que você entrega.
+
+   Num lugar público (itch.io), a única tranca que vale são as REGRAS DO
+   FIREBASE: elas rodam no servidor do Google e ninguém contorna. Veja o
+   ITCH.md.
+
+   O NÚMERO ABAIXO NÃO É A SENHA: é o embaralhado dela. Para trocar:
+
+       python3 testes/senha_adm.py
+
+   e cole o que sair aqui. A senha por extenso NÃO pode voltar para este
+   arquivo -- nem num comentário. Ela ficou escrita aqui do lado por
+   muito tempo, o que tornava o embaralhado enfeite: não adianta guardar
+   o cadeado e pendurar a chave nele. O `testes/confere_seguranca.py`
+   recusa publicar se ela voltar, e recusa também enquanto o número for
+   o de fábrica. */
+const ADM_MASTER = "9db9df1e";
 
 /* =====================================================================
    EQUIPE E PERMISSÕES
@@ -1488,7 +1585,13 @@ async function admEntregarPedido(chave, pd, botao) {
        de ninguém lembrar de digitar nada -- que é onde a entrega à mão
        erra. */
     const n = pd.neo || { nivel: String(pd.item).slice(4), dias: 30 };
-    presente.compra = { neo: { nivel: n.nivel, dias: n.dias || 30 } };
+    /* CAMPO SOLTO, como vipDias/passes/naves -- e não aninhado dentro de
+       `compra`. Aninhado era o bug: a entregarCompra() copia campo por
+       campo (vipDias, passes, naves) e nunca olhava para dentro de
+       `presente.compra`. O NeoNebula era montado certinho aqui, sumia no
+       caminho, e o jogador recebia uma caixa VAZIA -- "chega, mas não
+       funciona". Tudo o mais funcionava porque tudo o mais era solto. */
+    presente.neo = { nivel: n.nivel, dias: n.dias || 30 };
   }
   /* comprou para um amigo: quem recebe é o amigo, e os dois são avisados */
   const paraQuem = pd.presentePara || pd.de;
@@ -1540,7 +1643,34 @@ async function entregarCompra(idJogador, presente, texto) {
   if (presente.vipDias) c.vipDias = (c.vipDias || 0) + presente.vipDias;
   for (const id of (presente.passes || [])) if (c.passes.indexOf(id) < 0) c.passes.push(id);
   for (const i of (presente.naves || [])) if (c.naves.indexOf(i) < 0) c.naves.push(i);
+  /* O NEONEBULA. Aceita as duas formas -- a solta (a certa) e a
+     aninhada, porque pode haver pedido antigo parado na fila montado do
+     jeito velho, e ele merece ser entregue igual. */
+  const neo = presente.neo || (presente.compra && presente.compra.neo);
+  if (neo && neo.nivel) c.neo = { nivel: neo.nivel, dias: neo.dias || 30 };
   novo.compra = c;
+
+  /* NÃO ENTREGAR CALADO O QUE NÃO SABE ENTREGAR.
+     Este era o formato do bug: um campo novo aparece no presente, esta
+     função não o conhece, e a entrega "dá certo" levando uma caixa
+     vazia. Quem pagou recebe um embrulho sem nada dentro e ninguém fica
+     sabendo. Agora um campo desconhecido RECUSA a entrega e diz o nome
+     dele -- é melhor o painel reclamar do que o cliente. */
+  const SEI_LEVAR = ["vipDias", "passes", "naves", "neo", "cristais", "compra"];
+  const naoSei = Object.keys(presente || {}).filter(k => SEI_LEVAR.indexOf(k) < 0);
+  if (naoSei.length) {
+    entregaMotivo = "a entrega não sabe levar: " + naoSei.join(", ") +
+      ". (Alguém acrescentou um campo no presente e esqueceu da entregarCompra.)";
+    return false;
+  }
+  /* e a caixa não pode ir vazia: se nada do que foi pedido virou algo
+     para dar, isso é o bug de novo, com outro nome */
+  const temAlgo = c.vipDias > 0 || (c.passes && c.passes.length) ||
+                  (c.naves && c.naves.length) || c.neo || c.cristais > 0;
+  if (!temAlgo) {
+    entregaMotivo = "a caixa sairia vazia — o pedido não virou presente nenhum.";
+    return false;
+  }
   novo.msg = "Obrigado pela compra! " + texto;
   novo.quando = Date.now();
   await nuvemReq("presentes/" + idJogador, {

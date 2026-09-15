@@ -7189,9 +7189,9 @@
   body.no-pc .nav-selo{top:6px;right:12px}
 
   /* o resto do jogo se afasta da barra, para nada ficar embaixo dela */
-  body.no-pc .estacao{left:74px}
-  body.no-celular .estacao{padding-bottom:calc(66px + env(safe-area-inset-bottom, 0px))}
-  body.no-celular .est-flutua{bottom:calc(74px + env(safe-area-inset-bottom, 0px))}
+  body.no-pc .estacao{left:var(--nav-lado, 74px)}
+  body.no-celular .estacao{padding-bottom:calc(var(--nav-baixo, 0px) + 6px + env(safe-area-inset-bottom, 0px))}
+  body.no-celular .est-flutua{bottom:calc(var(--nav-baixo, 0px) + 14px + env(safe-area-inset-bottom, 0px))}
   /* o botão flutuante e a barra diriam a mesma coisa duas vezes */
   .nav-barra:not(.sumiu) ~ .est-flutua{display:none}
 
@@ -7322,13 +7322,46 @@
      e é a primeira que aparece num celular pequeno. */
   body.no-celular .screen,
   body.no-celular .page{
-    padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom:calc(var(--nav-baixo, 0px) + 10px + env(safe-area-inset-bottom, 0px));
   }
+  /* O MENU PRECISA DE ID PARA GANHAR. `#screen-menu.show` já define o
+     padding e um id vence duas classes, então a regra de cima não
+     encostava nele -- o menu ficava com 14px de folga embaixo de uma
+     barra de 62px, e a última linha sumia debaixo dela. A folga vem da
+     medida da própria barra, e não de um 62 escrito à mão aqui. */
+  body.no-celular #screen-menu.show{
+    padding-bottom:calc(var(--nav-baixo, 0px) + 10px + env(safe-area-inset-bottom, 0px));
+  }
+  body.no-pc #screen-menu.show{padding-left:calc(var(--nav-lado, 0px) + 16px)}
   body.no-celular .page-body,
   body.no-celular .scroll{scroll-padding-bottom:72px}
   /* no computador a fileira é lateral, então a folga é de lado */
   body.no-pc .screen,
-  body.no-pc .page{padding-left:calc(74px + 16px)}
+  body.no-pc .page{padding-left:calc(var(--nav-lado, 0px) + 16px)}
   /* ...menos a Estação, que já foi afastada pelo `left:74px` -- somar os
      dois deixaria uma faixa vazia de 148px na esquerda dela */
   body.no-pc .estacao{padding-left:10px}
+
+  /* ---- moderação de canal (09-canais.js) ---- */
+  .cn-fixado{
+    display:flex;gap:9px;align-items:flex-start;
+    margin:0 0 10px;padding:9px 12px;border-radius:var(--r-md);
+    background:rgba(255,200,97,.1);border:1px solid rgba(255,200,97,.3);
+    font-size:.66rem;line-height:1.45;color:var(--ink2);
+  }
+  .cn-fixado b{flex:none;font-size:.8rem}
+  /* o ✕ de apagar só aparece quando o dedo/mouse está na mensagem: um ✕
+     visível em toda linha é um convite a apagar sem querer */
+  .est-msg-x{
+    position:absolute;top:4px;right:4px;opacity:0;
+    width:24px;height:24px;border-radius:8px;cursor:pointer;
+    background:rgba(var(--rgb-fundo),.8);border:1px solid var(--line);
+    color:var(--danger);font-size:.66rem;line-height:1;
+    transition:opacity .14s ease;
+  }
+  .est-msg{position:relative}
+  .est-msg:hover .est-msg-x,.est-msg:focus-within .est-msg-x{opacity:1}
+  /* no celular não existe passar o mouse: lá ele fica sempre à mostra,
+     mas apagado, para não sumir de vez */
+  body.com-dedo .est-msg-x{opacity:.45}
+  .est-msg-x:hover{opacity:1;border-color:var(--danger)}

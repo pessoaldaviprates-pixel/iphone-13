@@ -7207,9 +7207,9 @@
   body.no-pc .nav-selo{top:6px;right:12px}
 
   /* o resto do jogo se afasta da barra, para nada ficar embaixo dela */
-  body.no-pc .estacao{left:74px}
-  body.no-celular .estacao{padding-bottom:calc(66px + env(safe-area-inset-bottom, 0px))}
-  body.no-celular .est-flutua{bottom:calc(74px + env(safe-area-inset-bottom, 0px))}
+  body.no-pc .estacao{left:var(--nav-lado, 74px)}
+  body.no-celular .estacao{padding-bottom:calc(var(--nav-baixo, 0px) + 6px + env(safe-area-inset-bottom, 0px))}
+  body.no-celular .est-flutua{bottom:calc(var(--nav-baixo, 0px) + 14px + env(safe-area-inset-bottom, 0px))}
   /* o botão flutuante e a barra diriam a mesma coisa duas vezes */
   .nav-barra:not(.sumiu) ~ .est-flutua{display:none}
 
@@ -7340,16 +7340,49 @@
      e é a primeira que aparece num celular pequeno. */
   body.no-celular .screen,
   body.no-celular .page{
-    padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom:calc(var(--nav-baixo, 0px) + 10px + env(safe-area-inset-bottom, 0px));
   }
+  /* O MENU PRECISA DE ID PARA GANHAR. `#screen-menu.show` já define o
+     padding e um id vence duas classes, então a regra de cima não
+     encostava nele -- o menu ficava com 14px de folga embaixo de uma
+     barra de 62px, e a última linha sumia debaixo dela. A folga vem da
+     medida da própria barra, e não de um 62 escrito à mão aqui. */
+  body.no-celular #screen-menu.show{
+    padding-bottom:calc(var(--nav-baixo, 0px) + 10px + env(safe-area-inset-bottom, 0px));
+  }
+  body.no-pc #screen-menu.show{padding-left:calc(var(--nav-lado, 0px) + 16px)}
   body.no-celular .page-body,
   body.no-celular .scroll{scroll-padding-bottom:72px}
   /* no computador a fileira é lateral, então a folga é de lado */
   body.no-pc .screen,
-  body.no-pc .page{padding-left:calc(74px + 16px)}
+  body.no-pc .page{padding-left:calc(var(--nav-lado, 0px) + 16px)}
   /* ...menos a Estação, que já foi afastada pelo `left:74px` -- somar os
      dois deixaria uma faixa vazia de 148px na esquerda dela */
   body.no-pc .estacao{padding-left:10px}
+
+  /* ---- moderação de canal (09-canais.js) ---- */
+  .cn-fixado{
+    display:flex;gap:9px;align-items:flex-start;
+    margin:0 0 10px;padding:9px 12px;border-radius:var(--r-md);
+    background:rgba(255,200,97,.1);border:1px solid rgba(255,200,97,.3);
+    font-size:.66rem;line-height:1.45;color:var(--ink2);
+  }
+  .cn-fixado b{flex:none;font-size:.8rem}
+  /* o ✕ de apagar só aparece quando o dedo/mouse está na mensagem: um ✕
+     visível em toda linha é um convite a apagar sem querer */
+  .est-msg-x{
+    position:absolute;top:4px;right:4px;opacity:0;
+    width:24px;height:24px;border-radius:8px;cursor:pointer;
+    background:rgba(var(--rgb-fundo),.8);border:1px solid var(--line);
+    color:var(--danger);font-size:.66rem;line-height:1;
+    transition:opacity .14s ease;
+  }
+  .est-msg{position:relative}
+  .est-msg:hover .est-msg-x,.est-msg:focus-within .est-msg-x{opacity:1}
+  /* no celular não existe passar o mouse: lá ele fica sempre à mostra,
+     mas apagado, para não sumir de vez */
+  body.com-dedo .est-msg-x{opacity:.45}
+  .est-msg-x:hover{opacity:1;border-color:var(--danger)}
 
 </style>
 </head>
@@ -12586,13 +12619,52 @@ function menuCaber() {
   }
   tela.classList.remove("menu-rola");
 
-  const fundoDisponivel = () => innerHeight - 6;
-  const naoCabe = () => {
-    const chips = tela.querySelector(".menu-chips");
-    const alvo = chips || tela.lastElementChild;
-    if (!alvo) return false;
-    return alvo.getBoundingClientRect().bottom > fundoDisponivel();
+  /* O FUNDO DISPONÍVEL DESCONTA A BARRA DE TRÊS.
+     Ela é fixed e fica POR CIMA: a janela continua com a mesma altura,
+     mas os últimos pixels dela estão cobertos. Sem este desconto o menu
+     concluía que tudo cabia e deixava a última linha embaixo da barra --
+     exatamente o botão fora do alcance do dedo que esta função existe
+     para impedir. O número vem da própria barra (ver navMedir). */
+  const fundoDisponivel = () => {
+    let barra = 0;
+    try { barra = navAlturaEmbaixo(); } catch (e) {}
+    return innerHeight - 6 - barra;
   };
+  /* MEDE O MAIS BAIXO DE TODOS, e não um elemento escolhido.
+     Aqui a sonda era a `.menu-chips` -- só que ela NÃO é a última coisa
+     da tela: o mapa e as missões vêm depois dela. Com isso o menu
+     concluía que cabia olhando para o penúltimo e deixava o último
+     cortado. Dava um resultado esquisito de explicar: a 844px de altura
+     cabia, e a 900px (mais espaço!) cortava 24px, porque em 900 ele
+     parava de guardar cartões cedo demais.
+
+     A regra do CLAUDE.md já dizia isto para o teste e vale igual para o
+     jogo: quem manda é a borda de baixo do último elemento VISÍVEL, que
+     é o que o dedo alcança. */
+  const bordaMaisBaixa = () => {
+    let baixo = 0;
+    /* DESCENDENTES, e não filhos diretos. Os cartões opcionais moram
+       DENTRO da .menu-btns, e a .menu-btns é `flex:1` -- ela encolhe até
+       caber e depois deixa o conteúdo transbordar por baixo, calada.
+       Medindo só os filhos diretos, a borda de baixo nunca passava do
+       limite e o menu concluía que estava tudo bem enquanto escondia
+       botão embaixo da barra. (Primeira tentativa deste conserto: ela
+       parou de guardar cartão nenhum em qualquer altura.)
+
+       Posicionados fora do fluxo ficam de fora: são enfeite (brilho,
+       selo, véu) e não são o que o dedo precisa alcançar. */
+    const todos = tela.querySelectorAll("*");
+    for (const el of todos) {
+      const q = getComputedStyle(el);
+      if (q.display === "none" || q.visibility === "hidden") continue;
+      if (q.position === "absolute" || q.position === "fixed") continue;
+      const c = el.getBoundingClientRect();
+      if (c.height < 2 || c.width < 2) continue;
+      if (c.bottom > baixo) baixo = c.bottom;
+    }
+    return baixo;
+  };
+  const naoCabe = () => bordaMaisBaixa() > fundoDisponivel();
 
   for (const id of MENU_OPCIONAIS) {
     if (!naoCabe()) return;
@@ -12604,6 +12676,47 @@ function menuCaber() {
 }
 
 addEventListener("resize", () => { try { menuCaber(); } catch (e) {} });
+
+/* O MENU GANHA CONTEÚDO DEPOIS DE MEDIDO, e por isso a medida sozinha
+   não basta. O aviso "☁ Sem conexão com a nuvem" chega quando a rede
+   desiste, o cartão do presente do dia chega da nuvem, a barra de
+   missões aparece quando a missão carrega — tudo DEPOIS do menuCaber().
+   O resultado: o menu concluía que cabia, o aviso nascia por baixo, e a
+   última linha ficava fora do alcance do dedo, sem nada remediar. Media
+   38px em quase todo tamanho de tela, que é exatamente a altura daquele
+   aviso.
+
+   TEM QUE SER MutationObserver, E NÃO ResizeObserver -- foi a primeira
+   tentativa e não funcionou. A `.menu-btns` é `flex:1`: ela já está
+   esticada até o fim do espaço, então ganhar um filho novo NÃO muda o
+   tamanho dela. Não há resize nenhum para observar. O que muda é o
+   conteúdo, e é o conteúdo que se observa.
+
+   O observador se DESLIGA enquanto o menuCaber roda: guardar um cartão
+   é mexer no DOM, e mexer no DOM acordaria o observador de novo, para
+   sempre. */
+let caberObs = null;
+function caberObservar() {
+  const alvo = $("screen-menu");
+  if (!alvo || !window.MutationObserver) return;
+  caberObs = new MutationObserver(() => {
+    if (!caberObs) return;
+    caberObs.disconnect();
+    try { menuCaber(); } catch (e) {}
+    /* volta a ouvir no quadro seguinte, já com o DOM parado */
+    requestAnimationFrame(() => {
+      try {
+        if (caberObs) caberObs.observe(alvo,
+          { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+      } catch (e) {}
+    });
+  });
+  try {
+    caberObs.observe(alvo,
+      { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+  } catch (e) {}
+}
+try { caberObservar(); } catch (e) {}
 $("btn-mute").textContent = AudioSys.muted ? "✕" : "♪";
 
 /* ---------- Login ---------- */
@@ -13059,12 +13172,29 @@ $("senha-voltar").addEventListener("click", () => {
 });
 
 /* ---------- Painel ADM ----------
-   Segurança possível num jogo sem servidor: a senha mestre fica no código
-   (embaralhada), o que impede o acesso casual. Quem souber abrir o código do
-   navegador consegue contornar — não existe proteção real do lado do cliente.
-   Para trocar a senha: abra o console do navegador, rode admHash("suasenha")
-   e cole o resultado em ADM_MASTER abaixo.                                   */
-const ADM_MASTER = "9db9df1e";   // senha padrão: neonadmin
+   O QUE ESTA SENHA FAZ E O QUE ELA NÃO FAZ.
+
+   Ela impede o acesso casual: quem achar a tela do painel não entra só
+   por ter achado. Ela NÃO é proteção de verdade — o jogo inteiro roda no
+   computador de quem joga, e quem abrir as ferramentas do desenvolvedor
+   passa por qualquer checagem que esteja aqui dentro. Não existe segredo
+   dentro de um arquivo que você entrega.
+
+   Num lugar público (itch.io), a única tranca que vale são as REGRAS DO
+   FIREBASE: elas rodam no servidor do Google e ninguém contorna. Veja o
+   ITCH.md.
+
+   O NÚMERO ABAIXO NÃO É A SENHA: é o embaralhado dela. Para trocar:
+
+       python3 testes/senha_adm.py
+
+   e cole o que sair aqui. A senha por extenso NÃO pode voltar para este
+   arquivo -- nem num comentário. Ela ficou escrita aqui do lado por
+   muito tempo, o que tornava o embaralhado enfeite: não adianta guardar
+   o cadeado e pendurar a chave nele. O `testes/confere_seguranca.py`
+   recusa publicar se ela voltar, e recusa também enquanto o número for
+   o de fábrica. */
+const ADM_MASTER = "9db9df1e";
 
 /* =====================================================================
    EQUIPE E PERMISSÕES
@@ -13746,7 +13876,13 @@ async function admEntregarPedido(chave, pd, botao) {
        de ninguém lembrar de digitar nada -- que é onde a entrega à mão
        erra. */
     const n = pd.neo || { nivel: String(pd.item).slice(4), dias: 30 };
-    presente.compra = { neo: { nivel: n.nivel, dias: n.dias || 30 } };
+    /* CAMPO SOLTO, como vipDias/passes/naves -- e não aninhado dentro de
+       `compra`. Aninhado era o bug: a entregarCompra() copia campo por
+       campo (vipDias, passes, naves) e nunca olhava para dentro de
+       `presente.compra`. O NeoNebula era montado certinho aqui, sumia no
+       caminho, e o jogador recebia uma caixa VAZIA -- "chega, mas não
+       funciona". Tudo o mais funcionava porque tudo o mais era solto. */
+    presente.neo = { nivel: n.nivel, dias: n.dias || 30 };
   }
   /* comprou para um amigo: quem recebe é o amigo, e os dois são avisados */
   const paraQuem = pd.presentePara || pd.de;
@@ -13798,7 +13934,34 @@ async function entregarCompra(idJogador, presente, texto) {
   if (presente.vipDias) c.vipDias = (c.vipDias || 0) + presente.vipDias;
   for (const id of (presente.passes || [])) if (c.passes.indexOf(id) < 0) c.passes.push(id);
   for (const i of (presente.naves || [])) if (c.naves.indexOf(i) < 0) c.naves.push(i);
+  /* O NEONEBULA. Aceita as duas formas -- a solta (a certa) e a
+     aninhada, porque pode haver pedido antigo parado na fila montado do
+     jeito velho, e ele merece ser entregue igual. */
+  const neo = presente.neo || (presente.compra && presente.compra.neo);
+  if (neo && neo.nivel) c.neo = { nivel: neo.nivel, dias: neo.dias || 30 };
   novo.compra = c;
+
+  /* NÃO ENTREGAR CALADO O QUE NÃO SABE ENTREGAR.
+     Este era o formato do bug: um campo novo aparece no presente, esta
+     função não o conhece, e a entrega "dá certo" levando uma caixa
+     vazia. Quem pagou recebe um embrulho sem nada dentro e ninguém fica
+     sabendo. Agora um campo desconhecido RECUSA a entrega e diz o nome
+     dele -- é melhor o painel reclamar do que o cliente. */
+  const SEI_LEVAR = ["vipDias", "passes", "naves", "neo", "cristais", "compra"];
+  const naoSei = Object.keys(presente || {}).filter(k => SEI_LEVAR.indexOf(k) < 0);
+  if (naoSei.length) {
+    entregaMotivo = "a entrega não sabe levar: " + naoSei.join(", ") +
+      ". (Alguém acrescentou um campo no presente e esqueceu da entregarCompra.)";
+    return false;
+  }
+  /* e a caixa não pode ir vazia: se nada do que foi pedido virou algo
+     para dar, isso é o bug de novo, com outro nome */
+  const temAlgo = c.vipDias > 0 || (c.passes && c.passes.length) ||
+                  (c.naves && c.naves.length) || c.neo || c.cristais > 0;
+  if (!temAlgo) {
+    entregaMotivo = "a caixa sairia vazia — o pedido não virou presente nenhum.";
+    return false;
+  }
   novo.msg = "Obrigado pela compra! " + texto;
   novo.quando = Date.now();
   await nuvemReq("presentes/" + idJogador, {
@@ -35430,7 +35593,47 @@ function navMarcarAparelho() {
     /* o dedo também decide coisas que não são largura: passar o mouse
        não existe, e um efeito preso ao hover some para sempre */
     document.body.classList.toggle("com-dedo", ehDedo());
+    navMedir();
   } catch (e) {}
+}
+
+/* =====================================================================
+   A BARRA PUBLICA O PRÓPRIO TAMANHO
+   ---------------------------------------------------------------------
+   Ela é `position:fixed`: não empurra nada, só cobre. Então quem desenha
+   por baixo precisa saber quanto ela ocupa — e "62px" escrito à mão em
+   três lugares vira três números que um dia discordam (é o padding, é a
+   conta do menu, é a folga da Estação).
+
+   Aqui ela MEDE a si mesma e publica em `--nav-baixo` / `--nav-lado`. O
+   CSS soma, o `menuCaber()` subtrai, e quando alguém mudar a altura da
+   barra os dois acompanham sozinhos.
+
+   Isto não é capricho: sem a conta, o menu decidia que cabia usando a
+   janela inteira e a última linha (⚙ AJUSTES · ☁ SALVAR NA NUVEM) ficava
+   embaixo da barra — um botão que o dedo não alcança, que é justamente o
+   que o `menuCaber()` existe para impedir.
+   ===================================================================== */
+function navMedir() {
+  const raiz = document.documentElement;
+  const barra = $("nav-barra");
+  if (!barra || barra.classList.contains("sumiu")) {
+    raiz.style.setProperty("--nav-baixo", "0px");
+    raiz.style.setProperty("--nav-lado", "0px");
+    return;
+  }
+  const c = barra.getBoundingClientRect();
+  const cel = document.body.classList.contains("no-celular");
+  raiz.style.setProperty("--nav-baixo", (cel ? Math.ceil(c.height) : 0) + "px");
+  raiz.style.setProperty("--nav-lado", (cel ? 0 : Math.ceil(c.width)) + "px");
+}
+
+/* quanto da altura da janela a barra come. É isto que o menu subtrai. */
+function navAlturaEmbaixo() {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--nav-baixo");
+    return parseFloat(v) || 0;
+  } catch (e) { return 0; }
 }
 
 /* =====================================================================
@@ -35504,7 +35707,15 @@ function navAtualizar() {
      existir um piloto, e os três levariam a lugar nenhum */
   let antesDeEntrar = false;
   try { antesDeEntrar = S && (S.mode === "login" || S.mode === "senha"); } catch (e) {}
+  const sumiuAntes = barra.classList.contains("sumiu");
   barra.classList.toggle("sumiu", !!(jogando || antesDeEntrar));
+  /* apareceu ou sumiu: o espaço embaixo mudou, e o menu precisa refazer
+     a conta -- senão ele fica com a folga de uma barra que não está mais
+     lá, ou sem a folga de uma que acabou de voltar */
+  if (sumiuAntes !== barra.classList.contains("sumiu")) {
+    navMedir();
+    try { menuCaber(); } catch (e) {}
+  }
 
   /* o selo de não lidas vai no ícone da estação, que é onde a pessoa
      procura por ele */
@@ -37886,6 +38097,11 @@ async function estAbrir(d) {
     estMarcarLido(d);
     estPintar(true);
   };
+  /* o que está combinado neste canal (nome, aviso fixado, tranca) chega
+     junto com a entrada: sem isto o aviso fixado só apareceria depois da
+     primeira mensagem nova */
+  if (d.tipo === "canal") { try { canalCarregar(d.id).then(() => estPintar()); } catch (e) {} }
+
   EST.fluxo = nuvemFluxo(cam, reler,
     /* sem fluxo (regras antigas, rede ruim): uma olhadinha de tempos em
        tempos. Mais lento, mas funciona -- melhor que uma tela morta. */
@@ -37918,9 +38134,15 @@ async function estEnviar(texto) {
   texto = String(texto || "").trim().slice(0, teto);
   if (!texto) return false;
 
+  /* a regra do CANAL vem antes da regra do texto: num canal trancado
+     nem vale a pena olhar o que foi escrito */
+  const doCanal = canalPodeFalar(d);
+  if (!doCanal.ok) { estAvisar(doCanal.motivo); return false; }
+
   const veredito = estPodeFalar(texto);
   if (!veredito.ok) { estAvisar(veredito.motivo); return false; }
   texto = veredito.texto;
+  canalMarcarFala(d);
 
   /* CHAMAR TODO MUNDO É ALARME, E ALARME TEM DONO.
      Se a pessoa não pode, o jogo recusa a mensagem inteira em vez de
@@ -39031,9 +39253,13 @@ function estPintarConversa(grudarNoFim) {
   const silBt = '<button class="est-cab-b' + (silenciado(chaveSil) ? " mudo" : "") +
     '" data-acao="silenciar-aqui">' + (silenciado(chaveSil) ? "🔕 mudo" : "🔔 avisos") + "</button>";
   if (d.tipo === "canal") {
-    const c = EST_CANAIS.filter(x => x.id === d.id)[0];
-    sub = c ? c.sobre : "";
+    sub = canalSobre(d.id);
     acoes = silBt;
+    /* O ⚙ SÓ EXISTE PARA O DONO. Para todo mundo o cabeçalho continua
+       igual ao de antes -- botão travado que fica na tela dizendo "você
+       não pode" é convite para tentar. */
+    if (canalSouDono())
+      acoes = '<button class="est-cab-b" data-acao="canal">⚙ canal</button>' + acoes;
   } else if (d.tipo === "dm") {
     const onde = estOndeEsta(d.id);
     sub = onde.txt;
@@ -39056,7 +39282,8 @@ function estPintarConversa(grudarNoFim) {
   cab.innerHTML =
     '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
     '<div class="est-cab-txt"><strong>' + (d.tipo === "canal" ? "#" : "") +
-    escaparTexto(d.nome || d.id) + "</strong><em>" + escaparLongo(sub) + "</em></div>" +
+    escaparTexto(d.tipo === "canal" ? canalTitulo(d.id) : (d.nome || d.id)) +
+    "</strong><em>" + escaparLongo(sub) + "</em></div>" +
     '<div class="est-cab-acoes">' + acoes + "</div>";
   const al = $("est-abrir-lado");
   if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
@@ -39067,6 +39294,9 @@ function estPintarConversa(grudarNoFim) {
   const perto = lista.scrollHeight - lista.scrollTop - lista.clientHeight < 90;
   const visiveis = EST.msgs.filter(estMostraMensagem);
   let h = "";
+  /* o aviso fixado fica ACIMA de tudo e não rola junto com a conversa:
+     um aviso que some depois de três mensagens não é aviso */
+  if (d.tipo === "canal") { try { h += canalFixadoHTML(d.id); } catch (e) {} }
   if (EST.carregando) h += '<div class="est-carregando">carregando…</div>';
   else if (!EST.fim && EST.msgs.length)
     h += '<button class="est-mais-msg" id="est-mais-msg">ver o que veio antes</button>';
@@ -39144,6 +39374,13 @@ function estPintarConversa(grudarNoFim) {
        09-social.js, e a conversa só pergunta */
     h += estCorpoDaMensagem(m, eu) + "</div>";
     if (!meu) h += '<button class="est-msg-b" data-menu="' + m.k + '" aria-label="Opções">⋯</button>';
+    /* APAGAR. O dono apaga qualquer uma; qualquer pessoa apaga a
+       própria. Apagar a própria não é moderação, é arrependimento --
+       negar isso só faz a pessoa pedir para alguém apagar por ela. */
+    try {
+      if (canalPodeApagar(m))
+        h += '<button class="est-msg-x" data-apagar="' + m.k + '" aria-label="Apagar">✕</button>';
+    } catch (e) {}
     h += "</div>";
     anterior = m;
   }
@@ -39151,6 +39388,12 @@ function estPintarConversa(grudarNoFim) {
 
   const mm = $("est-mais-msg");
   if (mm) mm.addEventListener("click", estMais);
+  lista.querySelectorAll("[data-apagar]").forEach(b =>
+    b.addEventListener("click", async e => {
+      e.stopPropagation();
+      const m = (EST.msgs || []).filter(x => x.k === b.getAttribute("data-apagar"))[0];
+      if (m) await canalApagar(m);
+    }));
   lista.querySelectorAll("[data-menu]").forEach(b =>
     b.addEventListener("click", e => {
       e.stopPropagation();
@@ -39341,6 +39584,7 @@ function estAcaoDoCabecalho(acao) {
   if (!d) return;
   if (acao === "silenciar-aqui") { estAbrirSilenciar(estChave(d), d.nome || d.id); return; }
   if (acao === "agenda") { evAbrirAgenda(); return; }
+  if (acao === "canal") { canalAbrirPainel(d.id); return; }
   if (acao === "bloquear") estBloquear(d.id, d.nome);
   else if (acao === "silenciar") estSilenciar(d.id, d.nome);
   else if (acao === "membros") estAbrirMembros(d.id);
@@ -41207,6 +41451,241 @@ function arrobaTecla(e) {
   }
   if (e.key === "Escape") { arrobaFechar(); e.preventDefault(); return true; }
   return false;
+}
+/* =====================================================================
+   MANDAR NO CANAL — e só o dono manda
+   =====================================================================
+   O pedido: "As permissões para editar os canais etc é só para o
+   cr1cket e o Cr1cket."
+
+   Antes disto os canais não tinham edição NENHUMA. O único botão do
+   cabeçalho era "🔔 avisos", que é uma escolha pessoal de quem está
+   olhando, não moderação. Num chat com os amigos isso passa; num chat
+   público — que é o que o itch.io vai trazer — não passa: não havia como
+   apagar o que um estranho escrevesse.
+
+   O QUE O DONO GANHA
+     apagar qualquer mensagem do canal
+     mudar o nome e a descrição
+     fixar um aviso no topo, que todo mundo vê ao entrar
+     trancar o canal (só leitura)
+     modo devagar (um tanto de segundos entre mensagens)
+
+   ONDE ISTO MORA: `conversas/__canais/<id>`. Dentro de `conversas/`, que
+   é galho velho e que as regras antigas do Firebase já liberam. Um
+   `canais/` novo seria recusado calado nas contas antigas e a moderação
+   morreria sem dizer nada — foi assim que o CRIAR SERVIDOR morreu.
+
+   =====================================================================
+   O AVISO QUE IMPORTA, E QUE NÃO DÁ PARA CONSERTAR AQUI
+   ---------------------------------------------------------------------
+   Esta checagem roda no NAVEGADOR DE QUEM ESTÁ JOGANDO. Ela decide o que
+   aparece na tela — e só isso. Quem abrir as ferramentas do
+   desenvolvedor e chamar a função na mão passa por ela, porque o código
+   está no computador dele, não no meu.
+
+   Então o que está aqui é ARRUMAÇÃO, não tranca: serve para ninguém
+   apertar sem querer um botão que não é dele. A tranca de verdade são as
+   REGRAS DO FIREBASE, que rodam no servidor do Google e ninguém
+   contorna. Está escrito no NUVEM.md e no ITCH.md como deixar
+   `conversas/__canais` só de leitura para todo mundo.
+
+   Dizer isto por escrito é parte do trabalho: um botão escondido que
+   parece uma tranca é pior que nenhum botão, porque a gente para de
+   olhar para o lado que importa.
+   ===================================================================== */
+
+/* =====================================================================
+   1. QUEM MANDA
+   ---------------------------------------------------------------------
+   Uma pergunta, um lugar. `contaDeDono()` já existe e já compara em
+   minúsculas (`ehDono` faz `.trim().toLowerCase()`), então "cr1cket",
+   "Cr1cket" e "CR1CKET" são a mesma pessoa — que foi exatamente o que
+   o pedido dizia.
+   ===================================================================== */
+function canalSouDono() {
+  try { return contaDeDono(save && save.__name); } catch (e) { return false; }
+}
+
+/* =====================================================================
+   2. O QUE ESTÁ COMBINADO EM CADA CANAL
+   ===================================================================== */
+const CANAIS = {};              // id -> {titulo, sobre, fixado, trancado, devagar}
+const CANAL_LETRAS = 120;       // do aviso fixado
+const CANAL_DEVAGAR_MAX = 300;  // segundos
+
+function canalCaminho(id) { return "conversas/__canais/" + id; }
+
+function canalDe(id) {
+  return CANAIS[id] || {};
+}
+
+async function canalCarregar(id) {
+  if (!id) return {};
+  try {
+    const d = await nuvemReq(canalCaminho(id));
+    /* isto foi escrito por outra pessoa (o dono, mas ainda assim vem da
+       nuvem): nada entra na tela sem passar pelo escapador, e os números
+       são presos na faixa em vez de aceitos como vieram */
+    CANAIS[id] = {
+      titulo: String((d && d.titulo) || "").slice(0, 24),
+      sobre: String((d && d.sobre) || "").slice(0, 80),
+      fixado: String((d && d.fixado) || "").slice(0, CANAL_LETRAS),
+      trancado: !!(d && d.trancado),
+      devagar: Math.max(0, Math.min(CANAL_DEVAGAR_MAX, parseInt((d && d.devagar) || 0, 10) || 0))
+    };
+  } catch (e) { CANAIS[id] = CANAIS[id] || {}; }
+  return CANAIS[id];
+}
+
+async function canalGuardar(id, mudanca) {
+  if (!canalSouDono()) { estAvisar("Só o dono do jogo mexe nos canais."); return false; }
+  const atual = Object.assign({}, canalDe(id), mudanca);
+  const limpo = {
+    titulo: limparTexto(String(atual.titulo || "").slice(0, 24)),
+    sobre: limparTexto(String(atual.sobre || "").slice(0, 80)),
+    fixado: limparTexto(String(atual.fixado || "").slice(0, CANAL_LETRAS)),
+    trancado: !!atual.trancado,
+    devagar: Math.max(0, Math.min(CANAL_DEVAGAR_MAX, parseInt(atual.devagar, 10) || 0))
+  };
+  CANAIS[id] = limpo;
+  /* REPINTAR AQUI, e não em quem chama. O dono mudava o aviso fixado e
+     não via nada até a próxima mensagem chegar -- ele tinha que
+     acreditar que funcionou. Quem guarda é quem sabe que mudou. */
+  try { if (EST.aberta) estPintar(true); } catch (e) {}
+  const r = await nuvemSoltar(canalCaminho(id), limpo);
+  if (r === null) {
+    estAvisar("Não deu para guardar. A nuvem recusou ou a internet caiu.");
+    return false;
+  }
+  return true;
+}
+
+/* o nome e a descrição que aparecem: o que o dono escreveu ganha do que
+   está fixo no código, e o fixo é a rede de segurança quando não há nada */
+function canalTitulo(id) {
+  const c = canalDe(id);
+  const base = EST_CANAIS.filter(x => x.id === id)[0];
+  return c.titulo || (base ? base.nome : id);
+}
+function canalSobre(id) {
+  const c = canalDe(id);
+  const base = EST_CANAIS.filter(x => x.id === id)[0];
+  return c.sobre || (base ? base.sobre : "");
+}
+
+/* =====================================================================
+   3. AS REGRAS QUE O CANAL IMPÕE A QUEM ESCREVE
+   ---------------------------------------------------------------------
+   O dono passa por cima das duas: quem tranca o canal precisa poder
+   escrever nele para dizer por que trancou.
+   ===================================================================== */
+const canalUltimaFala = {};     // id -> quando falei a última vez aqui
+
+function canalPodeFalar(d) {
+  if (!d || d.tipo !== "canal") return { ok: true };
+  const c = canalDe(d.id);
+  if (canalSouDono()) return { ok: true };
+  if (c.trancado)
+    return { ok: false, motivo: "Este canal está trancado. Só dá para ler." };
+  if (c.devagar) {
+    const passou = Date.now() - (canalUltimaFala[d.id] || 0);
+    const falta = Math.ceil((c.devagar * 1000 - passou) / 1000);
+    if (falta > 0)
+      return { ok: false, motivo: "Modo devagar: espere " + falta +
+               (falta === 1 ? " segundo" : " segundos") + " para falar de novo." };
+  }
+  return { ok: true };
+}
+
+function canalMarcarFala(d) {
+  if (d && d.tipo === "canal") canalUltimaFala[d.id] = Date.now();
+}
+
+/* =====================================================================
+   4. APAGAR MENSAGEM
+   ---------------------------------------------------------------------
+   O dono apaga qualquer uma; qualquer pessoa apaga a PRÓPRIA. Apagar a
+   própria não é moderação, é arrependimento — e negar isso só faz a
+   pessoa pedir para alguém apagar por ela.
+   ===================================================================== */
+function canalPodeApagar(m) {
+  if (!m) return false;
+  if (canalSouDono()) return true;
+  try { const eu = estEu(); return !!(eu && m.de === eu.id); } catch (e) { return false; }
+}
+
+async function canalApagar(m) {
+  const d = EST.destino;
+  if (!d || !m || !canalPodeApagar(m)) return false;
+  const cam = estCaminho(d);
+  if (!cam) return false;
+  /* some da tela na hora, e some da nuvem depois: esperar a rede para
+     tirar da tela o que a pessoa acabou de mandar apagar é a hora em que
+     ela clica de novo achando que não funcionou */
+  EST.msgs = (EST.msgs || []).filter(x => x.k !== m.k);
+  estPintar(true);
+  const r = await nuvemSoltar(cam + "/" + m.k, null, "DELETE");
+  if (r === null) { estAvisar("Não deu para apagar na nuvem."); return false; }
+  return true;
+}
+
+/* =====================================================================
+   5. O PAINEL DO CANAL
+   ===================================================================== */
+function canalPainelHTML(id) {
+  const c = canalDe(id);
+  return '<p class="est-nota">O que você mudar aqui todo mundo vê. ' +
+    "Só você tem este botão.</p>" +
+    '<div class="pf-campo"><label>Nome do canal</label>' +
+    '<input id="cn-titulo" maxlength="24" value="' + escaparTexto(canalTitulo(id)) + '"></div>' +
+    '<div class="pf-campo"><label>Descrição</label>' +
+    '<input id="cn-sobre" maxlength="80" value="' + escaparTexto(canalSobre(id)) + '"></div>' +
+    '<div class="pf-campo"><label>Aviso fixado no topo</label>' +
+    '<input id="cn-fixado" maxlength="' + CANAL_LETRAS +
+    '" placeholder="deixe vazio para tirar o aviso" value="' +
+    escaparTexto(c.fixado || "") + '">' +
+    '<p class="est-nota">Aparece para todo mundo, acima das mensagens.</p></div>' +
+    '<label class="enq-check"><input type="checkbox" id="cn-trancado"' +
+    (c.trancado ? " checked" : "") + "> Trancar o canal (só leitura)</label>" +
+    '<div class="pf-campo"><label>Modo devagar</label>' +
+    '<div class="pf-barra-l"><span>Espera</span>' +
+    '<input type="range" id="cn-devagar" min="0" max="' + CANAL_DEVAGAR_MAX +
+    '" step="5" value="' + (c.devagar || 0) + '">' +
+    '<b id="cn-devagar-n">' + (c.devagar ? c.devagar + "s" : "desligado") + "</b></div>" +
+    '<p class="est-nota">Quanto cada pessoa espera entre uma mensagem e outra. ' +
+    "Você não espera.</p></div>" +
+    '<button class="est-bt" id="cn-salvar">Salvar</button>';
+}
+
+function canalAbrirPainel(id) {
+  if (!canalSouDono()) { estAvisar("Só o dono do jogo mexe nos canais."); return; }
+  estJanela("Canal #" + canalTitulo(id), canalPainelHTML(id), () => {
+    const dev = $("cn-devagar"), devN = $("cn-devagar-n");
+    if (dev) dev.addEventListener("input", () => {
+      if (devN) devN.textContent = dev.value === "0" ? "desligado" : dev.value + "s";
+    });
+    const bt = $("cn-salvar");
+    if (bt) bt.addEventListener("click", async () => {
+      bt.disabled = true;
+      const ok = await canalGuardar(id, {
+        titulo: ($("cn-titulo") || {}).value || "",
+        sobre: ($("cn-sobre") || {}).value || "",
+        fixado: ($("cn-fixado") || {}).value || "",
+        trancado: !!($("cn-trancado") || {}).checked,
+        devagar: parseInt(($("cn-devagar") || {}).value || 0, 10)
+      });
+      bt.disabled = false;
+      if (ok) { estFecharJanela(); estAvisar("Canal salvo."); estPintar(true); }
+    });
+  });
+}
+
+/* o aviso fixado, desenhado acima das mensagens */
+function canalFixadoHTML(id) {
+  const c = canalDe(id);
+  if (!c.fixado) return "";
+  return '<div class="cn-fixado"><b>📌</b><span>' + escaparLongo(c.fixado) + "</span></div>";
 }
 /* =====================================================================
    A VOZ — salas e chamadas de verdade

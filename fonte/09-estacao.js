@@ -326,6 +326,11 @@ async function estAbrir(d) {
     estMarcarLido(d);
     estPintar(true);
   };
+  /* o que está combinado neste canal (nome, aviso fixado, tranca) chega
+     junto com a entrada: sem isto o aviso fixado só apareceria depois da
+     primeira mensagem nova */
+  if (d.tipo === "canal") { try { canalCarregar(d.id).then(() => estPintar()); } catch (e) {} }
+
   EST.fluxo = nuvemFluxo(cam, reler,
     /* sem fluxo (regras antigas, rede ruim): uma olhadinha de tempos em
        tempos. Mais lento, mas funciona -- melhor que uma tela morta. */
@@ -358,9 +363,15 @@ async function estEnviar(texto) {
   texto = String(texto || "").trim().slice(0, teto);
   if (!texto) return false;
 
+  /* a regra do CANAL vem antes da regra do texto: num canal trancado
+     nem vale a pena olhar o que foi escrito */
+  const doCanal = canalPodeFalar(d);
+  if (!doCanal.ok) { estAvisar(doCanal.motivo); return false; }
+
   const veredito = estPodeFalar(texto);
   if (!veredito.ok) { estAvisar(veredito.motivo); return false; }
   texto = veredito.texto;
+  canalMarcarFala(d);
 
   /* CHAMAR TODO MUNDO É ALARME, E ALARME TEM DONO.
      Se a pessoa não pode, o jogo recusa a mensagem inteira em vez de
@@ -1471,9 +1482,13 @@ function estPintarConversa(grudarNoFim) {
   const silBt = '<button class="est-cab-b' + (silenciado(chaveSil) ? " mudo" : "") +
     '" data-acao="silenciar-aqui">' + (silenciado(chaveSil) ? "🔕 mudo" : "🔔 avisos") + "</button>";
   if (d.tipo === "canal") {
-    const c = EST_CANAIS.filter(x => x.id === d.id)[0];
-    sub = c ? c.sobre : "";
+    sub = canalSobre(d.id);
     acoes = silBt;
+    /* O ⚙ SÓ EXISTE PARA O DONO. Para todo mundo o cabeçalho continua
+       igual ao de antes -- botão travado que fica na tela dizendo "você
+       não pode" é convite para tentar. */
+    if (canalSouDono())
+      acoes = '<button class="est-cab-b" data-acao="canal">⚙ canal</button>' + acoes;
   } else if (d.tipo === "dm") {
     const onde = estOndeEsta(d.id);
     sub = onde.txt;
@@ -1496,7 +1511,8 @@ function estPintarConversa(grudarNoFim) {
   cab.innerHTML =
     '<button class="est-abrir-lado" id="est-abrir-lado" aria-label="Ver os canais">☰</button>' +
     '<div class="est-cab-txt"><strong>' + (d.tipo === "canal" ? "#" : "") +
-    escaparTexto(d.nome || d.id) + "</strong><em>" + escaparLongo(sub) + "</em></div>" +
+    escaparTexto(d.tipo === "canal" ? canalTitulo(d.id) : (d.nome || d.id)) +
+    "</strong><em>" + escaparLongo(sub) + "</em></div>" +
     '<div class="est-cab-acoes">' + acoes + "</div>";
   const al = $("est-abrir-lado");
   if (al) al.addEventListener("click", () => $("estacao").classList.toggle("lado-aberto"));
@@ -1507,6 +1523,9 @@ function estPintarConversa(grudarNoFim) {
   const perto = lista.scrollHeight - lista.scrollTop - lista.clientHeight < 90;
   const visiveis = EST.msgs.filter(estMostraMensagem);
   let h = "";
+  /* o aviso fixado fica ACIMA de tudo e não rola junto com a conversa:
+     um aviso que some depois de três mensagens não é aviso */
+  if (d.tipo === "canal") { try { h += canalFixadoHTML(d.id); } catch (e) {} }
   if (EST.carregando) h += '<div class="est-carregando">carregando…</div>';
   else if (!EST.fim && EST.msgs.length)
     h += '<button class="est-mais-msg" id="est-mais-msg">ver o que veio antes</button>';
@@ -1584,6 +1603,13 @@ function estPintarConversa(grudarNoFim) {
        09-social.js, e a conversa só pergunta */
     h += estCorpoDaMensagem(m, eu) + "</div>";
     if (!meu) h += '<button class="est-msg-b" data-menu="' + m.k + '" aria-label="Opções">⋯</button>';
+    /* APAGAR. O dono apaga qualquer uma; qualquer pessoa apaga a
+       própria. Apagar a própria não é moderação, é arrependimento --
+       negar isso só faz a pessoa pedir para alguém apagar por ela. */
+    try {
+      if (canalPodeApagar(m))
+        h += '<button class="est-msg-x" data-apagar="' + m.k + '" aria-label="Apagar">✕</button>';
+    } catch (e) {}
     h += "</div>";
     anterior = m;
   }
@@ -1591,6 +1617,12 @@ function estPintarConversa(grudarNoFim) {
 
   const mm = $("est-mais-msg");
   if (mm) mm.addEventListener("click", estMais);
+  lista.querySelectorAll("[data-apagar]").forEach(b =>
+    b.addEventListener("click", async e => {
+      e.stopPropagation();
+      const m = (EST.msgs || []).filter(x => x.k === b.getAttribute("data-apagar"))[0];
+      if (m) await canalApagar(m);
+    }));
   lista.querySelectorAll("[data-menu]").forEach(b =>
     b.addEventListener("click", e => {
       e.stopPropagation();
@@ -1781,6 +1813,7 @@ function estAcaoDoCabecalho(acao) {
   if (!d) return;
   if (acao === "silenciar-aqui") { estAbrirSilenciar(estChave(d), d.nome || d.id); return; }
   if (acao === "agenda") { evAbrirAgenda(); return; }
+  if (acao === "canal") { canalAbrirPainel(d.id); return; }
   if (acao === "bloquear") estBloquear(d.id, d.nome);
   else if (acao === "silenciar") estSilenciar(d.id, d.nome);
   else if (acao === "membros") estAbrirMembros(d.id);
