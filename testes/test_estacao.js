@@ -740,7 +740,9 @@ async function piloto(ctx, nome) {
   /* a aba FUNDO sozinha tem os doze fundos prontos; o resto das opções
      mora nas outras abas e é o test_perfil.js que as conta */
   if (P.editor.opcoes < 10) erro('a aba FUNDO do editor tem so ' + P.editor.opcoes + ' opcoes');
-  if (P.editor.abas !== 5) erro('o editor abriu com ' + P.editor.abas + ' abas');
+  /* seis desde a v9.1: entrou ATMOSFERA (partículas, vidro fosco,
+     molduras de seção, cor dos títulos e ícone de estado) */
+  if (P.editor.abas !== 6) erro('o editor abriu com ' + P.editor.abas + ' abas');
   if (!P.editor.temSalvar || !P.editor.temBio || !P.editor.temPronomes)
     erro('falta campo no editor de perfil');
   if (!P.soMexeuNaoSalvou) erro('mexer no editor ja aplicou: tinha que esperar o SALVAR');
