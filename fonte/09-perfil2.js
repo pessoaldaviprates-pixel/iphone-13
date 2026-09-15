@@ -202,6 +202,7 @@ const FOTOS = {};                 // uid -> dataURL, para não buscar duas vezes
 function marcaNova() { return Math.floor(Date.now() / 1000) % 100000000; }
 
 const FOTOS_MARCA = {};           // uid -> a marca que valia quando buscamos
+const jaPerguntei = {};           // uid -> já fomos à nuvem ao menos uma vez
 
 /* a marca que a ficha da pessoa anuncia AGORA.
    Devolve null quando não existe ficha nenhuma -- e null não é zero:
@@ -220,11 +221,27 @@ function marcaDaFicha(uid, campo) {
 }
 
 /* vale para foto e para banner: os dois tinham o mesmo cache e o mesmo
-   defeito, então têm a mesma pergunta */
-function imagemPrecisaBuscar(cofre, marcas, uid, campo) {
+   defeito, então têm a mesma pergunta.
+
+   `soSeAFichaDiz` é a diferença entre DOIS pedidos muito diferentes:
+
+     UMA PESSOA que eu estou olhando agora (abri o perfil dela) — vale
+     um pedido, sempre, na primeira vez. A ficha que eu tenho na mão
+     pode ter até vinte segundos, e confiar nela para decidir "essa aí
+     não tem foto" é deixar de mostrar uma foto que existe por causa de
+     um dado velho. Foi o teste do perfil que pegou isso: o outro piloto
+     deixou de ver a foto porque a ficha dele ainda não tinha chegado.
+
+     TODO MUNDO de uma conversa — aí o pedido a mais é por pessoa, a
+     cada conversa aberta, e a maioria voltaria vazia. É justamente para
+     isso que a marca existe (está no CLAUDE.md). Aqui a ficha manda.
+
+   Em nenhum dos dois casos a marca deixa de valer para RE-buscar: mudou
+   o número, busca de novo, e é isso que faz a foto nova chegar. */
+function imagemPrecisaBuscar(cofre, marcas, uid, campo, soSeAFichaDiz) {
   if (!uid) return false;
   const agora = marcaDaFicha(uid, campo);
-  if (cofre[uid] === undefined) return agora === null || agora > 0;
+  if (cofre[uid] === undefined) return soSeAFichaDiz ? agora > 0 : true;
   return agora !== null && agora !== marcas[uid];
 }
 
@@ -311,7 +328,13 @@ async function fotoDe(uid, forcar) {
   if (FOTOS[uid] === undefined) FOTOS[uid] = "";
   /* a ficha diz, com todas as letras, que esta pessoa não tem foto:
      perguntar para a nuvem seria um pedido para ouvir o que já sabemos */
-  if (marca === 0 && !forcar) { FOTOS[uid] = ""; return ""; }
+  /* a ficha diz 0 E já perguntamos alguma vez: aí sim dá para acreditar
+     nela. Na primeira vez a pergunta vai, porque a ficha pode estar
+     velha e "não tem" velho esconde foto que existe. */
+  if (marca === 0 && !forcar && FOTOS_MARCA[uid] !== undefined && jaPerguntei[uid]) {
+    FOTOS[uid] = ""; return "";
+  }
+  jaPerguntei[uid] = 1;
   const d = await nuvemReq(fotoCaminho(uid));
   /* só entra o que É uma foto encolhida por nós. Um "dado" com
      javascript: dentro viraria um buraco na tela de quem olhasse o

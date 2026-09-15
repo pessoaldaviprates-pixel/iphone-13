@@ -319,6 +319,19 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   rende quando o número muda. Zero pedido enquanto nada muda, um pedido no
   instante em que muda — e de graça resolve também o "trocou a foto que já
   tinha", que ninguém tinha percebido ainda.
+- **"Não pergunte, a ficha já diz que não tem" esconde o que existe.** O
+  conserto do cache de fotos veio com um bônus que parecia de graça: se a
+  ficha da pessoa diz `foto: 0`, nem pedir. Zero pedido, resposta na hora.
+  Só que a ficha na minha mão pode ter vinte segundos, e um "não tem"
+  velho não é um "não tem" — é um "não sei ainda". O `test_perfil` pegou
+  na hora: o outro piloto deixou de ver uma foto que existia. A regra que
+  ficou separa os dois pedidos, que são mesmo diferentes: **uma pessoa que
+  eu abri agora** vale um pedido sempre, na primeira vez (é um só, e eu
+  estou olhando); **todo mundo de uma conversa** obedece à ficha, porque
+  ali o pedido a mais é por pessoa e a cada conversa aberta. Em ambos, a
+  marca continua mandando na RE-busca, que é o que faz a foto nova
+  chegar. Regra geral: **dado que pode estar velho serve para decidir
+  "busque de novo", nunca para decidir "não busque".**
 - **Escolha salva e nunca lida é igual a escolha quebrada.** O ícone de
   estado tinha sete opções, tela de escolher, trava por nível e gravação
   certinha — e desenhava num lugar só, o cartão de perfil aberto. O toque de

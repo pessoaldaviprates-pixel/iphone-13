@@ -245,7 +245,10 @@ async function fotosDaConversa() {
        até a outra pessoa fechar e abrir o jogo.
        imagemPrecisaBuscar já sabe ler a ficha e comparar -- inclusive o
        caso "a ficha diz que não tem", que não vira pedido nenhum. */
-    if (imagemPrecisaBuscar(FOTOS, FOTOS_MARCA, uid, "foto")) faltam.push(uid);
+    /* `true` = só de quem a ficha DIZ ter foto. Aqui é a conversa
+       inteira, e um pedido por pessoa a cada conversa aberta é
+       exatamente o que a marca existe para evitar. */
+    if (imagemPrecisaBuscar(FOTOS, FOTOS_MARCA, uid, "foto", true)) faltam.push(uid);
   }
   if (!faltam.length) return;
   fotosBuscando = true;

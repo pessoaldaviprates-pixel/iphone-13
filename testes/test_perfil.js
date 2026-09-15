@@ -105,7 +105,11 @@ async function piloto(ctx, nome) {
     const naFicha = JSON.stringify(save.perfil);
     return { ok, tamanhoOriginal, encolhida: guardada.length,
              ehImagem: /^data:image\/(webp|jpeg|png);base64,/.test(guardada),
-             marcaNaFicha: save.perfil.foto === 1,
+             /* a marca virou um NUMERO QUE MUDA a cada troca (era um 1 fixo, e um
+   1 fixo nunca avisava ninguem de que a foto tinha trocado). O que o
+   teste cobra e ela existir e nao ser a foto -- o valor e problema de
+   quem compara, nao de quem guarda. */
+             marcaNaFicha: !!save.perfil.foto && typeof save.perfil.foto === 'number',
              fotoNaFicha: naFicha.indexOf('data:image') >= 0 };
   });
   /* o outro piloto consegue ver a foto, e ela NÃO vem junto da lista de pilotos */
@@ -281,7 +285,7 @@ async function piloto(ctx, nome) {
     const naFicha = JSON.stringify(save.perfil);
     return { ok, original, encolhido: guardado.length,
              ehImagem: /^data:image\/(webp|jpeg|png);base64,/.test(guardado),
-             marcaNaFicha: save.perfil.banner === 1,
+             marcaNaFicha: !!save.perfil.banner && typeof save.perfil.banner === 'number',
              imagemNaFicha: naFicha.indexOf('data:image') >= 0,
              /* escolher a imagem já é usar a imagem */
              usando: save.perfil.fundo === 'foto',

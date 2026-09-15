@@ -119,7 +119,10 @@ async function bannerDe(uid, forcar) {
   const marca = marcaDaFicha(uid, "banner");
   BANNERS_MARCA[uid] = marca;
   if (BANNERS[uid] === undefined) BANNERS[uid] = "";
-  if (marca === 0 && !forcar) { BANNERS[uid] = ""; return ""; }
+  if (marca === 0 && !forcar && BANNERS_MARCA[uid] !== undefined && jaPerguntei["b:" + uid]) {
+    BANNERS[uid] = ""; return "";
+  }
+  jaPerguntei["b:" + uid] = 1;
   const d = await nuvemReq(bannerCaminho(uid));
   /* só entra o que É uma imagem encolhida por nós. Isto foi escrito por
      outra pessoa, e "url(qualquer coisa)" vira um buraco na minha tela */
