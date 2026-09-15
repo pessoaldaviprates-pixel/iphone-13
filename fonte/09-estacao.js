@@ -303,7 +303,26 @@ async function estAbrir(d) {
       (m.enq && m.enq.ate ? ":" + m.enq.ate : "")).join(",");
     const daquiParaTras = EST.msgs.slice(-novas.length || -1);
     if (impressao(novas) === impressao(daquiParaTras)) return;
+    const antesDe = {};
+    for (const m of EST.msgs) antesDe[m.k] = 1;
     EST.msgs = estJuntarMensagens(EST.msgs, novas);
+
+    /* O TOQUE DE AVISO TOCA AQUI, que é onde a mensagem chega.
+       Ele existia desde a v9.0, com cinco sons para escolher, e a única
+       coisa que o chamava era a prévia da tela de escolha: dava para
+       ouvir o som ao escolher e nunca mais. Ou seja, o aviso avisava
+       exatamente uma vez, no momento em que ninguém precisava dele.
+
+       Só para mensagem DE OUTRA PESSOA e só para mensagem NOVA: tocar
+       com o que eu mesmo escrevi é o jogo respondendo ao meu próprio
+       dedo, e tocar na releitura faria a mesma mensagem apitar de novo a
+       cada vez que o canal fosse relido. */
+    try {
+      const eu = estEu();
+      const chegou = novas.filter(m => !antesDe[m.k] && m.de && (!eu || m.de !== eu.id));
+      if (chegou.length && podeIncomodar(estChave(d))) toqueTocar();
+    } catch (e) {}
+
     estMarcarLido(d);
     estPintar(true);
   };
@@ -564,6 +583,17 @@ async function estOlharNovidades() {
   try { await evCarregar(); evLembrar(); } catch (e) {}
   estSeloGeral();
   if (EST.aberta) estPintar();
+  /* A BATIDA ACABOU DE TRAZER FICHAS NOVAS, e é nelas que mora a marca
+     da imagem. Este é o momento -- e o único momento barato -- em que dá
+     para descobrir que alguém trocou de foto sem pedir nada a mais: a
+     leitura já aconteceu. Sem esta linha, a foto nova de um amigo só
+     aparecia do lado das mensagens dele na próxima vez que o jogo
+     abrisse. fotosDaConversa não pede a de quem não mudou. */
+  try { await fotosDaConversa(); } catch (e) {}
+  /* quem está jogando agora sai da MESMA leitura de fichas que acabou de
+     acontecer: uma lista de presença com leitura própria seria um
+     segundo pedido para saber o que já está aqui na mão */
+  try { onlinePintar(); } catch (e) {}
 }
 /* o selo no botão do menu: some quando não tem nada */
 function estSeloGeral() {
@@ -590,6 +620,7 @@ function estOndeEsta(id) {
     const r = recadoMeu();
     const inf = presencaInfo(agora);
     return { cor: agora === "invisivel" ? "off" : agora, ic: inf.ic,
+             escolhido: estadoEscolhido(save),
              cel: matchMedia("(max-width: 780px)").matches,
              txt: r ? ((r.emoji ? r.emoji + " " : "") + r.txt)
                     : (agora === "invisivel" ? "invisível (só você vê)" : inf.nome) };
@@ -604,16 +635,44 @@ function estOndeEsta(id) {
     ? (p.recado.emoji ? p.recado.emoji + " " : "") + String(p.recado.txt).slice(0, 60) : "";
   const pres = PRESENCAS.some(x => x.id === p.presenca) ? p.presenca : "online";
   const cel = p.aparelho === "celular";
-  if (pres === "ocupado") return { cor: "ocupado", ic: "⊘", cel, txt: rec || "não perturbe" };
-  if (pres === "ausente") return { cor: "ausente", ic: "☾", cel, txt: rec || "ausente" };
+  /* o ícone que a pessoa escolheu viaja junto com o resto da presença --
+     ele é DELA, e não da tela em que ela está */
+  const esc = estadoEscolhido(p);
+  if (pres === "ocupado") return { cor: "ocupado", ic: "⊘", cel, escolhido: esc, txt: rec || "não perturbe" };
+  if (pres === "ausente") return { cor: "ausente", ic: "☾", cel, escolhido: esc, txt: rec || "ausente" };
   const onde = String(p.onde || "");
   if (/Jogando|Arena|Cooperativo|Ranqueada|Maratona/i.test(onde))
-    return { cor: "jogo", ic: "●", cel, txt: rec || "em partida" };
-  return { cor: "on", ic: "●", cel, txt: rec || onde || "no jogo" };
+    return { cor: "jogo", ic: "●", cel, escolhido: esc, txt: rec || "em partida" };
+  return { cor: "on", ic: "●", cel, escolhido: esc, txt: rec || onde || "no jogo" };
 }
+
+/* O ÍCONE DE ESTADO, lido de uma ficha qualquer (a minha ou a de outro).
+   Ele existia desde a v9.1, com sete opções presas por nível, e aparecia
+   num lugar só: o cartão de perfil aberto. Quem escolhesse 🎮 via o 🎮 ao
+   abrir o próprio perfil e em nenhum outro lugar do jogo -- nem na barra
+   lateral, nem do lado das mensagens, nem na lista de amigos. Para quem
+   escolheu, isso é "não funciona", e com razão: o ícone existe para
+   dizer aos OUTROS o que você está fazendo.
+
+   Devolve "" quando é a bolinha (o padrão), porque aí quem desenha é a
+   luzinha colorida de sempre. */
+function estadoEscolhido(ficha) {
+  try {
+    const perfil = (ficha === save) ? perfilMeu() : ((ficha && ficha.perfil) || {});
+    const item = NEO_ESTADOS.filter(x => x.id === perfil.estadoIc)[0];
+    if (!item || !item.ic) return "";
+    /* o nível manda: um save adulterado não compra a coroa de graça */
+    const nivel = (ficha === save) ? neoNivel() : ((ficha && ficha.neo) || "nenhum");
+    return NEO_ORDEM[nivel] >= NEO_ORDEM[item.nivel] ? item.ic : "";
+  } catch (e) { return ""; }
+}
+
 /* a luzinha: pontinho, lua, bloqueado — ou um celularzinho, quando a
-   pessoa está no telefone */
+   pessoa está no telefone. Se a pessoa escolheu um ícone de estado, é
+   ELE que aparece aqui, no jogo inteiro. */
 function estLuz(onde) {
+  if (onde && onde.escolhido && onde.cor !== "off")
+    return '<i class="est-luz ic ' + onde.cor + '">' + onde.escolhido + "</i>";
   return '<i class="est-luz ' + onde.cor + (onde.cel ? " cel" : "") + '">' +
     (onde.cel ? "▯" : "") + "</i>";
 }
@@ -913,6 +972,13 @@ function estPintarLado() {
     }
   }
 
+  /* A PORTA PREMIUM, acima de AMIGOS -- que foi o lugar pedido. Ela
+     passa pela mesma `casa()` que todo o resto da barra: se a busca
+     estiver ligada, ela some junto com o que não combina, senão a busca
+     acharia o que a porta esconde (ver a regra no CLAUDE.md). */
+  if (casa("Premium", "neonebula assinatura vip pago personalizar"))
+    h += premiumBotaoHTML();
+
   if (casa("Amigos", "ver adicionar responder"))
   h += '<button class="est-dest est-amigos-b' +
        (EST.destino && EST.destino.tipo === "amigos" ? " on" : "") + '" data-dest="amigos|tudo">' +
@@ -1129,6 +1195,8 @@ function estPintarLado() {
      letra e perdia o foco -- e aí a segunda letra ia para lugar nenhum. */
   const neoCx = $("est-neo-cartao");
   if (neoCx) neoCx.addEventListener("click", estAbrirNeo);
+  const pmB = $("est-premium-b");
+  if (pmB) pmB.addEventListener("click", premiumAbrir);
   cx.querySelectorAll("[data-oferta]").forEach(b =>
     b.addEventListener("click", () => estAbrirOferta(b.getAttribute("data-oferta"))));
 
@@ -1570,11 +1638,15 @@ function estPintar(grudarNoFim) {
 }
 
 /* ---------- as janelinhas ---------- */
-function estJanela(titulo, corpoHTML, aoMontar) {
+/* `larga` para as janelas que mostram uma grade em vez de uma pergunta.
+   A largura padrão nasceu para "tem certeza?" e aperta demais o que tem
+   cartões dentro. */
+function estJanela(titulo, corpoHTML, aoMontar, larga) {
   const cx = $("est-janela");
   if (!cx) return;
   cx.innerHTML =
-    '<div class="est-jan-cx"><div class="est-jan-h">' + escaparTexto(titulo) +
+    '<div class="est-jan-cx' + (larga ? " larga" : "") + '"><div class="est-jan-h">' +
+    escaparTexto(titulo) +
     '<button class="est-jan-x" id="est-jan-x" aria-label="Fechar">✕</button></div>' +
     '<div class="est-jan-corpo">' + corpoHTML + "</div></div>";
   cx.classList.add("on");
@@ -1786,6 +1858,8 @@ function estacaoAbrir(destino) {
   if (!eu) { estAvisar("Entre com um piloto primeiro."); return; }
   EST.aberta = true;
   cx.classList.add("on");
+  try { onlinePintar(); } catch (e) {}
+  try { navAtualizar(); } catch (e) {}
   estCarregarVistos();
   estCarregarModeracao();
   try { AudioSys.resume(); } catch (e) {}
@@ -1967,14 +2041,34 @@ function pfBlocoHTML(id, dono, v, souEu) {
   return "";
 }
 
+/* ABRIR O PERFIL DE ALGUÉM RELÊ A FICHA DELE PRIMEIRO.
+   A ficha de todo mundo é relida de vinte em vinte segundos, e a marca
+   da imagem mora nela. Sem esta releitura, quem abrisse o perfil do pai
+   logo depois de ele trocar a foto veria a marca velha e concluiria,
+   corretamente, que não havia nada de novo para buscar -- só que a
+   conclusão vinha de um dado de até vinte segundos atrás.
+
+   Vinte segundos parece pouco escrito assim. Na prática é o pai dizendo
+   "troquei" e o filho respondendo "não apareceu", que foi exatamente o
+   que aconteceu. Abrir um perfil é raro e é o momento em que a pessoa
+   está olhando: um pedido a mais aqui é barato, e é o único lugar onde
+   esperar não custa nada, porque a janela já abriu. */
+async function perfilBuscarTudo(id) {
+  try {
+    const d = await nuvemReq("pilotos/" + id);
+    if (d) EST.pilotos[id] = d;
+  } catch (e) {}
+  try { await Promise.all([fotoDe(id), bannerDe(id), castigoOlhar(id)]); } catch (e) {}
+}
+
 function estAbrirPerfil(id) {
   const eu = estEu();
   if (!id || !eu) return;
   /* a foto e o castigo vêm da nuvem, então a janela abre primeiro e se
      completa depois: esperar a rede para desenhar deixaria o toque sem
      resposta por um segundo, e um segundo parado parece travado */
-  Promise.all([fotoDe(id), bannerDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
   estPintarPerfil(id);
+  perfilBuscarTudo(id).then(() => estPintarPerfil(id));
 }
 
 function estPintarPerfil(id) {
@@ -2105,16 +2199,21 @@ const PF_ABAS = [
 
 function estEditarPerfil() {
   const p = perfilMeu();
-  estRascunho = {
-    bio: p.bio, pronomes: p.pronomes, cor: p.cor, efeito: p.efeito,
-    fundo: p.fundo, animacao: p.animacao, fonte: p.fonte, brilho: p.brilho,
-    tema: p.tema, toque: p.toque, clique: p.clique,
-    interesses: p.interesses, blocos: perfilBlocos().join(","),
-    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l,
-    particula: p.particula, borda: p.borda, corTitulo: p.corTitulo,
-    estadoIc: p.estadoIc, desfoque: p.desfoque, opacidade: p.opacidade,
-    horaDoDia: p.horaDoDia
-  };
+  /* O RASCUNHO SAI DO PERFIL INTEIRO, e não de uma lista escrita à mão.
+     A lista à mão existia e já estava desatualizada em cinco campos: o
+     ângulo, o formato, a textura, o movimento e o banner não entravam
+     nela. O efeito disso é sutil e chato de achar — salvar funcionava
+     (o que o dedo mexe entra no rascunho na hora), mas ABRIR o editor
+     mostrava tudo no padrão, como se nada tivesse sido escolhido.
+
+     Toda vez que alguém acrescentar um campo lá no PERFIL_PADRAO, ele
+     vem para cá sozinho. Uma regra, e não uma lista para lembrar. */
+  const r = {};
+  for (const k in PERFIL_PADRAO) r[k] = p[k];
+  /* os blocos são o único que não é campo solto: na ficha eles moram
+     colados por vírgula e podem estar vazios, querendo dizer "o padrão" */
+  r.blocos = perfilBlocos().join(",");
+  estRascunho = r;
   pfAba = "quem";
   estPintarEditor();
 }
@@ -2370,29 +2469,59 @@ function estPintarEditor() {
         escaparTexto(c.nome) + "</em>") + "</div>";
 
   } else {
-    /* ARRUMAR: quais blocos aparecem e em que ordem. Subir e descer em
-       botão, e não arrastando: arrastar numa lista dentro de uma janela
-       que já rola briga com a rolagem, e no celular vira loteria. */
-    const atuais = String(r.blocos || "").split(",").filter(Boolean);
+    /* O QUE APARECE NO MEU PERFIL
+       ---------------------------------------------------------------
+       Isto era a aba "Arrumar" e a queixa foi direta: "está muito
+       confuso". Era uma lista de nomes com ↑ ↓ ✕ do lado e, embaixo,
+       outra lista com "+ nome" -- duas listas para uma coisa só, e
+       nenhuma frase dizendo o que a tela fazia. Nem o título ajudava:
+       "Arrumar" pode ser arrumar qualquer coisa.
+
+       Agora é UMA lista com tudo dentro, na ordem de verdade, cada
+       linha com um interruptor de ligado/desligado. Desligar não tira
+       da lista: a linha fica apagada no mesmo lugar, e ligar de volta é
+       o mesmo toque. Era a segunda lista ("Guardados") que confundia --
+       o bloco sumia de um lugar e reaparecia noutro com outro nome.
+
+       Subir e descer continuam em botão, e não arrastando: arrastar
+       dentro de uma janela que já rola briga com a rolagem, e no celular
+       vira loteria.
+       --------------------------------------------------------------- */
+    const ligados = String(r.blocos || "").split(",").filter(Boolean);
+    /* a lista mostrada = os ligados na ordem escolhida, e depois os
+       desligados. Um bloco desligado não tem posição, então ele espera
+       no fim até ser ligado. */
+    const desligados = PF_BLOCOS.filter(b => ligados.indexOf(b.id) < 0).map(b => b.id);
+    const tudo = ligados.concat(desligados);
+
     corpo = '<div class="pf-campo"><label>O que aparece no meu perfil</label>' +
-      '<div class="pf-ordem">' + atuais.map((bid, i) => {
+      '<p class="est-nota">Isto é o que as outras pessoas veem quando abrem o seu ' +
+      "perfil, de cima para baixo. Desligue o que não quiser mostrar e use as " +
+      "setas para mudar a ordem.</p>" +
+      '<div class="pf-ordem">' + tudo.map((bid, i) => {
         const b = PF_BLOCOS.filter(x => x.id === bid)[0];
         if (!b) return "";
-        return '<div class="pf-ord-l"><b>' + escaparTexto(b.nome) + "</b>" +
-          '<button class="pf-ord-b" data-sobe="' + i + '" aria-label="Subir"' +
-            (i === 0 ? " disabled" : "") + ">↑</button>" +
-          '<button class="pf-ord-b" data-desce="' + i + '" aria-label="Descer"' +
-            (i === atuais.length - 1 ? " disabled" : "") + ">↓</button>" +
-          (b.sempre ? '<span class="pf-ord-fixo">sempre</span>'
-                    : '<button class="pf-ord-b tira" data-tira="' + bid + '">✕</button>') +
+        const on = ligados.indexOf(bid) >= 0;
+        const pos = ligados.indexOf(bid);
+        return '<div class="pf-ord-l' + (on ? "" : " desligado") + '">' +
+          /* o interruptor vem PRIMEIRO, porque é a pergunta principal:
+             aparece ou não aparece. A ordem só importa depois disso. */
+          '<button class="pf-ord-sw' + (on ? " on" : "") +
+            '" data-liga="' + bid + '" role="switch" aria-checked="' + on + '"' +
+            (b.sempre ? " disabled" : "") +
+            ' aria-label="' + (on ? "Esconder " : "Mostrar ") + escaparTexto(b.nome) + '">' +
+            "<i></i></button>" +
+          '<b class="pf-ord-nome">' + escaparTexto(b.nome) +
+            (b.sempre ? '<span class="pf-ord-fixo">sempre aparece</span>'
+                      : (on ? "" : '<span class="pf-ord-fixo">escondido</span>')) + "</b>" +
+          (on && !b.sempre || on
+            ? '<button class="pf-ord-b" data-sobe="' + pos + '" aria-label="Subir"' +
+                (pos <= 0 ? " disabled" : "") + ">↑</button>" +
+              '<button class="pf-ord-b" data-desce="' + pos + '" aria-label="Descer"' +
+                (pos < 0 || pos === ligados.length - 1 ? " disabled" : "") + ">↓</button>"
+            : "") +
           "</div>";
-      }).join("") + "</div>" +
-      (PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).length
-        ? '<label style="margin-top:12px">Guardados</label><div class="pf-ints">' +
-          PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).map(b =>
-            '<button class="pf-int" data-poe="' + b.id + '">+ ' +
-            escaparTexto(b.nome) + "</button>").join("") + "</div>"
-        : "") + "</div>";
+      }).join("") + "</div></div>";
   }
 
   estJanela("Editar meu perfil",
@@ -2537,16 +2666,19 @@ function estPintarEditor() {
       cx.querySelectorAll("[data-desce]").forEach(b => b.addEventListener("click", () => {
         const i = parseInt(b.getAttribute("data-desce"), 10); mexer(i, i + 1);
       }));
-      cx.querySelectorAll("[data-tira]").forEach(b => b.addEventListener("click", () => {
-        estRascunho.blocos = String(estRascunho.blocos || "").split(",")
-          .filter(x => x && x !== b.getAttribute("data-tira")).join(",");
-        estPintarEditor();
-      }));
-      cx.querySelectorAll("[data-poe]").forEach(b => b.addEventListener("click", () => {
+      /* UM interruptor no lugar de "tirar" e "pôr". Eram dois botões com
+         nomes diferentes fazendo as duas metades da mesma pergunta, em
+         duas listas diferentes da tela -- e era daí que vinha a
+         confusão. Ligar põe no fim da lista; desligar tira da ordem mas
+         a linha continua no mesmo lugar da tela, só apagada. */
+      cx.querySelectorAll("[data-liga]").forEach(b => b.addEventListener("click", () => {
+        const id = b.getAttribute("data-liga");
         const l = String(estRascunho.blocos || "").split(",").filter(Boolean);
-        l.push(b.getAttribute("data-poe"));
+        const i = l.indexOf(id);
+        if (i >= 0) l.splice(i, 1); else l.push(id);
         estRascunho.blocos = l.join(",");
         estPintarEditor();
+        pfAtualizarPrevia();
       }));
       /* os textos */
       const bio = $("pf-bio"), conta = $("pf-conta");

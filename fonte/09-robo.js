@@ -237,11 +237,15 @@ async function fotosDaConversa() {
   const faltam = [];
   for (const m of (EST.msgs || [])) {
     const uid = m && m.de;
-    if (!uid || FOTOS[uid] !== undefined || faltam.indexOf(uid) >= 0) continue;
-    const ficha = EST.pilotos[uid];
-    /* só pede a de quem DIZ ter foto. Pedir a de todos seria um pedido
-       por pessoa a cada conversa aberta, e a maioria voltaria vazia. */
-    if (ficha && ficha.perfil && ficha.perfil.foto) faltam.push(uid);
+    if (!uid || faltam.indexOf(uid) >= 0) continue;
+    /* QUEM DECIDE É A MARCA, e não "já busquei uma vez". Antes a linha
+       aqui era `FOTOS[uid] !== undefined`, ou seja: buscou uma vez,
+       nunca mais. Quem trocasse de foto continuava com a antiga do lado
+       das mensagens, e quem pusesse a primeira continuava com o robô,
+       até a outra pessoa fechar e abrir o jogo.
+       imagemPrecisaBuscar já sabe ler a ficha e comparar -- inclusive o
+       caso "a ficha diz que não tem", que não vira pedido nenhum. */
+    if (imagemPrecisaBuscar(FOTOS, FOTOS_MARCA, uid, "foto")) faltam.push(uid);
   }
   if (!faltam.length) return;
   fotosBuscando = true;

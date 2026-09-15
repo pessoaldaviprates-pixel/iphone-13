@@ -82,8 +82,9 @@ async function bannerGuardar(arquivo) {
   const r = await nuvemSoltar(bannerCaminho(eu.id), dado);
   if (r === null) { estAvisar("Não deu para guardar o banner. Confira a internet."); return false; }
   BANNERS[eu.id] = dado;
+  BANNERS_MARCA[eu.id] = marcaNova();
   const p = perfilMeu();
-  p.banner = 1;
+  p.banner = BANNERS_MARCA[eu.id];   /* número que muda, e não um "1" */
   p.fundo = "foto";               /* escolher a imagem já é usar a imagem */
   persist();
   try { nuvemEnviar(true); } catch (e) {}
@@ -96,6 +97,7 @@ async function bannerApagar() {
   if (!eu) return false;
   await nuvemSoltar(bannerCaminho(eu.id), null, "DELETE");
   delete BANNERS[eu.id];
+  delete BANNERS_MARCA[eu.id];
   const p = perfilMeu();
   p.banner = 0;
   if (p.fundo === "foto") p.fundo = "meu";
@@ -105,10 +107,19 @@ async function bannerApagar() {
   return true;
 }
 
-async function bannerDe(uid) {
+/* mesma história da foto (ver 09-perfil2.js): o cache guardava "esta
+   pessoa não tem banner" para sempre, e a capa nova nunca chegava em
+   quem já tinha olhado o perfil uma vez. A marca da ficha é um número
+   que muda, e o cache se rende a ela. */
+const BANNERS_MARCA = {};
+async function bannerDe(uid, forcar) {
   if (!uid) return "";
-  if (BANNERS[uid] !== undefined) return BANNERS[uid];
-  BANNERS[uid] = "";
+  if (!forcar && !imagemPrecisaBuscar(BANNERS, BANNERS_MARCA, uid, "banner"))
+    return BANNERS[uid] || "";
+  const marca = marcaDaFicha(uid, "banner");
+  BANNERS_MARCA[uid] = marca;
+  if (BANNERS[uid] === undefined) BANNERS[uid] = "";
+  if (marca === 0 && !forcar) { BANNERS[uid] = ""; return ""; }
   const d = await nuvemReq(bannerCaminho(uid));
   /* só entra o que É uma imagem encolhida por nós. Isto foi escrito por
      outra pessoa, e "url(qualquer coisa)" vira um buraco na minha tela */

@@ -6806,17 +6806,47 @@
   }
   .cast-t em{font-style:normal;font-size:.52rem;color:var(--dim)}
 
-  /* ---- o efeito de clique, no jogo inteiro ---- */
-  body[data-clique="afunda"] button:active{transform:scale(.96)}
-  body[data-clique="onda"] button:active{
-    box-shadow:0 0 0 6px rgba(77,232,255,.16);transition:box-shadow .12s ease;
+  /* ---- o efeito de clique, no jogo inteiro (ver 09-navegar.js) ----
+     A classe .clicou é posta pelo JS e dura o tempo da animação, solta
+     do dedo. Antes tudo isto era `:active`, e no celular um :active dura
+     o piscar de um toque -- os efeitos existiam e ninguém via. */
+  body[data-clique="afunda"] .clicou{animation:cliqAfunda .2s ease}
+  @keyframes cliqAfunda{50%{transform:scale(.94)}}
+
+  /* a onda precisa de um lugar para nascer e de uma borda que a corte */
+  body[data-clique="onda"] .clicou,
+  body[data-clique="faisca"] .clicou{position:relative;overflow:hidden}
+  body[data-clique="onda"] .clicou::after{
+    content:"";position:absolute;pointer-events:none;
+    left:var(--toque-x,50%);top:var(--toque-y,50%);
+    width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;
+    background:var(--cyan);opacity:.5;
+    animation:cliqOnda .44s cubic-bezier(.2,.7,.3,1) forwards;
   }
-  body[data-clique="brilha"] button:active{
-    filter:brightness(1.35) saturate(1.2);
+  @keyframes cliqOnda{to{transform:scale(26);opacity:0}}
+
+  body[data-clique="brilha"] .clicou{animation:cliqBrilha .34s ease}
+  @keyframes cliqBrilha{
+    0%{filter:brightness(1)}
+    30%{filter:brightness(1.45) saturate(1.25)}
+    100%{filter:brightness(1)}
   }
-  body[data-clique="faisca"] button:active{
-    box-shadow:0 0 0 3px rgba(255,193,69,.35),0 0 22px rgba(255,193,69,.5);
-    filter:brightness(1.2);
+
+  /* a faísca salta do ponto tocado e some subindo -- é isso que o nome
+     promete, e não uma borda dourada parada */
+  body[data-clique="faisca"] .clicou::after{
+    content:"✦";position:absolute;pointer-events:none;
+    left:var(--toque-x,50%);top:var(--toque-y,50%);
+    color:var(--amber);font-size:.7rem;line-height:1;
+    text-shadow:0 0 10px var(--amber);
+    animation:cliqFaisca .46s ease-out forwards;
+  }
+  @keyframes cliqFaisca{
+    0%{transform:translate(-50%,-50%) scale(.4);opacity:1}
+    100%{transform:translate(-50%,-190%) scale(1.5);opacity:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .clicou,.clicou::after{animation:none!important}
   }
 
   /* ---- e no celular tudo cabe no dedo ---- */
@@ -7102,6 +7132,224 @@
   body.tema-claro h1,body.tema-claro h2,body.tema-claro h3{text-shadow:none}
   /* scrollbar e seleção acompanham */
   body.tema-claro ::selection{background:rgba(15,127,168,.22);color:var(--ink)}
+
+  /* =================================================================
+     A BARRA DE TRÊS  (ver fonte/09-navegar.js)
+     -----------------------------------------------------------------
+     Um HTML só, dois lugares: deitada embaixo no celular, em pé na
+     esquerda no computador. Duas barras seriam duas chances de
+     discordarem sobre qual botão está aceso.
+     ================================================================= */
+  .nav-barra{
+    position:fixed;z-index:70;display:flex;
+    background:var(--vidro);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--line);
+    transition:transform .22s ease,opacity .18s ease;
+  }
+  .nav-barra.sumiu{opacity:0;pointer-events:none}
+  .nav-b{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    gap:8px;cursor:pointer;background:none;border:0;color:var(--dim);
+    font-family:"Chakra Petch",sans-serif;font-weight:600;
+    transition:color .16s ease,background .16s ease;
+  }
+  .nav-b .nav-ic{flex:none;transition:transform .16s ease}
+  .nav-b em{font-style:normal;letter-spacing:.06em}
+  .nav-b.on{color:var(--cyan)}
+  .nav-b.on .nav-ic{transform:translateY(-1px)}
+  /* o dedo não passa o mouse: o realce de hover só existe onde há mouse,
+     senão ele "gruda" no último botão tocado e parece outro selecionado */
+  body.no-pc .nav-b:hover{color:var(--ink)}
+  .nav-b:active{transform:scale(.94)}
+  /* o selo de não lidas mora no ícone da estação, que é onde se procura */
+  .nav-selo{
+    position:absolute;display:none;min-width:17px;height:17px;padding:0 4px;
+    border-radius:99px;background:var(--danger);color:#fff;
+    font-size:.5rem;font-weight:800;line-height:17px;font-style:normal;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+  .nav-selo.on{display:block}
+
+  /* ---- CELULAR: deitada, colada embaixo, no alcance do polegar ---- */
+  body.no-celular .nav-barra{
+    left:0;right:0;bottom:0;
+    border-width:1px 0 0;border-radius:0;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  body.no-celular .nav-barra.sumiu{transform:translateY(105%)}
+  body.no-celular .nav-b{
+    flex:1;flex-direction:column;gap:3px;padding:7px 4px 5px;
+    border-radius:12px;font-size:.52rem;
+  }
+  body.no-celular .nav-b.on{background:rgba(var(--rgb-carta),.5)}
+  body.no-celular .nav-selo{top:3px;left:50%;margin-left:4px}
+
+  /* ---- COMPUTADOR: em pé, colada na esquerda, como na referência ---- */
+  body.no-pc .nav-barra{
+    top:0;bottom:0;left:0;width:74px;
+    flex-direction:column;align-items:stretch;gap:4px;
+    border-width:0 1px 0 0;border-radius:0;
+    padding:calc(10px + env(safe-area-inset-top, 0px)) 8px 12px;
+  }
+  body.no-pc .nav-barra.sumiu{transform:translateX(-105%)}
+  body.no-pc .nav-b{
+    flex:none;flex-direction:column;gap:4px;padding:11px 2px 9px;
+    border-radius:14px;font-size:.47rem;
+  }
+  body.no-pc .nav-b.on{background:rgba(var(--rgb-carta),.6)}
+  /* o risquinho aceso na borda: é ele que diz "você está aqui" quando
+     três ícones parecidos estão um embaixo do outro */
+  body.no-pc .nav-b.on::before{
+    content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+    width:3px;height:22px;border-radius:0 3px 3px 0;background:var(--cyan);
+  }
+  body.no-pc .nav-selo{top:6px;right:12px}
+
+  /* o resto do jogo se afasta da barra, para nada ficar embaixo dela */
+  body.no-pc .estacao{left:74px}
+  body.no-celular .estacao{padding-bottom:calc(66px + env(safe-area-inset-bottom, 0px))}
+  body.no-celular .est-flutua{bottom:calc(74px + env(safe-area-inset-bottom, 0px))}
+  /* o botão flutuante e a barra diriam a mesma coisa duas vezes */
+  .nav-barra:not(.sumiu) ~ .est-flutua{display:none}
+
+  /* =================================================================
+     A COLUNA DA DIREITA — quem está jogando agora
+     ================================================================= */
+  .est-direita{display:none}
+  body.no-pc .estacao{grid-template-columns:250px minmax(0,1fr) 260px}
+  body.no-pc .est-direita{
+    display:block;overflow-y:auto;
+    background:rgba(var(--rgb-carta),.35);
+    border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:12px 10px;
+  }
+  .est-dir-h{
+    font-size:.54rem;letter-spacing:.14em;color:var(--dim);
+    font-weight:700;margin:2px 4px 10px;
+  }
+  .est-dir-l{
+    width:100%;display:flex;align-items:center;gap:9px;
+    padding:7px 8px;border-radius:11px;border:0;background:none;
+    cursor:pointer;text-align:left;color:var(--ink);
+    transition:background .14s ease;
+  }
+  .est-dir-l:hover{background:rgba(var(--rgb-carta),.7)}
+  .est-dir-l .est-av{width:32px;height:32px;flex:none}
+  .est-dir-t{min-width:0;display:flex;flex-direction:column;gap:1px}
+  .est-dir-t b{font-size:.68rem;font-weight:700;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .est-dir-t em{font-style:normal;font-size:.56rem;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .est-dir-ap{margin-left:auto;font-style:normal;color:var(--fraco);font-size:.62rem}
+
+  /* ---- a porta Premium e o painel dela (09-premium.js) ---- */
+  .est-dest.pm-porta{
+    background:linear-gradient(135deg,rgba(255,200,97,.16),rgba(var(--rgb-carta),.6));
+    border:1px solid rgba(255,200,97,.34);
+  }
+  .est-dest.pm-porta .est-dest-ic{background:rgba(255,200,97,.2)}
+  .pm-topo{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .pm-selo{
+    width:46px;height:46px;flex:none;display:flex;align-items:center;justify-content:center;
+    border-radius:14px;font-size:1.3rem;
+    background:linear-gradient(140deg,rgba(255,200,97,.28),rgba(255,200,97,.08));
+    border:1px solid rgba(255,200,97,.4);
+  }
+  .pm-topo strong{display:block;font-size:.86rem;letter-spacing:.04em}
+  .pm-topo em{font-style:normal;font-size:.6rem;color:var(--dim)}
+  /* AS COLUNAS SE CONTAM SOZINHAS. A primeira versão dizia "duas no
+     computador", e o resultado foi um cartão de 90px de largura com uma
+     palavra por linha: a janela onde eles moram é estreita, e o tamanho
+     da TELA não diz nada sobre o tamanho da CAIXA. Com auto-fit quem
+     decide é o espaço que existe ali, e não um palpite sobre o aparelho. */
+  .pm-grade{
+    display:grid;gap:8px;margin:12px 0;
+    grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  }
+  .pm-cartao{
+    display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;
+    padding:11px 12px;border-radius:var(--r-md);color:var(--ink);
+    background:rgba(var(--rgb-carta),.5);border:1px solid var(--line);
+    transition:border-color .14s ease,background .14s ease;
+  }
+  .pm-cartao:hover{border-color:var(--line2);background:rgba(var(--rgb-carta),.75)}
+  .pm-ic{
+    width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;
+    border-radius:11px;font-size:1rem;background:rgba(var(--rgb-fundo),.5);
+  }
+  .pm-txt{min-width:0;flex:1}
+  .pm-txt strong{display:block;font-size:.7rem;font-weight:700}
+  .pm-txt em{font-style:normal;font-size:.56rem;color:var(--dim);line-height:1.35;display:block}
+  .pm-conta{
+    flex:none;font-style:normal;font-size:.52rem;font-weight:700;letter-spacing:.06em;
+    color:var(--amber);background:rgba(255,200,97,.12);
+    border:1px solid rgba(255,200,97,.28);border-radius:99px;padding:3px 8px;
+  }
+  /* o .est-bt é um botão claro, e o texto dele estava herdando a tinta
+     clara do tema: letra branca em cima de barra branca. Aqui a tinta é
+     dita na mão, escura, porque o fundo deste botão é claro em TODOS os
+     temas -- ele é o único lugar onde "escuro" não depende do tema. */
+  .pm-subir{
+    width:100%;margin-top:6px;color:#11161f;font-weight:700;
+    background:linear-gradient(135deg,var(--amber),#FFE1A3);
+    border:1px solid rgba(255,200,97,.5);
+  }
+
+  /* a janela da Estação é estreita de propósito (ela nasceu para
+     confirmações de uma linha). O painel Premium tem seis cartões, então
+     ele pede mais largura -- e só ele, pelo id. */
+  body.no-pc .est-janela .est-jan-cx.larga{max-width:min(760px,92vw)}
+
+  /* ---- a aba "o que aparece no meu perfil" ---- */
+  .pf-ord-l{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 10px;border-radius:var(--r-md);
+    background:rgba(var(--rgb-carta),.42);border:1px solid var(--line);
+    margin-bottom:6px;transition:opacity .16s ease;
+  }
+  /* desligado NÃO some da lista: ele fica apagado no mesmo lugar, para a
+     pessoa saber onde achá-lo de volta */
+  .pf-ord-l.desligado{opacity:.48}
+  .pf-ord-sw{
+    flex:none;width:38px;height:22px;border-radius:99px;cursor:pointer;padding:0;
+    background:rgba(var(--rgb-fundo),.7);border:1px solid var(--line2);
+    transition:background .16s ease,border-color .16s ease;
+  }
+  .pf-ord-sw i{
+    display:block;width:16px;height:16px;border-radius:50%;
+    background:var(--dim);margin-left:2px;transition:transform .16s ease,background .16s ease;
+  }
+  .pf-ord-sw.on{background:rgba(77,232,255,.24);border-color:var(--cyan)}
+  .pf-ord-sw.on i{transform:translateX(16px);background:var(--cyan)}
+  .pf-ord-sw:disabled{opacity:.5;cursor:default}
+  .pf-ord-nome{flex:1;min-width:0;font-size:.7rem;font-weight:700;
+    display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .pf-ord-fixo{font-size:.52rem;font-weight:600;color:var(--fraco);letter-spacing:.04em}
+  .pf-ord-b{
+    flex:none;width:30px;height:30px;border-radius:9px;cursor:pointer;
+    background:rgba(var(--rgb-fundo),.6);border:1px solid var(--line);color:var(--ink2);
+    font-size:.8rem;line-height:1;
+  }
+  .pf-ord-b:disabled{opacity:.3;cursor:default}
+
+  /* A BARRA NÃO PODE TAPAR O ÚLTIMO BOTÃO.
+     Ela é `position:fixed`, ou seja, não empurra nada: sem esta folga
+     embaixo, o último item de cada tela fica debaixo dela e o dedo
+     nunca alcança. É o tipo de coisa que não aparece num monitor grande
+     e é a primeira que aparece num celular pequeno. */
+  body.no-celular .screen,
+  body.no-celular .page{
+    padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  body.no-celular .page-body,
+  body.no-celular .scroll{scroll-padding-bottom:72px}
+  /* no computador a fileira é lateral, então a folga é de lado */
+  body.no-pc .screen,
+  body.no-pc .page{padding-left:calc(74px + 16px)}
+  /* ...menos a Estação, que já foi afastada pelo `left:74px` -- somar os
+     dois deixaria uma faixa vazia de 148px na esquerda dela */
+  body.no-pc .estacao{padding-left:10px}
 
 </style>
 </head>
@@ -8651,6 +8899,11 @@
     </div>
   </div>
 
+  <!-- QUEM ESTÁ JOGANDO AGORA: a coluna da direita da imagem de
+       referência. Só aparece no computador, onde sobra largura; no
+       celular esta mesma lista já mora na gaveta da esquerda. -->
+  <aside class="est-direita" id="est-direita"></aside>
+
   <button class="est-fechar" id="est-fechar" aria-label="Fechar a estação">✕</button>
   <div class="est-aviso" id="est-aviso"></div>
   <div class="est-janela" id="est-janela"></div>
@@ -9812,9 +10065,32 @@ async function nuvemEnviar(forcar) {
     neo: (function () { try { return neoNivel(); } catch (e) { return "nenhum"; } })(),
     perfil: (function () {
       try {
+        /* VAI O PERFIL INTEIRO, e não seis campos escolhidos a dedo.
+           Aqui estavam listados bio, pronomes, cor, efeito, fundo e
+           avatar. Tudo o que entrou depois -- a foto, o banner, a fonte
+           do nome, o ícone de estado, as duas cores, o ângulo, a
+           textura, os interesses, os blocos -- ficava salvo no aparelho
+           e NUNCA saía dele. Quer dizer: a pessoa personalizava o perfil
+           e só ela via. "Troquei a foto e não aparece" e "o ícone de
+           estado não funciona" eram a mesma linha de código.
+
+           É o mesmo erro que o comentário logo acima já descrevia sobre
+           o VIP e a moldura, cometido de novo três campos depois. Por
+           isso agora a lista não existe: o que está no PERFIL_PADRAO vai,
+           e quem acrescentar um campo lá não precisa lembrar de nada.
+
+           Cabe: são uns trinta campos curtos (ids de uma palavra e
+           números pequenos), e a bio -- a única coisa comprida -- já
+           viajava aqui desde sempre. A FOTO continua fora: o que vai é a
+           marca dela, que é um número. */
         const p = perfilMeu();
-        return { bio: p.bio || "", pronomes: p.pronomes || "", cor: p.cor || "",
-                 efeito: p.efeito || "nenhum", fundo: p.fundo || "vazio", avatar: p.avatar || "" };
+        const fora = {};
+        for (const k in PERFIL_PADRAO) {
+          const v = p[k];
+          if (v === undefined || v === null || v === "") continue;   // vazio não ocupa lugar
+          fora[k] = v;
+        }
+        return fora;
       } catch (e) { return null; }
     })(),
     /* PRESENÇA. O "onde" já dizia em que tela a pessoa está; isto diz se
@@ -12380,6 +12656,7 @@ function entrarNoMenu(name) {
      vez que o jogo abre. O tema é do save, e o save acabou de ser
      escolhido nesta linha: é aqui que dá para saber qual é. */
   try { temaAplicar(); } catch (e) {}
+  try { navLigar(); } catch (e) {}
   ligarBatimento();
   setTimeout(() => { try { sugEnviarPendentes(); } catch (e) {} }, 2500);
   try { mundoLigar(); } catch (e) {}
@@ -13362,7 +13639,7 @@ async function envMandar(presente, texto, botao) {
     await admAvisarNaConversa(envAlvo.id, "Enviei para você: " + texto + ". Aproveite!");
     AudioSys.buy();
   } else {
-    admMsg("Não deu para enviar agora.");
+    admMsg("Não deu para enviar: " + (entregaMotivo || "motivo desconhecido."));
     AudioSys.deny();
   }
 }
@@ -13485,7 +13762,7 @@ async function admEntregarPedido(chave, pd, botao) {
     await admAvisarNaConversa(pd.de, "Entregue! " + texto + " já está na sua conta. Obrigado 🙏");
     admMsg("Entregue: " + texto);
   } else {
-    admMsg("Não deu para entregar agora.");
+    admMsg("Não deu para entregar: " + (entregaMotivo || "motivo desconhecido."));
   }
   if (botao) { botao.disabled = false; botao.textContent = "ENTREGAR"; }
   admLojaCarregar();
@@ -13494,7 +13771,27 @@ async function admEntregarPedido(chave, pd, botao) {
 /* Escreve a compra na MESMA caixa de presente que o painel já usa, para
    a pessoa receber com a animação de sempre. Junta com o que estiver
    pendente, para não apagar um presente que ainda não foi retirado.   */
+/* POR QUE A ENTREGA FALHOU, e não só que falhou.
+   "Não deu para entregar agora" foi a única coisa que o painel soube
+   dizer durante meses. Quem está do outro lado pagou, então a diferença
+   entre "a internet caiu", "as regras do Firebase recusam o galho
+   presentes/" e "o nome está errado" é a diferença entre consertar em um
+   minuto e ficar adivinhando. O último motivo fica guardado aqui e o
+   painel mostra. */
+let entregaMotivo = "";
+function entregaExplicar(status) {
+  if (status === 401 || status === 403)
+    return "o Firebase recusou (regra faltando para presentes/). " +
+           "Cole as regras novas -- estão no NUVEM.md.";
+  if (status === 404) return "o endereco da nuvem nao respondeu (404).";
+  if (status) return "a nuvem respondeu " + status + ".";
+  return "nao deu para falar com a nuvem (internet ou endereco).";
+}
+
 async function entregarCompra(idJogador, presente, texto) {
+  entregaMotivo = "";
+  if (!nuvemAtiva()) { entregaMotivo = "a nuvem esta desligada neste aparelho."; return false; }
+  if (!idJogador) { entregaMotivo = "nenhuma conta escolhida."; return false; }
   const pendente = (await nuvemReq("presentes/" + idJogador)) || {};
   const novo = Object.assign({}, pendente);
   const c = Object.assign({ vipDias: 0, passes: [], naves: [] }, novo.compra || {});
@@ -13509,8 +13806,14 @@ async function entregarCompra(idJogador, presente, texto) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(novo)
   });
+  /* CONFERE LENDO DE VOLTA. Um PUT que o Firebase recusa devolve erro,
+     mas um PUT que "passa" e cai numa regra de validação pode não
+     gravar nada -- e a única forma honesta de saber se a entrega
+     chegou é ir lá ver se ela está. */
   const conf = await nuvemReq("presentes/" + idJogador);
-  return !!(conf && conf.compra);
+  if (conf && conf.compra) return true;
+  entregaMotivo = entregaExplicar(typeof ultimoErroNuvem === "number" ? ultimoErroNuvem : 0);
+  return false;
 }
 
 async function admAvisarNaConversa(idJogador, texto) {
@@ -33721,6 +34024,64 @@ const FOTO_LADO = 96;
 const FOTO_TETO = 40000;          // 40 KB depois de encolher: já é folgado
 const FOTOS = {};                 // uid -> dataURL, para não buscar duas vezes
 
+/* =====================================================================
+   A MARCA DA IMAGEM — por que ela é um NÚMERO QUE MUDA, e não um "1"
+   ---------------------------------------------------------------------
+   A queixa foi esta, palavra por palavra: "a imagem do meu pai também
+   não apareceu".
+
+   O que acontecia: a foto de alguém é buscada UMA VEZ e guardada aqui
+   para não pedir de novo. Só que o "não tem foto" também ficava
+   guardado — e para sempre. Quem abrisse o perfil do pai antes de ele
+   pôr a foto ficava com um "" na memória e nunca mais perguntava. A
+   foto existia na nuvem, a ficha dele dizia que existia, e a tela
+   continuava com o robô até a pessoa fechar o jogo e abrir de novo.
+
+   Trocar por um relógio ("pergunte de novo a cada 5 minutos") resolveria
+   pela metade e custaria um pedido por pessoa a cada 5 minutos, para
+   sempre, mesmo quando nada mudou.
+
+   A ficha do piloto já é lida de vinte em vinte segundos para saber quem
+   está online, e ela já carregava uma marca de "tem foto". Então a marca
+   passa a ser um NÚMERO que muda toda vez que a pessoa troca a imagem, e
+   a regra vira: guardei com a marca X, a ficha agora diz Y, então busco
+   de novo. Zero pedido enquanto nada muda, um pedido no instante em que
+   muda, e funciona igual para "pôs a primeira foto" e para "trocou a
+   foto que já tinha" — que era o segundo caso, o que nem tinha sido
+   percebido ainda.
+
+   Uma ficha antiga traz foto:1 e continua valendo 1 para sempre: quem
+   ainda não atualizou fica exatamente como era, sem quebrar.
+   ===================================================================== */
+function marcaNova() { return Math.floor(Date.now() / 1000) % 100000000; }
+
+const FOTOS_MARCA = {};           // uid -> a marca que valia quando buscamos
+
+/* a marca que a ficha da pessoa anuncia AGORA.
+   Devolve null quando não existe ficha nenhuma -- e null não é zero:
+   "ainda não sei nada desta pessoa" tem que virar uma busca, enquanto
+   "a ficha dela diz que não tem foto" tem que virar silêncio. Confundir
+   os dois faria o perfil de quem não está no canal aberto nunca carregar
+   imagem nenhuma. */
+function marcaDaFicha(uid, campo) {
+  try {
+    const eu = estEu();
+    if (eu && uid === eu.id) return Number(perfilMeu()[campo]) || 0;
+    const ficha = (typeof EST !== "undefined" && EST.pilotos) ? EST.pilotos[uid] : null;
+    if (!ficha || !ficha.perfil) return null;
+    return Number(ficha.perfil[campo]) || 0;
+  } catch (e) { return null; }
+}
+
+/* vale para foto e para banner: os dois tinham o mesmo cache e o mesmo
+   defeito, então têm a mesma pergunta */
+function imagemPrecisaBuscar(cofre, marcas, uid, campo) {
+  if (!uid) return false;
+  const agora = marcaDaFicha(uid, campo);
+  if (cofre[uid] === undefined) return agora === null || agora > 0;
+  return agora !== null && agora !== marcas[uid];
+}
+
 function fotoCaminho(uid) { return "conversas/__fotos/" + uid; }
 
 /* recorta no quadrado do meio e encolhe. Recortar ANTES de encolher
@@ -33769,7 +34130,10 @@ async function fotoGuardar(arquivo) {
   if (r === null) { estAvisar("Não deu para guardar a foto. Confira a internet."); return false; }
   FOTOS[eu.id] = dado;
   const p = perfilMeu();
-  p.foto = 1;                   /* na ficha vai só a marca, nunca a foto */
+  /* na ficha vai só a marca, nunca a foto -- e a marca MUDA a cada troca,
+     senão quem já tinha a foto antiga continuaria com ela na tela */
+  p.foto = marcaNova();
+  FOTOS_MARCA[eu.id] = p.foto;
   persist();
   try { nuvemEnviar(true); } catch (e) {}
   estAvisar("Foto trocada.");
@@ -33781,6 +34145,7 @@ async function fotoApagar() {
   if (!eu) return false;
   await nuvemSoltar(fotoCaminho(eu.id), null, "DELETE");
   delete FOTOS[eu.id];
+  delete FOTOS_MARCA[eu.id];
   const p = perfilMeu();
   p.foto = 0;
   persist();
@@ -33789,11 +34154,18 @@ async function fotoApagar() {
   return true;
 }
 
-/* busca a foto de alguém, uma vez só. Devolve "" se a pessoa não tem. */
-async function fotoDe(uid) {
+/* busca a foto de alguém. Busca de novo quando a marca da ficha mudou --
+   ou seja, quando a pessoa pôs ou trocou a imagem desde a última vez. */
+async function fotoDe(uid, forcar) {
   if (!uid) return "";
-  if (FOTOS[uid] !== undefined) return FOTOS[uid];
-  FOTOS[uid] = "";                       // marca que já foi buscada
+  if (!forcar && !imagemPrecisaBuscar(FOTOS, FOTOS_MARCA, uid, "foto"))
+    return FOTOS[uid] || "";
+  const marca = marcaDaFicha(uid, "foto");
+  FOTOS_MARCA[uid] = marca;
+  if (FOTOS[uid] === undefined) FOTOS[uid] = "";
+  /* a ficha diz, com todas as letras, que esta pessoa não tem foto:
+     perguntar para a nuvem seria um pedido para ouvir o que já sabemos */
+  if (marca === 0 && !forcar) { FOTOS[uid] = ""; return ""; }
   const d = await nuvemReq(fotoCaminho(uid));
   /* só entra o que É uma foto encolhida por nós. Um "dado" com
      javascript: dentro viraria um buraco na tela de quem olhasse o
@@ -34301,8 +34673,9 @@ async function bannerGuardar(arquivo) {
   const r = await nuvemSoltar(bannerCaminho(eu.id), dado);
   if (r === null) { estAvisar("Não deu para guardar o banner. Confira a internet."); return false; }
   BANNERS[eu.id] = dado;
+  BANNERS_MARCA[eu.id] = marcaNova();
   const p = perfilMeu();
-  p.banner = 1;
+  p.banner = BANNERS_MARCA[eu.id];   /* número que muda, e não um "1" */
   p.fundo = "foto";               /* escolher a imagem já é usar a imagem */
   persist();
   try { nuvemEnviar(true); } catch (e) {}
@@ -34315,6 +34688,7 @@ async function bannerApagar() {
   if (!eu) return false;
   await nuvemSoltar(bannerCaminho(eu.id), null, "DELETE");
   delete BANNERS[eu.id];
+  delete BANNERS_MARCA[eu.id];
   const p = perfilMeu();
   p.banner = 0;
   if (p.fundo === "foto") p.fundo = "meu";
@@ -34324,10 +34698,19 @@ async function bannerApagar() {
   return true;
 }
 
-async function bannerDe(uid) {
+/* mesma história da foto (ver 09-perfil2.js): o cache guardava "esta
+   pessoa não tem banner" para sempre, e a capa nova nunca chegava em
+   quem já tinha olhado o perfil uma vez. A marca da ficha é um número
+   que muda, e o cache se rende a ela. */
+const BANNERS_MARCA = {};
+async function bannerDe(uid, forcar) {
   if (!uid) return "";
-  if (BANNERS[uid] !== undefined) return BANNERS[uid];
-  BANNERS[uid] = "";
+  if (!forcar && !imagemPrecisaBuscar(BANNERS, BANNERS_MARCA, uid, "banner"))
+    return BANNERS[uid] || "";
+  const marca = marcaDaFicha(uid, "banner");
+  BANNERS_MARCA[uid] = marca;
+  if (BANNERS[uid] === undefined) BANNERS[uid] = "";
+  if (marca === 0 && !forcar) { BANNERS[uid] = ""; return ""; }
   const d = await nuvemReq(bannerCaminho(uid));
   /* só entra o que É uma imagem encolhida por nós. Isto foi escrito por
      outra pessoa, e "url(qualquer coisa)" vira um buraco na minha tela */
@@ -34924,6 +35307,517 @@ function contraste(a, b) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 /* =====================================================================
+   A BARRA DE TRÊS — jogo, estação e ajustes
+   =====================================================================
+   O pedido foi este: "no menu vai ter também três ícones, o primeiro
+   para ir para o Menu você inventa o ícone, o segundo para ir para o
+   chat, e o terceiro para ir para ajustes. Os três ícones inicialmente
+   serão para celular, para computador faça tipo essa imagem só que
+   adaptada para o nosso jogo."
+
+   A imagem de referência é um aplicativo de conversa no computador: uma
+   fileira estreita de ícones colada na esquerda, a lista de conversas do
+   lado, o assunto no meio e quem está online na direita.
+
+   Então são os MESMOS três botões nos dois lugares, e não duas barras
+   diferentes para manter:
+
+     no celular  — barra deitada, colada embaixo, onde o polegar alcança
+     no computador — fileira em pé, colada na esquerda, como na imagem
+
+   Só o CSS muda. O HTML, o clique e a marca de "onde estou" são um só —
+   duas barras seriam duas chances de discordarem sobre qual está aceso.
+
+   POR QUE SVG E NÃO EMOJI. Emoji é desenhado pelo sistema: o mesmo 🚀 é
+   uma coisa no iPhone, outra no Android e outra no Windows, sempre
+   colorido e sempre com o tamanho que ele quiser. Estes três são
+   traçados que herdam a cor do tema (currentColor) — acendem junto com
+   o resto quando estão escolhidos, e no tema claro ficam escuros
+   sozinhos. Um emoji ficaria colorido igual nos dez temas.
+   ===================================================================== */
+
+/* Os três desenhos. Traço e não preenchimento: em 24px um ícone
+   preenchido vira uma mancha, e a barra fica pesada. */
+const NAV_ICONES = {
+  /* JOGO: uma nave vista de cima, que é a nave do jogo. Inventar um
+     ícone para "menu" daria um hambúrguer ou uma casinha -- os dois
+     querem dizer "algum lugar", e este quer dizer "o Neon Nebula". */
+  jogo: '<path d="M12 2.5c2.6 2.2 4 5.4 4 9v4.2l2.6 2v2.3l-4.1-1.4a6.8 6.8 0 0 1-5 0L5.4 20v-2.3l2.6-2V11.5c0-3.6 1.4-6.8 4-9Z"/>' +
+        '<circle cx="12" cy="10" r="1.9"/>',
+  /* ESTAÇÃO: um balão de fala. É o desenho que todo mundo já lê como
+     conversa, e aqui não é hora de ser criativo. */
+  chat: '<path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-7.2L8 20.5V16.5H4A1.5 1.5 0 0 1 2.5 15V7A1.5 1.5 0 0 1 4 5.5Z"/>' +
+        '<path d="M7 10.5h10M7 13h6"/>',
+  /* AJUSTES: a engrenagem de sempre, com o dente marcado por fora para
+     não virar uma flor em tamanho pequeno. */
+  ajustes: '<circle cx="12" cy="12" r="3.2"/>' +
+           '<path d="M12 2.6v2.6M12 18.8v2.6M21.4 12h-2.6M5.2 12H2.6' +
+           'M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8M18.6 18.6l-1.8-1.8M7.2 7.2 5.4 5.4"/>'
+};
+
+function navSVG(id) {
+  return '<svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" ' +
+    'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+    'stroke-linejoin="round">' + (NAV_ICONES[id] || "") + "</svg>";
+}
+
+const NAV_ITENS = [
+  { id: "jogo",    nome: "Jogo",    dica: "Voltar para o menu do jogo" },
+  { id: "chat",    nome: "Estação", dica: "Conversar" },
+  { id: "ajustes", nome: "Ajustes", dica: "Som, idioma, conta e aparência" }
+];
+
+/* =====================================================================
+   CELULAR OU COMPUTADOR — uma pergunta, respondida num lugar só
+   ---------------------------------------------------------------------
+   "Em questão da interface de PC e celular, tente identificar também."
+
+   Largura NÃO basta: um computador com a janela estreita não vira
+   celular (continua tendo mouse e teclado), e um tablet deitado é largo
+   e continua sendo dedo. Quem decide de verdade é o PONTEIRO: `pointer:
+   coarse` quer dizer dedo, `pointer: fine` quer dizer mouse. A largura
+   entra só para o caso do computador com a janela espremida, onde a
+   fileira da esquerda não caberia de qualquer jeito.
+
+   O resultado vira uma classe no <body>, e daí para baixo é tudo CSS.
+   Assim existe UM lugar no jogo inteiro que responde esta pergunta.
+   ===================================================================== */
+function ehDedo() {
+  try {
+    if (window.matchMedia && matchMedia("(pointer: coarse)").matches) return true;
+    if (navigator.maxTouchPoints > 0 && !matchMedia("(pointer: fine)").matches) return true;
+  } catch (e) {}
+  return false;
+}
+function ehTelaEstreita() {
+  try { return matchMedia("(max-width: 900px)").matches; } catch (e) { return false; }
+}
+/* "celular" aqui quer dizer "barra embaixo, uma coluna só" -- não quer
+   dizer que o aparelho é um telefone */
+function modoCelular() { return ehDedo() || ehTelaEstreita(); }
+
+function navMarcarAparelho() {
+  try {
+    const cel = modoCelular();
+    document.body.classList.toggle("no-celular", cel);
+    document.body.classList.toggle("no-pc", !cel);
+    /* o dedo também decide coisas que não são largura: passar o mouse
+       não existe, e um efeito preso ao hover some para sempre */
+    document.body.classList.toggle("com-dedo", ehDedo());
+  } catch (e) {}
+}
+
+/* =====================================================================
+   A BARRA
+   ===================================================================== */
+let navOnde = "jogo";
+
+function navHTML() {
+  return NAV_ITENS.map(it =>
+    '<button class="nav-b" data-nav="' + it.id + '" title="' + escaparTexto(it.dica) + '" ' +
+    'aria-label="' + escaparTexto(it.nome) + '">' +
+    navSVG(it.id) + '<em>' + escaparTexto(it.nome) + "</em>" +
+    '<i class="nav-selo" id="nav-selo-' + it.id + '"></i>' +
+    "</button>").join("");
+}
+
+function navMontar() {
+  if ($("nav-barra")) return;
+  const barra = document.createElement("nav");
+  barra.className = "nav-barra";
+  barra.id = "nav-barra";
+  barra.innerHTML = navHTML();
+  document.body.appendChild(barra);
+  barra.querySelectorAll("[data-nav]").forEach(b =>
+    b.addEventListener("click", () => navIr(b.getAttribute("data-nav"))));
+  navMarcarAparelho();
+  navAtualizar();
+}
+
+function navIr(id) {
+  try { AudioSys.resume(); } catch (e) {}
+  if (id === "chat") {
+    /* a estação abre por cima e não mexe no S.mode: quem estava jogando
+       continua jogando atrás. Tocar de novo fecha. */
+    if (EST.aberta) estacaoFechar(); else estacaoAbrir();
+  } else {
+    /* sair da estação ANTES de trocar de tela: deixá-la aberta por cima
+       do menu faria os dois primeiros botões parecerem quebrados */
+    if (EST.aberta) { try { estacaoFechar(); } catch (e) {} }
+    if (id === "ajustes") ajAbrir();
+    else goMenu();
+  }
+  navAtualizar();
+}
+
+/* onde a pessoa está AGORA, perguntando ao jogo em vez de decorar.
+   Decorar dá o bug clássico: a pessoa sai por outro caminho (o ✕ da
+   estação, o voltar do Android) e a barra continua acesa no lugar
+   errado. */
+function navOndeEstou() {
+  try {
+    if (typeof EST !== "undefined" && EST.aberta) return "chat";
+    if (S && S.mode === "ajustes") return "ajustes";
+  } catch (e) {}
+  return "jogo";
+}
+
+function navAtualizar() {
+  const barra = $("nav-barra");
+  if (!barra) return;
+  navOnde = navOndeEstou();
+  barra.querySelectorAll("[data-nav]").forEach(b =>
+    b.classList.toggle("on", b.getAttribute("data-nav") === navOnde));
+
+  /* A BARRA SOME DURANTE A PARTIDA. Três botões fixos por cima do jogo
+     seriam três jeitos de perder a fase sem querer -- e no celular eles
+     ficariam exatamente onde o polegar pilota. */
+  let jogando = false;
+  try { jogando = S && (S.mode === "playing" || S.mode === "cutscene"); } catch (e) {}
+  /* na tela de entrada também não: não existe "meu perfil" antes de
+     existir um piloto, e os três levariam a lugar nenhum */
+  let antesDeEntrar = false;
+  try { antesDeEntrar = S && (S.mode === "login" || S.mode === "senha"); } catch (e) {}
+  barra.classList.toggle("sumiu", !!(jogando || antesDeEntrar));
+
+  /* o selo de não lidas vai no ícone da estação, que é onde a pessoa
+     procura por ele */
+  try {
+    const selo = $("nav-selo-chat");
+    if (selo) {
+      const n = estContarNaoLidas();
+      selo.textContent = n > 99 ? "99+" : (n || "");
+      selo.classList.toggle("on", n > 0);
+    }
+  } catch (e) {}
+}
+
+/* a estação já sabia somar as não lidas para o selo do menu; aqui só
+   pegamos o mesmo número, sem uma segunda conta que um dia discordaria */
+function estContarNaoLidas() {
+  try {
+    const el = $("est-selo");
+    const n = parseInt((el && el.textContent) || "0", 10);
+    return isNaN(n) ? 0 : n;
+  } catch (e) { return 0; }
+}
+
+/* =====================================================================
+   QUEM ESTÁ ONLINE — a coluna da direita do computador
+   ---------------------------------------------------------------------
+   Na imagem de referência ela se chama "Ativo agora" e mostra quem está
+   em call. A nossa mostra quem está jogando e o quê, que é a informação
+   que o jogo já tem e a que interessa aqui: dá para ver que o amigo está
+   na fase 12 e chamar para jogar junto.
+
+   Só no computador. No celular ela viraria uma terceira coluna num lugar
+   que mal tem uma — lá esta mesma lista já mora na gaveta.
+   ===================================================================== */
+const ONLINE_MOSTRA = 12;
+
+function onlineAgora() {
+  const eu = estEu();
+  const fora = [];
+  const todos = (typeof EST !== "undefined" && EST.pilotos) || {};
+  const agora = Date.now();
+  for (const id in todos) {
+    if (eu && id === eu.id) continue;
+    const p = todos[id] || {};
+    /* dois minutos sem bater o ponto já não é "agora". O invisível manda
+       um relógio velho de propósito, então ele cai fora por aqui sem
+       precisar de nenhuma regra a mais. */
+    if (!p.atualizado || agora - p.atualizado > 120000) continue;
+    fora.push({ id: id, nome: p.tag || p.nome || "Piloto", onde: p.onde || "No jogo",
+                aparelho: p.aparelho || "", quando: p.atualizado });
+  }
+  fora.sort((a, b) => b.quando - a.quando);
+  return fora.slice(0, ONLINE_MOSTRA);
+}
+
+function onlinePintar() {
+  const cx = $("est-direita");
+  if (!cx) return;
+  const lista = onlineAgora();
+  cx.innerHTML =
+    '<div class="est-dir-h">Jogando agora</div>' +
+    (lista.length
+      ? lista.map(p =>
+          '<button class="est-dir-l" data-perfil="' + p.id + '">' +
+          '<span class="est-av' + avatarClasse(p.id) + '" ' + avatarEstilo(p.id) + ">" +
+          avatarConteudo(p.id, p.nome) + "</span>" +
+          '<span class="est-dir-t"><b>' + escaparTexto(p.nome) + "</b>" +
+          "<em>" + escaparLongo(p.onde) + "</em></span>" +
+          (p.aparelho === "celular" ? '<i class="est-dir-ap" title="No celular">▯</i>' : "") +
+          "</button>").join("")
+      : '<p class="est-nota">Ninguém jogando agora. Quando alguém entrar, aparece aqui.</p>');
+  cx.querySelectorAll("[data-perfil]").forEach(b =>
+    b.addEventListener("click", () => estAbrirPerfil(b.getAttribute("data-perfil"))));
+}
+
+/* =====================================================================
+   LIGAR
+   ===================================================================== */
+function navLigar() {
+  navMontar();
+  cliqueLigar();
+  /* a barra acompanha a troca de tela sem ninguém precisar avisar: em vez
+     de sair chamando navAtualizar() de dentro de cada goMenu, ajAbrir e
+     estacaoFechar espalhados pelo jogo, ela olha sozinha. Uma vez por
+     segundo é de graça e não tem como esquecer de chamar. */
+  setInterval(() => { try { navAtualizar(); } catch (e) {} }, 1000);
+  /* girar o celular troca a largura, e o tablet deitado passa a caber a
+     fileira da esquerda */
+  window.addEventListener("resize", () => { try { navMarcarAparelho(); } catch (e) {} });
+  try {
+    if (window.matchMedia) {
+      const m = matchMedia("(pointer: coarse)");
+      /* Safari antigo só tem addListener; sem este try o jogo inteiro
+         morreria aqui em aparelho velho, que é justamente o alvo */
+      if (m.addEventListener) m.addEventListener("change", navMarcarAparelho);
+      else if (m.addListener) m.addListener(navMarcarAparelho);
+    }
+  } catch (e) {}
+}
+
+
+/* =====================================================================
+   O EFEITO DE CLIQUE — por que ele "não funcionava muito bem"
+   =====================================================================
+   Os quatro efeitos (afunda, onda, brilha, solta faísca) eram CSS preso
+   ao `:active`, ou seja: só existiam ENQUANTO o dedo estava encostado.
+
+   No computador isso quase passa. No celular não passa de jeito nenhum:
+   um toque dura uns 80ms, o navegador ainda segura o `:active` uns
+   instantes para decidir se é rolagem, e o que a pessoa vê é um pisca
+   que some antes de ela olhar. Pior: "onda" e "faísca" são efeitos que,
+   pelo nome, acontecem DEPOIS de soltar — uma onda que se espalha, uma
+   faísca que salta. Presos ao `:active` eles viravam uma borda parada.
+
+   Agora o toque MARCA o botão e a marca dura o tempo da animação, solta
+   do dedo. A onda nasce onde o dedo encostou (e não no meio do botão,
+   que é o detalhe que faz parecer de verdade).
+
+   Três cuidados que valem mais que o efeito:
+     - um só por vez por botão: tirar e repor a classe reinicia a
+       animação, senão o segundo toque rápido não mostra nada
+     - nada disso com "movimento reduzido" ligado
+     - e o ouvinte é UM, na página inteira, em vez de um por botão: a
+       Estação cria e destrói botões o tempo todo, e um ouvinte por botão
+       viraria centenas deles pendurados numa conversa longa
+   ===================================================================== */
+const CLIQUE_MS = 460;
+
+function cliqueLigar() {
+  try {
+    if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  } catch (e) {}
+  document.addEventListener("pointerdown", e => {
+    let efeito = "nenhum";
+    try { efeito = perfilClique().id; } catch (err) { return; }
+    if (efeito === "nenhum") return;
+    /* quem recebe o toque pode ser o <svg> ou o <em> de dentro do botão:
+       é o botão que interessa */
+    const bt = e.target && e.target.closest ? e.target.closest("button, .est-dest, .nav-b") : null;
+    if (!bt) return;
+    if (efeito === "onda" || efeito === "faisca") {
+      const r = bt.getBoundingClientRect();
+      /* a onda nasce ONDE O DEDO ENCOSTOU. Nascendo sempre no meio, ela
+         parece um brilho ligando e desligando, e não uma onda. */
+      bt.style.setProperty("--toque-x", ((e.clientX - r.left) / r.width * 100) + "%");
+      bt.style.setProperty("--toque-y", ((e.clientY - r.top) / r.height * 100) + "%");
+    }
+    bt.classList.remove("clicou");
+    void bt.offsetWidth;            /* reinicia a animação */
+    bt.classList.add("clicou");
+    setTimeout(() => { try { bt.classList.remove("clicou"); } catch (err) {} }, CLIQUE_MS);
+  }, { passive: true });
+}
+/* =====================================================================
+   PREMIUM — o botão de quem já pagou
+   =====================================================================
+   O pedido: "Está muito confuso de usar o NeoNebula premium, tente fazer
+   algo que identifique se o usuário é premium ou não e se ele for
+   premium faça um botão em cima do amigos dentro do chat chamado
+   premium, poderá ajustar TUDO fundo de tela, perfil, etc. Tudo
+   separadinho."
+
+   POR QUE ESTAVA CONFUSO. Tudo o que a assinatura dá morava dentro de um
+   editor de perfil com seis abas — e as abas misturavam o que é de graça
+   com o que é pago, cada item com um cadeadinho. Quem pagou tinha que
+   caçar as coisas pelas quais pagou no meio das que já tinha antes.
+   Pior: nada dizia "isto aqui é o que você comprou".
+
+   O QUE MUDA. Quem tem NeoNebula ganha uma porta própria, acima de
+   AMIGOS, com o que ele comprou separado por assunto. Um assunto por
+   cartão, cada cartão dizendo quantas coisas tem dentro e quantas estão
+   liberadas no nível dele. Nada de cadeado no meio do caminho: o que o
+   nível dele não alcança aparece no fim, junto, com o preço.
+
+   POR QUE NÃO SUBSTITUI O EDITOR. O editor continua sendo o lugar de
+   editar. Esta porta é um ÍNDICE: ela leva direto à aba certa. Duas
+   telas que editam a mesma coisa acabam discordando sobre o que foi
+   salvo — e é o tipo de bug que só aparece semanas depois.
+   ===================================================================== */
+
+/* =====================================================================
+   1. É PREMIUM OU NÃO?
+   ---------------------------------------------------------------------
+   Uma pergunta, um lugar. `neoNivel()` já devolvia o nível, mas o resto
+   do código perguntava de jeitos diferentes em cada tela ("tem bronze?",
+   "o nível é diferente de nenhum?", "temVip()?"), e era daí que vinha a
+   confusão: três respostas para a mesma pergunta.
+   ===================================================================== */
+function ehPremium(p) {
+  try { return neoDe(p || save) !== "nenhum"; } catch (e) { return false; }
+}
+
+/* o que mostrar ao lado do nome de quem é premium, em qualquer tela */
+function premiumSelo(p) {
+  try {
+    const nv = neoDe(p || save);
+    const info = neoInfo(nv);
+    return (info && info.selo) || "";
+  } catch (e) { return ""; }
+}
+
+/* =====================================================================
+   2. O QUE A ASSINATURA DÁ, SEPARADO POR ASSUNTO
+   ---------------------------------------------------------------------
+   Cada cartão aponta para uma aba do editor que já existe. A conta de
+   "quantos estão liberados" é feita na hora a partir das MESMAS listas
+   que o editor usa — se alguém acrescentar uma fonte nova, o número aqui
+   sobe sozinho. Um número escrito à mão aqui envelheceria na primeira
+   versão seguinte, e um "12 fontes" mentindo sobre 9 é pior que não ter
+   número nenhum.
+   ===================================================================== */
+function premiumAssuntos() {
+  const listas = l => (typeof l === "undefined" ? [] : l);
+  return [
+    { id: "nome", ic: "✎", nome: "O seu nome",
+      sobre: "fonte, cor e efeito de como o seu nome aparece para os outros",
+      aba: "nome",
+      itens: [].concat(listas(typeof NEO_FONTES !== "undefined" && NEO_FONTES),
+                       listas(typeof NEO_CORES !== "undefined" && NEO_CORES),
+                       listas(typeof NEO_EFEITOS !== "undefined" && NEO_EFEITOS)) },
+    { id: "fundo", ic: "🎨", nome: "Fundo do perfil",
+      sobre: "as suas duas cores, o ângulo, o formato e a imagem de capa",
+      aba: "fundo",
+      itens: [].concat(listas(typeof NEO_FUNDOS !== "undefined" && NEO_FUNDOS),
+                       listas(typeof NEO_FORMATOS !== "undefined" && NEO_FORMATOS),
+                       listas(typeof NEO_TEXTURAS !== "undefined" && NEO_TEXTURAS)) },
+    { id: "ar", ic: "✨", nome: "Atmosfera",
+      sobre: "partículas, vidro fosco, molduras e o ícone de estado",
+      aba: "ar",
+      itens: [].concat(listas(typeof NEO_PARTICULAS !== "undefined" && NEO_PARTICULAS),
+                       listas(typeof NEO_BORDAS !== "undefined" && NEO_BORDAS),
+                       listas(typeof NEO_ESTADOS !== "undefined" && NEO_ESTADOS)) },
+    { id: "tema", ic: "🌗", nome: "Tema do jogo inteiro",
+      sobre: "muda o fundo, os cartões e as letras de TODAS as telas",
+      aba: "jogo",
+      itens: listas(typeof NEO_TEMAS_10 !== "undefined" && NEO_TEMAS_10) },
+    { id: "jogo", ic: "🎮", nome: "Rastro, som e toque",
+      sobre: "o rastro da sua nave, o som de aviso e o efeito de clique",
+      aba: "jogo",
+      itens: [].concat(listas(typeof NEO_ANIMACOES !== "undefined" && NEO_ANIMACOES),
+                       listas(typeof NEO_TOQUES !== "undefined" && NEO_TOQUES),
+                       listas(typeof NEO_CLIQUES !== "undefined" && NEO_CLIQUES),
+                       listas(typeof NEO_BRILHOS !== "undefined" && NEO_BRILHOS)) },
+    { id: "escrever", ic: "💬", nome: "Escrever mais",
+      sobre: "bio e mensagens mais compridas",
+      aba: "quem", medida: true }
+  ];
+}
+
+/* quantos itens de um assunto o nível atual alcança */
+function premiumConta(assunto) {
+  const itens = assunto.itens || [];
+  let livres = 0;
+  for (const it of itens) {
+    try { if (neoLiberado(it)) livres++; } catch (e) {}
+  }
+  return { livres: livres, total: itens.length };
+}
+
+/* =====================================================================
+   3. A PORTA
+   ===================================================================== */
+function premiumHTML() {
+  const nv = neoNivel();
+  const info = neoInfo(nv);
+  const dias = neoDiasQueFaltam();
+  const assuntos = premiumAssuntos();
+
+  let h = '<div class="pm-topo">' +
+    '<b class="pm-selo">' + ((info && info.selo) || "✦") + "</b>" +
+    "<div><strong>" + escaparTexto((info && info.nome) || "NeoNebula") + "</strong>" +
+    "<em>" + (nv === "ilimitado" ? "Sem prazo"
+             : dias + (dias === 1 ? " dia restante" : " dias restantes")) + "</em></div>" +
+    "</div>" +
+    '<p class="est-nota">Tudo o que a sua assinatura abriu, separado por assunto. ' +
+    "Toque para ir direto.</p>";
+
+  h += '<div class="pm-grade">';
+  for (const a of assuntos) {
+    const c = premiumConta(a);
+    h += '<button class="pm-cartao" data-pm="' + a.aba + '">' +
+      '<b class="pm-ic">' + a.ic + "</b>" +
+      '<span class="pm-txt"><strong>' + escaparTexto(a.nome) + "</strong>" +
+      "<em>" + escaparLongo(a.sobre) + "</em></span>" +
+      (a.medida
+        ? '<i class="pm-conta">' + perfilLimiteBio() + " letras</i>"
+        : '<i class="pm-conta">' + c.livres + " de " + c.total + "</i>") +
+      "</button>";
+  }
+  h += "</div>";
+
+  /* O QUE AINDA FALTA, junto e no fim -- e não espalhado em cadeadinhos
+     no meio das coisas que a pessoa já tem. Quem está no Bronze quer
+     saber, de uma vez, o que o Ouro traria. */
+  if (nv !== "ilimitado" && nv !== "ouro") {
+    let presos = 0;
+    for (const a of assuntos) {
+      const c = premiumConta(a);
+      presos += (c.total - c.livres);
+    }
+    if (presos) {
+      h += '<button class="est-bt pm-subir" id="pm-subir">Faltam ' + presos +
+        " coisas nos níveis de cima — ver preços</button>";
+    }
+  }
+  return h;
+}
+
+function premiumAbrir() {
+  estJanela("Premium", premiumHTML(), () => {
+    document.querySelectorAll("[data-pm]").forEach(b =>
+      b.addEventListener("click", () => {
+        /* leva direto à aba certa do editor: a porta é um índice, e quem
+           edita continua sendo o editor */
+        const aba = b.getAttribute("data-pm");
+        estFecharJanela();
+        estEditarPerfil();
+        pfAba = aba;
+        estPintarEditor();
+      }));
+    const s = $("pm-subir");
+    if (s) s.addEventListener("click", () => { estFecharJanela(); estAbrirNeo(); });
+  }, true);   /* larga: são seis cartões, não uma pergunta de uma linha */
+}
+
+/* o botão da barra, acima de AMIGOS. Só existe para quem assina: para
+   quem não assina, o cartão de venda que já estava ali continua sendo o
+   certo -- dois botões dizendo "NeoNebula" na mesma coluna seria a
+   confusão de novo, com um nome diferente. */
+function premiumBotaoHTML() {
+  if (!ehPremium()) return "";
+  const info = neoInfo(neoNivel());
+  return '<button class="est-dest pm-porta" id="est-premium-b">' +
+    '<b class="est-dest-ic">' + ((info && info.selo) || "✦") + "</b>" +
+    '<span class="est-dest-txt"><strong>Premium</strong>' +
+    "<em>o que a sua assinatura abriu</em></span>" +
+    '<i class="est-neo-seta">›</i></button>';
+}
+/* =====================================================================
    O ROBÔ — o avatar de quem ainda não pôs foto
    =====================================================================
    Antes, quem não tinha foto aparecia com a inicial do nome numa
@@ -35162,11 +36056,15 @@ async function fotosDaConversa() {
   const faltam = [];
   for (const m of (EST.msgs || [])) {
     const uid = m && m.de;
-    if (!uid || FOTOS[uid] !== undefined || faltam.indexOf(uid) >= 0) continue;
-    const ficha = EST.pilotos[uid];
-    /* só pede a de quem DIZ ter foto. Pedir a de todos seria um pedido
-       por pessoa a cada conversa aberta, e a maioria voltaria vazia. */
-    if (ficha && ficha.perfil && ficha.perfil.foto) faltam.push(uid);
+    if (!uid || faltam.indexOf(uid) >= 0) continue;
+    /* QUEM DECIDE É A MARCA, e não "já busquei uma vez". Antes a linha
+       aqui era `FOTOS[uid] !== undefined`, ou seja: buscou uma vez,
+       nunca mais. Quem trocasse de foto continuava com a antiga do lado
+       das mensagens, e quem pusesse a primeira continuava com o robô,
+       até a outra pessoa fechar e abrir o jogo.
+       imagemPrecisaBuscar já sabe ler a ficha e comparar -- inclusive o
+       caso "a ficha diz que não tem", que não vira pedido nenhum. */
+    if (imagemPrecisaBuscar(FOTOS, FOTOS_MARCA, uid, "foto")) faltam.push(uid);
   }
   if (!faltam.length) return;
   fotosBuscando = true;
@@ -36936,7 +37834,26 @@ async function estAbrir(d) {
       (m.enq && m.enq.ate ? ":" + m.enq.ate : "")).join(",");
     const daquiParaTras = EST.msgs.slice(-novas.length || -1);
     if (impressao(novas) === impressao(daquiParaTras)) return;
+    const antesDe = {};
+    for (const m of EST.msgs) antesDe[m.k] = 1;
     EST.msgs = estJuntarMensagens(EST.msgs, novas);
+
+    /* O TOQUE DE AVISO TOCA AQUI, que é onde a mensagem chega.
+       Ele existia desde a v9.0, com cinco sons para escolher, e a única
+       coisa que o chamava era a prévia da tela de escolha: dava para
+       ouvir o som ao escolher e nunca mais. Ou seja, o aviso avisava
+       exatamente uma vez, no momento em que ninguém precisava dele.
+
+       Só para mensagem DE OUTRA PESSOA e só para mensagem NOVA: tocar
+       com o que eu mesmo escrevi é o jogo respondendo ao meu próprio
+       dedo, e tocar na releitura faria a mesma mensagem apitar de novo a
+       cada vez que o canal fosse relido. */
+    try {
+      const eu = estEu();
+      const chegou = novas.filter(m => !antesDe[m.k] && m.de && (!eu || m.de !== eu.id));
+      if (chegou.length && podeIncomodar(estChave(d))) toqueTocar();
+    } catch (e) {}
+
     estMarcarLido(d);
     estPintar(true);
   };
@@ -37197,6 +38114,17 @@ async function estOlharNovidades() {
   try { await evCarregar(); evLembrar(); } catch (e) {}
   estSeloGeral();
   if (EST.aberta) estPintar();
+  /* A BATIDA ACABOU DE TRAZER FICHAS NOVAS, e é nelas que mora a marca
+     da imagem. Este é o momento -- e o único momento barato -- em que dá
+     para descobrir que alguém trocou de foto sem pedir nada a mais: a
+     leitura já aconteceu. Sem esta linha, a foto nova de um amigo só
+     aparecia do lado das mensagens dele na próxima vez que o jogo
+     abrisse. fotosDaConversa não pede a de quem não mudou. */
+  try { await fotosDaConversa(); } catch (e) {}
+  /* quem está jogando agora sai da MESMA leitura de fichas que acabou de
+     acontecer: uma lista de presença com leitura própria seria um
+     segundo pedido para saber o que já está aqui na mão */
+  try { onlinePintar(); } catch (e) {}
 }
 /* o selo no botão do menu: some quando não tem nada */
 function estSeloGeral() {
@@ -37223,6 +38151,7 @@ function estOndeEsta(id) {
     const r = recadoMeu();
     const inf = presencaInfo(agora);
     return { cor: agora === "invisivel" ? "off" : agora, ic: inf.ic,
+             escolhido: estadoEscolhido(save),
              cel: matchMedia("(max-width: 780px)").matches,
              txt: r ? ((r.emoji ? r.emoji + " " : "") + r.txt)
                     : (agora === "invisivel" ? "invisível (só você vê)" : inf.nome) };
@@ -37237,16 +38166,44 @@ function estOndeEsta(id) {
     ? (p.recado.emoji ? p.recado.emoji + " " : "") + String(p.recado.txt).slice(0, 60) : "";
   const pres = PRESENCAS.some(x => x.id === p.presenca) ? p.presenca : "online";
   const cel = p.aparelho === "celular";
-  if (pres === "ocupado") return { cor: "ocupado", ic: "⊘", cel, txt: rec || "não perturbe" };
-  if (pres === "ausente") return { cor: "ausente", ic: "☾", cel, txt: rec || "ausente" };
+  /* o ícone que a pessoa escolheu viaja junto com o resto da presença --
+     ele é DELA, e não da tela em que ela está */
+  const esc = estadoEscolhido(p);
+  if (pres === "ocupado") return { cor: "ocupado", ic: "⊘", cel, escolhido: esc, txt: rec || "não perturbe" };
+  if (pres === "ausente") return { cor: "ausente", ic: "☾", cel, escolhido: esc, txt: rec || "ausente" };
   const onde = String(p.onde || "");
   if (/Jogando|Arena|Cooperativo|Ranqueada|Maratona/i.test(onde))
-    return { cor: "jogo", ic: "●", cel, txt: rec || "em partida" };
-  return { cor: "on", ic: "●", cel, txt: rec || onde || "no jogo" };
+    return { cor: "jogo", ic: "●", cel, escolhido: esc, txt: rec || "em partida" };
+  return { cor: "on", ic: "●", cel, escolhido: esc, txt: rec || onde || "no jogo" };
 }
+
+/* O ÍCONE DE ESTADO, lido de uma ficha qualquer (a minha ou a de outro).
+   Ele existia desde a v9.1, com sete opções presas por nível, e aparecia
+   num lugar só: o cartão de perfil aberto. Quem escolhesse 🎮 via o 🎮 ao
+   abrir o próprio perfil e em nenhum outro lugar do jogo -- nem na barra
+   lateral, nem do lado das mensagens, nem na lista de amigos. Para quem
+   escolheu, isso é "não funciona", e com razão: o ícone existe para
+   dizer aos OUTROS o que você está fazendo.
+
+   Devolve "" quando é a bolinha (o padrão), porque aí quem desenha é a
+   luzinha colorida de sempre. */
+function estadoEscolhido(ficha) {
+  try {
+    const perfil = (ficha === save) ? perfilMeu() : ((ficha && ficha.perfil) || {});
+    const item = NEO_ESTADOS.filter(x => x.id === perfil.estadoIc)[0];
+    if (!item || !item.ic) return "";
+    /* o nível manda: um save adulterado não compra a coroa de graça */
+    const nivel = (ficha === save) ? neoNivel() : ((ficha && ficha.neo) || "nenhum");
+    return NEO_ORDEM[nivel] >= NEO_ORDEM[item.nivel] ? item.ic : "";
+  } catch (e) { return ""; }
+}
+
 /* a luzinha: pontinho, lua, bloqueado — ou um celularzinho, quando a
-   pessoa está no telefone */
+   pessoa está no telefone. Se a pessoa escolheu um ícone de estado, é
+   ELE que aparece aqui, no jogo inteiro. */
 function estLuz(onde) {
+  if (onde && onde.escolhido && onde.cor !== "off")
+    return '<i class="est-luz ic ' + onde.cor + '">' + onde.escolhido + "</i>";
   return '<i class="est-luz ' + onde.cor + (onde.cel ? " cel" : "") + '">' +
     (onde.cel ? "▯" : "") + "</i>";
 }
@@ -37546,6 +38503,13 @@ function estPintarLado() {
     }
   }
 
+  /* A PORTA PREMIUM, acima de AMIGOS -- que foi o lugar pedido. Ela
+     passa pela mesma `casa()` que todo o resto da barra: se a busca
+     estiver ligada, ela some junto com o que não combina, senão a busca
+     acharia o que a porta esconde (ver a regra no CLAUDE.md). */
+  if (casa("Premium", "neonebula assinatura vip pago personalizar"))
+    h += premiumBotaoHTML();
+
   if (casa("Amigos", "ver adicionar responder"))
   h += '<button class="est-dest est-amigos-b' +
        (EST.destino && EST.destino.tipo === "amigos" ? " on" : "") + '" data-dest="amigos|tudo">' +
@@ -37762,6 +38726,8 @@ function estPintarLado() {
      letra e perdia o foco -- e aí a segunda letra ia para lugar nenhum. */
   const neoCx = $("est-neo-cartao");
   if (neoCx) neoCx.addEventListener("click", estAbrirNeo);
+  const pmB = $("est-premium-b");
+  if (pmB) pmB.addEventListener("click", premiumAbrir);
   cx.querySelectorAll("[data-oferta]").forEach(b =>
     b.addEventListener("click", () => estAbrirOferta(b.getAttribute("data-oferta"))));
 
@@ -38203,11 +39169,15 @@ function estPintar(grudarNoFim) {
 }
 
 /* ---------- as janelinhas ---------- */
-function estJanela(titulo, corpoHTML, aoMontar) {
+/* `larga` para as janelas que mostram uma grade em vez de uma pergunta.
+   A largura padrão nasceu para "tem certeza?" e aperta demais o que tem
+   cartões dentro. */
+function estJanela(titulo, corpoHTML, aoMontar, larga) {
   const cx = $("est-janela");
   if (!cx) return;
   cx.innerHTML =
-    '<div class="est-jan-cx"><div class="est-jan-h">' + escaparTexto(titulo) +
+    '<div class="est-jan-cx' + (larga ? " larga" : "") + '"><div class="est-jan-h">' +
+    escaparTexto(titulo) +
     '<button class="est-jan-x" id="est-jan-x" aria-label="Fechar">✕</button></div>' +
     '<div class="est-jan-corpo">' + corpoHTML + "</div></div>";
   cx.classList.add("on");
@@ -38419,6 +39389,8 @@ function estacaoAbrir(destino) {
   if (!eu) { estAvisar("Entre com um piloto primeiro."); return; }
   EST.aberta = true;
   cx.classList.add("on");
+  try { onlinePintar(); } catch (e) {}
+  try { navAtualizar(); } catch (e) {}
   estCarregarVistos();
   estCarregarModeracao();
   try { AudioSys.resume(); } catch (e) {}
@@ -38600,14 +39572,34 @@ function pfBlocoHTML(id, dono, v, souEu) {
   return "";
 }
 
+/* ABRIR O PERFIL DE ALGUÉM RELÊ A FICHA DELE PRIMEIRO.
+   A ficha de todo mundo é relida de vinte em vinte segundos, e a marca
+   da imagem mora nela. Sem esta releitura, quem abrisse o perfil do pai
+   logo depois de ele trocar a foto veria a marca velha e concluiria,
+   corretamente, que não havia nada de novo para buscar -- só que a
+   conclusão vinha de um dado de até vinte segundos atrás.
+
+   Vinte segundos parece pouco escrito assim. Na prática é o pai dizendo
+   "troquei" e o filho respondendo "não apareceu", que foi exatamente o
+   que aconteceu. Abrir um perfil é raro e é o momento em que a pessoa
+   está olhando: um pedido a mais aqui é barato, e é o único lugar onde
+   esperar não custa nada, porque a janela já abriu. */
+async function perfilBuscarTudo(id) {
+  try {
+    const d = await nuvemReq("pilotos/" + id);
+    if (d) EST.pilotos[id] = d;
+  } catch (e) {}
+  try { await Promise.all([fotoDe(id), bannerDe(id), castigoOlhar(id)]); } catch (e) {}
+}
+
 function estAbrirPerfil(id) {
   const eu = estEu();
   if (!id || !eu) return;
   /* a foto e o castigo vêm da nuvem, então a janela abre primeiro e se
      completa depois: esperar a rede para desenhar deixaria o toque sem
      resposta por um segundo, e um segundo parado parece travado */
-  Promise.all([fotoDe(id), bannerDe(id), castigoOlhar(id)]).then(() => estPintarPerfil(id));
   estPintarPerfil(id);
+  perfilBuscarTudo(id).then(() => estPintarPerfil(id));
 }
 
 function estPintarPerfil(id) {
@@ -38738,16 +39730,21 @@ const PF_ABAS = [
 
 function estEditarPerfil() {
   const p = perfilMeu();
-  estRascunho = {
-    bio: p.bio, pronomes: p.pronomes, cor: p.cor, efeito: p.efeito,
-    fundo: p.fundo, animacao: p.animacao, fonte: p.fonte, brilho: p.brilho,
-    tema: p.tema, toque: p.toque, clique: p.clique,
-    interesses: p.interesses, blocos: perfilBlocos().join(","),
-    c1h: p.c1h, c1l: p.c1l, c2h: p.c2h, c2l: p.c2l,
-    particula: p.particula, borda: p.borda, corTitulo: p.corTitulo,
-    estadoIc: p.estadoIc, desfoque: p.desfoque, opacidade: p.opacidade,
-    horaDoDia: p.horaDoDia
-  };
+  /* O RASCUNHO SAI DO PERFIL INTEIRO, e não de uma lista escrita à mão.
+     A lista à mão existia e já estava desatualizada em cinco campos: o
+     ângulo, o formato, a textura, o movimento e o banner não entravam
+     nela. O efeito disso é sutil e chato de achar — salvar funcionava
+     (o que o dedo mexe entra no rascunho na hora), mas ABRIR o editor
+     mostrava tudo no padrão, como se nada tivesse sido escolhido.
+
+     Toda vez que alguém acrescentar um campo lá no PERFIL_PADRAO, ele
+     vem para cá sozinho. Uma regra, e não uma lista para lembrar. */
+  const r = {};
+  for (const k in PERFIL_PADRAO) r[k] = p[k];
+  /* os blocos são o único que não é campo solto: na ficha eles moram
+     colados por vírgula e podem estar vazios, querendo dizer "o padrão" */
+  r.blocos = perfilBlocos().join(",");
+  estRascunho = r;
   pfAba = "quem";
   estPintarEditor();
 }
@@ -39003,29 +40000,59 @@ function estPintarEditor() {
         escaparTexto(c.nome) + "</em>") + "</div>";
 
   } else {
-    /* ARRUMAR: quais blocos aparecem e em que ordem. Subir e descer em
-       botão, e não arrastando: arrastar numa lista dentro de uma janela
-       que já rola briga com a rolagem, e no celular vira loteria. */
-    const atuais = String(r.blocos || "").split(",").filter(Boolean);
+    /* O QUE APARECE NO MEU PERFIL
+       ---------------------------------------------------------------
+       Isto era a aba "Arrumar" e a queixa foi direta: "está muito
+       confuso". Era uma lista de nomes com ↑ ↓ ✕ do lado e, embaixo,
+       outra lista com "+ nome" -- duas listas para uma coisa só, e
+       nenhuma frase dizendo o que a tela fazia. Nem o título ajudava:
+       "Arrumar" pode ser arrumar qualquer coisa.
+
+       Agora é UMA lista com tudo dentro, na ordem de verdade, cada
+       linha com um interruptor de ligado/desligado. Desligar não tira
+       da lista: a linha fica apagada no mesmo lugar, e ligar de volta é
+       o mesmo toque. Era a segunda lista ("Guardados") que confundia --
+       o bloco sumia de um lugar e reaparecia noutro com outro nome.
+
+       Subir e descer continuam em botão, e não arrastando: arrastar
+       dentro de uma janela que já rola briga com a rolagem, e no celular
+       vira loteria.
+       --------------------------------------------------------------- */
+    const ligados = String(r.blocos || "").split(",").filter(Boolean);
+    /* a lista mostrada = os ligados na ordem escolhida, e depois os
+       desligados. Um bloco desligado não tem posição, então ele espera
+       no fim até ser ligado. */
+    const desligados = PF_BLOCOS.filter(b => ligados.indexOf(b.id) < 0).map(b => b.id);
+    const tudo = ligados.concat(desligados);
+
     corpo = '<div class="pf-campo"><label>O que aparece no meu perfil</label>' +
-      '<div class="pf-ordem">' + atuais.map((bid, i) => {
+      '<p class="est-nota">Isto é o que as outras pessoas veem quando abrem o seu ' +
+      "perfil, de cima para baixo. Desligue o que não quiser mostrar e use as " +
+      "setas para mudar a ordem.</p>" +
+      '<div class="pf-ordem">' + tudo.map((bid, i) => {
         const b = PF_BLOCOS.filter(x => x.id === bid)[0];
         if (!b) return "";
-        return '<div class="pf-ord-l"><b>' + escaparTexto(b.nome) + "</b>" +
-          '<button class="pf-ord-b" data-sobe="' + i + '" aria-label="Subir"' +
-            (i === 0 ? " disabled" : "") + ">↑</button>" +
-          '<button class="pf-ord-b" data-desce="' + i + '" aria-label="Descer"' +
-            (i === atuais.length - 1 ? " disabled" : "") + ">↓</button>" +
-          (b.sempre ? '<span class="pf-ord-fixo">sempre</span>'
-                    : '<button class="pf-ord-b tira" data-tira="' + bid + '">✕</button>') +
+        const on = ligados.indexOf(bid) >= 0;
+        const pos = ligados.indexOf(bid);
+        return '<div class="pf-ord-l' + (on ? "" : " desligado") + '">' +
+          /* o interruptor vem PRIMEIRO, porque é a pergunta principal:
+             aparece ou não aparece. A ordem só importa depois disso. */
+          '<button class="pf-ord-sw' + (on ? " on" : "") +
+            '" data-liga="' + bid + '" role="switch" aria-checked="' + on + '"' +
+            (b.sempre ? " disabled" : "") +
+            ' aria-label="' + (on ? "Esconder " : "Mostrar ") + escaparTexto(b.nome) + '">' +
+            "<i></i></button>" +
+          '<b class="pf-ord-nome">' + escaparTexto(b.nome) +
+            (b.sempre ? '<span class="pf-ord-fixo">sempre aparece</span>'
+                      : (on ? "" : '<span class="pf-ord-fixo">escondido</span>')) + "</b>" +
+          (on && !b.sempre || on
+            ? '<button class="pf-ord-b" data-sobe="' + pos + '" aria-label="Subir"' +
+                (pos <= 0 ? " disabled" : "") + ">↑</button>" +
+              '<button class="pf-ord-b" data-desce="' + pos + '" aria-label="Descer"' +
+                (pos < 0 || pos === ligados.length - 1 ? " disabled" : "") + ">↓</button>"
+            : "") +
           "</div>";
-      }).join("") + "</div>" +
-      (PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).length
-        ? '<label style="margin-top:12px">Guardados</label><div class="pf-ints">' +
-          PF_BLOCOS.filter(b => atuais.indexOf(b.id) < 0).map(b =>
-            '<button class="pf-int" data-poe="' + b.id + '">+ ' +
-            escaparTexto(b.nome) + "</button>").join("") + "</div>"
-        : "") + "</div>";
+      }).join("") + "</div></div>";
   }
 
   estJanela("Editar meu perfil",
@@ -39170,16 +40197,19 @@ function estPintarEditor() {
       cx.querySelectorAll("[data-desce]").forEach(b => b.addEventListener("click", () => {
         const i = parseInt(b.getAttribute("data-desce"), 10); mexer(i, i + 1);
       }));
-      cx.querySelectorAll("[data-tira]").forEach(b => b.addEventListener("click", () => {
-        estRascunho.blocos = String(estRascunho.blocos || "").split(",")
-          .filter(x => x && x !== b.getAttribute("data-tira")).join(",");
-        estPintarEditor();
-      }));
-      cx.querySelectorAll("[data-poe]").forEach(b => b.addEventListener("click", () => {
+      /* UM interruptor no lugar de "tirar" e "pôr". Eram dois botões com
+         nomes diferentes fazendo as duas metades da mesma pergunta, em
+         duas listas diferentes da tela -- e era daí que vinha a
+         confusão. Ligar põe no fim da lista; desligar tira da ordem mas
+         a linha continua no mesmo lugar da tela, só apagada. */
+      cx.querySelectorAll("[data-liga]").forEach(b => b.addEventListener("click", () => {
+        const id = b.getAttribute("data-liga");
         const l = String(estRascunho.blocos || "").split(",").filter(Boolean);
-        l.push(b.getAttribute("data-poe"));
+        const i = l.indexOf(id);
+        if (i >= 0) l.splice(i, 1); else l.push(id);
         estRascunho.blocos = l.join(",");
         estPintarEditor();
+        pfAtualizarPrevia();
       }));
       /* os textos */
       const bio = $("pf-bio"), conta = $("pf-conta");
@@ -41973,6 +43003,15 @@ function protegido(fn, nome) {
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
   { v: "9.2", itens: [
+      "A SUA FOTO APARECE DE VERDADE. Tinha um erro antigo: a foto (e o banner, e a fonte do nome, e o ícone de estado, e as suas cores) ficava salva só no seu aparelho e nunca ia para os outros. Você mudava o perfil inteiro e só você via. Agora vai tudo",
+      "E a foto de um amigo que acabou de trocar chega até você sem precisar fechar e abrir o jogo",
+      "TRÊS BOTÕES NOVOS: Jogo, Estação e Ajustes. No celular eles ficam embaixo, na mão; no computador viram uma fileira na esquerda, com a lista de conversas do lado, a conversa no meio e QUEM ESTÁ JOGANDO AGORA na direita",
+      "PORTA PREMIUM: quem assina o NeoNebula ganha um botão só dele, em cima de AMIGOS, com tudo o que a assinatura abriu separado por assunto — nome, fundo, atmosfera, tema, rastro e som",
+      "O ÍCONE DE ESTADO (🎮 🎧 📚 😴 🚀 👑) agora aparece do lado do seu nome no jogo inteiro, e não só dentro do seu perfil",
+      "O TOQUE DE AVISO toca quando chega mensagem. Antes ele só tocava na horinha de escolher o som",
+      "OS EFEITOS DE CLIQUE funcionam no celular: a onda nasce onde o seu dedo encostou e a faísca salta de verdade",
+      "A aba ARRUMAR virou uma lista só, com um interruptor por bloco. Antes eram duas listas e o bloco sumia de um lado para aparecer no outro",
+      "Quando uma entrega não dá certo, o painel diz POR QUE em vez de só \"não deu\"",
       "DEZ TEMAS PARA O JOGO INTEIRO, em AJUSTES › Meu perfil › Jogo: Dark Nebula, Light Clean, Cyberpunk, Retrô Synthwave, Monocromático, OLED Black, Pastel Soft, Nature Moss, Solar Gold e Do meu jeito",
       "TEM MODO CLARO DE VERDADE. Não é o escuro clareado: o fundo, os cartões, as letras, as sombras e as cores de destaque mudam todos juntos. Dá para jogar no sol",
       "OLED BLACK é preto de verdade. Em celular com tela OLED o pixel preto desliga, e isso gasta menos bateria",

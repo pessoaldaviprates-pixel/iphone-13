@@ -866,9 +866,32 @@ async function nuvemEnviar(forcar) {
     neo: (function () { try { return neoNivel(); } catch (e) { return "nenhum"; } })(),
     perfil: (function () {
       try {
+        /* VAI O PERFIL INTEIRO, e não seis campos escolhidos a dedo.
+           Aqui estavam listados bio, pronomes, cor, efeito, fundo e
+           avatar. Tudo o que entrou depois -- a foto, o banner, a fonte
+           do nome, o ícone de estado, as duas cores, o ângulo, a
+           textura, os interesses, os blocos -- ficava salvo no aparelho
+           e NUNCA saía dele. Quer dizer: a pessoa personalizava o perfil
+           e só ela via. "Troquei a foto e não aparece" e "o ícone de
+           estado não funciona" eram a mesma linha de código.
+
+           É o mesmo erro que o comentário logo acima já descrevia sobre
+           o VIP e a moldura, cometido de novo três campos depois. Por
+           isso agora a lista não existe: o que está no PERFIL_PADRAO vai,
+           e quem acrescentar um campo lá não precisa lembrar de nada.
+
+           Cabe: são uns trinta campos curtos (ids de uma palavra e
+           números pequenos), e a bio -- a única coisa comprida -- já
+           viajava aqui desde sempre. A FOTO continua fora: o que vai é a
+           marca dela, que é um número. */
         const p = perfilMeu();
-        return { bio: p.bio || "", pronomes: p.pronomes || "", cor: p.cor || "",
-                 efeito: p.efeito || "nenhum", fundo: p.fundo || "vazio", avatar: p.avatar || "" };
+        const fora = {};
+        for (const k in PERFIL_PADRAO) {
+          const v = p[k];
+          if (v === undefined || v === null || v === "") continue;   // vazio não ocupa lugar
+          fora[k] = v;
+        }
+        return fora;
       } catch (e) { return null; }
     })(),
     /* PRESENÇA. O "onde" já dizia em que tela a pessoa está; isto diz se

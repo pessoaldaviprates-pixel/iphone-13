@@ -170,6 +170,64 @@ const FOTO_LADO = 96;
 const FOTO_TETO = 40000;          // 40 KB depois de encolher: já é folgado
 const FOTOS = {};                 // uid -> dataURL, para não buscar duas vezes
 
+/* =====================================================================
+   A MARCA DA IMAGEM — por que ela é um NÚMERO QUE MUDA, e não um "1"
+   ---------------------------------------------------------------------
+   A queixa foi esta, palavra por palavra: "a imagem do meu pai também
+   não apareceu".
+
+   O que acontecia: a foto de alguém é buscada UMA VEZ e guardada aqui
+   para não pedir de novo. Só que o "não tem foto" também ficava
+   guardado — e para sempre. Quem abrisse o perfil do pai antes de ele
+   pôr a foto ficava com um "" na memória e nunca mais perguntava. A
+   foto existia na nuvem, a ficha dele dizia que existia, e a tela
+   continuava com o robô até a pessoa fechar o jogo e abrir de novo.
+
+   Trocar por um relógio ("pergunte de novo a cada 5 minutos") resolveria
+   pela metade e custaria um pedido por pessoa a cada 5 minutos, para
+   sempre, mesmo quando nada mudou.
+
+   A ficha do piloto já é lida de vinte em vinte segundos para saber quem
+   está online, e ela já carregava uma marca de "tem foto". Então a marca
+   passa a ser um NÚMERO que muda toda vez que a pessoa troca a imagem, e
+   a regra vira: guardei com a marca X, a ficha agora diz Y, então busco
+   de novo. Zero pedido enquanto nada muda, um pedido no instante em que
+   muda, e funciona igual para "pôs a primeira foto" e para "trocou a
+   foto que já tinha" — que era o segundo caso, o que nem tinha sido
+   percebido ainda.
+
+   Uma ficha antiga traz foto:1 e continua valendo 1 para sempre: quem
+   ainda não atualizou fica exatamente como era, sem quebrar.
+   ===================================================================== */
+function marcaNova() { return Math.floor(Date.now() / 1000) % 100000000; }
+
+const FOTOS_MARCA = {};           // uid -> a marca que valia quando buscamos
+
+/* a marca que a ficha da pessoa anuncia AGORA.
+   Devolve null quando não existe ficha nenhuma -- e null não é zero:
+   "ainda não sei nada desta pessoa" tem que virar uma busca, enquanto
+   "a ficha dela diz que não tem foto" tem que virar silêncio. Confundir
+   os dois faria o perfil de quem não está no canal aberto nunca carregar
+   imagem nenhuma. */
+function marcaDaFicha(uid, campo) {
+  try {
+    const eu = estEu();
+    if (eu && uid === eu.id) return Number(perfilMeu()[campo]) || 0;
+    const ficha = (typeof EST !== "undefined" && EST.pilotos) ? EST.pilotos[uid] : null;
+    if (!ficha || !ficha.perfil) return null;
+    return Number(ficha.perfil[campo]) || 0;
+  } catch (e) { return null; }
+}
+
+/* vale para foto e para banner: os dois tinham o mesmo cache e o mesmo
+   defeito, então têm a mesma pergunta */
+function imagemPrecisaBuscar(cofre, marcas, uid, campo) {
+  if (!uid) return false;
+  const agora = marcaDaFicha(uid, campo);
+  if (cofre[uid] === undefined) return agora === null || agora > 0;
+  return agora !== null && agora !== marcas[uid];
+}
+
 function fotoCaminho(uid) { return "conversas/__fotos/" + uid; }
 
 /* recorta no quadrado do meio e encolhe. Recortar ANTES de encolher
@@ -218,7 +276,10 @@ async function fotoGuardar(arquivo) {
   if (r === null) { estAvisar("Não deu para guardar a foto. Confira a internet."); return false; }
   FOTOS[eu.id] = dado;
   const p = perfilMeu();
-  p.foto = 1;                   /* na ficha vai só a marca, nunca a foto */
+  /* na ficha vai só a marca, nunca a foto -- e a marca MUDA a cada troca,
+     senão quem já tinha a foto antiga continuaria com ela na tela */
+  p.foto = marcaNova();
+  FOTOS_MARCA[eu.id] = p.foto;
   persist();
   try { nuvemEnviar(true); } catch (e) {}
   estAvisar("Foto trocada.");
@@ -230,6 +291,7 @@ async function fotoApagar() {
   if (!eu) return false;
   await nuvemSoltar(fotoCaminho(eu.id), null, "DELETE");
   delete FOTOS[eu.id];
+  delete FOTOS_MARCA[eu.id];
   const p = perfilMeu();
   p.foto = 0;
   persist();
@@ -238,11 +300,18 @@ async function fotoApagar() {
   return true;
 }
 
-/* busca a foto de alguém, uma vez só. Devolve "" se a pessoa não tem. */
-async function fotoDe(uid) {
+/* busca a foto de alguém. Busca de novo quando a marca da ficha mudou --
+   ou seja, quando a pessoa pôs ou trocou a imagem desde a última vez. */
+async function fotoDe(uid, forcar) {
   if (!uid) return "";
-  if (FOTOS[uid] !== undefined) return FOTOS[uid];
-  FOTOS[uid] = "";                       // marca que já foi buscada
+  if (!forcar && !imagemPrecisaBuscar(FOTOS, FOTOS_MARCA, uid, "foto"))
+    return FOTOS[uid] || "";
+  const marca = marcaDaFicha(uid, "foto");
+  FOTOS_MARCA[uid] = marca;
+  if (FOTOS[uid] === undefined) FOTOS[uid] = "";
+  /* a ficha diz, com todas as letras, que esta pessoa não tem foto:
+     perguntar para a nuvem seria um pedido para ouvir o que já sabemos */
+  if (marca === 0 && !forcar) { FOTOS[uid] = ""; return ""; }
   const d = await nuvemReq(fotoCaminho(uid));
   /* só entra o que É uma foto encolhida por nós. Um "dado" com
      javascript: dentro viraria um buraco na tela de quem olhasse o

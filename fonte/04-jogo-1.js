@@ -398,6 +398,7 @@ function entrarNoMenu(name) {
      vez que o jogo abre. O tema é do save, e o save acabou de ser
      escolhido nesta linha: é aqui que dá para saber qual é. */
   try { temaAplicar(); } catch (e) {}
+  try { navLigar(); } catch (e) {}
   ligarBatimento();
   setTimeout(() => { try { sugEnviarPendentes(); } catch (e) {} }, 2500);
   try { mundoLigar(); } catch (e) {}
@@ -1380,7 +1381,7 @@ async function envMandar(presente, texto, botao) {
     await admAvisarNaConversa(envAlvo.id, "Enviei para você: " + texto + ". Aproveite!");
     AudioSys.buy();
   } else {
-    admMsg("Não deu para enviar agora.");
+    admMsg("Não deu para enviar: " + (entregaMotivo || "motivo desconhecido."));
     AudioSys.deny();
   }
 }
@@ -1503,7 +1504,7 @@ async function admEntregarPedido(chave, pd, botao) {
     await admAvisarNaConversa(pd.de, "Entregue! " + texto + " já está na sua conta. Obrigado 🙏");
     admMsg("Entregue: " + texto);
   } else {
-    admMsg("Não deu para entregar agora.");
+    admMsg("Não deu para entregar: " + (entregaMotivo || "motivo desconhecido."));
   }
   if (botao) { botao.disabled = false; botao.textContent = "ENTREGAR"; }
   admLojaCarregar();
@@ -1512,7 +1513,27 @@ async function admEntregarPedido(chave, pd, botao) {
 /* Escreve a compra na MESMA caixa de presente que o painel já usa, para
    a pessoa receber com a animação de sempre. Junta com o que estiver
    pendente, para não apagar um presente que ainda não foi retirado.   */
+/* POR QUE A ENTREGA FALHOU, e não só que falhou.
+   "Não deu para entregar agora" foi a única coisa que o painel soube
+   dizer durante meses. Quem está do outro lado pagou, então a diferença
+   entre "a internet caiu", "as regras do Firebase recusam o galho
+   presentes/" e "o nome está errado" é a diferença entre consertar em um
+   minuto e ficar adivinhando. O último motivo fica guardado aqui e o
+   painel mostra. */
+let entregaMotivo = "";
+function entregaExplicar(status) {
+  if (status === 401 || status === 403)
+    return "o Firebase recusou (regra faltando para presentes/). " +
+           "Cole as regras novas -- estão no NUVEM.md.";
+  if (status === 404) return "o endereco da nuvem nao respondeu (404).";
+  if (status) return "a nuvem respondeu " + status + ".";
+  return "nao deu para falar com a nuvem (internet ou endereco).";
+}
+
 async function entregarCompra(idJogador, presente, texto) {
+  entregaMotivo = "";
+  if (!nuvemAtiva()) { entregaMotivo = "a nuvem esta desligada neste aparelho."; return false; }
+  if (!idJogador) { entregaMotivo = "nenhuma conta escolhida."; return false; }
   const pendente = (await nuvemReq("presentes/" + idJogador)) || {};
   const novo = Object.assign({}, pendente);
   const c = Object.assign({ vipDias: 0, passes: [], naves: [] }, novo.compra || {});
@@ -1527,8 +1548,14 @@ async function entregarCompra(idJogador, presente, texto) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(novo)
   });
+  /* CONFERE LENDO DE VOLTA. Um PUT que o Firebase recusa devolve erro,
+     mas um PUT que "passa" e cai numa regra de validação pode não
+     gravar nada -- e a única forma honesta de saber se a entrega
+     chegou é ir lá ver se ela está. */
   const conf = await nuvemReq("presentes/" + idJogador);
-  return !!(conf && conf.compra);
+  if (conf && conf.compra) return true;
+  entregaMotivo = entregaExplicar(typeof ultimoErroNuvem === "number" ? ultimoErroNuvem : 0);
+  return false;
 }
 
 async function admAvisarNaConversa(idJogador, texto) {

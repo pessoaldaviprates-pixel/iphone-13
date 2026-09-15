@@ -6788,17 +6788,47 @@
   }
   .cast-t em{font-style:normal;font-size:.52rem;color:var(--dim)}
 
-  /* ---- o efeito de clique, no jogo inteiro ---- */
-  body[data-clique="afunda"] button:active{transform:scale(.96)}
-  body[data-clique="onda"] button:active{
-    box-shadow:0 0 0 6px rgba(77,232,255,.16);transition:box-shadow .12s ease;
+  /* ---- o efeito de clique, no jogo inteiro (ver 09-navegar.js) ----
+     A classe .clicou é posta pelo JS e dura o tempo da animação, solta
+     do dedo. Antes tudo isto era `:active`, e no celular um :active dura
+     o piscar de um toque -- os efeitos existiam e ninguém via. */
+  body[data-clique="afunda"] .clicou{animation:cliqAfunda .2s ease}
+  @keyframes cliqAfunda{50%{transform:scale(.94)}}
+
+  /* a onda precisa de um lugar para nascer e de uma borda que a corte */
+  body[data-clique="onda"] .clicou,
+  body[data-clique="faisca"] .clicou{position:relative;overflow:hidden}
+  body[data-clique="onda"] .clicou::after{
+    content:"";position:absolute;pointer-events:none;
+    left:var(--toque-x,50%);top:var(--toque-y,50%);
+    width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;
+    background:var(--cyan);opacity:.5;
+    animation:cliqOnda .44s cubic-bezier(.2,.7,.3,1) forwards;
   }
-  body[data-clique="brilha"] button:active{
-    filter:brightness(1.35) saturate(1.2);
+  @keyframes cliqOnda{to{transform:scale(26);opacity:0}}
+
+  body[data-clique="brilha"] .clicou{animation:cliqBrilha .34s ease}
+  @keyframes cliqBrilha{
+    0%{filter:brightness(1)}
+    30%{filter:brightness(1.45) saturate(1.25)}
+    100%{filter:brightness(1)}
   }
-  body[data-clique="faisca"] button:active{
-    box-shadow:0 0 0 3px rgba(255,193,69,.35),0 0 22px rgba(255,193,69,.5);
-    filter:brightness(1.2);
+
+  /* a faísca salta do ponto tocado e some subindo -- é isso que o nome
+     promete, e não uma borda dourada parada */
+  body[data-clique="faisca"] .clicou::after{
+    content:"✦";position:absolute;pointer-events:none;
+    left:var(--toque-x,50%);top:var(--toque-y,50%);
+    color:var(--amber);font-size:.7rem;line-height:1;
+    text-shadow:0 0 10px var(--amber);
+    animation:cliqFaisca .46s ease-out forwards;
+  }
+  @keyframes cliqFaisca{
+    0%{transform:translate(-50%,-50%) scale(.4);opacity:1}
+    100%{transform:translate(-50%,-190%) scale(1.5);opacity:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .clicou,.clicou::after{animation:none!important}
   }
 
   /* ---- e no celular tudo cabe no dedo ---- */
@@ -7084,3 +7114,221 @@
   body.tema-claro h1,body.tema-claro h2,body.tema-claro h3{text-shadow:none}
   /* scrollbar e seleção acompanham */
   body.tema-claro ::selection{background:rgba(15,127,168,.22);color:var(--ink)}
+
+  /* =================================================================
+     A BARRA DE TRÊS  (ver fonte/09-navegar.js)
+     -----------------------------------------------------------------
+     Um HTML só, dois lugares: deitada embaixo no celular, em pé na
+     esquerda no computador. Duas barras seriam duas chances de
+     discordarem sobre qual botão está aceso.
+     ================================================================= */
+  .nav-barra{
+    position:fixed;z-index:70;display:flex;
+    background:var(--vidro);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--line);
+    transition:transform .22s ease,opacity .18s ease;
+  }
+  .nav-barra.sumiu{opacity:0;pointer-events:none}
+  .nav-b{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    gap:8px;cursor:pointer;background:none;border:0;color:var(--dim);
+    font-family:"Chakra Petch",sans-serif;font-weight:600;
+    transition:color .16s ease,background .16s ease;
+  }
+  .nav-b .nav-ic{flex:none;transition:transform .16s ease}
+  .nav-b em{font-style:normal;letter-spacing:.06em}
+  .nav-b.on{color:var(--cyan)}
+  .nav-b.on .nav-ic{transform:translateY(-1px)}
+  /* o dedo não passa o mouse: o realce de hover só existe onde há mouse,
+     senão ele "gruda" no último botão tocado e parece outro selecionado */
+  body.no-pc .nav-b:hover{color:var(--ink)}
+  .nav-b:active{transform:scale(.94)}
+  /* o selo de não lidas mora no ícone da estação, que é onde se procura */
+  .nav-selo{
+    position:absolute;display:none;min-width:17px;height:17px;padding:0 4px;
+    border-radius:99px;background:var(--danger);color:#fff;
+    font-size:.5rem;font-weight:800;line-height:17px;font-style:normal;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+  .nav-selo.on{display:block}
+
+  /* ---- CELULAR: deitada, colada embaixo, no alcance do polegar ---- */
+  body.no-celular .nav-barra{
+    left:0;right:0;bottom:0;
+    border-width:1px 0 0;border-radius:0;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  body.no-celular .nav-barra.sumiu{transform:translateY(105%)}
+  body.no-celular .nav-b{
+    flex:1;flex-direction:column;gap:3px;padding:7px 4px 5px;
+    border-radius:12px;font-size:.52rem;
+  }
+  body.no-celular .nav-b.on{background:rgba(var(--rgb-carta),.5)}
+  body.no-celular .nav-selo{top:3px;left:50%;margin-left:4px}
+
+  /* ---- COMPUTADOR: em pé, colada na esquerda, como na referência ---- */
+  body.no-pc .nav-barra{
+    top:0;bottom:0;left:0;width:74px;
+    flex-direction:column;align-items:stretch;gap:4px;
+    border-width:0 1px 0 0;border-radius:0;
+    padding:calc(10px + env(safe-area-inset-top, 0px)) 8px 12px;
+  }
+  body.no-pc .nav-barra.sumiu{transform:translateX(-105%)}
+  body.no-pc .nav-b{
+    flex:none;flex-direction:column;gap:4px;padding:11px 2px 9px;
+    border-radius:14px;font-size:.47rem;
+  }
+  body.no-pc .nav-b.on{background:rgba(var(--rgb-carta),.6)}
+  /* o risquinho aceso na borda: é ele que diz "você está aqui" quando
+     três ícones parecidos estão um embaixo do outro */
+  body.no-pc .nav-b.on::before{
+    content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+    width:3px;height:22px;border-radius:0 3px 3px 0;background:var(--cyan);
+  }
+  body.no-pc .nav-selo{top:6px;right:12px}
+
+  /* o resto do jogo se afasta da barra, para nada ficar embaixo dela */
+  body.no-pc .estacao{left:74px}
+  body.no-celular .estacao{padding-bottom:calc(66px + env(safe-area-inset-bottom, 0px))}
+  body.no-celular .est-flutua{bottom:calc(74px + env(safe-area-inset-bottom, 0px))}
+  /* o botão flutuante e a barra diriam a mesma coisa duas vezes */
+  .nav-barra:not(.sumiu) ~ .est-flutua{display:none}
+
+  /* =================================================================
+     A COLUNA DA DIREITA — quem está jogando agora
+     ================================================================= */
+  .est-direita{display:none}
+  body.no-pc .estacao{grid-template-columns:250px minmax(0,1fr) 260px}
+  body.no-pc .est-direita{
+    display:block;overflow-y:auto;
+    background:rgba(var(--rgb-carta),.35);
+    border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:12px 10px;
+  }
+  .est-dir-h{
+    font-size:.54rem;letter-spacing:.14em;color:var(--dim);
+    font-weight:700;margin:2px 4px 10px;
+  }
+  .est-dir-l{
+    width:100%;display:flex;align-items:center;gap:9px;
+    padding:7px 8px;border-radius:11px;border:0;background:none;
+    cursor:pointer;text-align:left;color:var(--ink);
+    transition:background .14s ease;
+  }
+  .est-dir-l:hover{background:rgba(var(--rgb-carta),.7)}
+  .est-dir-l .est-av{width:32px;height:32px;flex:none}
+  .est-dir-t{min-width:0;display:flex;flex-direction:column;gap:1px}
+  .est-dir-t b{font-size:.68rem;font-weight:700;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .est-dir-t em{font-style:normal;font-size:.56rem;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .est-dir-ap{margin-left:auto;font-style:normal;color:var(--fraco);font-size:.62rem}
+
+  /* ---- a porta Premium e o painel dela (09-premium.js) ---- */
+  .est-dest.pm-porta{
+    background:linear-gradient(135deg,rgba(255,200,97,.16),rgba(var(--rgb-carta),.6));
+    border:1px solid rgba(255,200,97,.34);
+  }
+  .est-dest.pm-porta .est-dest-ic{background:rgba(255,200,97,.2)}
+  .pm-topo{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .pm-selo{
+    width:46px;height:46px;flex:none;display:flex;align-items:center;justify-content:center;
+    border-radius:14px;font-size:1.3rem;
+    background:linear-gradient(140deg,rgba(255,200,97,.28),rgba(255,200,97,.08));
+    border:1px solid rgba(255,200,97,.4);
+  }
+  .pm-topo strong{display:block;font-size:.86rem;letter-spacing:.04em}
+  .pm-topo em{font-style:normal;font-size:.6rem;color:var(--dim)}
+  /* AS COLUNAS SE CONTAM SOZINHAS. A primeira versão dizia "duas no
+     computador", e o resultado foi um cartão de 90px de largura com uma
+     palavra por linha: a janela onde eles moram é estreita, e o tamanho
+     da TELA não diz nada sobre o tamanho da CAIXA. Com auto-fit quem
+     decide é o espaço que existe ali, e não um palpite sobre o aparelho. */
+  .pm-grade{
+    display:grid;gap:8px;margin:12px 0;
+    grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  }
+  .pm-cartao{
+    display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;
+    padding:11px 12px;border-radius:var(--r-md);color:var(--ink);
+    background:rgba(var(--rgb-carta),.5);border:1px solid var(--line);
+    transition:border-color .14s ease,background .14s ease;
+  }
+  .pm-cartao:hover{border-color:var(--line2);background:rgba(var(--rgb-carta),.75)}
+  .pm-ic{
+    width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;
+    border-radius:11px;font-size:1rem;background:rgba(var(--rgb-fundo),.5);
+  }
+  .pm-txt{min-width:0;flex:1}
+  .pm-txt strong{display:block;font-size:.7rem;font-weight:700}
+  .pm-txt em{font-style:normal;font-size:.56rem;color:var(--dim);line-height:1.35;display:block}
+  .pm-conta{
+    flex:none;font-style:normal;font-size:.52rem;font-weight:700;letter-spacing:.06em;
+    color:var(--amber);background:rgba(255,200,97,.12);
+    border:1px solid rgba(255,200,97,.28);border-radius:99px;padding:3px 8px;
+  }
+  /* o .est-bt é um botão claro, e o texto dele estava herdando a tinta
+     clara do tema: letra branca em cima de barra branca. Aqui a tinta é
+     dita na mão, escura, porque o fundo deste botão é claro em TODOS os
+     temas -- ele é o único lugar onde "escuro" não depende do tema. */
+  .pm-subir{
+    width:100%;margin-top:6px;color:#11161f;font-weight:700;
+    background:linear-gradient(135deg,var(--amber),#FFE1A3);
+    border:1px solid rgba(255,200,97,.5);
+  }
+
+  /* a janela da Estação é estreita de propósito (ela nasceu para
+     confirmações de uma linha). O painel Premium tem seis cartões, então
+     ele pede mais largura -- e só ele, pelo id. */
+  body.no-pc .est-janela .est-jan-cx.larga{max-width:min(760px,92vw)}
+
+  /* ---- a aba "o que aparece no meu perfil" ---- */
+  .pf-ord-l{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 10px;border-radius:var(--r-md);
+    background:rgba(var(--rgb-carta),.42);border:1px solid var(--line);
+    margin-bottom:6px;transition:opacity .16s ease;
+  }
+  /* desligado NÃO some da lista: ele fica apagado no mesmo lugar, para a
+     pessoa saber onde achá-lo de volta */
+  .pf-ord-l.desligado{opacity:.48}
+  .pf-ord-sw{
+    flex:none;width:38px;height:22px;border-radius:99px;cursor:pointer;padding:0;
+    background:rgba(var(--rgb-fundo),.7);border:1px solid var(--line2);
+    transition:background .16s ease,border-color .16s ease;
+  }
+  .pf-ord-sw i{
+    display:block;width:16px;height:16px;border-radius:50%;
+    background:var(--dim);margin-left:2px;transition:transform .16s ease,background .16s ease;
+  }
+  .pf-ord-sw.on{background:rgba(77,232,255,.24);border-color:var(--cyan)}
+  .pf-ord-sw.on i{transform:translateX(16px);background:var(--cyan)}
+  .pf-ord-sw:disabled{opacity:.5;cursor:default}
+  .pf-ord-nome{flex:1;min-width:0;font-size:.7rem;font-weight:700;
+    display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .pf-ord-fixo{font-size:.52rem;font-weight:600;color:var(--fraco);letter-spacing:.04em}
+  .pf-ord-b{
+    flex:none;width:30px;height:30px;border-radius:9px;cursor:pointer;
+    background:rgba(var(--rgb-fundo),.6);border:1px solid var(--line);color:var(--ink2);
+    font-size:.8rem;line-height:1;
+  }
+  .pf-ord-b:disabled{opacity:.3;cursor:default}
+
+  /* A BARRA NÃO PODE TAPAR O ÚLTIMO BOTÃO.
+     Ela é `position:fixed`, ou seja, não empurra nada: sem esta folga
+     embaixo, o último item de cada tela fica debaixo dela e o dedo
+     nunca alcança. É o tipo de coisa que não aparece num monitor grande
+     e é a primeira que aparece num celular pequeno. */
+  body.no-celular .screen,
+  body.no-celular .page{
+    padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  body.no-celular .page-body,
+  body.no-celular .scroll{scroll-padding-bottom:72px}
+  /* no computador a fileira é lateral, então a folga é de lado */
+  body.no-pc .screen,
+  body.no-pc .page{padding-left:calc(74px + 16px)}
+  /* ...menos a Estação, que já foi afastada pelo `left:74px` -- somar os
+     dois deixaria uma faixa vazia de 148px na esquerda dela */
+  body.no-pc .estacao{padding-left:10px}

@@ -599,6 +599,15 @@ function protegido(fn, nome) {
 /* ---------- Relatório de novidades (sempre aberto no menu) ---------- */
 const NOVIDADES = [
   { v: "9.2", itens: [
+      "A SUA FOTO APARECE DE VERDADE. Tinha um erro antigo: a foto (e o banner, e a fonte do nome, e o ícone de estado, e as suas cores) ficava salva só no seu aparelho e nunca ia para os outros. Você mudava o perfil inteiro e só você via. Agora vai tudo",
+      "E a foto de um amigo que acabou de trocar chega até você sem precisar fechar e abrir o jogo",
+      "TRÊS BOTÕES NOVOS: Jogo, Estação e Ajustes. No celular eles ficam embaixo, na mão; no computador viram uma fileira na esquerda, com a lista de conversas do lado, a conversa no meio e QUEM ESTÁ JOGANDO AGORA na direita",
+      "PORTA PREMIUM: quem assina o NeoNebula ganha um botão só dele, em cima de AMIGOS, com tudo o que a assinatura abriu separado por assunto — nome, fundo, atmosfera, tema, rastro e som",
+      "O ÍCONE DE ESTADO (🎮 🎧 📚 😴 🚀 👑) agora aparece do lado do seu nome no jogo inteiro, e não só dentro do seu perfil",
+      "O TOQUE DE AVISO toca quando chega mensagem. Antes ele só tocava na horinha de escolher o som",
+      "OS EFEITOS DE CLIQUE funcionam no celular: a onda nasce onde o seu dedo encostou e a faísca salta de verdade",
+      "A aba ARRUMAR virou uma lista só, com um interruptor por bloco. Antes eram duas listas e o bloco sumia de um lado para aparecer no outro",
+      "Quando uma entrega não dá certo, o painel diz POR QUE em vez de só \"não deu\"",
       "DEZ TEMAS PARA O JOGO INTEIRO, em AJUSTES › Meu perfil › Jogo: Dark Nebula, Light Clean, Cyberpunk, Retrô Synthwave, Monocromático, OLED Black, Pastel Soft, Nature Moss, Solar Gold e Do meu jeito",
       "TEM MODO CLARO DE VERDADE. Não é o escuro clareado: o fundo, os cartões, as letras, as sombras e as cores de destaque mudam todos juntos. Dá para jogar no sol",
       "OLED BLACK é preto de verdade. Em celular com tela OLED o pixel preto desliga, e isso gasta menos bateria",

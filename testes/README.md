@@ -89,3 +89,26 @@ Firebase falso *limpo* na porta 8099. Se já houver um ali, o da bateria não
 sobe, todos os testes dividem a mesma nuvem suja e dois ou três falham por
 herdarem o que o teste anterior deixou — com erro que parece bug de verdade.
 `pgrep -f 'node fakefb.js'` antes de começar resolve.
+
+
+## Duas pessoas num teste = dois navegadores
+
+Um teste que abre dois pilotos tem que dar um `newContext()` para **cada
+um**, e não duas `newPage()` no mesmo contexto.
+
+Duas páginas no mesmo contexto dividem a mesma fila de conexões. A
+Estação segura UM fluxo (SSE) aberto por página; duas dessas mais as
+leituras normais secavam a fila para o endereço do Firebase falso, e o
+`estEnviar` ficava esperando um socket que nunca chegava — **para
+sempre**, sem erro nenhum. O teste pendurava, e um teste pendurado é
+indistinguível de um teste pensando.
+
+Custou tempo de caça porque o mesmo código funciona com um piloto só e
+funciona no jogo de verdade: lá cada pessoa tem o seu navegador, que é
+exatamente o que um contexto separado imita.
+
+## Um teste que pode travar tem que dizer onde travou
+
+`test_avisos.js` guarda o nome da última etapa que passou e tem um
+relógio que derruba tudo em 90s com essa etapa no texto do erro. Sem
+isso, a única informação de um teste travado é "não terminou".

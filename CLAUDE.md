@@ -295,6 +295,53 @@ traz a mudança de volta para `fonte/` e confere que nada se perdeu.
   só `foto: 1`. É essa marca que deixa o bate-papo saber **quem tem foto**
   sem pedir a de todo mundo: sem ela, a única forma seria tentar buscar a
   de cada um e ver quais voltam vazias — um pedido por pessoa, toda vez.
+- **Lista de campos escrita à mão envelhece calada.** A ficha que sobe para
+  a nuvem levava o perfil assim: `{bio, pronomes, cor, efeito, fundo, avatar}`.
+  Seis campos escolhidos a dedo. Tudo o que entrou da v9.0 em diante — a
+  foto, o banner, a fonte do nome, o ícone de estado, as duas cores, o
+  ângulo, a textura, os interesses, os blocos — ficava salvo no aparelho e
+  **nunca saía dele**. A pessoa personalizava o perfil inteiro e só ela via.
+  "Troquei a foto e não aparece" e "o ícone de estado não funciona" eram a
+  MESMA linha de código. Pior: o comentário logo acima dessa linha já
+  contava que o VIP e a moldura tinham morrido por isso, e o erro foi
+  repetido três campos abaixo do próprio aviso. O rascunho do editor tinha
+  a mesma lista à mão, também desatualizada em cinco campos. Hoje os dois
+  saem de `PERFIL_PADRAO` com um `for..in`. **Se existe uma lista de
+  campos escrita à mão, ela já está errada — só ninguém percebeu ainda.**
+- **Cache que guarda "não tem" nunca aprende que passou a ter.** `fotoDe()`
+  buscava a foto de alguém uma vez e guardava. Guardava também o vazio: quem
+  abrisse o perfil do pai antes de ele pôr foto ficava com `""` na memória e
+  **nunca mais perguntava**. A foto existia, a ficha dizia que existia, e a
+  tela ficava no robô até fechar e abrir o jogo. Um relógio ("pergunte de
+  novo a cada 5 minutos") resolveria pela metade e custaria um pedido por
+  pessoa para sempre. O certo era a marca: a ficha (já lida de 20 em 20
+  segundos) passou a levar um NÚMERO que muda a cada troca, e o cache se
+  rende quando o número muda. Zero pedido enquanto nada muda, um pedido no
+  instante em que muda — e de graça resolve também o "trocou a foto que já
+  tinha", que ninguém tinha percebido ainda.
+- **Escolha salva e nunca lida é igual a escolha quebrada.** O ícone de
+  estado tinha sete opções, tela de escolher, trava por nível e gravação
+  certinha — e desenhava num lugar só, o cartão de perfil aberto. O toque de
+  aviso tinha cinco sons e a única coisa que chamava `toqueTocar()` era a
+  prévia da tela de escolha: o aviso avisava exatamente uma vez, no momento
+  em que ninguém precisava. Para quem escolheu, os dois "não funcionam" — e
+  está certo. **Ao acrescentar uma opção, a última pergunta não é "salvou?",
+  é "quem LÊ isto?"** Se a resposta for "a tela que escolhe", não está
+  pronto.
+- **`:active` não é efeito num celular.** Os quatro efeitos de clique eram
+  CSS preso ao `:active`, ou seja: só existiam enquanto o dedo estava
+  encostado. Um toque dura uns 80ms e o que a pessoa vê é um pisca que some
+  antes de ela olhar. E "onda" e "faísca" são, pelo nome, coisas que
+  acontecem DEPOIS de soltar. Agora o toque põe uma classe que dura o tempo
+  da animação, solta do dedo, e a onda nasce no ponto tocado — nascendo no
+  meio ela parece um brilho ligando, e não uma onda.
+- **Duas listas para uma pergunta são a confusão.** A aba "Arrumar" tinha
+  uma lista dos blocos ligados (com ↑ ↓ ✕) e outra, embaixo, dos guardados
+  (com "+ nome"). Desligar um bloco fazia ele sumir de um lugar e reaparecer
+  noutro, com outro nome de botão. Hoje é uma lista só, cada linha com um
+  interruptor: desligado, a linha fica apagada NO MESMO LUGAR. Regra: quando
+  uma coisa some de um canto da tela, a pessoa tem que ver para onde ela
+  foi.
 - **Relógio de celular erra.** Na hora de escolher entre dois saves, vence o que
   tem MAIS progresso, não o mais recente.
 
