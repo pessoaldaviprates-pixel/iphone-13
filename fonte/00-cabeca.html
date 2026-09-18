@@ -13,6 +13,109 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Neon Nebula</title>
+
+<!-- =====================================================================
+     A SAÍDA DE EMERGÊNCIA
+     =====================================================================
+     Quando o jogo não abre, a tela fica branca — e o conserto ("BAIXAR
+     TUDO DE NOVO", em AJUSTES) mora DENTRO do jogo que não abriu. Foi por
+     isso que alguém teve que apagar o atalho da tela de início e pôr de
+     novo para conseguir jogar: não havia outra saída.
+
+     Este pedaço é a saída. Ele é o PRIMEIRO script da página, é inteiro
+     escrito aqui dentro e não chama nada do jogo — de propósito: se ele
+     dependesse do jogo, morreria junto com o que está tentando socorrer.
+
+     Ele conta até doze segundos. Se até lá nenhuma tela do jogo tiver
+     aparecido, ele desenha um botão que apaga o cache, desliga o service
+     worker e recarrega. É exatamente o que o atalho apagado e recolocado
+     fazia, só que sem perder o atalho.
+     ===================================================================== -->
+<script>
+(function () {
+  var ESPERA = 12000;
+  var erro = "";
+  var socorroNaTela = false;
+
+  /* guarda o primeiro erro: é ele que explica a tela branca, e sem isto
+     a pessoa só teria "não abriu" para me contar */
+  window.addEventListener("error", function (e) {
+    if (!erro) erro = (e && e.message ? e.message : "erro") +
+      (e && e.filename ? " (" + String(e.filename).split("/").pop() + ":" + e.lineno + ")" : "");
+  });
+  window.addEventListener("unhandledrejection", function (e) {
+    if (!erro) erro = "promessa recusada: " +
+      ((e && e.reason && e.reason.message) || (e && e.reason) || "?");
+  });
+
+  function abriu() {
+    /* "abriu" é ter QUALQUER tela do jogo à mostra. Não serve perguntar
+       se um script carregou: o arquivo pode ter chegado inteiro e ter
+       estourado no meio, que é justamente o caso da tela branca. */
+    return !!document.querySelector(".screen.show, .page.show, .estacao.on");
+  }
+
+  async function limparTudo() {
+    try {
+      if (window.caches && caches.keys) {
+        var ks = await caches.keys();
+        await Promise.all(ks.map(function (k) { return caches.delete(k); }));
+      }
+    } catch (e) {}
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+        var rs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(rs.map(function (r) { return r.unregister(); }));
+      }
+    } catch (e) {}
+    /* o save NÃO é apagado: ele vive no localStorage e no banco do
+       aparelho, e quem está com tela branca quer voltar a jogar, não
+       recomeçar do zero. O problema é a cópia da PÁGINA, não o progresso. */
+    try { location.replace(location.pathname + "?nn=" + Date.now()); }
+    catch (e) { location.reload(); }
+  }
+
+  function socorro() {
+    if (socorroNaTela || abriu()) return;
+    socorroNaTela = true;
+    var d = document.createElement("div");
+    d.setAttribute("style",
+      "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;" +
+      "justify-content:center;padding:24px;background:#03060F;color:#F2F6FF;" +
+      "font-family:system-ui,-apple-system,Segoe UI,sans-serif;text-align:center");
+    d.innerHTML =
+      '<div style="max-width:330px">' +
+      '<div style="font-size:2.2rem;margin-bottom:10px">🛠</div>' +
+      '<h1 style="font-size:1.05rem;margin:0 0 10px;letter-spacing:.02em">' +
+      "O jogo não abriu</h1>" +
+      '<p style="font-size:.82rem;line-height:1.5;opacity:.8;margin:0 0 6px">' +
+      "Isso quase sempre é uma cópia velha guardada no aparelho. " +
+      "O botão abaixo baixa tudo de novo.</p>" +
+      '<p style="font-size:.78rem;line-height:1.5;opacity:.8;margin:0 0 18px">' +
+      "<b>O seu progresso não se perde</b> — ele fica guardado à parte.</p>" +
+      '<button id="nn-socorro-b" style="width:100%;padding:14px;border:0;' +
+      "border-radius:14px;cursor:pointer;font-size:.9rem;font-weight:700;" +
+      'background:linear-gradient(135deg,#5EE6FF,#B57BFF);color:#04060F">' +
+      "BAIXAR TUDO DE NOVO</button>" +
+      (erro ? '<p style="font-size:.62rem;opacity:.45;margin-top:16px;' +
+              'word-break:break-word">' +
+              String(erro).replace(/[<>&]/g, "") + "</p>" : "") +
+      "</div>";
+    (document.body || document.documentElement).appendChild(d);
+    var b = document.getElementById("nn-socorro-b");
+    if (b) b.addEventListener("click", function () {
+      b.disabled = true;
+      b.textContent = "BAIXANDO…";
+      limparTudo();
+    });
+  }
+
+  setTimeout(socorro, ESPERA);
+  /* se já estourou erro E nada apareceu, não faz sentido esperar os doze
+     segundos inteiros olhando para o branco */
+  setTimeout(function () { if (erro) socorro(); }, 4000);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap">

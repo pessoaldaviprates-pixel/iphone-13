@@ -59,11 +59,28 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(event.request)
         .then((resp) => {
+          /* RESPOSTA RUIM NÃO É RESPOSTA.
+             Aqui a linha era `return resp` solta: se a rede respondesse
+             404, 503, ou aquela página de wi-fi que pede login, o
+             service worker entregava ISSO para a página. Resposta vazia
+             numa navegação é tela branca -- e como a estratégia é
+             rede-primeiro, acontecia de novo a cada abertura. A cópia
+             boa estava no cache o tempo todo, do lado, e nunca era
+             usada: o `.catch()` só pega rede que FALHA, não rede que
+             responde errado.
+             Foi isso que obrigou alguém a apagar o atalho da tela de
+             início e pôr de novo para conseguir jogar. */
           if (resp && resp.ok) {
             const copia = resp.clone();
             caches.open(CACHE).then((cache) => cache.put(event.request, copia));
+            return resp;
           }
-          return resp;
+          /* deu ruim: usa o que está guardado, e só entrega a resposta
+             ruim se não houver nada guardado -- aí o erro do servidor é
+             mesmo a melhor informação que temos */
+          return caches.match(event.request)
+            .then((c) => c || caches.match("./index.html"))
+            .then((c) => c || resp);
         })
         .catch(() => caches.match(event.request).then((c) => c || caches.match("./index.html")))
     );
@@ -75,6 +92,9 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((resp) => {
+        /* mesmo cuidado: não guardar resposta ruim no cache. Guardar um
+           404 aqui é envenenar o cache -- ele passaria a servir o 404
+           para sempre, sem nem tentar a rede de novo. */
         if (resp && resp.ok) {
           const copia = resp.clone();
           caches.open(CACHE).then((cache) => cache.put(event.request, copia));
