@@ -12830,7 +12830,23 @@ function menuCaber() {
     }
     return baixo;
   };
-  const naoCabe = () => bordaMaisBaixa() > fundoDisponivel();
+  /* E O MIOLO NÃO PODE ESTAR ESPREMIDO.
+     A borda de baixo sozinha não pega tudo. A `.menu-btns` é `flex:1`:
+     quando falta pouco espaço ela encolhe a PRÓPRIA CAIXA e o conteúdo
+     transborda para fora dela, sem passar da borda de baixo da tela --
+     a medida dizia "cabe" e dois pixels de botão ficavam cortados.
+     Eram 2px num Android de 360x640, o bastante para o teste pegar e
+     para a última linha parecer raspada na tela de quem joga.
+
+     Quem sabe se está espremido é a própria caixa: `scrollHeight` maior
+     que `clientHeight` quer dizer que não coube. Aqui esse número não
+     mente, porque a nebulosa (a armadilha do CLAUDE.md) é filha da
+     `.screen`, não da `.menu-btns`. */
+  const espremido = () => {
+    const el = tela.querySelector(".menu-btns");
+    return el ? el.scrollHeight - el.clientHeight > 0 : false;
+  };
+  const naoCabe = () => bordaMaisBaixa() > fundoDisponivel() || espremido();
 
   for (const id of MENU_OPCIONAIS) {
     if (!naoCabe()) return;
