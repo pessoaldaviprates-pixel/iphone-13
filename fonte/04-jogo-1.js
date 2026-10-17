@@ -321,6 +321,23 @@ const MENU_OPCIONAIS = ["menu-hoje", "vip-aviso", "diaria-cartao"];
 function menuCaber() {
   const tela = SCREENS.menu;
   if (!tela || !tela.classList.contains("show")) return;
+  /* ONDE A PESSOA ESTAVA NA ROLAGEM.
+     Daqui a duas linhas o `menu-rola` sai para a medida começar do
+     zero -- e tirar a rolagem de um elemento FAZ O NAVEGADOR ZERAR o
+     `scrollTop`, porque de repente não há mais para onde rolar. Repondo
+     a classe no fim, a posição não volta: ela já tinha se perdido.
+
+     Isso sozinho era a queixa "não dá para rolar". Esta função roda a
+     cada mudança da tela (o aviso de nuvem que chega, o selo de não
+     lidas, o contador de online) e uma vez por segundo pela barra:
+     qualquer arrastão era desfeito antes de a pessoa soltar o dedo. O
+     menu parecia preso, e o botão que ela estava buscando continuava
+     embaixo da barra de três.
+
+     Guardar um número e devolvê-lo é mais barato do que medir sem tirar
+     a classe -- medir com a rolagem ligada mediria o menu já rolado,
+     que é outra coisa. */
+  const rolagem = tela.scrollTop;
   /* devolve todos e deixa o próprio jogo decidir quem aparece */
   for (const id of MENU_OPCIONAIS) {
     const el = $(id);
@@ -381,7 +398,11 @@ function menuCaber() {
     if (el && getComputedStyle(el).display !== "none") el.classList.add("menu-guardado");
   }
   /* último recurso: nada pode ficar fora do alcance do dedo */
-  if (naoCabe()) tela.classList.add("menu-rola");
+  if (naoCabe()) {
+    tela.classList.add("menu-rola");
+    /* e a pessoa continua exatamente onde estava */
+    if (rolagem) tela.scrollTop = rolagem;
+  }
 }
 
 addEventListener("resize", () => { try { menuCaber(); } catch (e) {} });

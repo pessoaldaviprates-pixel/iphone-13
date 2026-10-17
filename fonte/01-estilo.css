@@ -699,6 +699,37 @@
   /* ultimo recurso: se nem guardando couber, o menu volta a rolar --
      botao que o dedo nao alcanca e sempre pior do que rolagem */
   #screen-menu.menu-rola{overflow-y:auto}
+  /* ROLAR SÓ FUNCIONA SE O MIOLO PARAR DE SE ENCOLHER.
+     A `.menu-btns` é `flex:1 1 auto`. Num container que rola ela
+     continua fazendo o que flex faz: espreme até caber na caixa. O
+     conteúdo dela então transborda para FORA da própria caixa (ela é
+     `overflow:visible`), e o que transborda assim não vira altura de
+     rolagem -- quem manda na rolagem é a caixa, que "cabe".
+
+     O resultado era exatamente a queixa: a última linha (⚙ AJUSTES)
+     ficava embaixo da barra de três, e arrastar não trazia ela, porque
+     para o navegador não havia nada para rolar. Num iPhone SE o botão
+     ficava 22px escondido; num 375x667, 4px -- o bastante para parecer
+     tela cortada.
+
+     Rolando, a altura da `.menu-btns` passa a ser a natural, e aí sim o
+     que não coube vira rolagem de verdade. */
+  #screen-menu.menu-rola .menu-btns{flex:0 0 auto}
+  /* E O CÉU FICA PARADO. O `.screen::before` é `inset:-25%`: num
+     container que rola ele acrescenta um quarto de tela de nebulosa
+     vazia embaixo do último botão, e o dedo arrasta por 171px de nada
+     para encontrar os 39px que faltavam. `fixed` tem exatamente o mesmo
+     tamanho na tela (a `.screen` já é `position:fixed; inset:0`) e não
+     entra na conta da rolagem. É a mesma armadilha que o CLAUDE.md
+     anota para o `scrollHeight`, vista do outro lado.
+
+     SEM O `.menu-rola` NO SELETOR, de propósito: a classe entra e sai a
+     cada remedida (o `menuCaber` tira para medir e repõe), e presa a
+     ela a correção valia só nos instantes em que a classe estava lá --
+     na medida seguinte o fantasma voltava. O céu do menu é parado
+     sempre, rolando ou não; parado é como ele já parecia. */
+  #screen-menu::before,
+  #screen-menu::after{position:fixed}
   #screen-menu.show{gap:clamp(4px,1vh,10px)}
   #screen-menu .brand{
     font-size:clamp(1.05rem,3.3vh,2.2rem);margin-bottom:0;flex:none;
@@ -906,10 +937,25 @@
     0%{transform:scale(1) translate(0,0)}
     100%{transform:scale(1.12) translate(-2%,-3%)}
   }
+  /* A TELA DE ENTRADA OCUPA A TELA INTEIRA.
+     Ela era `max-height:100%` com altura natural: num iPhone 13 o
+     conteúdo acabava em 717px de 844, e os 127px de baixo ficavam uma
+     faixa morta, com tudo espremido no topo. Pior em pé do que parece
+     escrito: a marca encostada na borda de cima e um vazio embaixo.
+
+     Agora ela toma a altura toda (`flex:1 1 auto`) e centra o que tem
+     dentro. `safe center` é de propósito: quando o conteúdo é MAIOR que
+     a tela (celular pequeno, teclado aberto), centrar de verdade
+     cortaria o topo e não haveria como rolar até ele. O `safe` desliga
+     a centragem exatamente nesse caso. Safari antigo não conhece a
+     palavra e ignora a linha inteira, caindo no alinhamento de cima --
+     que é o certo para ele também. */
   .login-rolagem{
-    width:100%;max-height:100%;overflow-y:auto;position:relative;z-index:1;
+    width:100%;flex:1 1 auto;min-height:0;overflow-y:auto;
+    position:relative;z-index:1;
     padding:calc(26px + var(--safe-top)) 20px calc(26px + var(--safe-bot));
     display:flex;flex-direction:column;align-items:center;gap:14px;
+    justify-content:safe center;
   }
   #screen-login .brand{
     font-size:clamp(2rem,10vw,3.1rem);line-height:.95;margin-bottom:4px;
